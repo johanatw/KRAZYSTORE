@@ -29,4 +29,6 @@ public class PrecioVentaEntity {
     @ManyToOne
     @JoinColumn(name = "id_producto")
     private ProductoEntity producto;
+    @Column(name = "precio")
+    private Long precio;
 }
