@@ -28,7 +28,8 @@ public class PrecioVentaEntity {
     
     @ManyToOne
     @JoinColumn(name = "id_producto")
-    private ProductoEntity productos;
+    private ProductoEntity product;
+
     @Column(name = "precio")
     private Long precio;
 }
