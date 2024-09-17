@@ -14,11 +14,11 @@ public class PRUEBADTO {
     private Long id;
     private String concepto;
     private Date fecha;
-   
-    private int monto;
+    private String pago;
+    private Long monto;
     //private Long pedido;
 
-    public PRUEBADTO(Long id, String concepto, Date fecha, int monto) {
+    public PRUEBADTO(Long id, String concepto, Date fecha, Long monto) {
         this.id = id;
         this.concepto = concepto;
         this.fecha = fecha;
@@ -26,11 +26,29 @@ public class PRUEBADTO {
         this.monto = monto;
     }
 
-    public int getMonto() {
+    public PRUEBADTO(Long id, String concepto, Date fecha, String pago, Long monto) {
+        this.id = id;
+        this.concepto = concepto;
+        this.fecha = fecha;
+        this.pago = pago;
+        this.monto = monto;
+    }
+
+    public String getPago() {
+        return pago;
+    }
+
+    public void setPago(String pago) {
+        this.pago = pago;
+    }
+    
+    
+
+    public Long getMonto() {
         return monto;
     }
 
-    public void setMonto(int monto) {
+    public void setMonto(Long monto) {
         this.monto = monto;
     }
 

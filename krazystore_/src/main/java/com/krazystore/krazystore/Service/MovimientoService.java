@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.Service;
 
+import com.krazystore.krazystore.DTO.MovimientosDTO;
 import com.krazystore.krazystore.DTO.PRUEBADTO;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.EstadoEntity;
@@ -19,7 +20,7 @@ import java.util.Optional;
  * @author HP
  */
 public interface MovimientoService {
-    List<MovimientoEntity> findAll();
+    List<MovimientosDTO> findAll();
     List<PRUEBADTO> pr(Long id);
     Optional<MovimientoEntity> findById(Long id);
     MovimientoEntity saveMovimiento(MovimientoEntity movimientoEntity);

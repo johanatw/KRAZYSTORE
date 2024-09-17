@@ -188,10 +188,6 @@ const addPago = () =>{
     
 }
 
-const showDialogAnticipo = (idPedido) =>{
-  dialogAnticipo.value.showDialog(idPedido);
-}
-
 const showDialogPagoGuardado = (idAnticipo) =>{
   idAnticipoGuardado.value = idAnticipo;
   showTemplate();
@@ -275,7 +271,7 @@ const reload = () =>{
 <template>
   <div class="card flex p-fluid justify-content-center " >
     
-    <RegistrarPago ref="dialogAnticipo" @anticipoGuardado="showDialogPagoGuardado()" />
+    
     <ConfirmDialog group="headless">
     <template #container="{ message, acceptCallback, rejectCallback }">
       
@@ -480,8 +476,7 @@ const reload = () =>{
             <template #body="slotProps">
                 <Button icon="pi pi-search" text rounded aria-label="Search" @click="verPedido(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
                 <Button icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
-                <Button icon="pi pi-money-bill" severity="success" text rounded aria-label="Cancel" @click="showDialogAnticipo(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
-        
+            
                 <Button  icon="pi pi-receipt" severity="info" text rounded aria-label="Cancel" @click="getDetallePedido(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                 </template>
           </Column>

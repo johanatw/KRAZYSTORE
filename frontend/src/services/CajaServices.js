@@ -56,6 +56,18 @@ export const CajaServices = {
     }
     
   },
+  
+  saveMovimiento(movimientoCreationDTO) {
+    try {
+        
+        
+      return axios.post(MOVIMIENTO_API_BASE_URL,movimientoCreationDTO);
+      
+    } catch (error) {
+      console.log(error.name);
+    }
+    
+  },
 
 };
 export default { CajaServices: CajaServices };

@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.Repository;
 
+import com.krazystore.krazystore.DTO.MovimientosDTO;
 import com.krazystore.krazystore.DTO.PRUEBADTO;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
 import java.util.List;
@@ -60,7 +61,7 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
     "SELECT new com.krazystore.krazystore.DTO.PRUEBADTO(m.id, c.descripcion"
             
             + ", m.fecha"
-            + ", m.monto) FROM MovimientoEntity m "
+            + ", f.descripcion, pagos.importe) FROM MovimientoEntity m "
            + "LEFT JOIN m.concepto as c "
             + "LEFT JOIN m.anticipo a "
             + "LEFT JOIN m.reembolso r "
@@ -69,10 +70,29 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
             + "LEFT JOIN v.pedido pv "
             + "LEFT JOIN r.anticipo ra "
             + "LEFT JOIN ra.pedido pr "
+            + "LEFT JOIN PagoEntity pagos "
+            + "ON pagos.movimiento = m "
+            + "LEFT JOIN pagos.formaPago f "
             + "WHERE p.id = ?1 OR pv.id = ?1 OR pr.id = ?1 "
             + "ORDER BY m.id DESC"
            )
     public List<PRUEBADTO> prueba(Long id);
+     
+  
+    @Query(
+    "SELECT new com.krazystore.krazystore.DTO.MovimientosDTO(m.id, m.fecha, c.descripcion, f.descripcion"
+            + ", p.importe, CASE WHEN p.anticipo IS NULL AND c.tipo = 'I' THEN p.importe ELSE 0 END"
+            + ", CASE WHEN c.tipo = 'E' THEN p.importe ELSE 0 END, m.nroDocumento) FROM MovimientoEntity m "
+           + "LEFT JOIN m.concepto as c "
+            + "LEFT JOIN PagoEntity p "
+            + "ON p.movimiento = m "
+            + "LEFT JOIN p.formaPago f "
+            + "ORDER BY m.id DESC"
+           )
+    public List<MovimientosDTO> findMovimientosDTO();
     
+    //MovimientosDTO(Long id, Date fecha, String concepto, String formaPago
+    
+    //MovimientosDTO(Long id, Date fecha, String concepto, String formaPago, int total, int anticipo, int ingreso, int egreso, String factura)
     
 }

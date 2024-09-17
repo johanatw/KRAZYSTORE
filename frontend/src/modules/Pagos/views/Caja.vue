@@ -199,7 +199,20 @@ const formatearNumero = (valor) =>{
 const nuevoPedido = () =>{
     router.push({name: 'nuevo_pedido'});
 }
+const guardarMovimiento = () =>{
+    let fechaMovimiento = new Date();
+    movimiento.value.fecha = fechaMovimiento;
+    let pago = {importe: movimiento.value.monto,
+                formaPago: movimiento.value.formaPago
+                }
+    let pagos = [pago];
+    let movimientoCreationDTO = {movimiento: movimiento.value, pago: pagos};
 
+    CajaServices.saveMovimiento(movimientoCreationDTO).then((data) => {
+        
+        console.log("ok");
+    });
+}
 const nuevoMovimiento = () =>{
   FormasPagoServices.obtenerFormasPagoSinAnticipo().then((data) => {
         formasPagos.value = data.data;
@@ -269,7 +282,7 @@ const nuevoMovimiento = () =>{
  <template #footer>
      <div class="card flex" style="justify-content: end;">  
                  <Button  label="Cancelar"  style="margin-right: 1%;" @click="closeDialog()" />
-                 <Button  label="Guardar" :disabled="disabledSubmit" @click="guardarReembolso()" />
+                 <Button  label="Guardar" :disabled="disabledSubmit" @click="guardarMovimiento()" />
              </div>
 </template>
 </Dialog>
@@ -304,15 +317,15 @@ const nuevoMovimiento = () =>{
                 {{ formatearNumero(slotProps.data.fecha) }}
             </template>
         </Column>
-          <Column field="concepto.descripcion"  header="Concepto" aria-sort="ascending" sortable>  
+          <Column field="concepto"  header="Concepto" aria-sort="ascending" sortable>  
                      
         </Column>
-          <Column field="formaPago.descripcion"  header="Forma" aria-sort="ascending" sortable> 
+          <Column field="formaPago"  header="Forma" aria-sort="ascending" sortable> 
             
         </Column>
-        <Column field="monto"  header="Monto" aria-sort="ascending" sortable>    
+        <Column field="total"  header="Monto" aria-sort="ascending" sortable>    
             <template #body="slotProps">
-                {{ formatearNumero(slotProps.data.monto) }}
+                {{ formatearNumero(slotProps.data.total) }}
             </template>        
         </Column>
         <Column field="ingreso"  header="Ingreso" aria-sort="ascending" sortable>   
@@ -325,7 +338,7 @@ const nuevoMovimiento = () =>{
                 {{ formatearNumero(slotProps.data.egreso) }}
             </template>           
         </Column>
-        <Column field="venta.nroFactura"  header="N° Factura" aria-sort="ascending" sortable>            
+        <Column field="factura"  header="N° Factura" aria-sort="ascending" sortable>            
         </Column>
 
         

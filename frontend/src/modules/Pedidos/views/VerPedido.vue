@@ -259,7 +259,7 @@ const getEntrega = (formaEntrega, envio) =>{
                                         </template> 
                                     </Column>
                                     
-                                    <Column field="formaPago" header="Forma Pago" aria-sort="ascending">
+                                    <Column field="pago" header="Forma Pago" aria-sort="ascending">
                                      
                                     </Column>
                                     <Column field="monto" header="Monto" aria-sort="ascending">

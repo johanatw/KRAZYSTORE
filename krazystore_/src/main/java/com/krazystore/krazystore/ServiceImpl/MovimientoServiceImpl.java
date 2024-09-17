@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.ServiceImpl;
 
+import com.krazystore.krazystore.DTO.MovimientosDTO;
 import com.krazystore.krazystore.DTO.PRUEBADTO;
 import com.krazystore.krazystore.DTO.PedidoMontoPagadoDTO;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
@@ -21,6 +22,7 @@ import com.krazystore.krazystore.Service.PedidoService;
 import com.krazystore.krazystore.Service.ReembolsoService;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class MovimientoServiceImpl implements MovimientoService {
     private final MovimientoRepository movimientoRepository;
+  
 
     public MovimientoServiceImpl(MovimientoRepository movimientoRepository) {
         this.movimientoRepository = movimientoRepository;
@@ -50,8 +53,9 @@ public class MovimientoServiceImpl implements MovimientoService {
     private ReembolsoService reembolsoService;
 
     @Override
-    public List<MovimientoEntity> findAll() {
-        return movimientoRepository.findAllByOrderByIdDesc();
+    public List<MovimientosDTO> findAll() {
+
+        return movimientoRepository.findMovimientosDTO();
     }
 
     @Override
@@ -69,14 +73,6 @@ public class MovimientoServiceImpl implements MovimientoService {
         MovimientoEntity nuevoMovimiento = movimientoRepository.save(movimientoEntity);
         
         pagoService.savePagos(nuevoMovimiento, pagos);
-        if(nuevoMovimiento.getAnticipo() != null){
-            
-          //  pedidoService.updateEstadoPagoPedido( nuevoMovimiento.getAnticipo().getPedido());
-        }else if(nuevoMovimiento.getReembolso() != null){
-           // pedidoService.updateEstadoPagoPedido( nuevoMovimiento.getReembolso().getAnticipo().getPedido());
-        }else if(nuevoMovimiento.getVenta().getPedido() != null){
-           // pedidoService.updateEstadoPagoPedido( nuevoMovimiento.getVenta().getPedido());
-        }
         
         return nuevoMovimiento;
     }
@@ -134,7 +130,7 @@ public class MovimientoServiceImpl implements MovimientoService {
         nuevoMovimiento.setFecha(venta.getFecha());
         nuevoMovimiento.setMonto(venta.getMontoTotal());
         nuevoMovimiento.setConcepto(new ConceptoEntity((long)3,"VENTA"));
-
+        nuevoMovimiento.setNroDocumento(venta.getNroFactura());
         return nuevoMovimiento;
     }
     
