@@ -1,138 +1,79 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import DataTable from 'primevue/datatable';
-import InputText from 'primevue/inputtext';
-import Column from 'primevue/column';
+import CardCliente from "@/modules/Pedidos/components/CardCliente.vue";
+import CardDetalle from "@/modules/Pedidos/components/CardDetalle.vue";
+import CardEntrega from "@/modules/Pedidos/components/CardEntrega.vue";
+import CardPago from "@/modules/Pedidos/components/CardPago.vue";
+import MiCard from "@/modules/Pedidos/components/MiCard.vue";
+import DetallePedido from '@/modules/Pedidos/components/DetallePedido.vue';
 import Button from 'primevue/button';
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
 import {FormasPagoServices} from '@/services/FormasPagoServices';
-import {PedidoServices} from '@/services/PedidoServices';
+
 import { AnticipoServices } from '@/services/AnticipoServices';
 import { VentaServices } from '@/services/VentaServices';
 import {ReembolsoServices} from '@/services/ReembolsoServices'
-import { CajaServices } from '@/services/CajaServices';
-import { ConceptoServices } from '@/services/ConceptoServices';
-import Panel from 'primevue/panel';
-import router from '@/router';
-import Toast from 'primevue/toast';
-import Card from 'primevue/card';
-import SelectButton from 'primevue/selectbutton';
 
+import { ConceptoServices } from '@/services/ConceptoServices';
+import { ref, onMounted } from "vue";
+import Panel from 'primevue/panel';
+import {PedidoServices} from '@/services/PedidoServices';
+import {CajaServices} from '@/services/CajaServices';
+import DataTable from 'primevue/datatable';
+import InputText from 'primevue/inputtext';
+import Column from 'primevue/column';
+import Card from "primevue/card";
 import InputNumber from 'primevue/inputnumber';
 
 import Textarea from 'primevue/textarea';
 
-import InputGroup from 'primevue/inputgroup';
-import InputGroupAddon from 'primevue/inputgroupaddon';
-
-
 import Dropdown from 'primevue/dropdown';
 
-import Tag from 'primevue/tag';
 import Dialog from 'primevue/dialog';
 import ConfirmDialog from 'primevue/confirmdialog';
-import RadioButton from 'primevue/radiobutton';
-const visible = ref(false);
-import Listbox from 'primevue/listbox';
-
-
-import SplitButton from 'primevue/splitbutton';
-
-const pedidos = ref();
-
-import { useConfirm } from "primevue/useconfirm";
+import Tag from 'primevue/tag';
+import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
+import {formatearNumero, existeCajaAbierta} from '@/utils/utils';
 
-
-const opciones = ref([{id: 1, descripcion: 'Facturar productos disponibles en stock.'},
-                    {id: 2, descripcion: 'Registrar anticipo para productos no disponibles en stock.'}]);
-const confirm = useConfirm();
+import router from '@/router';
+const pedido = ref({ });
+const selectedClient = ref();
+const detallePedido = ref({ });
+const mensaje = ref([]);
+const modoEntrega = ref();
 const toast = useToast();
-const montoReembolsar = ref(0);
-const motivo = ref(null);
-const selectedOpcion = ref();
+const estadoPedido = ref();
+const estadoPago = ref();
+const formaPago = ref();
+const cardCliente = ref();
+const cardEntrega = ref();
+const searchCard = ref();
+const visible = ref(false);
 const formasPagos = ref();
-const idPedidoSelected = ref();
-const reembolsos = ref();
-const movimientos = ref();
-const movimiento = ref({});
-const ventas= ref();
-
-const confirm2 = (id) => {
-   
-    confirm.require({
-        message: 'Eliminar el reembolso #'+ id + '?',
-        header: 'Confirmacion',
-        icon: 'pi pi-info-circle',
-        rejectLabel: 'Cancelar',
-        acceptLabel: 'Eliminar',
-        rejectClass: 'p-button-secondary p-button-outlined',
-        acceptClass: 'p-button-danger',
-        accept: () => {
-            deleteReembolso(id);
-            
-        },
-        
-    });
-};
-onMounted(() => {
- 
-  ReembolsoServices.obtenerReembolsos().then((data) => {
-        reembolsos.value = data.data;
-        console.log(reembolsos.value);
-    });
-
-    CajaServices.obtenerMovimientos().then((data) => {
-        movimientos.value = data.data;
-        //console.log(reembolsos.value);
-    });
-    
- 
-    
-});
-
-const deleteReembolso = (id) =>{
-    const cantidad= 1;
-    const index = reembolsos.value.findIndex((loopVariable) => loopVariable.id === id);
-    ReembolsoServices.deleteReembolso(id).then((response)=>{
-      console.log("response");
-      console.log(response.data);
-      
-        reembolsos.value.splice(index,cantidad);
-            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 5000 });
-      
-            
-        })
-
-   
-}
-
-
-
-
-const filters = ref({
-    'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
-});
-
-const value = ref('Ingreso');
 const options = ref(['Ingreso', 'Egreso']);
 const conceptos = ref();
+const caja = ref({});
+const movimiento = ref({});
+const movimientos = ref([]);
+const cajaAbierta = ref(false);
+const envioSelected = ref();
+const detalle = ref(null);
+const error = ref(false);
+const fecha = ref();
+const fechaCompleta = ref();
+const infoCliente = ref([{
+    valor: "Cliente no seleccionado"
+}])
+const infoEntrega = ref([{
+    valor: "Metodo de Entrega no seleccionado"
+}])
 
-const addPago = () =>{
-  let id = idPedidoSelected.value;
-    if (selectedOpcion.value.id === 2 ) {
-      router.push({name: 'AddPago', params: {id}});
-    }
+
+
+onMounted(() => {
+    getCaja();
+    getMovimientos();
     
-    
-}
-
-const reembolsar = (id) =>{
-    router.push({name: 'reembolsar', params: {id}});
-  
-
-}
-
+});
 const getConceptos = (tipo) =>{
   let buscarTipo;
   switch (tipo) {
@@ -156,60 +97,29 @@ const getConceptos = (tipo) =>{
 
 }
 
+const cerrarCaja= () =>{
+    let id = caja.value.id;
 
-const cancelar = ()=>{
-  visible.value = false;
-  selectedOpcion.value = null;
-}
-
-const verPedido = (id) =>{
-    router.push({name: 'VisualizarPedido', params: {id}});
-    
-}
-
-const verAnticipo = (id) =>{
-    console.log("veranticipofuncion");
-    router.push({name: 'verAnticipo', params: {id}});
-}
-
-const deletePedido = (id) =>{
-    const cantidad= 1;
-    const index = pedidos.value.findIndex((loopVariable) => loopVariable.id === id);
-    
-    
-    PedidoServices.deleteDetallesPedido(id).then((response)=>{
-        console.log(response);
-        PedidoServices.deletePedido(id).then((response)=>{
-            pedidos.value.splice(index,cantidad);
-            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 3000 });
-        })
+    CajaServices.cerraCaja(id).then((data) => {
+        cajaAbierta.value = false;
+        toast.add({ severity:"success", detail: 'Caja Cerrada', life: 3000 });
     });
 }
 
-const formatearNumero = (valor) =>{
-    if(typeof(valor) == "number"){
-        return valor.toLocaleString("de-DE");
-    }
-
-    let fecha = new Date(valor);
-    let fechaFormateada = fecha.getDate() + '/' + (fecha.getMonth()+1) + '/' +fecha.getFullYear()+' '+ fecha.getHours()+':'+fecha.getMinutes()+':'+fecha.getSeconds();
-    return fechaFormateada;
-}
-
-const nuevoPedido = () =>{
-    router.push({name: 'nuevo_pedido'});
-}
 const guardarMovimiento = () =>{
     let fechaMovimiento = new Date();
     movimiento.value.fecha = fechaMovimiento;
+    movimiento.value.caja = caja.value;
     let pago = {importe: movimiento.value.monto,
                 formaPago: movimiento.value.formaPago
                 }
     let pagos = [pago];
     let movimientoCreationDTO = {movimiento: movimiento.value, pago: pagos};
-
+    
     CajaServices.saveMovimiento(movimientoCreationDTO).then((data) => {
-        
+        getMovimientos();
+        visible.value = false;
+        toast.add({ severity:"success", detail: movimiento.value.tipo + ' Guardado', life: 3000 });
         console.log("ok");
     });
 }
@@ -227,15 +137,33 @@ const nuevoMovimiento = () =>{
     visible.value = true;
 }
 
-</script>
 
+async function getMovimientos() {
+    CajaServices.obtenerMovimientosByCaja(router.currentRoute.value.params.id).then((data) => {
+        movimientos.value = data.data;
+   
+
+});
+}
+
+async function getCaja() {
+    CajaServices.obtenerCajaById(router.currentRoute.value.params.id).then((data) => {
+        caja.value = data.data;
+        if (caja.value.estado == 'A') {
+            cajaAbierta.value = true;
+        }
+
+});
+}
+
+
+
+</script>
 <template>
     
-  <div class="card flex p-fluid justify-content-center " >
 
-    <ConfirmDialog ></ConfirmDialog>
+<div class="card flex p-fluid justify-content-center " >
     <Toast />
-
     <Dialog v-model:visible="visible" modal header="Edit Profile" :style="{ width: '30rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
      <template #header>
          <div class="flex align-items-center gap-2">
@@ -287,25 +215,21 @@ const nuevoMovimiento = () =>{
 </template>
 </Dialog>
 
-    <Panel style=" position: relative; width: 100%;" >
-      <template #header>
-        <div class="flex align-items-center gap-2">
-            <h3 class="font-bold">Caja</h3>
+    <Panel style=" position: relative; width: 80%;" >
+        <template #header>
+            <div class="flex align-items-center gap-2">
+                <h3 class="font-bold">Caja N° {{ caja.id }}</h3>
+            </div>
+        </template>
+        <template #icons>
+            <div v-if="cajaAbierta" class="flex align-items-center">
+                <Button  icon="pi pi-plus " @click="nuevoMovimiento" style=" width: 3rem !important; height: 2.2rem; margin-right: 1%; " />
+            <Button  label="Cerrar caja" @click="cerrarCaja()" />
+            
         </div>
-      </template>
-      <template #icons>
-        <div class="flex align-items-center">
-          <Button  icon="pi pi-plus " @click="nuevoMovimiento" style=" width: 3rem !important; height: 2.9rem;" />
-
-        </div>
-        
-    
-      </template>
-      
-      
-      
-  
-      <div class="card">
+        </template>
+        <div class="contenedor" style="padding-left: 4%; padding-right: 4%;">
+            <div class="card">
         
         <DataTable  :value="movimientos" scrollHeight="400px"  
           :paginator="true" :rows="7" :filters="filters"
@@ -342,7 +266,7 @@ const nuevoMovimiento = () =>{
         </Column>
 
         
-          <Column :exportable="false" style="min-width:8rem">
+          <Column v-if="cajaAbierta" :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
                 
                 <Button icon="pi pi-times" severity="danger" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" />
@@ -351,9 +275,11 @@ const nuevoMovimiento = () =>{
           </Column>
         </DataTable>
       </div>
-      
+           
+        </div>
+
+ 
     </Panel>
-    
-  </div>
-  
+</div>
+
 </template>

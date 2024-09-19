@@ -77,7 +77,7 @@ public interface PagoRepository extends JpaRepository<PagoEntity,Long> {
             + "GROUP BY p.id"
            )*/
      
-      @Query(
+      /*@Query(
     "SELECT new com.krazystore.krazystore.DTO.PedidoMontoPagadoDTO(p.id as id, p.total, SUM(CASE WHEN f.descripcion <> 'Anticipo' AND c.descripcion <> 'Reembolso' THEN p1.importe ELSE 0 END) - SUM(CASE WHEN c.descripcion = 'Reembolso' THEN p1.importe ELSE 0 END) ) "
             
         
@@ -94,6 +94,24 @@ public interface PagoRepository extends JpaRepository<PagoEntity,Long> {
             + "ON p1.movimiento = m "
             + "LEFT JOIN m.concepto c "
             + "LEFT JOIN p1.formaPago f "
+            + "WHERE p.id = ?1  "
+            + "GROUP BY p.id"
+           )*/
+    @Query(
+    "SELECT new com.krazystore.krazystore.DTO.PedidoMontoPagadoDTO(p.id as id, p.total, SUM(CASE WHEN f.descripcion <> 'Anticipo' AND c.descripcion <> 'Reembolso' THEN p1.importe ELSE 0 END) - SUM(CASE WHEN c.descripcion = 'Reembolso' THEN p1.importe ELSE 0 END) ) "
+            + " FROM PagoEntity p1 "
+            + "LEFT JOIN p1.formaPago f "
+            + "LEFT JOIN p1.movimiento m "
+            + "LEFT JOIN m.concepto c "
+            + "LEFT JOIN AnticipoEntity a "
+            + "ON m.anticipo = a "
+            + "LEFT JOIN VentaEntity v "
+            + "ON m.venta = v "
+            + "LEFT JOIN ReembolsoEntity r "
+            + "ON m.reembolso = r "
+            + "LEFT JOIN r.anticipo a1 "
+            + "LEFT JOIN PedidoEntity p "
+            + "ON a.pedido = p OR v.pedido = p OR a1.pedido = p "
             + "WHERE p.id = ?1  "
             + "GROUP BY p.id"
            )

@@ -91,6 +91,20 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
            )
     public List<MovimientosDTO> findMovimientosDTO();
     
+    @Query(
+    "SELECT new com.krazystore.krazystore.DTO.MovimientosDTO(m.id, m.fecha, c.descripcion, f.descripcion"
+            + ", p.importe, CASE WHEN p.anticipo IS NULL AND c.tipo = 'I' THEN p.importe ELSE 0 END"
+            + ", CASE WHEN c.tipo = 'E' THEN p.importe ELSE 0 END, m.nroDocumento) FROM MovimientoEntity m "
+           + "LEFT JOIN m.concepto as c "
+            + "LEFT JOIN m.caja as ca "
+            + "LEFT JOIN PagoEntity p "
+            + "ON p.movimiento = m "
+            + "LEFT JOIN p.formaPago f "
+            + "WHERE ca.id = ?1 "
+            + "ORDER BY m.id DESC"
+           )
+    public List<MovimientosDTO> findByIdCaja(Long id);
+    
     //MovimientosDTO(Long id, Date fecha, String concepto, String formaPago
     
     //MovimientosDTO(Long id, Date fecha, String concepto, String formaPago, int total, int anticipo, int ingreso, int egreso, String factura)

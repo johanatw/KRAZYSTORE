@@ -9,6 +9,7 @@ import com.krazystore.krazystore.DTO.AnticipoCreationDTO;
 import com.krazystore.krazystore.DTO.MovimientoCreationDTO;
 import com.krazystore.krazystore.DTO.MovimientosDTO;
 import com.krazystore.krazystore.DTO.PRUEBADTO;
+import com.krazystore.krazystore.DTO.PedidoMontoPagadoDTO;
 import com.krazystore.krazystore.DTO.ReembolsoCreationDTO;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
 import com.krazystore.krazystore.Service.MovimientoService;
@@ -47,6 +48,11 @@ public class MovimientoController {
     @GetMapping("/prueba/{id}")
     public List<PRUEBADTO> prueba(@PathVariable("id") Long id) {
         return movimientoService.pr(id);
+    }
+    
+    @GetMapping("/caja/{id}")
+    public List<MovimientosDTO> findByIdCaja(@PathVariable("id") Long id) {
+        return movimientoService.findByIdCaja(id);
     }
 
     @GetMapping("/{id}")
@@ -96,5 +102,11 @@ public class MovimientoController {
     public void deleteAnticipoConReembolsos(@PathVariable("id") Long id) {
         movimientoService.deleteAnticipoConReembolsos(id);
         
+    }
+    
+    @GetMapping("/pagos/{id}")
+    public PedidoMontoPagadoDTO getPagosPedido(@PathVariable("id") Long id) {
+
+        return movimientoService.getMontoPagadoPedido(id);
     }
 }

@@ -20,6 +20,7 @@ import ConfirmDialog from 'primevue/confirmdialog';
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import InputGroup from 'primevue/inputgroup';
+import {formatearNumero, existeCajaAbierta} from '@/utils/utils';
 
 
 const visible = ref(false);
@@ -44,13 +45,13 @@ const color = ref('#4b5563');
 const id = ref();
 const visibleDeleteDialog = ref(false);
 const anticipo = ref();
-
+const cajaAbierta = ref({});
 
 
 //Funciones Registrar Anticipo
 const buscarPedido= (id) => {
   
-    PagoServices.obtenerPagosPedido(id).then((data) => {
+    CajaServices.obtenerPagosPedido(id).then((data) => {
         pedido.value = data.data;
         searched.value = true;
         console.log(data.data);
@@ -114,9 +115,11 @@ const registrarAnticipo = () =>{
     
 };
 
-const guardarAnticipo = () =>{
-   
-    let fechaAnticipo = new Date();
+async function guardarAnticipo() {
+    const d = await existeCajaAbierta();
+    console.log(d);
+    if (d) {
+        let fechaAnticipo = new Date();
     let ant = {total: abonado.value, fecha: fechaAnticipo, pedido: pedido.value};
 
     let anticipoCreationDTO = {anticipo: ant, pagos: pagosAnticipo.value};
@@ -125,8 +128,11 @@ const guardarAnticipo = () =>{
         closeDialogRegistrar();
         
     } );
+    } else {
+        toast.add({ severity:"error", detail: 'No existe una caja abierta', life: 3000 });
+    }
+};
 
-}
 
 
 const calcularDiferenciaRegistrar = () => {
@@ -264,41 +270,27 @@ const reiniciarDialog = () =>{
 }
   
   
-  
-const showTemplate = () => {
-    confirm.require({
-        group: 'headless',
-        header: '¡Reembolso Realizado con Éxito!',
-        message: 'Please confirm to proceed.',
-        
-        accept: () => {
-        getAnticipos();
-        },
-        reject: () => {
-        router.push({name: 'anticipos'});
-        }
-    });
-};
-  
 const guardarReembolso = () =>{
-    montoReembolsar.value = abonado.value;
-    let fecha = new Date();
-    let reembolso = {monto: montoReembolsar.value,
-    fecha: fecha,
-    motivo: motivo.value,
-    anticipo: anticipo.value};
-    
-    let reembolsoCreationDTO = {reembolso: reembolso, pagos: pagos.value};
-    CajaServices.saveReembolso(reembolsoCreationDTO).then((data)=> {
+    if (cajaAbierta.value != null) {
+        montoReembolsar.value = abonado.value;
+        let fecha = new Date();
+        let reembolso = {monto: montoReembolsar.value,
+        fecha: fecha,
+        motivo: motivo.value,
+        anticipo: anticipo.value};
         
-        showTemplate();
-        closeDialog();
-
-    });
+        let reembolsoCreationDTO = {reembolso: reembolso, pagos: pagos.value};
+        CajaServices.saveReembolso(reembolsoCreationDTO).then((data)=> {
+            
+            getAnticipos();
+            closeDialog();
+            toast.add({ severity:"success", detail: 'Reembolso registrado', life: 3000 });
+        });
+    } else {
+        toast.add({ severity:"error", detail: 'No existe una caja abierta', life: 3000 });
+    }
+    
 };
-
-
-
 
 
 
@@ -382,17 +374,18 @@ const filters = ref({
 onMounted(() => {
     getAnticipos();
     getFormasPago();
+    getCajaAbierta();
 });
 
-const formatearNumero = (valor) =>{
-    if(typeof(valor) == "number"){
-        return valor.toLocaleString("de-DE");
-    }
 
-    let fecha = new Date(valor);
-    let fechaFormateada = fecha.getDate() + '/' + (fecha.getMonth()+1) + '/' +fecha.getFullYear();
-    return fechaFormateada;
-}
+const getCajaAbierta= () => {
+    CajaServices.getCajaAbierta().then((data) => {
+        cajaAbierta.value=data.data;
+        console.log(cajaAbierta.value);
+    });
+};
+
+
 
 const getFormasPago= () => {
     FormasPagoServices.obtenerFormasPagoSinAnticipo().then((data) => {
@@ -414,23 +407,6 @@ const getFormasPago= () => {
     <div class="card flex p-fluid justify-content-center " >
 
         <div class="card flex p-fluid justify-content-center " >
-        <!--Dialog Reembolso Registrado-->
-            <ConfirmDialog group="headless">
-                <template #container="{ message, acceptCallback, rejectCallback }">
-                
-                    <div class="flex flex-column align-items-center p-5 surface-overlay border-round">
-                    
-                        <div class="border-circle bg-primary inline-flex justify-content-center align-items-center h-4rem w-4rem ">
-                            <i class="pi pi-check text-4xl"></i>
-                        </div>
-                        <span class="font-bold text-2xl block mb-2 mt-4">{{ message.header }}</span>
-                        
-                        <div class="flex align-items-center gap-2 mt-4">
-                            <Button label="OK" @click="acceptCallback" class="w-8rem"  ></Button>
-                        </div>
-                    </div>
-                </template>
-            </ConfirmDialog>
 
             <!--Dialog Eliminar Anticipo-->
             <ConfirmDialog ></ConfirmDialog>
@@ -697,7 +673,7 @@ const getFormasPago= () => {
                     <Column :exportable="false" style="min-width:8rem">
                         <template #body="slotProps">
                             <Button icon="pi pi-search" text rounded aria-label="Search" style="height: 2rem !important; width: 2rem !important;" />
-                            <Button icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                            <Button v-if="cajaAbierta != null && slotProps.data.fecha >= cajaAbierta.fecha " icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                             <Button icon="pi pi-sync" severity="success" text rounded aria-label="Cancel" @click="showDialogReembolso(slotProps.data)"  style="height: 2rem !important; width: 2rem !important;" />
                         </template>
                     </Column>

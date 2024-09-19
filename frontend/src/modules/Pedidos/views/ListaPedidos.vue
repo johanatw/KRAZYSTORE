@@ -13,7 +13,7 @@ import Tooltip from 'primevue/tooltip';
 
 
 import router from '@/router';
-import Toast from 'primevue/toast';
+
 import Tag from 'primevue/tag';
 import Dialog from 'primevue/dialog';
 import Card from 'primevue/card';
@@ -29,6 +29,7 @@ const pedidos = ref();
 
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
+import Toast from 'primevue/toast';
 import RegistrarPago from '../components/RegistrarPago.vue';
 
 const opciones = ref([{id: 1, descripcion: 'Facturar productos disponibles en stock.'},

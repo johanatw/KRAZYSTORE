@@ -45,6 +45,9 @@ public class MovimientoEntity {
     @ManyToOne
     @JoinColumn(name = "id_concepto")
     private ConceptoEntity concepto;
+    @ManyToOne
+    @JoinColumn(name = "id_caja")
+    private CajaEntity caja;
     
 
     @Column
@@ -79,6 +82,14 @@ public class MovimientoEntity {
 
     public void setFecha(Date fecha) {
         this.fecha = fecha;
+    }
+
+    public CajaEntity getCaja() {
+        return caja;
+    }
+
+    public void setCaja(CajaEntity caja) {
+        this.caja = caja;
     }
 
     public String getObservacion() {

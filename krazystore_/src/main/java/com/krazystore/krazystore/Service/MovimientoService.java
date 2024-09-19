@@ -6,6 +6,7 @@ package com.krazystore.krazystore.Service;
 
 import com.krazystore.krazystore.DTO.MovimientosDTO;
 import com.krazystore.krazystore.DTO.PRUEBADTO;
+import com.krazystore.krazystore.DTO.PedidoMontoPagadoDTO;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.EstadoEntity;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
@@ -41,4 +42,8 @@ public interface MovimientoService {
     void deleteAnticipoConReembolsos(Long id);
     void deleteReembolso(Long id);
     void deleteAnticipo(Long id);
+    PedidoMontoPagadoDTO getMontoPagadoPedido(Long id);
+    
+    
+    List<MovimientosDTO> findByIdCaja(Long id);
 }

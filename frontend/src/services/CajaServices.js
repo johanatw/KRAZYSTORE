@@ -1,5 +1,6 @@
 import axios from 'axios';
 const MOVIMIENTO_API_BASE_URL = "http://localhost:7070/api/movimientos"
+const CAJA_API_BASE_URL = "http://localhost:7070/api/cajas"
 
 export const CajaServices = {
   obtenerMovimientos() {
@@ -16,6 +17,16 @@ export const CajaServices = {
     try {
         console.log("ciudadservice");
       return axios.get(MOVIMIENTO_API_BASE_URL+"/prueba/"+id);
+      
+    } catch (error) {
+      console.log("hola");
+      console.log(error.name);
+    }
+    
+  },obtenerMovimientosByCaja(id) {
+    try {
+        console.log("ciudadservice");
+      return axios.get(MOVIMIENTO_API_BASE_URL+"/caja/"+id);
       
     } catch (error) {
       console.log("hola");
@@ -68,6 +79,65 @@ export const CajaServices = {
     }
     
   },
+  getCajas() {
+    try {
+      return axios.get(CAJA_API_BASE_URL);
+      
+    } catch (error) {
+    }
+    
+  },
+  getCajaAbierta() {
+    try {
+      return axios.get(CAJA_API_BASE_URL+"/caja_abierta");
+      
+    } catch (error) {
+    }
+    
+  },
+  abrirCaja() {
+    try {
+        
+        
+      return axios.post(CAJA_API_BASE_URL);
+      
+    } catch (error) {
+    }
+    
+  },
+  obtenerCajaById(id) {
+    try {
+        console.log("ciudadservice");
+      return axios.get(CAJA_API_BASE_URL+"/"+id);
+      
+    } catch (error) {
+      console.log("hola");
+      console.log(error.name);
+    }
+    
+  },
+  cerraCaja(id) {
+    try {
+        console.log("ciudadservice");
+      return axios.put(CAJA_API_BASE_URL+"/"+id);
+      
+    } catch (error) {
+      console.log("hola");
+      console.log(error.name);
+    }
+    
+  },
+  obtenerPagosPedido(id) {
+    try {
+        
+      return axios.get(MOVIMIENTO_API_BASE_URL+"/pagos/"+id);
+      
+    } catch (error) {
+      console.log("hola");
+      console.log(error.name);
+    }
+    
+  }
 
 };
 export default { CajaServices: CajaServices };

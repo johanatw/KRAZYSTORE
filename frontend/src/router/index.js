@@ -93,7 +93,21 @@ const router = createRouter({
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import('@/modules/Pagos/views/Caja.vue')
+      //component: () => import('@/modules/Pagos/views/Caja.vue')
+    },
+    {path: '/cajas',
+      name: 'cajas',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Pagos/views/ListaCajas.vue')
+    },
+    {path: '/movimientos/:id',
+      name: 'movimientos',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Pagos/views/VerMovimientosCaja.vue')
     },
     {
       path: '/ventas',

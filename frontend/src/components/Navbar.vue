@@ -63,10 +63,10 @@ const items = ref([
         icon: 'pi pi-bill',
     items: [
             {
-                label: 'Movimientos de caja',
+                label: 'Caja',
                 icon: 'pi pi-star',
                 command: () => {
-                    router.push({name: 'caja'});
+                    router.push({name: 'cajas'});
                 }
             },
             {

@@ -37,7 +37,7 @@ const motivo = ref(null);
 const selectedOpcion = ref();
 const idPedidoSelected = ref();
 const reembolsos = ref();
-
+const cajaAbierta = ref({});
 const confirm2 = (id) => {
    
     confirm.require({
@@ -61,9 +61,16 @@ onMounted(() => {
         reembolsos.value = data.data;
         console.log(reembolsos.value);
     });
- 
+ getCajaAbierta();
     
 });
+
+const getCajaAbierta= () => {
+    CajaServices.getCajaAbierta().then((data) => {
+        cajaAbierta.value=data.data;
+        console.log(cajaAbierta.value);
+    });
+};
 
 const deleteReembolso = (id) =>{
     const cantidad= 1;
@@ -218,7 +225,7 @@ const nuevoPedido = () =>{
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
                 
-                <Button icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button v-if="cajaAbierta != null && slotProps.data.fecha >= cajaAbierta.fecha " icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                 
                 </template>
           </Column>

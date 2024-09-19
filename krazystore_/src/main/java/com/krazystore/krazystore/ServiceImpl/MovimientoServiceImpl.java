@@ -8,14 +8,17 @@ import com.krazystore.krazystore.DTO.MovimientosDTO;
 import com.krazystore.krazystore.DTO.PRUEBADTO;
 import com.krazystore.krazystore.DTO.PedidoMontoPagadoDTO;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
+import com.krazystore.krazystore.Entity.CajaEntity;
 import com.krazystore.krazystore.Entity.ConceptoEntity;
 import com.krazystore.krazystore.Entity.EstadoEntity;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
 import com.krazystore.krazystore.Entity.PagoEntity;
+import com.krazystore.krazystore.Entity.PedidoEntity;
 import com.krazystore.krazystore.Entity.ReembolsoEntity;
 import com.krazystore.krazystore.Entity.VentaEntity;
 import com.krazystore.krazystore.Repository.MovimientoRepository;
 import com.krazystore.krazystore.Service.AnticipoService;
+import com.krazystore.krazystore.Service.CajaService;
 import com.krazystore.krazystore.Service.MovimientoService;
 import com.krazystore.krazystore.Service.PagoService;
 import com.krazystore.krazystore.Service.PedidoService;
@@ -51,16 +54,25 @@ public class MovimientoServiceImpl implements MovimientoService {
     
     @Autowired
     private ReembolsoService reembolsoService;
+    
+    @Autowired
+    private CajaService cajaService;
 
     @Override
     public List<MovimientosDTO> findAll() {
 
         return movimientoRepository.findMovimientosDTO();
     }
+    
 
     @Override
     public Optional<MovimientoEntity> findById(Long id) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+    
+    @Override
+    public List<MovimientosDTO> findByIdCaja(Long id) {
+        return movimientoRepository.findByIdCaja(id);
     }
 
     @Override
@@ -125,12 +137,16 @@ public class MovimientoServiceImpl implements MovimientoService {
     
     @Override
     public MovimientoEntity crearMovimiento(VentaEntity venta) {
+        System.out.println("movimientoventa");
+        CajaEntity caja = cajaService.getCaja();
+        System.out.println(caja);
         MovimientoEntity nuevoMovimiento = new MovimientoEntity();
         nuevoMovimiento.setVenta(venta);
         nuevoMovimiento.setFecha(venta.getFecha());
         nuevoMovimiento.setMonto(venta.getMontoTotal());
         nuevoMovimiento.setConcepto(new ConceptoEntity((long)3,"VENTA"));
         nuevoMovimiento.setNroDocumento(venta.getNroFactura());
+        nuevoMovimiento.setCaja(caja);
         return nuevoMovimiento;
     }
     
@@ -141,6 +157,7 @@ public class MovimientoServiceImpl implements MovimientoService {
         nuevoMovimiento.setFecha(anticipo.getFecha());
         nuevoMovimiento.setMonto(anticipo.getTotal());
         nuevoMovimiento.setConcepto(new ConceptoEntity((long)1,"ANTICIPO"));
+        nuevoMovimiento.setCaja(cajaService.getCajaAbierta().get());
 
         return nuevoMovimiento;
     }
@@ -152,7 +169,7 @@ public class MovimientoServiceImpl implements MovimientoService {
         nuevoMovimiento.setFecha(reembolso.getFecha());
         nuevoMovimiento.setMonto(reembolso.getMonto());
         nuevoMovimiento.setConcepto(new ConceptoEntity((long)2,"REEMBOLSO"));
-
+        nuevoMovimiento.setCaja(cajaService.getCajaAbierta().get());
         return nuevoMovimiento;
     }
     
@@ -284,5 +301,19 @@ public class MovimientoServiceImpl implements MovimientoService {
         anticipoService.updateAnticipo(anticipoReembolsar, anticipoReembolsar.getId());
     }
   
+    @Override
+    public PedidoMontoPagadoDTO getMontoPagadoPedido(Long id) {
+        Optional<PedidoEntity> pedido = pedidoService.findById(id);
+        if(pedido.isEmpty()){
+            return null;
+        }
+        
+        Optional<PedidoMontoPagadoDTO> pagosPedido = pagoService.getPagosPedido(id);
+        if(pagosPedido.isPresent()){
+            return pagosPedido.get();
+        }
+        return new PedidoMontoPagadoDTO(id, pedido.get().getTotal(), (long)0);
+             
+    }
     
 }
