@@ -27,8 +27,7 @@ public interface PagoService {
     Iterable<PagoEntity> savePagos(VentaEntity venta, List<PagoEntity> pagos);
     Optional<PedidoMontoPagadoDTO> getPagosPedido(Long id);
     PagoEntity updatePago(PagoEntity pagoEntity, Long id);
+    void deletePagosByMovimientos(List<Long> ids);
+    void deletePagosByMovimiento(Long id);
     void deletePago(Long id);
-    void deletePagosByAnticipo(Long id);
-    void deletePagosByReembolso(Long id);
-    void deletePagosByReembolsos(List<Long> id);
 }

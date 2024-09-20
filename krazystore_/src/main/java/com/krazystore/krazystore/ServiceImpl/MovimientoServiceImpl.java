@@ -176,7 +176,7 @@ public class MovimientoServiceImpl implements MovimientoService {
     @Override
     public EstadoEntity getEstadoPagoPedido(Long idPedido) {
 
-        PedidoMontoPagadoDTO pedido = pagoService.getPagosPedido(idPedido).get();
+        PedidoMontoPagadoDTO pedido = getMontoPagadoPedido(idPedido);
  
         EstadoEntity estadoPago = new EstadoEntity();
         if(pedido.getTotalPagos() >= pedido.getTotal()){
@@ -189,79 +189,83 @@ public class MovimientoServiceImpl implements MovimientoService {
         return estadoPago;
     }
 
+    @Transactional
     @Override
     public void deleteMovimiento(Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        pagoService.deletePagosByMovimiento(id);
+        movimientoRepository.deleteById(id);
     }
 
-    @Override
-    public void deleteMovimientosByReembolsos(List<Long> reembolsos) {
-        pagoService.deletePagosByReembolsos(reembolsos);
-        movimientoRepository.deleteMovimientosByReembolsos(reembolsos);
-        
-    }
-    @Override
-    public void deleteMovimientosByReembolso(ReembolsoEntity reembolso) {
-        pagoService.deletePagosByReembolso(reembolso.getId());
-        movimientoRepository.deleteMovimientosByReembolso(reembolso.getId());
-        
-       // pedidoService.updateEstadoPagoPedido( reembolso.getAnticipo().getPedido());
-    }
 
-    @Override
-    public void deleteMovimientosByAnticipo(AnticipoEntity anticipo) {
-        
-        pagoService.deletePagosByAnticipo(anticipo.getId());
-        movimientoRepository.deleteMovimientosByAnticipo(anticipo.getId());
-       // pedidoService.updateEstadoPagoPedido( anticipo.getPedido());
-    }
-    
+    @Transactional
     @Override
     public void deleteAnticipo(Long id) {
+        //Se obtiene el anticipo
         AnticipoEntity anticipo = anticipoService.findById(id).get();
 
-        pagoService.deletePagosByAnticipo(anticipo.getId());
-        movimientoRepository.deleteMovimientosByAnticipo(anticipo.getId());
+        //Se obtiene el movimiento de caja correspondiente al anticipo
+        MovimientoEntity movimiento = movimientoRepository.findByIdAnticipo(id);
+       
+        //Se elimina los detalles de pago del movimiento
+        pagoService.deletePagosByMovimiento(movimiento.getId());
+
+         // Se elimina el movimiento      
+        movimientoRepository.deleteById(movimiento.getId());
         
+        //Se actualiza estado de pago del Pedido
         EstadoEntity estadoPago = getEstadoPagoPedido(anticipo.getPedido().getId());
         pedidoService.updateEstadoPagoPedido( anticipo.getPedido(), estadoPago);
-        
-        
+       
+        //Se elimina el anticipo
         anticipoService.deleteAnticipo(id);
+        
 
     }
     
+    @Transactional
      @Override
     public void deleteAnticipoConReembolsos(Long id) {
-        AnticipoEntity anticipo = anticipoService.findById(id).get();
+
+        //Se obtiene los reembolsos del anticipo
         List<Long> reembolsosAnticipo = anticipoService.getIdReembolsosAnticipo(id);
+     
+        //Se obtiene los movimientos de los reembolsos
+        List<Long> movimientos = movimientoRepository.findByIdsReembolsos(reembolsosAnticipo);
+       
+        //Se eliminan los detalles de pago de los movimientos
+        pagoService.deletePagosByMovimientos(movimientos);
    
-        deleteMovimientosByReembolsos(reembolsosAnticipo);
-        anticipoService.deleteReembolsosByIdAnticipo(id);
-        deleteAnticipo(anticipo.getId());
+        //Se eliminan los movimientos
+        movimientoRepository.deleteByIds(movimientos);
+
+        //Se eliminan los reembolsos
+        reembolsoService.deleteReembolsos(reembolsosAnticipo);
+    
+        deleteAnticipo(id);
        
         
     }
+    
     
     @Override
     @Transactional
     public void deleteReembolso(Long id) {
         ReembolsoEntity reembolso = reembolsoService.findById(id).get();
-        
-        pagoService.deletePagosByReembolso(reembolso.getId());
+        //Se obtiene el movimiento de caja correspondiente al reembolso
+        MovimientoEntity movimiento = movimientoRepository.findByIdReembolso(id);
+        //Se elimina los detalles de pago del movimiento
+        pagoService.deletePagosByMovimiento(movimiento.getId());
+         // Se elimina el movimiento      
+        movimientoRepository.deleteById(movimiento.getId());
         
         AnticipoEntity anticipo= new AnticipoEntity();
         
         anticipo.setReembolsado(reembolso.getAnticipo().getReembolsado() - reembolso.getMonto());
         anticipo.setSaldo(reembolso.getAnticipo().getSaldo() + reembolso.getMonto() );
-        
-
+       
         anticipoService.updateAnticipo(anticipo, reembolso.getAnticipo().getId());
         
-         movimientoRepository.deleteMovimientosByReembolso(reembolso.getId());
-       
-         
-         EstadoEntity estadoPago = getEstadoPagoPedido(reembolso.getAnticipo().getPedido().getId());
+        EstadoEntity estadoPago = getEstadoPagoPedido(reembolso.getAnticipo().getPedido().getId());
         pedidoService.updateEstadoPagoPedido( reembolso.getAnticipo().getPedido(), estadoPago);
         
         reembolsoService.deleteReembolso(id);

@@ -19,6 +19,6 @@ public interface ReembolsoService {
     ReembolsoEntity saveReembolso(ReembolsoEntity reembolsoEntity);
     ReembolsoEntity updateReembolso(ReembolsoEntity reembolsoEntity, Long id);
     void deleteReembolso(Long id);
-
+    void deleteReembolsos(List<Long> ids);
     List<ReembolsoEntity> findByIdAnticipo(Long id);
 }

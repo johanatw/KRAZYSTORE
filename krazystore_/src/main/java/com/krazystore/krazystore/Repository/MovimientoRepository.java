@@ -20,33 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Long> {
-    @Transactional
-    @Modifying
-    @Query(
-  value = "DELETE FROM movimientos m WHERE m.id_reembolso IN ?1 ", 
-  nativeQuery = true)
-    void deleteMovimientosByReembolsos(List<Long> ids);
-    
-    @Transactional
-    @Modifying
-    @Query(
-  value = "DELETE FROM movimientos m WHERE m.id_anticipo IN ?1 ", 
-  nativeQuery = true)
-    void deleteMovimientosByAnticipos(List<Long> ids);
-    
-    @Transactional
-    @Modifying
-    @Query(
-  value = "DELETE FROM movimientos m WHERE m.id_anticipo = ?1 ", 
-  nativeQuery = true)
-    void deleteMovimientosByAnticipo(Long id);
-    
-    @Transactional
-    @Modifying
-    @Query(
-  value = "DELETE FROM movimientos m WHERE m.id_reembolso = ?1 ", 
-  nativeQuery = true)
-    void deleteMovimientosByReembolso(Long id);
     
     public List<MovimientoEntity> findAllByOrderByIdDesc();
     
@@ -105,8 +78,30 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
            )
     public List<MovimientosDTO> findByIdCaja(Long id);
     
-    //MovimientosDTO(Long id, Date fecha, String concepto, String formaPago
+    @Query(
+    "SELECT m FROM MovimientoEntity m "
+           + "LEFT JOIN FETCH m.anticipo a "
+            + "WHERE a.id = ?1 "
+           )
+    public MovimientoEntity findByIdAnticipo(Long id);
     
-    //MovimientosDTO(Long id, Date fecha, String concepto, String formaPago, int total, int anticipo, int ingreso, int egreso, String factura)
+    @Query(
+    "SELECT m FROM MovimientoEntity m "
+           + "LEFT JOIN FETCH m.reembolso r "
+            + "WHERE r.id = ?1 "
+           )
+    public MovimientoEntity findByIdReembolso(Long id);
+    
+    @Query(
+  value = "SELECT m.id FROM movimientos m WHERE m.id_reembolso IN ?1 ", 
+  nativeQuery = true)
+    List<Long> findByIdsReembolsos(List<Long> reembolsosIds);
+    
+    @Transactional
+    @Modifying
+    @Query(
+  value = "DELETE FROM movimientos m WHERE m.id IN ?1 ", 
+  nativeQuery = true)
+    void deleteByIds(List<Long> movimientos);
     
 }

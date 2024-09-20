@@ -68,6 +68,13 @@ public class ReembolsoServiceImpl implements ReembolsoService {
         reembolsoRepository.deleteById(id);
         
     }
+    
+    @Override
+    public void deleteReembolsos(List<Long> ids) {
+
+        reembolsoRepository.deleteByIds(ids);
+        
+    }
 
     @Override
     public List<ReembolsoEntity> findByIdAnticipo(Long id) {

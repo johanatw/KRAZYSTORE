@@ -8,8 +8,10 @@ import com.krazystore.krazystore.Entity.ReembolsoEntity;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -23,4 +25,11 @@ public interface ReembolsoRepository extends JpaRepository<ReembolsoEntity, Long
     public List<ReembolsoEntity> findByIdAnticipo(Long id);
     
     public List<ReembolsoEntity> findAllByOrderByIdDesc();
+    
+    @Transactional
+    @Modifying
+    @Query(
+  value = "DELETE FROM reembolsos r WHERE r.id IN ?1 ", 
+  nativeQuery = true)
+    void deleteByIds(List<Long> ids);
 }

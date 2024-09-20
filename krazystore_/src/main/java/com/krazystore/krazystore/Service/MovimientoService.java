@@ -36,9 +36,6 @@ public interface MovimientoService {
     MovimientoEntity crearMovimiento(AnticipoEntity anticipo);
     MovimientoEntity crearMovimiento(ReembolsoEntity reembolso);
     EstadoEntity getEstadoPagoPedido(Long idPedido);
-    void deleteMovimientosByReembolsos(List<Long> reembolsos);
-    void deleteMovimientosByReembolso(ReembolsoEntity reembolso);
-    void deleteMovimientosByAnticipo(AnticipoEntity anticipo);
     void deleteAnticipoConReembolsos(Long id);
     void deleteReembolso(Long id);
     void deleteAnticipo(Long id);

@@ -64,13 +64,5 @@ public class PagoController {
         pagoService.deletePago(id);
     }
     
-    @DeleteMapping("/anticipo/{id}")
-    public void deletePagosByAnticipo(@PathVariable("id") Long id) {
-        pagoService.deletePagosByAnticipo(id);
-    }
-    
-    @DeleteMapping("/reembolso/{id}")
-    public void deletePagosByReembolso(@PathVariable("id") Long id) {
-        pagoService.deletePagosByReembolso(id);
-    }
+
 }

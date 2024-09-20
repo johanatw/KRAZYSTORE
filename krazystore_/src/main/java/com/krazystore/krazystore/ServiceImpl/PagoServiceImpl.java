@@ -142,19 +142,15 @@ public class PagoServiceImpl implements PagoService {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
+    
     @Override
-    public void deletePagosByAnticipo(Long id) {
-        pagoRepository.deletePagosByAnticipo(id);
-    }
-
-    @Override
-    public void deletePagosByReembolso(Long id) {
-        pagoRepository.deletePagosByReembolso(id);
+    public void deletePagosByMovimiento(Long id) {
+        pagoRepository.deletePagosByMovimiento(id);
     }
     
     @Override
-    public void deletePagosByReembolsos(List<Long> ids) {
-        pagoRepository.deletePagosByReembolsos(ids);
+    public void deletePagosByMovimientos(List<Long> ids) {
+        pagoRepository.deletePagosByMovimientos(ids);
     }
 
     @Override

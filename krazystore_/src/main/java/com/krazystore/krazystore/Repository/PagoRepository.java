@@ -22,26 +22,20 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 public interface PagoRepository extends JpaRepository<PagoEntity,Long> {
-    @Transactional
-    @Modifying
-    @Query(
-  value = "DELETE FROM pagos p USING movimientos m WHERE p.id_movimiento = m.id AND m.id_anticipo = ?1 ", 
-  nativeQuery = true)
-    void deletePagosByAnticipo(Long id);
-   
-    @Transactional
-    @Modifying
-    @Query(
-  value = "DELETE FROM pagos p USING movimientos m WHERE p.id_movimiento = m.id AND m.id_reembolso = ?1 ", 
-  nativeQuery = true)
-    void deletePagosByReembolso(Long id);
     
     @Transactional
     @Modifying
     @Query(
-  value = "DELETE FROM pagos p USING movimientos m WHERE p.id_movimiento = m.id AND m.id_reembolso IN ?1 ", 
+  value = "DELETE FROM pagos p USING movimientos m WHERE p.id_movimiento IN ?1 ", 
   nativeQuery = true)
-    void deletePagosByReembolsos(List<Long> ids);
+    void deletePagosByMovimientos(List<Long> ids);
+    
+    @Transactional
+    @Modifying
+    @Query(
+  value = "DELETE FROM pagos p USING movimientos m WHERE p.id_movimiento = m.id AND m.id = ?1 ", 
+  nativeQuery = true)
+    void deletePagosByMovimiento(Long id);
     /*
     @Query(
     "SELECT new com.krazystore.krazystore.DTO.DetallePagoPedidoDTO(p.id, p.total, SUM(CASE WHEN f.descripcion <> 'Anticipo' AND c.descripcion <> 'Reembolso' THEN e.importe "

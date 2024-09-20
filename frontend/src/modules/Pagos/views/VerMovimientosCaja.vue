@@ -33,7 +33,7 @@ import Tag from 'primevue/tag';
 import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
 import {formatearNumero, existeCajaAbierta} from '@/utils/utils';
-
+import { useConfirm } from "primevue/useconfirm";
 import router from '@/router';
 const pedido = ref({ });
 const selectedClient = ref();
@@ -57,6 +57,7 @@ const movimientos = ref([]);
 const cajaAbierta = ref(false);
 const envioSelected = ref();
 const detalle = ref(null);
+const confirm = useConfirm();
 const error = ref(false);
 const fecha = ref();
 const fechaCompleta = ref();
@@ -155,8 +156,37 @@ async function getCaja() {
 
 });
 }
+const deleteMovimiento = (id) =>{
+    const cantidad= 1;
+    const index = movimientos.value.findIndex((loopVariable) => loopVariable.id === id);
+    CajaServices.deleteMovimiento(id).then((response)=>{
+      console.log("response");
+      console.log(response.data);
+      
+        movimientos.value.splice(index,cantidad);
+            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 5000 });
+        })
 
+}
 
+const confirm2 = (id) => {
+   
+   confirm.require({
+       message: 'Eliminar el movimiento '+ id + '?',
+       header: 'Confirmacion',
+       icon: 'pi pi-info-circle',
+       rejectLabel: 'Cancelar',
+       acceptLabel: 'Eliminar',
+       rejectClass: 'p-button-secondary p-button-outlined',
+       acceptClass: 'p-button-danger',
+       accept: () => {
+           deleteMovimiento(id);
+           
+       },
+       
+       
+   });
+};
 
 </script>
 <template>
@@ -164,6 +194,7 @@ async function getCaja() {
 
 <div class="card flex p-fluid justify-content-center " >
     <Toast />
+    <ConfirmDialog ></ConfirmDialog>
     <Dialog v-model:visible="visible" modal header="Edit Profile" :style="{ width: '30rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
      <template #header>
          <div class="flex align-items-center gap-2">
@@ -269,7 +300,7 @@ async function getCaja() {
           <Column v-if="cajaAbierta" :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
                 
-                <Button icon="pi pi-times" severity="danger" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button v-if="slotProps.data.concepto != 'Venta' && slotProps.data.concepto != 'Compra' " icon="pi pi-times" severity="danger" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="confirm2(slotProps.data.id)"  />
                 
                 </template>
           </Column>

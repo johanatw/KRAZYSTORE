@@ -228,13 +228,6 @@ const deletePedido = (id) =>{
             
         })
 
-   /* PedidoServices.deleteDetallesPedido(id).then((response)=>{
-        console.log(response);
-        PedidoServices.deletePedido(id).then((response)=>{
-            pedidos.value.splice(index,cantidad);
-            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 3000 });
-        })
-    });*/
 }
 
 const nuevoPedido = () =>{

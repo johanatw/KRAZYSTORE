@@ -57,6 +57,10 @@ export const CajaServices = {
   
     return axios.delete(MOVIMIENTO_API_BASE_URL+"/reembolso/"+id);
   },
+  deleteMovimiento(id){
+  
+    return axios.delete(MOVIMIENTO_API_BASE_URL+"/"+id);
+  },
   saveReembolso(reembolso) {
     try {
         console.log("pedido", reembolso);
