@@ -16,6 +16,7 @@ import { PersonaServices } from '@/services/PersonaServices';
 import {EstadosServices} from "@/services/EstadosServices";
 import Panel from 'primevue/panel';
 import {PedidoServices} from '@/services/PedidoServices';
+import {CajaServices} from '@/services/CajaServices';
 import Card from "primevue/card";
 import router from '@/router';
 const res = ref();
@@ -48,6 +49,7 @@ const detalleRegistrar = ref([ ]);
 const detalleEliminar = ref([ ]);
 const detalleModificar = ref([ ]);
 const pedidoId = ref(0);
+const pedidoTotalPagado = ref({});
 const cliente = ref();
 const cardCliente = ref();
 const cardEntrega = ref();
@@ -84,6 +86,10 @@ onMounted(() => {
         
         
     });*/
+    CajaServices.obtenerPagosPedido(router.currentRoute.value.params.id).then((data) => {
+        pedidoTotalPagado.value = data.data;
+    });
+
     EstadosServices.obtenerEstadosByTipo('E').then((data) => {
         estadosPedido.value = data.data;
     });
@@ -220,6 +226,23 @@ const getEntrega = (formaEntrega, envio) =>{
   
 }
 
+const getEstadoPago = () =>{
+    if (pedidoTotalPagado.value.totalPagos == 0) {
+        return selectedEstadoPago.value;
+    }
+    let estado = {};
+    
+    if (productos.value.subTotal > pedidoTotalPagado.value.totalPagos) {
+        console.log("estado.id = 7");
+        estado.id = 7;
+    }else{
+        console.log("estado.id = 2");
+        estado.id = 2;
+    }
+  
+    return estado;
+}
+
 
 const verPedido = (id) =>{
     router.push({name: 'VisualizarPedido', params: {id}});
@@ -240,9 +263,9 @@ const submit = () =>{
             
         }*/
         pedido.value.estadoPedido = selectedEstadoPedido.value;
-        pedido.value.estadoPago = selectedEstadoPago.value;
-        
-
+        pedido.value.estadoPago = getEstadoPago();
+        console.log("pedido.value.estadoPago");
+        console.log(pedido.value.estadoPago);
         pedido.value.modoEntrega = entrega.value;
         if (pedido.value.modoEntrega && pedido.value.modoEntrega.descripcion === "Envío") {
             pedido.value.costoEnvio = envioSelected.value;

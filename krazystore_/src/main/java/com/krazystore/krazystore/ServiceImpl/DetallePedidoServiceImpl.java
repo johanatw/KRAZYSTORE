@@ -26,6 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -102,6 +103,7 @@ public class DetallePedidoServiceImpl implements DetallePedidoService{
         return detallepedidorepository.saveAll(detallesPedido);
     }
 
+    @Transactional
     @Override
     public Iterable<DetallePedidoEntity> updateDetallesPedido(List<DetallePedidoEntity> nuevosDetalles, Long id) throws Exception {
 

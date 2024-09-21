@@ -12,6 +12,7 @@ import com.krazystore.krazystore.Repository.PedidoRepository;
 import com.krazystore.krazystore.Service.AnticipoService;
 import com.krazystore.krazystore.Service.DetallePedidoService;
 import com.krazystore.krazystore.Service.MovimientoService;
+import com.krazystore.krazystore.Service.PagoService;
 import com.krazystore.krazystore.Service.PedidoService;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,6 @@ public class PedidoServiceImpl implements PedidoService {
     @Autowired
     private DetallePedidoService detallePedidoService;
     
-
 
     @Override
     public List<PedidoDTO> findAll() {
@@ -74,20 +74,8 @@ public class PedidoServiceImpl implements PedidoService {
         updatedPedido.setTotal(pedidoEntity.getTotal());
         updatedPedido.setModoEntrega(pedidoEntity.getModoEntrega());
         updatedPedido.setFormaPago(pedidoEntity.getFormaPago());
-        System.out.println("updatePedido");
-        System.out.println(pedidoEntity.getPagado());
-        updatedPedido.setPagado(pedidoEntity.getPagado());
-        EstadoEntity estadoPago = new EstadoEntity();
         
-        if(updatedPedido.getPagado() == 0){
-            estadoPago.setId((long)1);
-        }else if(updatedPedido.getPagado() == updatedPedido.getTotal() || updatedPedido.getPagado() > updatedPedido.getTotal()){
-            estadoPago.setId((long)2);
-        }else if(updatedPedido.getPagado() < updatedPedido.getTotal() && updatedPedido.getPagado() > 0){
-            estadoPago.setId((long)7);
-        }
-        
-        updatedPedido.setEstadoPago(estadoPago);
+        updatedPedido.setEstadoPago(pedidoEntity.getEstadoPago());
 
         return pedidorepository.save(updatedPedido);
     }

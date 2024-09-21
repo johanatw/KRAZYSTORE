@@ -47,7 +47,7 @@ const setDetalle = (lista) =>{
             element.producto = productos.value[index];
         
         }
-        console.log("cantStock", element.producto.cantStock);
+      
         element.cantDisponible = productos.value[index].cantDisponible + element.cantidad;
         element.cantReservada = productos.value[index].cantReservada;
         element.cantStock = productos.value[index].cantStock;
@@ -153,9 +153,9 @@ let index = detalles.value.findIndex((loopVariable) => loopVariable.producto.id 
 
 if (index>-1) {
    detalles.value[index].cantidad++;
-   console.log("holaaa");
+
 } else {
-console.log("holaaaitem",item);
+
   detalle.value.producto = {};
    detalle.value.producto = item;
    detalle.value.cantDisponible = item.cantDisponible;
