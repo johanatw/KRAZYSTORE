@@ -23,6 +23,7 @@ import com.krazystore.krazystore.Service.MovimientoService;
 import com.krazystore.krazystore.Service.PagoService;
 import com.krazystore.krazystore.Service.PedidoService;
 import com.krazystore.krazystore.Service.ReembolsoService;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -110,7 +111,7 @@ public class MovimientoServiceImpl implements MovimientoService {
     public MovimientoEntity saveMovimiento(VentaEntity ventaEntity, List<PagoEntity> pagos) {
      
         
-        MovimientoEntity movimiento = crearMovimiento(ventaEntity);
+        MovimientoEntity movimiento = crearMovimiento(ventaEntity, false);
         MovimientoEntity nuevoMovimiento = movimientoRepository.save(movimiento);
         pagoService.savePagos(nuevoMovimiento, pagos);
         
@@ -135,18 +136,24 @@ public class MovimientoServiceImpl implements MovimientoService {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     
+    
     @Override
-    public MovimientoEntity crearMovimiento(VentaEntity venta) {
-        System.out.println("movimientoventa");
+    public MovimientoEntity crearMovimiento(VentaEntity venta, boolean anular) {
         CajaEntity caja = cajaService.getCaja();
-        System.out.println(caja);
         MovimientoEntity nuevoMovimiento = new MovimientoEntity();
+        
         nuevoMovimiento.setVenta(venta);
-        nuevoMovimiento.setFecha(venta.getFecha());
         nuevoMovimiento.setMonto(venta.getMontoTotal());
-        nuevoMovimiento.setConcepto(new ConceptoEntity((long)3,"VENTA"));
         nuevoMovimiento.setNroDocumento(venta.getNroFactura());
-        nuevoMovimiento.setCaja(caja);
+            nuevoMovimiento.setCaja(caja);
+        if(anular){
+            nuevoMovimiento.setFecha(new Date());
+            nuevoMovimiento.setConcepto(new ConceptoEntity((long)11,"ANULACION"));
+        }else{          
+            nuevoMovimiento.setFecha(venta.getFecha());
+            nuevoMovimiento.setConcepto(new ConceptoEntity((long)3,"VENTA"));  
+        }
+        
         return nuevoMovimiento;
     }
     
@@ -318,6 +325,38 @@ public class MovimientoServiceImpl implements MovimientoService {
         }
         return new PedidoMontoPagadoDTO(id, pedido.get().getTotal(), (long)0);
              
+    }
+    
+    @Transactional
+    @Override
+    public void anularVenta(VentaEntity ventaEntity) {
+
+        //Se obtiene el movimiento de caja correspondiente a la venta
+        MovimientoEntity movimientoVenta = movimientoRepository.findByIdVenta(ventaEntity.getId());
+        
+        //Se optiene los pagos del movimiento
+        List<PagoEntity> pagos = pagoService.findByIdMovimiento(movimientoVenta.getId());
+       
+        //Se crea movimiento de Anulacion de Factura
+        MovimientoEntity movimiento = crearMovimiento(ventaEntity,true);
+        
+        //Se guarda movimiento
+        MovimientoEntity nuevoMovimiento = movimientoRepository.save(movimiento);
+        
+        //Se revierten los pagos de la venta
+        pagoService.revertirPagos(nuevoMovimiento, pagos);
+        
+        //Si esta asociado a pedido se actualiza estado de pago del pedido
+        if(nuevoMovimiento.getVenta().getPedido() != null){
+            EstadoEntity estadoPago = getEstadoPagoPedido(nuevoMovimiento.getVenta().getPedido().getId());
+            pedidoService.updateEstadoPagoPedido( nuevoMovimiento.getVenta().getPedido(), estadoPago);
+        }
+        
+
+        
+
+        
+
     }
     
 }

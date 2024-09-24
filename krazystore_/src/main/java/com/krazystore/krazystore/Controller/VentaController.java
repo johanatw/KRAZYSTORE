@@ -57,6 +57,12 @@ public class VentaController {
     public VentaEntity updateVenta(@PathVariable long id, @RequestBody VentaEntity venta) {
         return ventaService.updateVenta(venta, id);
     }
+    
+    @PostMapping("/anular/{id}")
+    public void anularVenta(@PathVariable long id) {
+        System.out.println("llega anularVenta");
+        ventaService.anularFactura(id);
+    }
 
     @DeleteMapping("/{id}")
     public void deleteVenta(@PathVariable("id") Long id) {

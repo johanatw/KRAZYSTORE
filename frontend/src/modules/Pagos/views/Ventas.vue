@@ -61,14 +61,19 @@ const confirm2 = (id) => {
 onMounted(() => {
  
  
+getVentas();
+    
+ 
+    
+});
 
+const getVentas = (id) =>{
     VentaServices.getVentas().then((data) => {
         ventas.value = data.data;
         //console.log(reembolsos.value);
     });
- 
-    
-});
+   
+}
 
 const deleteReembolso = (id) =>{
     const cantidad= 1;
@@ -78,6 +83,20 @@ const deleteReembolso = (id) =>{
       console.log(response.data);
       
         reembolsos.value.splice(index,cantidad);
+            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 5000 });
+      
+            
+        })
+
+   
+}
+
+const anular = (id) =>{
+    console.log("anular");
+    console.log(id);
+    VentaServices.anularVenta(id).then((response)=>{
+      
+        getVentas();
             toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 5000 });
       
             
@@ -110,6 +129,11 @@ const reembolsar = (id) =>{
 
 }
 
+const nuevaFactura = () =>{
+    router.push({name: 'nueva_factura'});
+  
+
+}
 
 const cancelar = ()=>{
   visible.value = false;
@@ -168,7 +192,11 @@ const nuevoPedido = () =>{
             <h3 class="font-bold">Facturas de Venta</h3>
         </div>
       </template>
-         
+      <template #icons>
+        
+        <Button  label="Nueva Factura" @click="nuevaFactura()" />
+    
+    </template>
       
       
   
@@ -202,7 +230,12 @@ const nuevoPedido = () =>{
         </Column>
         <Column  header="Estado" aria-sort="ascending" sortable> 
             <template #body="slotProps">
-                Activo
+                <div v-if="slotProps.data.activo">
+                    Activo
+                </div>
+                <div v-else>
+                    Anulado
+                </div>
             </template>           
         </Column>
         <Column field="nroFactura"  header="N° de Factura" aria-sort="ascending" sortable>            
@@ -212,9 +245,15 @@ const nuevoPedido = () =>{
         
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
-                <div  >
+                <div style="display: flex;" >
                     <Button  label="Revisar"  style="height: 2rem !important; width: 5rem !important; margin-right: 1%; font-size: 14px; " />
-                <Button  severity="danger"  label="Anular"  style="height: 2rem !important; width: 5rem !important; font-size: 14px;" />
+                    <div v-if="slotProps.data.activo">
+                        <Button  severity="danger"  label="Anular" @click="anular(slotProps.data.id)"  style="height: 2rem !important; width: 5rem !important; font-size: 14px;" />
+                </div>
+                <div v-else>
+                    <Button  severity="danger"  label="Anular" disabled  style="height: 2rem !important; width: 5rem !important; font-size: 14px;" />
+                </div>
+                
                 </div>
                 
                 

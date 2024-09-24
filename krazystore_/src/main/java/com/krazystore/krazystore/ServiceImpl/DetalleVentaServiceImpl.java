@@ -40,6 +40,11 @@ public class DetalleVentaServiceImpl implements DetalleVentaService{
     public Optional<DetalleVentaEntity> findById(Long id) {
         return detalleventarepository.findById(id);
     }
+    
+    @Override
+    public List<DetalleVentaEntity> findByIdVenta(Long id) {
+        return detalleventarepository.findByIdVenta(id);
+    }
 
     @Override
     public Iterable<DetalleVentaEntity> saveDetalleVenta(VentaEntity venta, List<DetalleVentaEntity> detalle) {

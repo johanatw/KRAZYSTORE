@@ -24,6 +24,16 @@ export const VentaServices = {
           console.log(error.name);
         }
         
+      },anularVenta(id) {
+        try {
+            
+            
+          return axios.post(VENTA_API_BASE_URL+'/anular/'+id);
+          
+        } catch (error) {
+          console.log(error.name);
+        }
+        
       },
 
 };

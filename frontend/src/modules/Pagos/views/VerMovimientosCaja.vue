@@ -297,10 +297,10 @@ const confirm2 = (id) => {
         </Column>
 
         
-          <Column v-if="cajaAbierta" :exportable="false" style="min-width:8rem">
+          <Column v-if="cajaAbierta" :exportable="false">
             <template #body="slotProps">
                 
-                <Button v-if="slotProps.data.concepto != 'Venta' && slotProps.data.concepto != 'Compra' " icon="pi pi-times" severity="danger" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="confirm2(slotProps.data.id)"  />
+                <Button v-if="slotProps.data.concepto != 'Venta' && slotProps.data.concepto != 'Compra' && slotProps.data.concepto != 'Anticipo' && slotProps.data.concepto != 'Reembolso' " icon="pi pi-times" severity="danger" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="confirm2(slotProps.data.id)"  />
                 
                 </template>
           </Column>

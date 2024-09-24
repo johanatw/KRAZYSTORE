@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -49,6 +50,11 @@ public class PagoServiceImpl implements PagoService {
     @Override
     public Optional<PagoEntity> findById(Long id) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+    
+    @Override
+    public List<PagoEntity> findByIdMovimiento(Long id) {
+        return pagoRepository.findByIdMovimiento(id);
     }
 
     @Override
@@ -81,6 +87,36 @@ public class PagoServiceImpl implements PagoService {
         return newPagos; 
     }
     
+    @Transactional
+    @Override
+    public Iterable<PagoEntity> revertirPagos(MovimientoEntity movimiento, List<PagoEntity> pagos) {
+         
+        List<AnticipoEntity> anticipos = new ArrayList<>();
+        List<PagoEntity> pagosAnulados = new ArrayList<>();
+        
+        pagos.forEach(d -> {
+            PagoEntity p = new PagoEntity();
+            p.setMovimiento(movimiento);
+            p.setFormaPago(d.getFormaPago());
+            p.setImporte(d.getImporte());
+            p.setAnticipo(d.getAnticipo());
+            pagosAnulados.add(p);
+            
+            if("Anticipo".equals(d.getFormaPago().getDescripcion())){
+              AnticipoEntity anticipo = d.getAnticipo();
+              anticipo.setUtilizado(anticipo.getUtilizado() - (int)(long)d.getImporte());
+              anticipo.setSaldo(anticipo.getSaldo() + (int)(long)d.getImporte());
+              anticipos.add(anticipo);
+            }
+        });
+        Iterable<PagoEntity> newPagos =  pagoRepository.saveAll(pagosAnulados);
+        
+        if(!anticipos.isEmpty()){
+           anticipoService.updateAnticipos(anticipos);
+       }
+
+        return newPagos; 
+    }
 
     
      @Override

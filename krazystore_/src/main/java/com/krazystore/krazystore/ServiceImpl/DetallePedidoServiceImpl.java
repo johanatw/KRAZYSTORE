@@ -310,7 +310,22 @@ public class DetallePedidoServiceImpl implements DetallePedidoService{
 
         });
        detallepedidorepository.saveAll(detallePedidoUpdated);
-       
+    }
+    
+    @Override
+    public void disminuirProductosFacturados(List<DetalleVentaEntity> detalles, PedidoEntity pedido){
+        List<DetallePedidoEntity> detallePedido = detallepedidorepository.findByNroPedido(pedido.getId());
+        List<DetallePedidoEntity> detallePedidoUpdated = new ArrayList<>();
+       detalles.forEach((detalle)-> {
+           DetallePedidoEntity detalleAnterior = detallePedido.stream().filter(obj -> Objects.equals(obj.getProducto().getId(), detalle.getProducto().getId())).findFirst().get();
+
+           if(detalleAnterior != null){
+               detalleAnterior.setCantidadFacturada(detalleAnterior.getCantidadFacturada() - detalle.getCantidad());
+               detallePedidoUpdated.add(detalleAnterior);
+           }
+
+        });
+       detallepedidorepository.saveAll(detallePedidoUpdated);
     }
     
     @Override

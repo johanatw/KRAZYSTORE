@@ -157,6 +157,8 @@ const reiniciarDialogRegistrar = () =>{
     color.value = '#4b5563';
     abonado.value = 0;
     disabled.value = true;
+    searched.value = false;
+    id.value = null;
 
 }
 

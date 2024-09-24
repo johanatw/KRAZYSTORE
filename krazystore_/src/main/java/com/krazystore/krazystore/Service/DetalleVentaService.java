@@ -23,6 +23,7 @@ public interface DetalleVentaService {
     List<DetalleVentaEntity> findAll();
     Optional<DetalleVentaEntity> findById(Long id);
     Iterable<DetalleVentaEntity> saveDetalleVenta(VentaEntity venta, List<DetalleVentaEntity> detalle);
+    List<DetalleVentaEntity> findByIdVenta(Long id);
     DetalleVentaEntity updateDetalleVenta(DetalleVentaEntity detalleVenta, Long id);
     void deleteDetalleVenta(Long id);
 }

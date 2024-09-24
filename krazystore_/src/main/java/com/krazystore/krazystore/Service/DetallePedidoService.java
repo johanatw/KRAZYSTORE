@@ -26,6 +26,7 @@ public interface DetallePedidoService {
     DetallePedidoEntity updateDetallePedido(DetallePedidoEntity detallePedido, Long id);
     Iterable<DetallePedidoEntity> updateDetallesPedido(List<DetallePedidoEntity> detallePedido, Long id)throws Exception;
     void updateDetallesFacturadas(List<DetalleVentaEntity> detalles, PedidoEntity pedido);
+    void disminuirProductosFacturados(List<DetalleVentaEntity> detalles, PedidoEntity pedido);
     void deleteByPedido(Long id);
     void deleteDetallesPedido(List<Long> ids);
     void deleteDetallePedido(Long id);

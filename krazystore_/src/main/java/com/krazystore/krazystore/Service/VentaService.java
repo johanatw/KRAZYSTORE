@@ -21,6 +21,7 @@ public interface VentaService {
     List<VentaEntity> findAll();
     Optional<VentaEntity> findById(Long id);
     VentaEntity saveVenta(VentaEntity ventaEntity, List<DetalleVentaEntity> detalle, List<PagoEntity> pagos);
+    void anularFactura(Long id);
     VentaEntity updateVenta(VentaEntity VentaEntity, Long id);
     void deleteVenta(Long id);
 }

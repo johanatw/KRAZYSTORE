@@ -99,6 +99,24 @@ public class VentaServiceImpl implements VentaService{
 
         return ventarepository.save(updatedVenta);
     }
+    
+    @Override
+    public void anularFactura(Long id) {
+        
+        VentaEntity facturaVenta = ventarepository.findById(id).get();
+        facturaVenta.setActivo(false);
+        List<DetalleVentaEntity> detalleVenta = detalleVentaService.findByIdVenta(id);
+        
+        movimientoService.anularVenta(facturaVenta);
+                
+        if(facturaVenta.getPedido() != null){
+            PedidoEntity pedido = facturaVenta.getPedido();
+            detallePedidoService.disminuirProductosFacturados(detalleVenta, pedido);
+ 
+        }
+        
+       
+    }
 
     @Override
     public void deleteVenta(Long id) {

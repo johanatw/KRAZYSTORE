@@ -67,7 +67,7 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
     @Query(
     "SELECT new com.krazystore.krazystore.DTO.MovimientosDTO(m.id, m.fecha, c.descripcion, f.descripcion"
             + ", p.importe, CASE WHEN p.anticipo IS NULL AND c.tipo = 'I' THEN p.importe ELSE 0 END"
-            + ", CASE WHEN c.tipo = 'E' THEN p.importe ELSE 0 END, m.nroDocumento) FROM MovimientoEntity m "
+            + ", CASE WHEN c.tipo = 'E' AND f.descripcion <> 'Anticipo' THEN p.importe ELSE 0 END, m.nroDocumento) FROM MovimientoEntity m "
            + "LEFT JOIN m.concepto as c "
             + "LEFT JOIN m.caja as ca "
             + "LEFT JOIN PagoEntity p "
@@ -84,6 +84,13 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
             + "WHERE a.id = ?1 "
            )
     public MovimientoEntity findByIdAnticipo(Long id);
+    
+    @Query(
+    "SELECT m FROM MovimientoEntity m "
+           + "LEFT JOIN FETCH m.venta v "
+            + "WHERE v.id = ?1 "
+           )
+    public MovimientoEntity findByIdVenta(Long id);
     
     @Query(
     "SELECT m FROM MovimientoEntity m "
