@@ -6,6 +6,7 @@ package com.krazystore.krazystore.ServiceImpl;
 
 import com.krazystore.krazystore.DTO.Pedido;
 import com.krazystore.krazystore.DTO.PedidoDTO;
+import com.krazystore.krazystore.Entity.DetallePedidoEntity;
 import com.krazystore.krazystore.Entity.EstadoEntity;
 import com.krazystore.krazystore.Entity.PedidoEntity;
 import com.krazystore.krazystore.Repository.PedidoRepository;
@@ -20,6 +21,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -49,8 +51,9 @@ public class PedidoServiceImpl implements PedidoService {
         return pedidorepository.findById(id);
     }
 
+    @Transactional
     @Override
-    public PedidoEntity savePedido(PedidoEntity pedidoEntity) {
+    public PedidoEntity savePedido(PedidoEntity pedidoEntity, List<DetallePedidoEntity> detalle) {
         EstadoEntity estadoPago = new EstadoEntity((long)1,"Pago pendiente","P");
         EstadoEntity estadoPedido = new EstadoEntity((long)3,"Nuevo","E");
         
@@ -58,11 +61,16 @@ public class PedidoServiceImpl implements PedidoService {
         pedidoEntity.setEstadoPago(estadoPago);
         pedidoEntity.setEstadoPedido(estadoPedido);
         
-        return pedidorepository.save(pedidoEntity);
+        PedidoEntity nuevoPedido = pedidorepository.save(pedidoEntity);
+        
+        detallePedidoService.saveDetallePedido(nuevoPedido.getId(), detalle);
+        
+        return nuevoPedido;
     }
 
+    @Transactional
     @Override
-    public PedidoEntity updatePedido(PedidoEntity pedidoEntity, Long id) {
+    public PedidoEntity updatePedido(PedidoEntity pedidoEntity, List<DetallePedidoEntity> detalle, Long id) throws Exception {
         PedidoEntity updatedPedido = pedidorepository.findById(id).get();
         
         updatedPedido.setCliente(pedidoEntity.getCliente());
@@ -77,7 +85,10 @@ public class PedidoServiceImpl implements PedidoService {
         
         updatedPedido.setEstadoPago(pedidoEntity.getEstadoPago());
 
-        return pedidorepository.save(updatedPedido);
+        PedidoEntity pedido = pedidorepository.save(updatedPedido);
+        detallePedidoService.updateDetallesPedido(detalle, id);
+        
+        return pedido;
     }
    @Override  
     public void updateEstadoPagoPedido(PedidoEntity pedido, EstadoEntity estadoPago) {

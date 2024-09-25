@@ -94,6 +94,8 @@ const verPedido = (id) =>{
 const submit = () =>{
 
     if (!error.value) {
+
+        
         
         console.log("pedidodetalle", productos.value.detalles);
         pedido.value.cliente = selectedClient.value;
@@ -107,23 +109,10 @@ const submit = () =>{
        // console.log("submitdetalle",);
         //ex.value = productos.value.existencias;
         pedido.value.total = productos.value.subTotal;
-        PedidoServices.savePedido(pedido.value).then((response)=>{
+        let pedidoDTO = {pedido: pedido.value, detalle: detallePedido.value};
+        PedidoServices.savePedido(pedidoDTO).then((response)=>{
             pedidoId.value = response.data.id;
-            pedido.value.id = response.data.id;
-           // detallePedido.value.pedido = pedido.value;
-            PedidoServices.registrarDetallesPedido(pedido.value.id,detallePedido.value).then((response)=>{
-                pedido.value={};
-
-                console.log("pedidoid",pedidoId.value);
-                verPedido(pedidoId.value);
-               /* ProductoServices.modificarExistencias(detallePedido.value).then((response)=>{
-
-                pedido.value={};
-
-                console.log("pedidoid",pedidoId.value);
-                verPedido(pedidoId.value);
-            });*/
-            });
+            verPedido(pedidoId.value);
         });
     }
  }

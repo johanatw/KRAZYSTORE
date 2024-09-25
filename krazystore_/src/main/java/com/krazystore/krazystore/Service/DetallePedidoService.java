@@ -21,12 +21,9 @@ public interface DetallePedidoService {
     Optional<DetallePedidoEntity> findById(Long id);
     List<DetallePedidoEntity> findByPedido(Long idPedido);
     List<DetallePedidoDTO> findByNroPedido(Long idPedido);
-    Iterable<DetallePedidoEntity> saveDetalle(DetallePedidoCreationRequest detallePedidoDTO);
     Iterable<DetallePedidoEntity> saveDetallePedido(Long idPedido, List<DetallePedidoEntity> detalles);
-    DetallePedidoEntity updateDetallePedido(DetallePedidoEntity detallePedido, Long id);
     Iterable<DetallePedidoEntity> updateDetallesPedido(List<DetallePedidoEntity> detallePedido, Long id)throws Exception;
-    void updateDetallesFacturadas(List<DetalleVentaEntity> detalles, PedidoEntity pedido);
-    void disminuirProductosFacturados(List<DetalleVentaEntity> detalles, PedidoEntity pedido);
+    void updateDetallesFacturadas(List<DetalleVentaEntity> detalles, PedidoEntity pedido, String accion);
     void deleteByPedido(Long id);
     void deleteDetallesPedido(List<Long> ids);
     void deleteDetallePedido(Long id);

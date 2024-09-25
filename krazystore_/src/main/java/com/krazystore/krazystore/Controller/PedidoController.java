@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.Controller;
 
+import com.krazystore.krazystore.DTO.PedidoCreationDTO;
 import com.krazystore.krazystore.DTO.PedidoDTO;
 import com.krazystore.krazystore.Entity.PedidoEntity;
 import com.krazystore.krazystore.Service.PedidoService;
@@ -41,13 +42,14 @@ public class PedidoController {
     }
 
     @PostMapping
-    public PedidoEntity savePedido(@RequestBody PedidoEntity pedidoEntity) {
-        return pedidoService.savePedido(pedidoEntity);
+    public PedidoEntity savePedido(@RequestBody PedidoCreationDTO pedidoCreationDTO) {
+        return pedidoService.savePedido(pedidoCreationDTO.getPedido(), pedidoCreationDTO.getDetalle());
     }
+    
 
     @PutMapping("/{id}")
-    public PedidoEntity updatePedido(@PathVariable long id, @RequestBody PedidoEntity pedido) {
-        return pedidoService.updatePedido(pedido, id);
+    public PedidoEntity updatePedido(@PathVariable long id, @RequestBody PedidoCreationDTO pedidoCreationDTO) throws Exception {
+        return pedidoService.updatePedido(pedidoCreationDTO.getPedido(), pedidoCreationDTO.getDetalle(), id);
     }
 
     @DeleteMapping("/{id}")

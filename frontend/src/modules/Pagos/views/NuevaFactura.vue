@@ -356,7 +356,7 @@ onMounted(() => {
     
     });
     
-    getFormasPago();
+    getFormasPagoSinAnticipo();
 });
 
 

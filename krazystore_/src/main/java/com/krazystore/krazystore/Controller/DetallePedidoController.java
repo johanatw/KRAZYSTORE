@@ -51,25 +51,14 @@ public class DetallePedidoController {
         return detallePedidoService.findByPedido(id);
     
     }
-
-    @PostMapping
-    public Iterable<DetallePedidoEntity> saveDetalle(@RequestBody DetallePedidoCreationRequest detallePedidoDTO) {
-        return detallePedidoService.saveDetalle(detallePedidoDTO);
-    }
-    
+   
     
     @PostMapping("/{idPedido}")
     public Iterable<DetallePedidoEntity> saveDetallePedido(@PathVariable long idPedido, @RequestBody List<DetallePedidoEntity> detalles) {
         
         return detallePedidoService.saveDetallePedido(idPedido, detalles);
     }
-
-    @PutMapping("/{id}")
-    public DetallePedidoEntity updateDetalle(@PathVariable long id, @RequestBody DetallePedidoEntity detalle) {
-        return detallePedidoService.updateDetallePedido(detalle, id);
-    }
-
-    
+ 
     @PutMapping("/update/{id}")
     public Iterable<DetallePedidoEntity> updateDetalles(@PathVariable long id, @RequestBody List<DetallePedidoEntity> detalle)throws Exception {
         

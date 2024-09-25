@@ -81,7 +81,7 @@ public class VentaServiceImpl implements VentaService{
         
         if(venta.getPedido() != null){
             PedidoEntity pedido = venta.getPedido();
-            detallePedidoService.updateDetallesFacturadas(detalle, pedido);
+            detallePedidoService.updateDetallesFacturadas(detalle, pedido, "REGISTRAR");
         }
         
         return venta;
@@ -111,7 +111,7 @@ public class VentaServiceImpl implements VentaService{
                 
         if(facturaVenta.getPedido() != null){
             PedidoEntity pedido = facturaVenta.getPedido();
-            detallePedidoService.disminuirProductosFacturados(detalleVenta, pedido);
+            detallePedidoService.updateDetallesFacturadas(detalleVenta, pedido, "ELIMINAR");
  
         }
         

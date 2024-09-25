@@ -280,19 +280,14 @@ const submit = () =>{
         detallePedido.value = productos.value.detalles;
         console.log("detallemodificar", detallePedido.value);
         pedido.value.total = productos.value.subTotal;
-            PedidoServices.modificarPedido(pedido.value.id, pedido.value).then((response)=>{
-                   
-                PedidoServices.modificarDetalles(pedido.value.id, detallePedido.value).then((response)=>{
+        let pedidoDTO = {pedido: pedido.value, detalle: detallePedido.value};
+        
+            PedidoServices.modificarPedido(pedido.value.id, pedidoDTO).then((response)=>{
+                verPedido(response.data.id);
 
-                    pedido.value={};
-                    verPedido(pedido.value.id);
-                }).catch(
+                  }).catch(
                     (error)=>messageError(error.response.data.mensaje)
                   );
-                    
-                    
-                    
-                  });
                   
         }
 
