@@ -43,18 +43,39 @@ public class DireccionServiceImpl implements DireccionService {
     public DireccionEntity updateDireccion(DireccionEntity direccionEntity, Long id) {
         DireccionEntity updatedDireccion = direccionrepository.findById(id).get();
         
-        updatedDireccion.setCiudad(direccionEntity.getCiudad());
-        updatedDireccion.setDepartamento(direccionEntity.getDepartamento());
+        //updatedDireccion.setCiudad(direccionEntity.getCiudad());
+        //updatedDireccion.setDepartamento(direccionEntity.getDepartamento());
+        updatedDireccion.setCalle1(direccionEntity.getCalle1());
+        updatedDireccion.setCalle2(direccionEntity.getCalle2());
+        updatedDireccion.setNroCasa(direccionEntity.getNroCasa());
         updatedDireccion.setDireccion(direccionEntity.getDireccion());
+        updatedDireccion.setCiudad(direccionEntity.getCiudad());
         updatedDireccion.setPersona(direccionEntity.getPersona());
+        updatedDireccion.setLat(direccionEntity.getLat());
+        updatedDireccion.setLng(direccionEntity.getLng());
         return direccionrepository.save(updatedDireccion);
     }
 
+    // Verifica si algún campo tiene valor
+    @Override
+    public boolean algunCampoTieneValor(DireccionEntity direccion) {
+        return (direccion.getCalle1() != null && !direccion.getCalle1().isEmpty()) ||
+               (direccion.getCalle2() != null && !direccion.getCalle2().isEmpty()) ||
+               (direccion.getNroCasa() != null && !direccion.getNroCasa().isEmpty()) ||
+                (direccion.getDireccion() != null && !direccion.getDireccion().isEmpty()) ||
+                (direccion.getLat() != null) ||
+                (direccion.getCiudad() != null);
+    }
 
     @Override
     public void deleteDireccion(Long id) {
         direccionrepository.deleteById(id);
     }
+
+    @Override
+    public List<DireccionEntity> findDireccionesById(Long id) {
+        return direccionrepository.findByIdCliente(id);
+      }
 
     
 }

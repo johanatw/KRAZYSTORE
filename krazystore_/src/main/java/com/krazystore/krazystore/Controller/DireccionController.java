@@ -50,4 +50,9 @@ public class DireccionController {
         direccionService.deleteDireccion(id);
     }
     
+    @GetMapping("/direcciones/{id}")
+    public List<DireccionEntity> findDireccionesById(@PathVariable("id") Long id) {
+        return direccionService.findDireccionesById(id);
+    }
+    
 }

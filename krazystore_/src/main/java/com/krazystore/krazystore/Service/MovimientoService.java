@@ -30,7 +30,7 @@ public interface MovimientoService {
     MovimientoEntity saveMovimiento(ReembolsoEntity reembolso, List<PagoEntity> pagos);
     void anularVenta(VentaEntity ventaEntity);
     MovimientoEntity updateMovimiento(MovimientoEntity movimientoEntity, Long id);
-    MovimientoEntity saveMovimiento(VentaEntity ventaEntity, List<PagoEntity> pagos);
+    MovimientoEntity saveMovimiento(VentaEntity ventaEntity);
     void saveMovimientos(List<MovimientoEntity> movimientos);
     void deleteMovimiento(Long id);
     MovimientoEntity crearMovimiento(AnticipoEntity anticipo);
@@ -41,7 +41,9 @@ public interface MovimientoService {
     void deleteReembolso(Long id);
     void deleteAnticipo(Long id);
     PedidoMontoPagadoDTO getMontoPagadoPedido(Long id);
-    
-    
+    Long validarEliminacionPedido(Long id);
+    List<MovimientoEntity> getFacturasPendientes();
+    MovimientoEntity savePagosMovimiento(MovimientoEntity movimientoEntity, List<PagoEntity> pagos);
+    boolean getEstadoPago(VentaEntity ventaEntity);
     List<MovimientosDTO> findByIdCaja(Long id);
 }

@@ -27,6 +27,8 @@ public class CajaEntity {
     @Column
     private Date fecha;
     @Column
+    private Date fechaCierre;
+    @Column
     private char estado;
 
     public CajaEntity() {
@@ -54,6 +56,14 @@ public class CajaEntity {
 
     public void setEstado(char estado) {
         this.estado = estado;
+    }
+
+    public Date getFechaCierre() {
+        return fechaCierre;
+    }
+
+    public void setFechaCierre(Date fechaCierre) {
+        this.fechaCierre = fechaCierre;
     }
     
     

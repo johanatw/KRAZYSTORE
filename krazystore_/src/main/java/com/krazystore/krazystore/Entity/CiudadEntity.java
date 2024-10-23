@@ -20,14 +20,28 @@ public class CiudadEntity {
     private Long id;
     @NotNull
     private String descripcion;
+    @ManyToOne
+    @JoinColumn(name = "id_departamento")
+    private DepartamentoEntity departamento;
 
     public CiudadEntity() {
     }
 
-    public CiudadEntity(Long id, String descripcion) {
+    public CiudadEntity(Long id, String descripcion, DepartamentoEntity departamento) {
         this.id = id;
         this.descripcion = descripcion;
+        this.departamento = departamento;
     }
+
+    public DepartamentoEntity getDepartamento() {
+        return departamento;
+    }
+
+    public void setDepartamento(DepartamentoEntity departamento) {
+        this.departamento = departamento;
+    }
+
+    
 
     public Long getId() {
         return id;

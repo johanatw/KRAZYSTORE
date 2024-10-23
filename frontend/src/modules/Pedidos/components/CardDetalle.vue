@@ -202,7 +202,17 @@ const eliminar = (detalle) => {
         <div class="grid">
             <div class="col-12" >
                 <Card >
-                    <template #title> Productos </template>
+                    
+                    <template #title> 
+                        <div class="flex justify-content-between ">
+                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                    Productos
+                </div>
+                <div >
+                    <Button label="+ Producto" link @click="visible = true" />
+                    </div>
+            </div>
+                         </template>
                         <template #content>
                             <div>
                                 
@@ -279,9 +289,7 @@ const eliminar = (detalle) => {
 
                                 </div>
                                 <div >
-                                    <div class="flex field col-3 md:col-3">
-                                        <Button  label="+ Agregar producto" link @click="visible = true" style="color: palevioletred;"/>
-                                    </div>
+                                    
                        
                                     <Dialog v-if="visible" v-model:visible="visible" modal header="Seleccionar productos" :closable="false" :draggable="false" :style="{ width: '40rem' }"  >
                                     <template #footer>

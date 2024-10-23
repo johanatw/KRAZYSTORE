@@ -102,6 +102,13 @@ const verCaja = (caja) =>{
                             {{ formatearNumero(slotProps.data.fecha) }}
                         </template>
                     </Column>
+                    <Column field="fechaCierre" sortable header="Cierre" aria-sort="ascending" >
+                        <template #body="slotProps">
+                            <div v-if="slotProps.data.fechaCierre != null">
+                                {{ formatearNumero(slotProps.data.fechaCierre) }}
+                            </div>
+                        </template>
+                    </Column>
                     <Column  field="estado" header="Estado" aria-sort="ascending" sortable >
                         
                         <template #body="slotProps">

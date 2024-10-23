@@ -65,6 +65,9 @@ public class PedidoEntity {
     @ManyToOne
     @JoinColumn(name = "id_cliente")
     private PersonaEntity cliente;
+    @ManyToOne
+    @JoinColumn(name = "id_direccion_envio")
+    private DireccionEntity direccionEnvio;
 
     public PedidoEntity() {
     }
@@ -83,6 +86,15 @@ public class PedidoEntity {
 
     }
 
+    public DireccionEntity getDireccionEnvio() {
+        return direccionEnvio;
+    }
+
+    public void setDireccionEnvio(DireccionEntity direccionEnvio) {
+        this.direccionEnvio = direccionEnvio;
+    }
+
+    
     public int getPagado() {
         return pagado;
     }

@@ -1,8 +1,23 @@
 
 <template>
     <div class="card flex p-fluid justify-content-center " >
-
+        <ConfirmDialog group="registroFactura">
+        <template #container="{ message, acceptCallback, rejectCallback }">
+            <div class="flex flex-column align-items-center p-5 surface-overlay border-round">
+                <div class="border-circle bg-primary inline-flex justify-content-center align-items-center h-6rem w-6rem -mt-8">
+                    <i class="pi pi-check text-5xl"></i>
+                </div>
+                <p class="block mb-2 mt-4">{{ message.message }}</p>
+                <span class="font-bold mb-0 ">{{ message.header }}</span>
+                <div class="flex align-items-center gap-2 mt-4">
+                    <Button label="Ver factura" @click="acceptCallback"></Button>
+                    <Button label="Ir a facturas" @click="rejectCallback"></Button>
+                </div>
+            </div>
+        </template>
+    </ConfirmDialog>
         <Panel style=" position: relative; width: 80%;" >
+
             <template #header>
                 <div class="flex align-items-center gap-2">
                     <h3 class="font-bold">Nueva Factura</h3>
@@ -17,7 +32,7 @@
                 </div>
             </template>
             <div class="contenedor" style="padding-left: 4%; padding-right: 4%;">      
-                    
+                <div class="grid">
                 <div class="field col-12 md:col-6">
                     <MiCard ref="cardCliente" :titulo="'Cliente'" :contenido="infoCliente" @edit="editCliente"/> 
                 </div>  
@@ -25,6 +40,88 @@
                     <SearchCliente ref="searchCard" @getCliente="getCliente" />
                 </div> 
 
+                
+                    <div class="field col-12 md:col-6">
+                        <Card style="height: 100%;" >
+                            <template #title>
+            <div class="flex justify-content-between ">
+                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                    Medios de pago
+                </div>
+                <div >
+                    <Button label="+ Forma de pago"   @click="addRow()" link />
+                    </div>
+
+            </div>
+            
+        </template>
+                            <!---->
+                            <template #content>
+                                <div>
+                                    <div class="formgrid grid" v-for="item, index in pagos" :key="item" >
+                                        <div class="flex field col-12 md:col-12" >
+                                            <div class="field col-4 md:col-4" style="justify-content: start;  ">
+                                                <Dropdown style="padding: 0rem !important;" v-model="item.formaPago" :options="formasPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   />
+                                                
+                                            </div>
+                                            <div v-if="item.formaPago && item.formaPago.descripcion == 'Anticipo'" class=" field col-4 md:col-4" style=" justify-content: start; " >
+                                                <Dropdown style="padding: 0rem !important;" v-model="item.anticipo" :options="anticipos" optionLabel="id" placeholder="Seleccione un elemento" @change="verificarSaldoAnticipo(item, index)" >
+                                                    <template #value="slotProps">
+                                                        <div v-if="slotProps.value" class="flex align-items-center">
+                                                            <div>ANT-{{ slotProps.value.id }} - {{ formatearNumero(slotProps.value.saldo) }} Gs. </div>
+                                                        </div>
+                                                        <span v-else>
+                                                            {{ slotProps.placeholder }}
+                                                        </span>
+                                                    </template>
+                                                    
+                                                    <template #option="slotProps">
+                                                    <div class="flex align-items-center">
+                                                        <div>ANT-{{ slotProps.option.id }}  - {{ formatearNumero(slotProps.option.saldo) }} Gs.</div>
+                                                    </div>
+                                                </template>
+                                            </Dropdown>
+                                            </div>
+                                            <div v-else class=" field col-4 md:col-4" style=" justify-content: start; " ></div>
+                                            <div v-if="item.anticipo" class=" field col-3 md:col-3" style=" justify-content: start; " >
+                                               
+                                                <InputNumber name="input" style="padding: 0rem !important;" :max=" item.anticipo.saldo " v-model="item.importe" @input="calcularAbonado($event,item.anticipo.saldo)"  />
+                                            
+                                            </div>
+                                            <div v-else class=" field col-3 md:col-3" style=" justify-content: start; " >
+                                                <InputNumber disabled=true name="input" style="padding: 0rem !important;" v-model="item.importe" @input="calcularAbonado($event)"  />
+                                            </div>
+                                            <div v-if="index > 0" class=" field col-1 md:col-1" style=" justify-content: flex-end">
+                                                <Button style="background: none !important; border: none !important " icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="eliminarRow(index)" />
+                                    
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    
+
+                                    <div class="formgrid grid">
+                                        <div class="flex field col-12 md:col-12" >
+                                            
+                                            <div class="flex field col-9 md:col-9 justify-content-start" >
+                                                <label for="totalPagos"> Total abonado: </label>
+                                                
+                                            </div>
+                                            <div class="flex field col-3 md:col-3" style=" justify-content: center; " >
+                                                {{ abonado.toLocaleString("de-DE") }}
+
+                                            </div>
+                                        </div>
+                                    
+                                    </div>
+                                </div>
+                            </template>
+                        </Card>
+
+                    </div>
+                </div>
+                
 
 
                 <div class="grid">
@@ -177,106 +274,7 @@
 
 
 
-                <div>
-                    <div>
-                        <Card style="height: 100%;" >
-                            <template #title>
-            <div class="flex justify-content-between ">
-                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
-                    Medios de pago
-                </div>
-                <div >
-                    <Button label="+ Forma de pago"   @click="addRow()" link />
-                    </div>
-
-            </div>
-            
-        </template>
-                            <!---->
-                            <template #content>
-                                <div>
-                                    <div class="formgrid grid" v-for="item, index in pagos" :key="item" >
-                                        <div class="flex field col-12 md:col-12" >
-                                            <div class="field col-4 md:col-4" style="justify-content: start;  ">
-                                                <Dropdown style="padding: 0rem !important;" v-model="item.formaPago" :options="formasPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   />
-                                                
-                                            </div>
-                                            <div v-if="item.formaPago && item.formaPago.descripcion == 'Anticipo'" class=" field col-4 md:col-4" style=" justify-content: start; " >
-                                                <Dropdown style="padding: 0rem !important;" v-model="item.anticipo" :options="anticipos" optionLabel="id" placeholder="Seleccione un elemento" @change="verificarSaldoAnticipo(item, index)" >
-                                                    <template #value="slotProps">
-                                                        <div v-if="slotProps.value" class="flex align-items-center">
-                                                            <div>ANT-{{ slotProps.value.id }} - {{ formatearNumero(slotProps.value.saldo) }} Gs. </div>
-                                                        </div>
-                                                        <span v-else>
-                                                            {{ slotProps.placeholder }}
-                                                        </span>
-                                                    </template>
-                                                    
-                                                    <template #option="slotProps">
-                                                    <div class="flex align-items-center">
-                                                        <div>ANT-{{ slotProps.option.id }}  - {{ formatearNumero(slotProps.option.saldo) }} Gs.</div>
-                                                    </div>
-                                                </template>
-                                            </Dropdown>
-                                            </div>
-                                            <div v-else class=" field col-4 md:col-4" style=" justify-content: start; " ></div>
-                                            <div v-if="item.anticipo" class=" field col-3 md:col-3" style=" justify-content: start; " >
-                                               
-                                                <InputNumber name="input" style="padding: 0rem !important;" :max=" item.anticipo.saldo " v-model="item.importe" @input="calcularAbonado($event,item.anticipo.saldo)"  />
-                                            
-                                            </div>
-                                            <div v-else class=" field col-3 md:col-3" style=" justify-content: start; " >
-                                                <InputNumber disabled=true name="input" style="padding: 0rem !important;" v-model="item.importe" @input="calcularAbonado($event)"  />
-                                            </div>
-                                            <div v-if="index > 0" class=" field col-1 md:col-1" style=" justify-content: flex-end">
-                                                <Button style="background: none !important; border: none !important " icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="eliminarRow(index)" />
-                                    
-                                            </div>
-
-                                        </div>
-                                    </div>
-
-                                    
-
-                                    <div class="formgrid grid">
-                                        <div class="flex field col-12 md:col-12" >
-                                            
-                                            <div class="flex field col-9 md:col-9 justify-content-end" >
-                                                <label for="totalPagos"> Total abonado: </label>
-                                                
-                                            </div>
-                                            <div class="flex field col-3 md:col-3" style=" justify-content: center; " >
-                                                {{ abonado.toLocaleString("de-DE") }}
-
-                                            </div>
-                                        </div>
-                                        <div v-if="cambio > 0" class="flex field col-12 md:col-12" >
-                                            <div class="flex field col-9 md:col-9" style="justify-content: end;  ">
-                                                <label for="totalPagos"> Cambio: </label>
-                                                
-                                            </div>
-                                            <div class="flex field col-3 md:col-3" style=" justify-content: center; " >
-                                                {{ cambio.toLocaleString("de-DE") }}
-                                                
-                                            </div>
-                                        </div>
-                                        <div v-else class="flex field col-12 md:col-12" style="color: red; font-weight: bold; " >
-                                            <div class="flex field col-9 md:col-9" style="justify-content: end;  ">
-                                                <label for="totalPagos"> Faltante: </label>
-                                                
-                                            </div>
-                                            <div class="flex field col-3 md:col-3" style=" justify-content: center; " >
-                                                {{ faltante.toLocaleString("de-DE") }}
-                                                
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </template>
-                        </Card>
-
-                    </div>
-                </div>
+              
                     
             </div>
    
@@ -314,6 +312,42 @@ import SearchCliente from '@/modules/Pedidos/components/SearchCliente.vue'
 import { FilterMatchMode, FilterOperator } from 'primevue/api';
 import MiCard from '@/modules/Pedidos/components/MiCard.vue'
 import InputNumber from 'primevue/inputnumber';
+import ConfirmDialog from 'primevue/confirmdialog';
+
+
+import { useConfirm } from "primevue/useconfirm";
+
+
+const confirm = useConfirm();
+
+const message = (m) => {
+    let id = m.id;
+    let nro = m.nroFactura;
+    console.log('messageError invocado');
+    confirm.require({
+        group: 'registroFactura',
+        header: '#'+ nro,
+        message: 'Se ha generado la Factura',
+
+        accept: () => {
+            router.push({name: 'verFactura', params: {id}});
+            //verPedido(router.currentRoute.value.params.id);
+            
+        },
+        reject: () => {
+            router.push({name: 'ventas'});
+            //verPedido(router.currentRoute.value.params.id);
+            
+        },
+    });
+};
+import Toast from 'primevue/toast';
+
+
+import { useToast } from "primevue/usetoast";
+
+
+const toast = useToast();
 const searchCard = ref(null);
 const selectedClient = ref();
 const pedidosAnticipados = ref([]);
@@ -436,12 +470,7 @@ const editCliente = () =>{
 }
 
 const verificarSaldoAnticipo = (item, index) =>{
-    console.log("item");
-    console.log(item); 
-    console.log("saldo");
-    console.log(item.anticipo.saldo); 
-    console.log("faltante");
-    console.log(faltante.value); 
+
     let falta = faltante.value + item.importe;
     
          if (falta>0 && item.anticipo.saldo < falta) {
@@ -462,12 +491,17 @@ const habilitarInput = (index, item) => {
         inp.disabled = false;
     }
    
-    if (abonado.value < total.value ) {
+    if (item.importe < 1 && abonado.value < total.value ) {
         item.importe = total.value - abonado.value;
     }
-    calcularAbonado();
+
+    if(item.formaPago.descripcion != 'Anticipo'){
+        calcularAbonado();
+    }
+    
     
 };
+
 const formatearNumero = (valor) =>{
     if(typeof(valor) == "number"){
         return valor.toLocaleString("de-DE");
@@ -779,7 +813,8 @@ const eliminar = (detalle) => {
     VentaServices.saveVenta(anticipoCreationDTO ).then((data)=> {
         console.log("saveanticipothen");
         console.log("data");
-        router.push({name: 'ventas'});
+      
+        message(data.data);
         //closeDialog();
         //emit('anticipoGuardado', data.data.id);
         

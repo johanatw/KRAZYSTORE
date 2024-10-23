@@ -13,6 +13,17 @@ export const CiudadServices = {
     }
     
   },
+  obtenerCiudadesByDepartamento(id) {
+    try {
+        console.log("ciudadservice");
+      return axios.get(CIUDAD_API_BASE_URL+"/departamento/"+id);
+      
+    } catch (error) {
+      console.log("hola");
+      console.log(error.name);
+    }
+    
+  },
 
 };
 export default { CiudadServices: CiudadServices };

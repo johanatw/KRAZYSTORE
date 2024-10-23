@@ -51,6 +51,7 @@ public class CajaServiceImpl implements CajaService{
     @Override
     public void cerrarCaja(Long id) {
         CajaEntity caja = cajaRepository.findById(id).get();
+        caja.setFechaCierre(new Date());
         caja.setEstado('C');
         cajaRepository.save(caja);
     }

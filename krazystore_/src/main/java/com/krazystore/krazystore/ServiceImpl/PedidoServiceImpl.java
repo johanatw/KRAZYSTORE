@@ -6,15 +6,18 @@ package com.krazystore.krazystore.ServiceImpl;
 
 import com.krazystore.krazystore.DTO.Pedido;
 import com.krazystore.krazystore.DTO.PedidoDTO;
+import com.krazystore.krazystore.DTO.PersonaCreationDTO;
 import com.krazystore.krazystore.Entity.DetallePedidoEntity;
 import com.krazystore.krazystore.Entity.EstadoEntity;
 import com.krazystore.krazystore.Entity.PedidoEntity;
+import com.krazystore.krazystore.Entity.PersonaEntity;
 import com.krazystore.krazystore.Repository.PedidoRepository;
 import com.krazystore.krazystore.Service.AnticipoService;
 import com.krazystore.krazystore.Service.DetallePedidoService;
 import com.krazystore.krazystore.Service.MovimientoService;
 import com.krazystore.krazystore.Service.PagoService;
 import com.krazystore.krazystore.Service.PedidoService;
+import com.krazystore.krazystore.Service.PersonaService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +38,8 @@ public class PedidoServiceImpl implements PedidoService {
         this.pedidorepository = pedidorepository;
     }
     
-    
+    @Autowired
+    private PersonaService personaService;
     
     @Autowired
     private DetallePedidoService detallePedidoService;
@@ -56,6 +60,13 @@ public class PedidoServiceImpl implements PedidoService {
     public PedidoEntity savePedido(PedidoEntity pedidoEntity, List<DetallePedidoEntity> detalle) {
         EstadoEntity estadoPago = new EstadoEntity((long)1,"Pago pendiente","P");
         EstadoEntity estadoPedido = new EstadoEntity((long)3,"Nuevo","E");
+        PersonaCreationDTO personaDTO = new PersonaCreationDTO();
+        personaDTO.setPersonaEntity(pedidoEntity.getCliente());
+        personaDTO.setDireccion(pedidoEntity.getDireccionEnvio());
+        
+        if(pedidoEntity.getDireccionEnvio()!= null && pedidoEntity.getDireccionEnvio().getId() == null ){
+            personaService.updatePersona(personaDTO, pedidoEntity.getCliente().getId());
+        }
         
         pedidoEntity.setFecha(new Date());
         pedidoEntity.setEstadoPago(estadoPago);
@@ -84,6 +95,8 @@ public class PedidoServiceImpl implements PedidoService {
         updatedPedido.setFormaPago(pedidoEntity.getFormaPago());
         
         updatedPedido.setEstadoPago(pedidoEntity.getEstadoPago());
+        
+        
 
         PedidoEntity pedido = pedidorepository.save(updatedPedido);
         detallePedidoService.updateDetallesPedido(detalle, id);

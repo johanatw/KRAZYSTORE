@@ -38,10 +38,18 @@ import { useToast } from "primevue/usetoast";
 const confirm = useConfirm();
 const toast = useToast();
 const messageError = (msg) => {
+    console.log('messageError invocado');
     confirm.require({
         group: 'headless',
         header: 'Ocurrio un error',
         message: msg.toUpperCase(),
+
+        accept: () => {
+            getDetalle();
+            getPedido();
+            //verPedido(router.currentRoute.value.params.id);
+            
+        },
     });
 };
 
@@ -86,6 +94,7 @@ onMounted(() => {
         
         
     });*/
+    
     CajaServices.obtenerPagosPedido(router.currentRoute.value.params.id).then((data) => {
         pedidoTotalPagado.value = data.data;
     });
@@ -244,10 +253,11 @@ const getEstadoPago = () =>{
 }
 
 
+
 const verPedido = (id) =>{
     router.push({name: 'VisualizarPedido', params: {id}});
+    
 }
-
 
 
 const submit = () =>{
@@ -276,7 +286,7 @@ const submit = () =>{
         //pedido.value.formaPago = formaPago.value.selectedFormaPago;
     
 
-
+        //messageError(error.response.data.mensaje)
         detallePedido.value = productos.value.detalles;
         console.log("detallemodificar", detallePedido.value);
         pedido.value.total = productos.value.subTotal;
@@ -339,7 +349,7 @@ const validarForm = (event) => {
         </template>
     </ConfirmDialog>
     
-    <Toast />
+    
 
  <Panel style=" position: relative; width: 80%;" >
     <template #header>
@@ -360,8 +370,8 @@ const validarForm = (event) => {
 <div v-if="error" style="background-color: rgb(242, 222, 222); 
 border: solid 1px rgb(215, 57, 37); padding-top: 1%; padding-bottom: 1%; margin-bottom: 1%;"> 
     <ul>
-        <li v-for="msg in mensaje" style="list-style: none;">
-        <a style="color: rgb(173, 89, 86);">{{ msg }}</a>
+        <li v-for="m in mensaje" style="list-style: none;">
+        <a style="color: rgb(173, 89, 86);">{{ m }}</a>
         </li>
     </ul>
 </div>

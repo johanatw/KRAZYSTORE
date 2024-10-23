@@ -104,7 +104,7 @@ a,
   }
 }
 
-@media (min-width: 89em) {
+@media (min-width: 100em) {
   body {
     display: flex;
  

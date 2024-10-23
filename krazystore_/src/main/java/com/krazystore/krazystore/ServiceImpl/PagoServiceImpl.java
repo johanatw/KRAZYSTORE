@@ -69,14 +69,17 @@ public class PagoServiceImpl implements PagoService {
         List<AnticipoEntity> anticiposUtilizados = new ArrayList<>();
         
         pagos.forEach(d -> {
-            d.setMovimiento(movimiento);
+            if(d.getFormaPago() != null && d.getImporte()>0){
+                d.setMovimiento(movimiento);
             
-            if("Anticipo".equals(d.getFormaPago().getDescripcion())){
-              AnticipoEntity anticipo = d.getAnticipo();
-              anticipo.setUtilizado(anticipo.getUtilizado() + (int)(long)d.getImporte());
-              anticipo.setSaldo(anticipo.getSaldo() - (int)(long)d.getImporte());
-              anticiposUtilizados.add(anticipo);
+                if("Anticipo".equals(d.getFormaPago().getDescripcion())){
+                  AnticipoEntity anticipo = d.getAnticipo();
+                  anticipo.setUtilizado(anticipo.getUtilizado() + (int)(long)d.getImporte());
+                  anticipo.setSaldo(anticipo.getSaldo() - (int)(long)d.getImporte());
+                  anticiposUtilizados.add(anticipo);
+                }
             }
+            
         });
         Iterable<PagoEntity> newPagos =  pagoRepository.saveAll(pagos);
         

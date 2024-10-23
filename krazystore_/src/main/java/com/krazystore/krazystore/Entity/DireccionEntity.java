@@ -18,28 +18,98 @@ public class DireccionEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-    @ManyToOne
-    @JoinColumn(name = "id_departamento")
-    private DepartamentoEntity departamento;
+    @Column
+    private String direccion;
+    @Column
+    private String calle1;
+    @Column
+    private String calle2;
+    @Column
+    private String nroCasa;
+    @Column
+    private char tipo;
+    @Column
+    private Float lat;
+    @Column
+    private Float lng;
     @ManyToOne
     @JoinColumn(name = "id_ciudad")
     private CiudadEntity ciudad;
-    @Column
-    private String direccion;
     @ManyToOne
     @JoinColumn(name = "id_persona")
     private PersonaEntity persona;
 
     public DireccionEntity() {
     }
+    
+    
 
-    public DireccionEntity(Long id, DepartamentoEntity departamento, CiudadEntity ciudad, String direccion, PersonaEntity persona) {
-        this.id = id;
-        this.departamento = departamento;
-        this.ciudad = ciudad;
-        this.direccion = direccion;
-        this.persona = persona;
+    public CiudadEntity getCiudad() {
+        return ciudad;
     }
+
+    public void setCiudad(CiudadEntity ciudad) {
+        this.ciudad = ciudad;
+    }
+    
+
+    public Float getLat() {
+        return lat;
+    }
+
+    public void setLat(Float lat) {
+        this.lat = lat;
+    }
+
+    public Float getLng() {
+        return lng;
+    }
+
+    public void setLng(Float lng) {
+        this.lng = lng;
+    }
+
+   
+
+    
+    public char getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(char tipo) {
+        this.tipo = tipo;
+    }
+    
+
+    public String getCalle1() {
+        return calle1;
+    }
+
+    public void setCalle1(String calle1) {
+        this.calle1 = calle1;
+    }
+
+    public String getCalle2() {
+        return calle2;
+    }
+
+    public void setCalle2(String calle2) {
+        this.calle2 = calle2;
+    }
+    
+    
+
+
+    
+
+    public String getNroCasa() {
+        return nroCasa;
+    }
+
+    public void setNroCasa(String nroCasa) {
+        this.nroCasa = nroCasa;
+    }
+    
 
     public Long getId() {
         return id;
@@ -49,21 +119,6 @@ public class DireccionEntity {
         this.id = id;
     }
 
-    public DepartamentoEntity getDepartamento() {
-        return departamento;
-    }
-
-    public void setDepartamento(DepartamentoEntity departamento) {
-        this.departamento = departamento;
-    }
-
-    public CiudadEntity getCiudad() {
-        return ciudad;
-    }
-
-    public void setCiudad(CiudadEntity ciudad) {
-        this.ciudad = ciudad;
-    }
 
     public String getDireccion() {
         return direccion;

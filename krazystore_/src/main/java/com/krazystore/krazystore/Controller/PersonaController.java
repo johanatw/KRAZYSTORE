@@ -5,7 +5,10 @@
  */
 package com.krazystore.krazystore.Controller;
 
+import com.krazystore.krazystore.DTO.PersonaCreationDTO;
 import com.krazystore.krazystore.DTO.PersonaDTO;
+import com.krazystore.krazystore.DTO.PersonaDTO2;
+import com.krazystore.krazystore.Entity.DireccionEntity;
 import com.krazystore.krazystore.Service.PersonaService;
 import com.krazystore.krazystore.Entity.PersonaEntity;
 import com.krazystore.krazystore.Mapper.PersonaDTOMapper;
@@ -48,7 +51,7 @@ public class PersonaController {
     }
 
     @GetMapping("/{id}")
-    public Optional<PersonaEntity> findPersonaById(@PathVariable("id") Long id) {
+    public Optional<PersonaDTO2> findPersonaById(@PathVariable("id") Long id) {
         return personaService.findById(id);
     }
     
@@ -63,44 +66,18 @@ public class PersonaController {
     }
     
     @PostMapping
-    public PersonaEntity savePersona(@RequestBody @Valid PersonaEntity personaEntity) {
-         
-        try {
-           
-            return personaService.savePersona(personaEntity);
-            
-        } catch (DataAccessException exDt) {
-           String message = exDt.getMessage();
-           
-           if(message.contains("duplicate key") && message.contains("(email)")){
-               message = "Ya existe un cliente con el mismo Email";
-           }else if (message.contains("duplicate key") && message.contains("(nro_doc)")){
-               message = "Ya existe un cliente con el mismo N° de Documento";
-           }else if (message.contains("duplicate key") && message.contains("(telefono)")){
-               message = "Ya existe un cliente con el mismo N° de Telefono";
-           }
-            throw  new BadRequestException(message);
-        }
-        
-        
+    public PersonaEntity savePersona(@RequestBody PersonaCreationDTO personaCreation) {
+            System.out.println("controller persona");
+            System.out.println(personaCreation.getPersonaEntity());
+            return personaService.savePersona(personaCreation);
+
     }
 
     @PutMapping("/{id}")
-    public PersonaEntity updatePersona(@PathVariable long id, @RequestBody @Valid PersonaEntity persona) {
-        try {
-            return personaService.updatePersona(persona, id);
-        } catch (DataAccessException exDt) {
-           String message = exDt.getMessage();
-           
-           if(message.contains("duplicate key") && message.contains("(email)")){
-               message = "Ya existe un cliente con el mismo Email";
-           }else if (message.contains("duplicate key") && message.contains("(nro_doc)")){
-               message = "Ya existe un cliente con el mismo N° de Documento";
-           }else if (message.contains("duplicate key") && message.contains("(telefono)")){
-               message = "Ya existe un cliente con el mismo N° de Telefono";
-           }
-            throw  new BadRequestException(message);
-        }
+    public PersonaEntity updatePersona(@PathVariable long id, @RequestBody PersonaCreationDTO personaCreation) {
+        
+            return personaService.updatePersona(personaCreation, id);
+        
     }
 
     @DeleteMapping("/{id}")
@@ -108,7 +85,10 @@ public class PersonaController {
         personaService.deletePersona(id);
     }
 
- 
+    @GetMapping("/clientes")
+    public List<PersonaDTO2> findPersonasDTO() {
+        return personaService.findPersonasDTO();
+    }
 
-
+    
 }

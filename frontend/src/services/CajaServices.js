@@ -83,6 +83,18 @@ export const CajaServices = {
     }
     
   },
+  
+  savePagosMovimiento(movimientoCreationDTO) {
+    try {
+        
+        
+      return axios.post(MOVIMIENTO_API_BASE_URL+'/pagar',movimientoCreationDTO);
+      
+    } catch (error) {
+      console.log(error.name);
+    }
+    
+  },
   getCajas() {
     try {
       return axios.get(CAJA_API_BASE_URL);
@@ -135,6 +147,29 @@ export const CajaServices = {
     try {
         
       return axios.get(MOVIMIENTO_API_BASE_URL+"/pagos/"+id);
+      
+    } catch (error) {
+      console.log("hola");
+      console.log(error.name);
+    }
+    
+  },
+  
+  validarEliminacionPedido(id) {
+    try {
+        
+      return axios.get(MOVIMIENTO_API_BASE_URL+"/validar/"+id);
+      
+    } catch (error) {
+      console.log("hola");
+      console.log(error.name);
+    }
+    
+  },
+  obtenerFacturasPendientes() {
+    try {
+        
+      return axios.get(MOVIMIENTO_API_BASE_URL+"/pendientes");
       
     } catch (error) {
       console.log("hola");

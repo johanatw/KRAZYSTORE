@@ -94,10 +94,15 @@ const deleteReembolso = (id) =>{
 const anular = (id) =>{
     console.log("anular");
     console.log(id);
+    let pagosAsociados = 1;
     VentaServices.anularVenta(id).then((response)=>{
-      
-        getVentas();
-            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 5000 });
+        if (response.data == pagosAsociados) {
+            toast.add({ severity: 'success', detail: 'Pagos asociados', life: 5000 });
+        } else {
+            getVentas();
+            toast.add({ severity: 'success', detail: 'Factura anulada', life: 5000 });
+        }
+        
       
             
         })
@@ -148,6 +153,11 @@ const verPedido = (id) =>{
 const verAnticipo = (id) =>{
     console.log("veranticipofuncion");
     router.push({name: 'verAnticipo', params: {id}});
+}
+
+const verFactura = (id) =>{
+    
+    router.push({name: 'verFactura', params: {id}});
 }
 
 const deletePedido = (id) =>{
@@ -230,10 +240,10 @@ const nuevoPedido = () =>{
         </Column>
         <Column  header="Estado" aria-sort="ascending" sortable> 
             <template #body="slotProps">
-                <div v-if="slotProps.data.activo">
+                <div v-if="slotProps.data.activo" style="color: rgb(34, 177, 76);">
                     Activo
                 </div>
-                <div v-else>
+                <div v-else style="color: red;">
                     Anulado
                 </div>
             </template>           
@@ -246,7 +256,7 @@ const nuevoPedido = () =>{
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
                 <div style="display: flex;" >
-                    <Button  label="Revisar"  style="height: 2rem !important; width: 5rem !important; margin-right: 1%; font-size: 14px; " />
+                    <Button  label="Revisar" @click="verFactura(slotProps.data.id)"  style="height: 2rem !important; width: 5rem !important; margin-right: 1%; font-size: 14px; " />
                     <div v-if="slotProps.data.activo">
                         <Button  severity="danger"  label="Anular" @click="anular(slotProps.data.id)"  style="height: 2rem !important; width: 5rem !important; font-size: 14px;" />
                 </div>

@@ -20,6 +20,7 @@ public class DepartamentoEntity {
     private Long id;
     @NotNull
     private String descripcion;
+    
 
     public DepartamentoEntity() {
     }

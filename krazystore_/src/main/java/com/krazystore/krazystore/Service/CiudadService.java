@@ -14,6 +14,7 @@ import java.util.Optional;
  */
 public interface CiudadService {
     List<CiudadEntity> findAll();
+    List<CiudadEntity> findByIdDepartamento(Long id);
     Optional<CiudadEntity> findById(Long id);
     CiudadEntity saveCiudad(CiudadEntity ciudadEntity);
     CiudadEntity updateCiudad(CiudadEntity ciudadEntity, Long id);

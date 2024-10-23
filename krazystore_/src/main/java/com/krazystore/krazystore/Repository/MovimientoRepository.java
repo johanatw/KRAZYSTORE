@@ -8,6 +8,7 @@ import com.krazystore.krazystore.DTO.MovimientosDTO;
 import com.krazystore.krazystore.DTO.PRUEBADTO;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -34,7 +35,7 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
     "SELECT new com.krazystore.krazystore.DTO.PRUEBADTO(m.id, c.descripcion"
             
             + ", m.fecha"
-            + ", f.descripcion, pagos.importe) FROM MovimientoEntity m "
+            + ", f.descripcion, pagos.importe, v.nroFactura) FROM MovimientoEntity m "
            + "LEFT JOIN m.concepto as c "
             + "LEFT JOIN m.anticipo a "
             + "LEFT JOIN m.reembolso r "
@@ -65,9 +66,9 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
     public List<MovimientosDTO> findMovimientosDTO();
     
     @Query(
-    "SELECT new com.krazystore.krazystore.DTO.MovimientosDTO(m.id, m.fecha, c.descripcion, f.descripcion"
-            + ", p.importe, CASE WHEN p.anticipo IS NULL AND c.tipo = 'I' THEN p.importe ELSE 0 END"
-            + ", CASE WHEN c.tipo = 'E' AND f.descripcion <> 'Anticipo' THEN p.importe ELSE 0 END, m.nroDocumento) FROM MovimientoEntity m "
+    "SELECT new com.krazystore.krazystore.DTO.MovimientosDTO(m.id, m.fecha, c.descripcion, COALESCE(f.descripcion, '')"
+            + ", p.importe"
+            + ", m.nroDocumento, m.estado, c.tipo ) FROM MovimientoEntity m "
            + "LEFT JOIN m.concepto as c "
             + "LEFT JOIN m.caja as ca "
             + "LEFT JOIN PagoEntity p "
@@ -111,4 +112,27 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
   nativeQuery = true)
     void deleteByIds(List<Long> movimientos);
     
+    
+    @Query(
+  value = """
+          SELECT COUNT(DISTINCT(m.id)) FROM movimientos m
+          left join anticipos a
+          on a.id = m.id_anticipo
+          left join ventas v
+          on v.id_venta = m.id_venta
+          left join pedidos p
+          on p.id_pedido = a.id_pedido
+          or p.id_pedido = v.id_pedido 
+          where (m.id_anticipo is not null OR (m.id_venta is not null AND v.id_pedido is not null)) 
+          AND p.id_pedido = ?1""", 
+  nativeQuery = true)
+    Long validateOrderDeletion(Long idPedido);
+    
+    @Query(
+  value = """
+          SELECT * FROM movimientos m 
+          where m.estado = false 
+          """, 
+  nativeQuery = true)
+    List<MovimientoEntity> getFacturasPendientes();
 }

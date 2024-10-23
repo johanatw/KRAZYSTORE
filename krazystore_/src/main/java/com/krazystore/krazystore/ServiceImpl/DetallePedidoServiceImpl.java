@@ -17,6 +17,7 @@ import com.krazystore.krazystore.Service.AnticipoService;
 
 import com.krazystore.krazystore.Service.DetallePedidoService;
 import com.krazystore.krazystore.Service.ProductoService;
+import com.krazystore.krazystore.exception.BadRequestException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -161,7 +162,7 @@ public class DetallePedidoServiceImpl implements DetallePedidoService{
             if (!existe) {
                 if (anterior.getCantidadFacturada() > 0) {
                     // Lanza excepción si el producto ya fue facturado
-                    throw new RuntimeException("No es posible eliminar el Producto: " + anterior.getProducto().getNombre());
+                    throw new BadRequestException("No es posible eliminar el Producto: " + anterior.getProducto().getNombre());
                 }
                 // Si no está facturado, se agrega a la lista de elementos a eliminar
                 elementos.add(anterior);
@@ -183,7 +184,7 @@ public class DetallePedidoServiceImpl implements DetallePedidoService{
                 if(actual.get().getCantidad() != anterior.getCantidad()){
                     // Lanza excepción si el producto ya fue facturado
                     if(anterior.getCantidadFacturada() > actual.get().getCantidad()){
-                        throw new RuntimeException("No es posible modificar la cantidad del Producto: "+ anterior.getProducto().getNombre());
+                        throw new BadRequestException("No es posible modificar la cantidad del Producto: "+ anterior.getProducto().getNombre());
                     }
                     
                     actual.get().setId(anterior.getId());

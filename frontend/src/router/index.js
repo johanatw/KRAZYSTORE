@@ -10,9 +10,17 @@ const router = createRouter({
 
       path: '/',
       name: 'home',
+      component: () => import('@/modules/Pedidos/views/MapView.vue')
+      
+      
+    },
+    {
+      path: '/pedidos',
+      name: 'pedidos',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
       component: () => import('@/modules/Pedidos/views/ListaPedidos.vue')
-      
-      
     },
     {
       path: '/:id',
@@ -80,7 +88,7 @@ const router = createRouter({
       component: () => import('@/modules/Pagos/views/ListaReembolsos.vue')
     },
     {
-      path: '/facturar/:id',
+      path: '/nueva_factura/:id',
       name: 'facturar',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -124,6 +132,14 @@ const router = createRouter({
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('@/modules/Pagos/views/NuevaFactura.vue')
+    },
+    {
+      path: '/consulta_factura/:id',
+      name: 'verFactura',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Pagos/views/VerFactura.vue')
     }
   ]
 })

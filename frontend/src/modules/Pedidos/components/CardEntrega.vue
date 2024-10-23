@@ -100,6 +100,7 @@ const changeEntrega = () => {
 <template>
     <div class="card flex justify-content-center" >
         <Dialog  v-model:visible="visible" modal header="Metodo de entrega" :closable="false" :draggable="false" :style="{ width: '40rem' }"  >
+            
             <div class="card flex justify-content-start">
                 <div class="flex flex-column gap-3">
                     <div v-for="entrega in formasEntrega" :key="entrega.id" class="flex align-items-center">
@@ -129,6 +130,7 @@ const changeEntrega = () => {
                                     <template #option="slotProps">
                                         <div class="flex align-items-center">
                                             <div>{{ slotProps.option.envio.descripcion}} - {{ slotProps.option.costo }} Gs</div>
+                                            <div>hola</div>
                                         </div>
                                     </template>
                                 </Dropdown>

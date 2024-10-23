@@ -115,6 +115,15 @@ const registrarAnticipo = () =>{
     
 };
 
+const registradoEnCajaActualAbierta = (fechaRegistro) =>{
+    console.log("registradoEnCajaActualAbierta");
+    if (cajaAbierta.value != null && fechaRegistro >= cajaAbierta.value.fecha) {
+        return false;
+    } else {
+        return true;
+    }
+};
+
 async function guardarAnticipo() {
     const d = await existeCajaAbierta();
     console.log(d);
@@ -126,7 +135,7 @@ async function guardarAnticipo() {
     CajaServices.saveAnticipo(anticipoCreationDTO ).then((data)=> {
         getAnticipos();
         closeDialogRegistrar();
-        
+        toast.add({ severity:"success", detail: 'Anticipo registrado', life: 3000 });
     } );
     } else {
         toast.add({ severity:"error", detail: 'No existe una caja abierta', life: 3000 });
@@ -224,7 +233,7 @@ const calcularDiferencia = () => {
 };
 
 const habilitarSubmit = () =>{
-    if (abonado.value > anticipo.value.saldo) {
+    if (abonado.value > anticipo.value.saldo || abonado.value<1) {
         disabledSubmit.value = true;
         color.value = 'red';
     }else{
@@ -321,6 +330,22 @@ const confirm2 = (id) => {
    });
 };
 
+const messageError = (msg) => {
+    console.log('messageError invocado');
+    confirm.require({
+        group: 'errorAnticipoUtilizado',
+        header: 'Ocurrio un error',
+        message: msg,
+
+        accept: () => {
+            //getDetalle();
+           
+            
+            
+        },
+    });
+};
+
 const deleteAnticipoReembolsos = () =>{
     const cantidad= 1;
     const index = anticipos.value.findIndex((loopVariable) => loopVariable.id === anticipoToDelete.value);
@@ -349,17 +374,18 @@ const deleteAnticipo = (id) =>{
 }
 
 const verificarEstadoAnticipo = (id) =>{
-   AnticipoServices.verificarEstadoAnticipo(id).then((response)=>{
-
-      if (response.data > 0) {
+    const index = anticipos.value.findIndex((loopVariable) => loopVariable.id === id);
+    
+    if (anticipos.value[index].utilizado > 0) {
+      
+        messageError("Este anticipo ya fue utilizado");
+    } else if (anticipos.value[index].reembolsado > 0) {
         visibleDeleteDialog.value = true;
         anticipoToDelete.value = id;
-      } else {
+    } else {
         deleteAnticipo(id);
       }
-            
-        })
-
+    
    
 }
 
@@ -413,6 +439,21 @@ const getFormasPago= () => {
             <!--Dialog Eliminar Anticipo-->
             <ConfirmDialog ></ConfirmDialog>
             <Toast />
+
+            <ConfirmDialog group="errorAnticipoUtilizado">
+        <template #container="{ message, acceptCallback }">
+            <div class="flex flex-column align-items-center p-5 surface-overlay border-round">
+                <div class="border-circle bg-primary inline-flex justify-content-center align-items-center h-6rem w-6rem -mt-8">
+                    <i class="pi pi-times text-4xl"></i>
+                </div>
+                <span class="font-bold text-2xl block mb-2 mt-4">{{ message.header }}</span>
+                <p class="mb-0">{{ message.message }}</p>
+                <div class="flex align-items-center gap-2 mt-4">
+                    <Button label="Ok" @click="acceptCallback"></Button>
+                </div>
+            </div>
+        </template>
+    </ConfirmDialog>
 
             <!--Modal Aviso Reembolsos Asociados-->
             <Dialog v-model:visible="visibleDeleteDialog" modal  header="Edit Profile" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
@@ -631,14 +672,17 @@ const getFormasPago= () => {
             </template>
       
             <template #icons>
+
                 <div class="flex align-items-center">
-                    <Button  label="Nuevo" @click="registrarAnticipo()" />
+                    <Button  icon="pi pi-plus " @click="registrarAnticipo()" style=" width: 3rem !important; height: 2.9rem;" />
                     <span class="p-input-icon-left" style="margin-left: 1%;">
-                        <i class="pi pi-search" style="top: 35%;"/>
-                        <InputText style="padding: 12px !important; padding-left: 40px !important;" class="buscador p-fluid" v-model="filters['global'].value" placeholder="Buscar..."  />
+                    <i class="pi pi-search" style="top: 35%;"/>
+                    <InputText style="padding: 12px !important; padding-left: 40px !important;" class="buscador p-fluid" v-model="filters['global'].value" placeholder="Buscar..."  />
                     </span>
+
                 </div>
             </template>
+            
       
             <div class="card">
                 <DataTable  :value="anticipos " scrollHeight="400px"  
@@ -674,9 +718,9 @@ const getFormasPago= () => {
                     </Column>
                     <Column :exportable="false" style="min-width:8rem">
                         <template #body="slotProps">
-                            <Button icon="pi pi-search" text rounded aria-label="Search" style="height: 2rem !important; width: 2rem !important;" />
-                            <Button v-if="cajaAbierta != null && slotProps.data.fecha >= cajaAbierta.fecha " icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                             <Button icon="pi pi-sync" severity="success" text rounded aria-label="Cancel" @click="showDialogReembolso(slotProps.data)"  style="height: 2rem !important; width: 2rem !important;" />
+                            <Button :disabled="registradoEnCajaActualAbierta(slotProps.data.fecha)"  icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                            
                         </template>
                     </Column>
                 </DataTable>

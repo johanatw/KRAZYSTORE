@@ -12,9 +12,11 @@ import InputGroup from 'primevue/inputgroup';
 import InputText from 'primevue/inputtext';
 import { PersonaServices } from "@/services/PersonaServices";
 import ConfirmDialog from 'primevue/confirmdialog';
+import Dropdown from 'primevue/dropdown';
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import Toast from 'primevue/toast';
+import MapComponent from '@/modules/Pedidos/components/MapComponent.vue';
 const confirm = useConfirm();
 const toast = useToast();
 const messageError = (msg) => {
@@ -40,7 +42,7 @@ const searchOptions = ref([
 
 const clienteSelected = ref({});
 const clienteForm = ref({});
-
+const direccion = ref({});
 const accion = ref('Buscar');
 const visible = ref(false);
 
@@ -212,6 +214,7 @@ const showDialog = (valor=true) =>{
 
 </script>
 <template>
+    <!-- 
     <ConfirmDialog group="headless">
         <template #container="{ message, acceptCallback }">
             <div class="flex flex-column align-items-center p-5 surface-overlay border-round">
@@ -225,7 +228,7 @@ const showDialog = (valor=true) =>{
                 </div>
             </div>
         </template>
-    </ConfirmDialog>
+    </ConfirmDialog>-->
     
     <Toast />
     <div class="card flex justify-content-center" >
@@ -287,12 +290,38 @@ const showDialog = (valor=true) =>{
                     <input v-model.trim="clienteForm.nroDoc" id="documentou" :disabled="disabled" type="text"  class="input" :class="{'p-invalid': submitted && !clienteForm.telefono && !clienteForm.nroDoc}">
                     <small class="p-error" v-if="submitted && !clienteForm.telefono && !clienteForm.nroDoc">Ingrese Teléfono o Documento</small>
                 </div>
+                <div class="field col-12 md:col-4" >
+                    <label for="nombreu">Calle 1</label>
+                    <input v-model.trim="direccion.calle1" :disabled="disabled" id="nombreu" type="text" required="true" class="input"  >
+                </div>
+                <div class="field col-12 md:col-4" >
+                    <label for="nombreu">Calle 2</label>
+                    <input v-model.trim="direccion.calle2" :disabled="disabled" id="nombreu" type="text" required="true" class="input"  >
+                </div>
+                <div class="field col-12 md:col-4" >
+                    <label for="nombreu">Nro. Casa:</label>
+                    <input v-model.trim="direccion.direccion" :disabled="disabled" id="nombreu" type="text" required="true" class="input"  >
+                </div>
+                <div class="field col-12 md:col-4 p-fluid" >
+                    <label for="nombreu">Ciudad</label>
+                    <Dropdown v-model="direccion.ciudad" :options="ciudades" optionLabel="descripcion" placeholder="Seleccione una ciudad"   />
+                    
+                </div>
+                <div class="field col-12 md:col-4 p-fluid" >
+                    <label for="nombreu">Barrio</label>
+                    <Dropdown  v-model="direccion.barrio" :options="ciudades" optionLabel="descripcion" placeholder="Seleccione un barrio"   />
+                    
+                </div>
+                <MapComponent style="height: 50vh; width: 50vh;" />
             </div>
-
+            
             
             </div>
 
         </div>
+        <div>
+                <Button  label="Ubicar en el mapa"  style="margin-right: 1px;"  />
+            </div>
         <template #footer>
             <div class="card flex" style="justify-content: end;">
                 <Button  label="Cancelar"  style="margin-right: 1px;"  @click="cancel" />

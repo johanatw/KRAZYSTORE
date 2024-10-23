@@ -17,28 +17,36 @@ public class MovimientosDTO {
     private String concepto;
     private String formaPago;
     private Long total;
-    private Long ingreso;
-    private Long egreso;
     private String factura;
+    private boolean estado;
+    private char tipo;
 
     public MovimientosDTO() {
     }
 
-    public MovimientosDTO(Long id, Date fecha, String concepto, String formaPago, Long total, Long ingreso, Long egreso, String factura) {
+    public MovimientosDTO(Long id, Date fecha, String concepto, String formaPago, Long total, String factura, boolean estado, char tipo) {
         this.id = id;
         this.fecha = fecha;
         this.concepto = concepto;
         this.formaPago = formaPago;
         this.total = total;
-        this.ingreso = ingreso;
-        this.egreso = egreso;
         this.factura = factura;
+        this.estado = estado;
+        this.tipo = tipo;
+    }
+
+    public char getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(char tipo) {
+        this.tipo = tipo;
     }
 
     
+
     
-    
-    
+
     public MovimientosDTO(Long id) {
         this.id = id;
 
@@ -86,21 +94,6 @@ public class MovimientosDTO {
         this.total = total;
     }
 
-    public Long getIngreso() {
-        return ingreso;
-    }
-
-    public void setIngreso(Long ingreso) {
-        this.ingreso = ingreso;
-    }
-
-    public Long getEgreso() {
-        return egreso;
-    }
-
-    public void setEgreso(Long egreso) {
-        this.egreso = egreso;
-    }
 
     public String getFactura() {
         return factura;
@@ -109,6 +102,15 @@ public class MovimientosDTO {
     public void setFactura(String factura) {
         this.factura = factura;
     }
+
+    public boolean isEstado() {
+        return estado;
+    }
+
+    public void setEstado(boolean estado) {
+        this.estado = estado;
+    }
+    
     
     
     

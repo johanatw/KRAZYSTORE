@@ -10,6 +10,7 @@ import com.krazystore.krazystore.Entity.CategoriaEntity;
 import com.krazystore.krazystore.Entity.VentaEntity;
 import com.krazystore.krazystore.Service.CategoriaService;
 import com.krazystore.krazystore.Service.VentaService;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -59,9 +61,9 @@ public class VentaController {
     }
     
     @PostMapping("/anular/{id}")
-    public void anularVenta(@PathVariable long id) {
+    public int anularVenta(@PathVariable long id) {
         System.out.println("llega anularVenta");
-        ventaService.anularFactura(id);
+        return ventaService.anularFactura(id);
     }
 
     @DeleteMapping("/{id}")
@@ -69,4 +71,10 @@ public class VentaController {
         ventaService.deleteVenta(id);
     }
     
+    @GetMapping("/pdf")
+    public void getAnticipoPdf(@RequestParam(value="id") Long id, HttpServletResponse response) {
+        response.setContentType("application/pdf");
+        
+        ventaService.getFacturaPdf(response, id);
+    }
 }

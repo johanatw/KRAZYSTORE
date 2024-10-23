@@ -37,6 +37,11 @@ public class CiudadController {
         return ciudadService.findById(id);
     }
     
+    @GetMapping("/departamento/{id}")
+    public List<CiudadEntity> findByIdDepartamento(@PathVariable("id") Long id) {
+        return ciudadService.findByIdDepartamento(id);
+    }
+    
 
     @PostMapping
     public CiudadEntity saveCiudad(@RequestBody CiudadEntity ciudadEntity) {

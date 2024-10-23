@@ -9,8 +9,8 @@ import 'primeicons/primeicons.css'
 import "/node_modules/primeflex/primeflex.css"
 import ToastService from 'primevue/toastservice'
 import ConfirmationService from 'primevue/confirmationservice';
-
-
+import 'primeflex/primeflex.css';
+import 'leaflet/dist/leaflet.css'; 
 import Tooltip from 'primevue/tooltip';
 
 

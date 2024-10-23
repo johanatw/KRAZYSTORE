@@ -5,6 +5,7 @@
  */
 package com.krazystore.krazystore.Repository;
 
+import com.krazystore.krazystore.DTO.PersonaDTO2;
 import com.krazystore.krazystore.Entity.PersonaEntity;
 import java.util.List;
 import java.util.Optional;
@@ -44,6 +45,19 @@ public interface PersonaRepository extends JpaRepository<PersonaEntity, Long> {
 
     public int countByEmail(String email);
     
+    @Query(
+    "SELECT new com.krazystore.krazystore.DTO.PersonaDTO2(p, d)FROM PersonaEntity p "
+           + "LEFT JOIN DireccionEntity d "
+            + "on d.persona = p and d.tipo = 'P' "
+           )
+    public List<PersonaDTO2> findPersonasDTO();
     
+    @Query(
+    "SELECT new com.krazystore.krazystore.DTO.PersonaDTO2(p, d)FROM PersonaEntity p "
+           + "LEFT JOIN DireccionEntity d "
+            + "on d.persona = p and d.tipo = 'P' "
+            + "where p.id = ?1"
+           )
+    public Optional<PersonaDTO2> findPersona(long id);
    
 }

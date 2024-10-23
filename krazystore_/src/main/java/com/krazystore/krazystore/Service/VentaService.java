@@ -10,6 +10,7 @@ import com.krazystore.krazystore.Entity.CategoriaEntity;
 import com.krazystore.krazystore.Entity.DetalleVentaEntity;
 import com.krazystore.krazystore.Entity.PagoEntity;
 import com.krazystore.krazystore.Entity.VentaEntity;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,7 +22,8 @@ public interface VentaService {
     List<VentaEntity> findAll();
     Optional<VentaEntity> findById(Long id);
     VentaEntity saveVenta(VentaEntity ventaEntity, List<DetalleVentaEntity> detalle, List<PagoEntity> pagos);
-    void anularFactura(Long id);
+    int anularFactura(Long id);
     VentaEntity updateVenta(VentaEntity VentaEntity, Long id);
     void deleteVenta(Long id);
+    void getFacturaPdf(HttpServletResponse response, Long id);
 }

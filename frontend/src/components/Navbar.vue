@@ -18,6 +18,7 @@
             </template>
          
         </Menubar>
+        <Toast />
     </div>
 </template>
 
@@ -29,12 +30,21 @@ import Badge from "primevue/badge";
 import InputText from "primevue/inputtext";
 import Avatar from "primevue/avatar";
 import router from "@/router";
+import Toast from 'primevue/toast';
+
+
+import { useToast } from "primevue/usetoast";
+
+const toast = useToast();
 
 
 const items = ref([
     {
         label: 'Home',
-        icon: 'pi pi-home'
+        icon: 'pi pi-home',
+        command: () => {
+            router.push({name: 'home'});
+        }
     },,
     { 
         label: 'Ventas',
@@ -51,7 +61,7 @@ const items = ref([
                 label: 'Pedidos',
                 icon: 'pi pi-star',
                 command: () => {
-                    router.push({name: 'home'});
+                    router.push({name: 'pedidos'});
                 }
             },
 
@@ -63,7 +73,7 @@ const items = ref([
         icon: 'pi pi-bill',
     items: [
             {
-                label: 'Caja',
+                label: 'Cajas',
                 icon: 'pi pi-star',
                 command: () => {
                     router.push({name: 'cajas'});

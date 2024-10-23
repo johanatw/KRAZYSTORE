@@ -5,7 +5,9 @@
  */
 package com.krazystore.krazystore.Service;
 
+import com.krazystore.krazystore.DTO.PersonaCreationDTO;
 import com.krazystore.krazystore.DTO.PersonaDTO;
+import com.krazystore.krazystore.DTO.PersonaDTO2;
 import com.krazystore.krazystore.Entity.PersonaEntity;
 import java.util.List;
 import java.util.Optional;
@@ -16,13 +18,14 @@ import java.util.Optional;
  */
 public interface PersonaService {
     List<PersonaDTO> findAll();
-    Optional<PersonaEntity> findById(Long id);
+    Optional<PersonaDTO2> findById(Long id);
     Optional<PersonaEntity> findByDoc(String doc);
     Optional<PersonaEntity> findByValue(String value, String filtro);
-    PersonaEntity savePersona(PersonaEntity personaEntity);
-    PersonaEntity updatePersona(PersonaEntity personaEntity, Long id);
+    PersonaEntity savePersona(PersonaCreationDTO personaCreationDTO);
+    PersonaEntity updatePersona(PersonaCreationDTO personaCreationDTO, Long id);
     int countByTelefono(String telefono);
     int countByNroDoc(String nroDoc);
     int countByEmail(String email);
     void deletePersona(Long id);
+    public List<PersonaDTO2> findPersonasDTO();
 }

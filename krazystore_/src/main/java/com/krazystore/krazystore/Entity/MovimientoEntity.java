@@ -54,9 +54,23 @@ public class MovimientoEntity {
     private long ingreso=0;
     @Column
     private long egreso=0;
+    @Column
+    private boolean estado=true;
 
     public MovimientoEntity() {
     }
+
+    public boolean isEstado() {
+        return estado;
+    }
+
+    public void setEstado(boolean estado) {
+        this.estado = estado;
+    }
+
+    
+
+    
 
     public Long getId() {
         return id;

@@ -64,7 +64,7 @@ public class ApiExceptionHandler {
         System.out.println(exception.getClass());
         ApiResponse apiResponse = new ApiResponse(exception.getMessage(), webRequest.getDescription(false));
         return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
-    }*/
+    }
     
     @ExceptionHandler(DuplicateKeyException.class)
     public ResponseEntity<ApiResponse> handlerDuplicateKeyException(DuplicateKeyException exception,
@@ -72,7 +72,7 @@ public class ApiExceptionHandler {
         System.out.println("entreaaaa44");
         ApiResponse apiResponse = new ApiResponse(exception.getMessage(), webRequest.getDescription(false));
         return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
-    }
+    }*/
 
     //controla los errores de varios tipos y globalizrlo con un error 500
     /*

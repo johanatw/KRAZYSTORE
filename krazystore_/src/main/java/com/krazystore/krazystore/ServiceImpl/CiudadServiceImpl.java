@@ -50,5 +50,10 @@ public class CiudadServiceImpl implements CiudadService {
     public void deleteCiudad(Long id) {
         ciudadrepository.deleteById(id);
     }
+
+    @Override
+    public List<CiudadEntity> findByIdDepartamento(Long id) {
+        return ciudadrepository.findByIdDepartamento(id);
+    }
     
 }

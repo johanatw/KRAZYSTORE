@@ -88,6 +88,14 @@ const deleteReembolso = (id) =>{
    
 }
 
+const registradoEnCajaActualAbierta = (fechaRegistro) =>{
+    console.log("registradoEnCajaActualAbierta");
+    if (cajaAbierta.value != null && fechaRegistro >= cajaAbierta.value.fecha) {
+        return false;
+    } else {
+        return true;
+    }
+};
 
 
 
@@ -148,7 +156,7 @@ const formatearNumero = (valor) =>{
     }
 
     let fecha = new Date(valor);
-    let fechaFormateada = fecha.getDate() + '/' + (fecha.getMonth()+1) + '/' +fecha.getFullYear();
+    let fechaFormateada = fecha.getDate() + '/' + (fecha.getMonth()+1) + '/' +fecha.getFullYear()+' '+ fecha.getHours()+':'+fecha.getMinutes()+':'+fecha.getSeconds();
     return fechaFormateada;
 }
 
@@ -225,7 +233,7 @@ const nuevoPedido = () =>{
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
                 
-                <Button v-if="cajaAbierta != null && slotProps.data.fecha >= cajaAbierta.fecha " icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button :disabled="registradoEnCajaActualAbierta(slotProps.data.fecha)"  icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                 
                 </template>
           </Column>

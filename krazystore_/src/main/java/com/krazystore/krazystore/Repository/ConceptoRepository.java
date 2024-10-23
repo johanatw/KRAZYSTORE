@@ -18,7 +18,7 @@ import org.springframework.stereotype.Repository;
 public interface ConceptoRepository extends JpaRepository<ConceptoEntity, Long> {
     @Query(
     "SELECT c FROM ConceptoEntity c "
-            + "WHERE c.tipo = ?1 and c.descripcion <> 'Venta' and c.descripcion <> 'Compra' and c.descripcion <> 'Anticipo' and c.descripcion <> 'Reembolso'"
+            + "WHERE c.tipo = ?1 and c.descripcion <> 'Venta' and c.descripcion <> 'Compra' and c.descripcion <> 'Anticipo' and c.descripcion <> 'Reembolso' and c.descripcion <> 'Anulación de Factura'"
            )
     public List<ConceptoEntity> getConceptosByTipo(char tipo);
 }

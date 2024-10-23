@@ -1,7 +1,22 @@
 
 <template>
     <div class="card flex p-fluid justify-content-center " >
-
+        <ConfirmDialog group="headless">
+        <template #container="{ message, acceptCallback, rejectCallback }">
+            <div class="flex flex-column align-items-center p-5 surface-overlay border-round">
+                <div class="border-circle bg-primary inline-flex justify-content-center align-items-center h-6rem w-6rem -mt-8">
+                    <i class="pi pi-check text-5xl"></i>
+                </div>
+                <p class="block mb-2 mt-4">{{ message.message }}</p>
+                <span class="font-bold mb-0 ">{{ message.header }}</span>
+                
+                <div class="flex align-items-center gap-2 mt-4">
+                    <Button label="Ver factura" @click="acceptCallback"></Button>
+                    <Button label="Ir a facturas" @click="rejectCallback"></Button>
+                </div>
+            </div>
+        </template>
+    </ConfirmDialog>
         <Panel style=" position: relative; width: 80%;" >
             <template #header>
                 <div class="flex align-items-center gap-2">
@@ -11,21 +26,21 @@
             <template #icons>
                 <div class="card flex" style="justify-content: end;">   
                     <div class="card flex" style="justify-content: end;">  
-                        <Button  label="Cancelar"  style="margin-right: 1%;" />
-                        <Button  label="Guardar" :disabled="disabled" @click="guardarFactura()" />
+                        <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaFacturasVenta()" />
+                        <Button  label="Guardar" @click="guardarFactura()" />
                     </div>  
                 </div>
             </template>
             <div class="contenedor" style="padding-left: 4%; padding-right: 4%;">      
-                    
+                <div class="grid">
                 <div class="field col-12 md:col-6">
                     <MiCard ref="cardCliente" :titulo="'Cliente'" :contenido="infoCliente" @edit="editCliente"/> 
                 </div>  
                 <div>
                     <SearchCliente ref="searchCard" @getCliente="getCliente" />
                 </div> 
-
-
+         
+                </div>
 
                 <div class="grid">
                     <div class="col-12" >
@@ -171,101 +186,7 @@
 
                 <div>
                     <div>
-                        <Card style="height: 100%;" >
-                            <template #title>
-            <div class="flex justify-content-between ">
-                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
-                    Medios de pago
-                </div>
-                <div >
-                    <Button label="+ Forma de pago"   @click="addRow()" link />
-                    </div>
-
-            </div>
-            
-        </template>
-                            <!---->
-                            <template #content>
-                                <div>
-                                    <div class="formgrid grid" v-for="item, index in pagos" :key="item" >
-                                        <div class="flex field col-12 md:col-12" >
-                                            <div class="field col-4 md:col-4" style="justify-content: start;  ">
-                                                <Dropdown style="padding: 0rem !important;" v-model="item.formaPago" :options="formasPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   />
-                                                
-                                            </div>
-                                            <div v-if="item.formaPago && item.formaPago.descripcion == 'Anticipo'" class=" field col-4 md:col-4" style=" justify-content: start; " >
-                                                <Dropdown style="padding: 0rem !important;" v-model="item.anticipo" :options="anticipos" optionLabel="id" placeholder="Seleccione un elemento" @change="verificarSaldoAnticipo(item, index)" >
-                                                    <template #value="slotProps">
-                                                        <div v-if="slotProps.value" class="flex align-items-center">
-                                                            <div>ANT-{{ slotProps.value.id }} - {{ formatearNumero(slotProps.value.saldo) }} Gs. </div>
-                                                        </div>
-                                                        <span v-else>
-                                                            {{ slotProps.placeholder }}
-                                                        </span>
-                                                    </template>
-                                                    
-                                                    <template #option="slotProps">
-                                                    <div class="flex align-items-center">
-                                                        <div>ANT-{{ slotProps.option.id }}  - {{ formatearNumero(slotProps.option.saldo) }} Gs.</div>
-                                                    </div>
-                                                </template>
-                                            </Dropdown>
-                                            </div>
-                                            <div v-else class=" field col-4 md:col-4" style=" justify-content: start; " ></div>
-                                            <div v-if="item.anticipo" class=" field col-3 md:col-3" style=" justify-content: start; " >
-                                               
-                                                <InputNumber name="input" style="padding: 0rem !important;" :max=" item.anticipo.saldo " v-model="item.importe" @input="calcularAbonado($event,item.anticipo.saldo)"  />
-                                            
-                                            </div>
-                                            <div v-else class=" field col-3 md:col-3" style=" justify-content: start; " >
-                                                <InputNumber disabled=true name="input" style="padding: 0rem !important;" v-model="item.importe" @input="calcularAbonado($event)"  />
-                                            </div>
-                                            <div v-if="index > 0" class=" field col-1 md:col-1" style=" justify-content: flex-end">
-                                                <Button style="background: none !important; border: none !important " icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="eliminarRow(index)" />
-                                    
-                                            </div>
-
-                                        </div>
-                                    </div>
-
-                                    
-
-                                    <div class="formgrid grid">
-                                        <div class="flex field col-12 md:col-12" >
-                                            
-                                            <div class="flex field col-9 md:col-9 justify-content-end" >
-                                                <label for="totalPagos"> Total abonado: </label>
-                                                
-                                            </div>
-                                            <div class="flex field col-3 md:col-3" style=" justify-content: center; " >
-                                                {{ abonado.toLocaleString("de-DE") }}
-
-                                            </div>
-                                        </div>
-                                        <div v-if="cambio > 0" class="flex field col-12 md:col-12" >
-                                            <div class="flex field col-9 md:col-9" style="justify-content: end;  ">
-                                                <label for="totalPagos"> Cambio: </label>
-                                                
-                                            </div>
-                                            <div class="flex field col-3 md:col-3" style=" justify-content: center; " >
-                                                {{ cambio.toLocaleString("de-DE") }}
-                                                
-                                            </div>
-                                        </div>
-                                        <div v-else class="flex field col-12 md:col-12" style="color: red; font-weight: bold; " >
-                                            <div class="flex field col-9 md:col-9" style="justify-content: end;  ">
-                                                <label for="totalPagos"> Faltante: </label>
-                                                
-                                            </div>
-                                            <div class="flex field col-3 md:col-3" style=" justify-content: center; " >
-                                                {{ faltante.toLocaleString("de-DE") }}
-                                                
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </template>
-                        </Card>
+                        
 
                     </div>
                 </div>
@@ -306,6 +227,36 @@ import SearchCliente from '@/modules/Pedidos/components/SearchCliente.vue'
 import { FilterMatchMode, FilterOperator } from 'primevue/api';
 import MiCard from '@/modules/Pedidos/components/MiCard.vue'
 import InputNumber from 'primevue/inputnumber';
+
+import ConfirmDialog from 'primevue/confirmdialog';
+import Toast from 'primevue/toast';
+
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+
+const confirm = useConfirm();
+const toast = useToast();
+const message = (m) => {
+    let id = m.id;
+    let nro = m.nroFactura;
+    console.log('messageError invocado');
+    confirm.require({
+        group: 'headless',
+        header: '#'+ nro,
+        message: 'Se ha generado la Factura',
+
+        accept: () => {
+            router.push({name: 'verFactura', params: {id}});
+            //verPedido(router.currentRoute.value.params.id);
+            
+        },
+        reject: () => {
+            router.push({name: 'ventas'});
+            //verPedido(router.currentRoute.value.params.id);
+            
+        },
+    });
+};
 const searchCard = ref(null);
 const selectedClient = ref();
 const pedidosAnticipados = ref([]);
@@ -386,19 +337,6 @@ const editCliente = () =>{
     }  
 }
 
-
-const habilitarInput = (index, item) => {
-    let inp = document.getElementsByName("input")[index].firstElementChild;
-   if (inp.disabled  ) {
-        inp.disabled = false;
-    }
-   
-    if (abonado.value < total.value ) {
-        item.importe = total.value - abonado.value;
-    }
-    calcularAbonado();
-    
-};
 const formatearNumero = (valor) =>{
     if(typeof(valor) == "number"){
         return valor.toLocaleString("de-DE");
@@ -408,78 +346,14 @@ const formatearNumero = (valor) =>{
     let fechaFormateada = fecha.getDate() + '/' + (fecha.getMonth()+1) + '/' +fecha.getFullYear()+' '+ fecha.getHours()+':'+fecha.getMinutes()+':'+fecha.getSeconds();
     return fechaFormateada;
 }
-const calcularAbonado = (event,max=null) => {
-
-    if (event !== undefined) {
-        console.log(event);
-        let valorActual = Number(event.value);
-        let valorAnterior = Number(event.formattedValue.replaceAll(".",""));
-        if ((max != null && valorActual < max ) || max==null) {
-            console.log("entra max");
-            console.log(max);
-            console.log(valorActual);
-            console.log(max != null && (valorActual < max) );
-            abonado.value = abonado.value - valorAnterior + valorActual;
-        }
-       
-        
-    }else {
-        let monto = 0 ;
-        pagos.value.forEach(element => {
-            monto += element.importe;
-        })
-        abonado.value = monto;
-    }
-    
-    calcularDiferencia();
-  
-};
 
 
-const calcularDiferencia = () => {
-    console.log('antesdetalleanti');
-    console.log(selectedAnticipados.value);
-  faltante.value = total.value - abonado.value;
-  cambio.value = abonado.value - total.value; 
-  habilitarSubmit();
-};
 
-const habilitarSubmit = () =>{
-    if (total.value > 0 && abonado.value == total.value) {
-    disabled.value = false;
-  }else{
-    disabled.value = true;
-  }
-}
-
-
-const addRow = () => {
-    pagos.value.push({formaPago:null , importe: 0});
-};
-
-const eliminarRow = (index) => {
-    if (index > 0) {
-        pagos.value.splice(index,1);
-    }
-    calcularAbonado();
-};
     
 const filters = ref({
  'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
 });
 
-const getFormasPago = () =>{
-    FormasPagoServices.obtenerFormasPago().then((data) => {
-        formasPago.value=data.data;
-        //selectedFormaPago.value=data.data[1];
-        console.log(formasPago.value);
-        pago.value.formaPago = null;
-        pago.value.importe = 0;
-        pago.value.anticipo = null;
-        pagos.value.push(pago.value);
-
-    });
-}
 
 const getFormasPagoSinAnticipo = () =>{
     FormasPagoServices.obtenerFormasPagoSinAnticipo().then((data) => {
@@ -531,6 +405,11 @@ const eliminar = (detalle) => {
   
   }
 
+  const vistaFacturasVenta = () => {
+   router.push({name: 'ventas'});
+  
+  }
+
   const sendSubTotal = () => {
   
   let monto= 0;
@@ -546,7 +425,7 @@ const eliminar = (detalle) => {
   });
   subTotal.value = monto;
      total.value = subTotal.value ;
-     calcularDiferencia();
+ 
   //emit("getSubTotal",total, detalles);
  
  }
@@ -597,14 +476,15 @@ const eliminar = (detalle) => {
     console.log(detalleFacturar.value);
 
     let fechaAnticipo = new Date();
-    let ant = {montoTotal: abonado.value, fecha: fechaAnticipo, montoIva: montoIva.value, cliente: selectedClient.value};
+    let ant = {montoTotal: total.value, fecha: fechaAnticipo, montoIva: montoIva.value, cliente: selectedClient.value};
 
 
     let anticipoCreationDTO = {venta: ant, detalle: detalleFacturar.value ,pagos: pagos.value};
     VentaServices.saveVenta(anticipoCreationDTO ).then((data)=> {
         console.log("saveanticipothen");
         console.log("data");
-        router.push({name: 'ventas'});
+        let id = data.data.id;
+        message(data.data);
         //closeDialog();
         //emit('anticipoGuardado', data.data.id);
         

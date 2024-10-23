@@ -35,6 +35,11 @@ export const VentaServices = {
         }
         
       },
+      getVenta(id){
+        console.log(id);
+        return axios.get(VENTA_API_BASE_URL+"/"+id);
+    
+      },
 
 };
 export default { VentaServices: VentaServices };

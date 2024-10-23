@@ -16,6 +16,7 @@ public class PRUEBADTO {
     private Date fecha;
     private String pago;
     private Long monto;
+    private String factura;
     //private Long pedido;
 
     public PRUEBADTO(Long id, String concepto, Date fecha, Long monto) {
@@ -26,6 +27,17 @@ public class PRUEBADTO {
         this.monto = monto;
     }
 
+    public PRUEBADTO(Long id, String concepto, Date fecha, String pago, Long monto, String factura) {
+        this.id = id;
+        this.concepto = concepto;
+        this.fecha = fecha;
+        this.pago = pago;
+        this.monto = monto;
+        this.factura = factura;
+    }
+    
+    
+
     public PRUEBADTO(Long id, String concepto, Date fecha, String pago, Long monto) {
         this.id = id;
         this.concepto = concepto;
@@ -34,6 +46,15 @@ public class PRUEBADTO {
         this.monto = monto;
     }
 
+    public String getFactura() {
+        return factura;
+    }
+
+    public void setFactura(String factura) {
+        this.factura = factura;
+    }
+
+    
     public String getPago() {
         return pago;
     }

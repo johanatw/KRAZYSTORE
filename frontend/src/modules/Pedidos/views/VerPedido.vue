@@ -269,6 +269,7 @@ const getEntrega = (formaEntrega, envio) =>{
                                             </div>
                                         </template> 
                                     </Column>
+                                    <Column field="factura" header="N° Factura" aria-sort="ascending"></Column>
                                 </DataTable>
 
                                     

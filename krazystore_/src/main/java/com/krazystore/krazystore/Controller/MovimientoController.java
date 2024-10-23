@@ -60,10 +60,14 @@ public class MovimientoController {
         return movimientoService.findById(id);
     }
     
-
     @PostMapping
     public MovimientoEntity saveMovimiento(@RequestBody MovimientoCreationDTO movimiento) {
         return movimientoService.saveMovimiento(movimiento.getMovimiento(), movimiento.getPago());
+    }
+    
+    @PostMapping("/pagar")
+    public MovimientoEntity savePagosMovimiento(@RequestBody MovimientoCreationDTO movimiento) {
+        return movimientoService.savePagosMovimiento(movimiento.getMovimiento(), movimiento.getPago());
     }
     
     @PostMapping("/anticipo")
@@ -108,5 +112,17 @@ public class MovimientoController {
     public PedidoMontoPagadoDTO getPagosPedido(@PathVariable("id") Long id) {
 
         return movimientoService.getMontoPagadoPedido(id);
+    }
+    
+    @GetMapping("/validar/{id}")
+    public long validarEliminacionPedido(@PathVariable("id") Long id) {
+
+        return movimientoService.validarEliminacionPedido(id);
+    }
+    
+    @GetMapping("/pendientes")
+    public List<MovimientoEntity> getFacturasPendientes() {
+
+        return movimientoService.getFacturasPendientes();
     }
 }

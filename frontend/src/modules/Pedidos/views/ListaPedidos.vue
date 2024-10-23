@@ -6,6 +6,7 @@ import Column from 'primevue/column';
 import Button from 'primevue/button';
 import { FilterMatchMode, FilterOperator } from 'primevue/api';
 import {PedidoServices} from '@/services/PedidoServices';
+import { CajaServices } from '@/services/CajaServices';
 import Panel from 'primevue/panel';
 
 import Tooltip from 'primevue/tooltip';
@@ -45,6 +46,38 @@ const productosStockInsuficiente = ref(false);
 const productosParaFacturar = ref(false);
 const visiblePedidoFacturadoDialog = ref(false);
 const detallePedido = ref();
+
+const messageError = (msg) => {
+    console.log('messageError invocado');
+    confirm.require({
+        group: 'errorEliminarPedido',
+        header: 'Ocurrio un error',
+        message: msg,
+
+        accept: () => {
+            //getDetalle();
+           
+            
+            
+        },
+    });
+};
+
+const messageAviso = (msg) => {
+    console.log('messageError invocado');
+    confirm.require({
+        group: 'info',
+       
+        message: msg,
+
+        accept: () => {
+            //getDetalle();
+           
+            
+            
+        },
+    });
+};
 const formatearNumero = (valor) =>{
     if(typeof(valor) == "number"){
         return valor.toLocaleString("de-DE");
@@ -111,7 +144,8 @@ const verificarStockProductos = () => {
     }
 
     if(!productosParaFacturar.value && !productosStockInsuficiente.value){
-      visiblePedidoFacturadoDialog.value=true;
+      //visiblePedidoFacturadoDialog.value=true;
+      messageAviso("Todos los productos de este pedido ya han sido facturados");
     }
 
    
@@ -211,8 +245,9 @@ const facturarPedido = () =>{
     router.push({name: 'facturar', params: {id}});
     
 }
-
+/*
 const deletePedido = (id) =>{
+  
     const cantidad= 1;
     const index = pedidos.value.findIndex((loopVariable) => loopVariable.id === id);
     
@@ -227,8 +262,46 @@ const deletePedido = (id) =>{
       }
             
         })
+       let puedeEliminar = puedeEliminar(id);
+       if(puedeEliminar == true){
+          const cantidad= 1;
+          const index = pedidos.value.findIndex((loopVariable) => loopVariable.id === id);
+          PedidoServices.deletePedido(id).then((response)=>{
+            pedidos.value.splice(index,cantidad);
+            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 5000 });
+        })
+       }else{
+          visibleDeleteDialog.value = true;
+       }
 
+}*/
+async function puedeEliminar(id) {
+  let c = (await CajaServices.validarEliminacionPedido(id)).data;
+   console.log(c);
+   if (c > 0 ) {
+    return false;
+   } else {
+    return true;
+   }
+  
 }
+
+async function deletePedido(id) {
+ 
+  let p = await puedeEliminar(id);
+  console.log(p);
+       if(p == true){
+          const cantidad= 1;
+          const index = pedidos.value.findIndex((loopVariable) => loopVariable.id === id);
+          PedidoServices.deletePedido(id).then((response)=>{
+            pedidos.value.splice(index,cantidad);
+            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 5000 });
+        })
+       }else{
+        messageError("Este pedido tiene pagos o facturas asociadas.");
+       }
+}
+
 
 const nuevoPedido = () =>{
     router.push({name: 'nuevo_pedido'});
@@ -265,28 +338,35 @@ const reload = () =>{
 <template>
   <div class="card flex p-fluid justify-content-center " >
     
-    
-    <ConfirmDialog group="headless">
-    <template #container="{ message, acceptCallback, rejectCallback }">
-      
-        <div class="flex flex-column align-items-center p-5 surface-overlay border-round">
-          
-            <div class="border-circle bg-primary inline-flex justify-content-center align-items-center h-4rem w-4rem ">
-                <i class="pi pi-check text-4xl"></i>
+
+<ConfirmDialog group="errorEliminarPedido">
+        <template #container="{ message, acceptCallback }">
+            <div class="flex flex-column align-items-center p-5 surface-overlay border-round">
+                <div class="border-circle bg-primary inline-flex justify-content-center align-items-center h-6rem w-6rem -mt-8">
+                    <i class="pi pi-times text-4xl"></i>
+                </div>
+                <span class="font-bold text-2xl block mb-2 mt-4">{{ message.header }}</span>
+                <p class="mb-0">{{ message.message }}</p>
+                <div class="flex align-items-center gap-2 mt-4">
+                    <Button label="Ok" @click="acceptCallback"></Button>
+                </div>
             </div>
-            <span class="font-bold text-2xl block mb-2 mt-4">{{ message.header }}</span>
-            
-            <div class="flex align-items-center gap-2 mt-4">
-              <Button label="Ir a anticipos" outlined @click="rejectCallback" class="w-8rem" ></Button>
-                <Button label="Cancelar" @click="acceptCallback" class="w-8rem"  ></Button>
+        </template>
+    </ConfirmDialog>
+    <ConfirmDialog group="info">
+        <template #container="{ message, acceptCallback }">
+            <div class="flex flex-column align-items-center p-5 surface-overlay border-round">
+                <div class="border-circle bg-primary inline-flex justify-content-center align-items-center h-6rem w-6rem -mt-8">
+                    <i class="pi pi-info text-4xl"></i>
+                </div>
+                <span class="font-bold block mb-2 mt-4" style="font-size: larger;" >{{ message.message }}</span>
                 
+                <div class="flex align-items-center gap-2 mt-4">
+                    <Button label="Ok" @click="acceptCallback"></Button>
+                </div>
             </div>
-        </div>
-    </template>
-</ConfirmDialog>
-
-
-    
+        </template>
+    </ConfirmDialog>
   
     
   
@@ -297,15 +377,15 @@ const reload = () =>{
     <Dialog v-model:visible="productosStockInsuficiente" modal @update:visible="prueba($event)"  header="Edit Profile" :style="{ width: '40rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
      <template #header>
          <div class="flex align-items-center gap-2">
-             <h3 class="font-bold">Productos Sin Stock Disponible</h3>
+             <h3 class="font-bold">Productos sin stock disponible</h3>
          </div>
      </template>
 
     
      <div > 
       <div class="flex align-items-center mb-3">
-        Algunos productos en este pedido no tienen suficiente stock. 
-        Solo se pueden facturar los productos que tienen stock disponible.
+        Algunos productos del pedido no cuentan con stock suficiente. 
+        Solo se facturarán los disponibles.
       </div> 
       <div class="flex align-items-center mb-1" style="justify-content: start; font-weight: bold; " >
         Detalles
@@ -338,64 +418,13 @@ const reload = () =>{
             </div>
  <template #footer>
      <div class="card flex" style="justify-content: end;">  
-      <Button v-if="productosParaFacturar"  label="Facturar Productos en Stock" style="margin-right: 1%;" @click="facturarPedido()" />
+      <Button v-if="productosParaFacturar"  label="Facturar disponibles" style="margin-right: 1%;" @click="facturarPedido()" />
                  <Button  label="Cancelar"  @click="closeDialog()"  />
                  
                  
              </div>
 </template>
 </Dialog>
-
-<!--MODAL MENSAJE PAGOS ASOCIADOS -->
-<Dialog v-model:visible="visibleDeleteDialog" modal  header="Edit Profile" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-     <template #header>
-         <div class="flex align-items-center gap-2">
-             <h3 class="font-bold">Este pedido tiene pagos asociados</h3>
-         </div>
-     </template>
-
-    
-     <div > 
-      <div class="flex align-items-center mb-3">
-        Por favor, elimina los pagos antes de proceder con la eliminación del pedido.
-      </div> 
-      
-            </div>
- <template #footer>
-     <div class="card flex" style="justify-content: end;">  
-      <Button label="Ir a anticipos" style="margin-right: 1%;" @click="irAnticipos()" />
-                 <Button  label="Cancelar"  @click="visibleDeleteDialog=false"  />
-                 
-                 
-             </div>
-</template>
-</Dialog>
-
-<!--MODAL SIN PRODUCTOS ´PARA FACTURAR -->
-<Dialog v-model:visible="visiblePedidoFacturadoDialog" modal  header="Edit Profile" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-     <template #header>
-         <div class="flex align-items-center gap-2">
-             <h3 class="font-bold">Todos los productos de este pedido ya han sido facturados</h3>
-         </div>
-     </template>
-
-    
-     <div > 
-      
-      
-            </div>
- <template #footer>
-     <div class="card flex" style="justify-content: end;">  
-      
-                 <Button  label="Ok"  @click="visiblePedidoFacturadoDialog=false"  />
-                 
-                 
-             </div>
-</template>
-</Dialog>
-
-
-
 
     <Panel style=" position: relative; width: 100%;" >
       <template #header>

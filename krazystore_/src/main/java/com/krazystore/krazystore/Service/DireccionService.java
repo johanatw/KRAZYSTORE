@@ -17,5 +17,7 @@ public interface DireccionService {
     Optional<DireccionEntity> findById(Long id);
     DireccionEntity saveDireccion(DireccionEntity direccionEntity);
     DireccionEntity updateDireccion(DireccionEntity direccionEntity, Long id);
+    boolean algunCampoTieneValor(DireccionEntity direccion);
+    List<DireccionEntity> findDireccionesById(Long id);
     void deleteDireccion(Long id);
 }

@@ -57,6 +57,16 @@ modificarPersona(id_persona, persona){
 
 eliminar(id_persona) {
   return axios.delete(PERSONA_API_BASE_URL + "/" + id_persona);
+},
+getClientes() {
+  try {
+    console.log("personaservice");
+    return axios.get(PERSONA_API_BASE_URL+ "/clientes");
+    
+  } catch (error) {
+    console.log(error.name);
+  }
+  
 }
 
 };
