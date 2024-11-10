@@ -416,7 +416,7 @@ const getCajaAbierta= () => {
 
 
 const getFormasPago= () => {
-    FormasPagoServices.obtenerFormasPagoSinAnticipo().then((data) => {
+    FormasPagoServices.obtenerFormasPago().then((data) => {
         formasPago.value=data.data;
     });
 };
@@ -684,7 +684,7 @@ const getFormasPago= () => {
             </template>
             
       
-            <div class="card">
+            <div >
                 <DataTable  :value="anticipos " scrollHeight="400px"  
                 :paginator="true" :rows="7" :filters="filters"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 

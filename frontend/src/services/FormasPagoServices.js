@@ -12,16 +12,6 @@ export const FormasPagoServices = {
     }
     
   },
-  obtenerFormasPagoSinAnticipo() {
-    try {
-      console.log("pagoservice");
-      return axios.get(FORMAS_PAGO_API_BASE_URL+"/sin_anticipo");
-      
-    } catch (error) {
-      console.log(error.name);
-    }
-    
-  },
   getFormaPago(id){
     console.log(id);
     return axios.get(FORMAS_PAGO_API_BASE_URL+"/"+id);

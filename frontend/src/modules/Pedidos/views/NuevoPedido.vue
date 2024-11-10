@@ -1,26 +1,20 @@
 <script setup>
 import CardDetalle from "@/modules/Pedidos/components/CardDetalle.vue";
-import CardEntrega from "@/modules/Pedidos/components/CardEntrega.vue";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import MapComponent from '@/modules/Pedidos/components/MapComponent.vue';
 import Dropdown from "primevue/dropdown";
 import AutoComplete from 'primevue/autocomplete';
 import Card from "primevue/card";
-import CardPago from "@/modules/Pedidos/components/CardPago.vue";
-import MiCard from "@/modules/Pedidos/components/MiCard.vue";
 import Button from 'primevue/button';
 import {CiudadServices } from '@/services/CiudadServices';
 import {EnvioServices} from '@/services/EnvioServices';
-import SearchCliente from "../components/SearchCliente.vue";
 import { ref, onMounted } from "vue";
 import RadioButton from "primevue/radiobutton";
 import InputGroup from 'primevue/inputgroup';
-import InputGroupAddon from 'primevue/inputgroupaddon';
 import {DireccionServices} from '@/services/DireccionServices';
 import Panel from 'primevue/panel';
 import {PedidoServices} from '@/services/PedidoServices';
-import { ProductoServices } from "@/services/ProductoServices";
 import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
 import { TipoDocServices } from "@/services/TipoDocServices";
@@ -34,28 +28,23 @@ const clienteDialog = ref(false);
 const personaCreationDTO = ref({});
 const submitted = ref(false);
 const direccionSubmitted = ref(false);
-const selectedClient = ref({});
 const clienteSeleccionado = ref(false);
 const detallePedido = ref({ });
 const mensaje = ref([]);
 const ciudades = ref([]);
 const departamentos = ref([]);
 const formasEntrega = ref([{id: 1, descripcion: 'Retiro'},{id:2, descripcion: 'Envío'}]);
-const barrios = ref([]);
 const documentos = ref([]);
-const modoEntrega = ref();
 const visible = ref(false);
+const datosEntregaUltimoGuardado = ref({});
 const selectedFormaEntrega = ref({id: 1, descripcion: 'Retiro'});
-const formaPago = ref();
-const cancelSubmit = ref(false);
+
 const pedidoId = ref(0);
 const cliente = ref({});
-const cardCliente = ref();
 const selectedOp = ref('Casi');
-const cardEntrega = ref();
 const direccionSelected = ref();
 const direccionEnvio = ref({});
-const searchCard = ref();
+const nuevaDireccion = ref(false);
 const productos= ref();
 const clientes=ref();
 const filteredClientes = ref();
@@ -65,11 +54,8 @@ const error = ref(false);
 const opciones = ref(['Casi','Entre']);
 const selectedEnvio = ref({});
 const medios = ref();
-const infoCliente = ref([{
-    valor: "Cliente no seleccionado"
-}])
 const infoEntrega = ref([{
-    valor: "Metodo de Entrega no seleccionado"
+    valor: "Retiro"
 }])
 
 import ConfirmDialog from 'primevue/confirmdialog';
@@ -115,7 +101,6 @@ onMounted(() => {
 });
 
 //Cliente
-
 const search = (event) => {
     
     setTimeout(() => {
@@ -184,6 +169,7 @@ const eliminarClienteSelected = () =>{
     selectedCliente.value = null;
     direccion.value = {};
     clienteSeleccionado.value = false;
+    nuevaDireccion.value = false;
     inicializarDatosEntrega();
 }
 
@@ -201,7 +187,7 @@ const modificarCliente = (cli) => {
        clienteDialog.value = true;
        if (data.data.direccion) {
         direccion.value = data.data.direccion;
-       
+        direccion.value.departamento = data.data.direccion.ciudad.departamento;
        } 
 
        if(data.data.direccion && data.data.direccion.ciudad != null){
@@ -275,9 +261,11 @@ const getUbicacion = (lat, lng) =>{
     direccion.value.lng = lng;
    
 }
+
+
 //Entrega
 
-const searchEnvio= (id) => {
+const searchMediosEnvio= (id) => {
     console.log("idciudad");
     console.log(id);
     EnvioServices.obtenerCostosEnvioByCiudad(id).then((data) => {
@@ -289,9 +277,10 @@ const searchEnvio= (id) => {
     });
 }
 
-const changeEntrega = () => {
+const changeModalidadEntrega = () => {
     if (selectedFormaEntrega.value && selectedFormaEntrega.value.descripcion === "Retiro") {
         selectedEnvio.value = {};
+        submitted.value = false;
     }else{
         medios.value = null;
     }
@@ -303,7 +292,9 @@ const inicializarDatosEntrega = () => {
     selectedEnvio.value = {};
     direccionSelected.value = null;
     direccionEnvio.value = {};
-
+    infoEntrega.value = [{
+    valor: "Retiro"}];
+    productos.value.setDetalleEnvio(null);
 }
 
 const validarDireccionEnvio = (dir) => {
@@ -328,12 +319,29 @@ const getUbicacionEnvio = (lat, lng) =>{
 
 const añadirDatoEntrega = () =>{
     if (selectedCliente.value) {
+
+        guardarEstadoEntregaOriginal();
         visible.value = true;
     getDireccionesCliente();
     } else {
-        toast.add({ severity: 'info', summary: 'Info Message', detail: 'Message Content', life: 3000 });
+        toast.add({ severity: 'info', summary: 'Info Message', detail: 'Seleccione un cliente', life: 3000 });
     }
     
+}
+
+const agregarNuevaDireccion = (val) =>{
+    nuevaDireccion.value = val;
+    direccionSelected.value = {};
+    selectedEnvio.value = {};
+    medios.value = null;
+}
+
+const guardarEstadoEntregaOriginal = () =>{
+    datosEntregaUltimoGuardado.value.modalidad = selectedFormaEntrega.value;
+    datosEntregaUltimoGuardado.value.nuevaDireccion = nuevaDireccion.value;
+    datosEntregaUltimoGuardado.value.direccionSelected = direccionSelected.value;
+    datosEntregaUltimoGuardado.value.direccion = direccionEnvio.value;
+    datosEntregaUltimoGuardado.value.envio = selectedEnvio.value;
 }
 
 const saveEntrega = () =>{
@@ -341,15 +349,36 @@ const saveEntrega = () =>{
     direccionSubmitted.value = true;
     if (datosEntregaValidos()) {
         if (selectedFormaEntrega.value.descripcion === 'Envío' &&
-         direccionSelected.value === undefined && direccionSelected.value === null ) {
+            nuevaDireccion.value) {
             direccionEnvio.value.persona = selectedCliente.value;
             direccionEnvio.value.tipo = 'E';
             generarDireccion(direccionEnvio.value);
         }
+
+        if(selectedFormaEntrega.value.descripcion === 'Retiro'){
+            productos.value.setDetalleEnvio(null);
+        }else{
+            productos.value.setDetalleEnvio(selectedEnvio.value);
+        }
+        
+        showInfoEntrega();
         visible.value = false;
         direccionSubmitted.value = false;
     }   
     
+}
+
+const showInfoEntrega= () => {
+    infoEntrega.value = [];
+    let valor = {valor: selectedFormaEntrega.value.descripcion};
+    infoEntrega.value.push(valor);
+    if (selectedFormaEntrega.value.descripcion === 'Envío') {
+        valor = {valor: 'a ' + selectedEnvio.value.ciudad.descripcion};
+        infoEntrega.value.push(valor);
+        
+        valor = {valor: 'Vía ' + selectedEnvio.value.envio.descripcion + ' - '+selectedEnvio.value.costo+' Gs'};
+        infoEntrega.value.push(valor);
+    }
 }
 
 const datosEntregaValidos = () =>{
@@ -361,7 +390,7 @@ const datosEntregaValidos = () =>{
         return false;
     }
     
-    if (direccionSelected.value !== undefined && direccionSelected.value !== null ) {
+    if (!nuevaDireccion.value && direccionSelected.value !== undefined && direccionSelected.value !== null ) {
         return true;
     }
 
@@ -371,7 +400,16 @@ const datosEntregaValidos = () =>{
 }
 
 
+const closeEntregaDialog = () => {
+    selectedFormaEntrega.value = datosEntregaUltimoGuardado.value.modalidad;
+    nuevaDireccion.value = datosEntregaUltimoGuardado.value.nuevaDireccion;
+    direccionSelected.value = datosEntregaUltimoGuardado.value.direccionSelected;
+    direccionEnvio.value = datosEntregaUltimoGuardado.value.direccion;
+    selectedEnvio.value = datosEntregaUltimoGuardado.value.envio;
 
+    direccionSubmitted.value = false;
+    visible.value = false;
+}
 
 
 
@@ -382,6 +420,11 @@ const getDireccionesCliente = () =>{
         console.log("data.data");
         console.log(data.data);
         direcciones.value=data.data;
+        if (direcciones.value.length < 1) {
+            console.log("direcciones.value.length");
+            console.log(direcciones.value.length);
+            nuevaDireccion.value = true;
+        }
 
     });
 }
@@ -398,7 +441,7 @@ const getCiudades = (id) => {
 
 const hideDialog = () => {
     clienteDialog.value = false;
-   
+    direccion.value = {};
     submitted.value = false;
 };
 
@@ -406,6 +449,9 @@ const generarDireccion = (dir) => {
     let d = dir.calle1;
     if (dir.calle2?.trim()) {
         d = d + " " +selectedOp.value + " "+ dir.calle2;
+    }
+    if (dir.calle3?.trim()) {
+        d = d + " y " + dir.calle3;
     }
 
     dir.direccion = d;
@@ -434,28 +480,6 @@ const findIndexById = (id) => {
 
 //Pedido
 
-
-const getEntrega = (formaEntrega, envio) =>{
-    if (formaEntrega) {
-        entrega.value = formaEntrega;
-    envioSelected.value = envio;
-    infoEntrega.value = [];
-    let valor = {valor: formaEntrega.descripcion};
-    infoEntrega.value.push(valor);
-    if (envio) {
-        valor = {valor: 'a ' + envio.ciudad.descripcion};
-        infoEntrega.value.push(valor);
-        
-        valor = {valor: 'Vía ' + envio.envio.descripcion + ' - '+envio.costo+' Gs'};
-        infoEntrega.value.push(valor);
-    }
-    
-    productos.value.setDetalleEnvio(envio);
-    }
-  
-}
-
-
 const verPedido = (id) =>{
     router.push({name: 'VisualizarPedido', params: {id}});
 }
@@ -473,11 +497,12 @@ const submit = () =>{
         if (selectedFormaEntrega.value?.descripcion === "Envío") {
             pedido.value.costoEnvio = selectedEnvio.value;
 
-            if (direccionSelected.value) {
+            if (nuevaDireccion.value) {
+                pedido.value.direccionEnvio = direccionEnvio.value; 
+            } else {
                 pedido.value.direccionEnvio = direccionSelected.value;
-            }else if(direccion.value){
-                pedido.value.direccionEnvio = direccionEnvio.value;   
             }
+
         }
 
         if (selectedFormaEntrega.value?.descripcion === 'Retiro') {
@@ -525,7 +550,7 @@ const validarForm = (event) => {
 <template>
     
 
-<div class="card flex p-fluid justify-content-center " >
+<div class=" flex p-fluid justify-content-center " >
     <ConfirmDialog group="cliente">
         <template #container="{ message, acceptCallback }">
             <div class="flex flex-column align-items-center p-5 surface-overlay border-round">
@@ -541,26 +566,30 @@ const validarForm = (event) => {
         </template>
     </ConfirmDialog>
 
-    <Dialog v-model:visible="visible" :style="{width: '450px'}" header="Cliente" :modal="true" class="p-fluid">
+    <Dialog v-model:visible="visible" :closable="false" :style="{width: '450px'}" header="Entrega" :modal="true" class="p-fluid">
         <div class="field">
             <div v-for="entrega in formasEntrega" :key="entrega.id">
-                <RadioButton v-model="selectedFormaEntrega" :inputId="entrega.id.toString()" name="dynamic" :value="entrega" @change="changeEntrega" />
+                <RadioButton v-model="selectedFormaEntrega" :inputId="entrega.id.toString()" name="dynamic" :value="entrega" @change="changeModalidadEntrega" />
                 <label :for="entrega.id" class="ml-2">{{ entrega.descripcion }}</label>
             </div>
         </div>
 
            
         <div class="field" v-show="selectedFormaEntrega.descripcion === 'Envío'">
-            <div v-if="direcciones.length > 0">
+            <div v-if="direcciones.length > 0 && !nuevaDireccion">
                 <label for="description">Dirección</label>
                 <div v-for="d in direcciones" :key="d.id">
-                    <RadioButton v-model="direccionSelected" :value="d" name="dynamic" @change="searchEnvio(d.ciudad.id)" />
-                    <label :for="d.id" class="ml-2">{{ d.direccion }}</label>
+                    <RadioButton v-model="direccionSelected" :value="d" name="dynamic" @change="searchMediosEnvio(d.ciudad.id)" />
+                    <label :for="d.id" class="ml-2">{{ d.direccion }} <br> 
+                        <div style="font-size: small;">{{ d.ciudad.departamento.descripcion }} > {{ d.ciudad.descripcion }}</div></label>
+                </div>
+                <div style="justify-content: start;" >
+                    <Button label="+ Nueva Direccion" link @click="agregarNuevaDireccion(true)" style="justify-content: start; width: max-content;" />
                 </div>
             </div>
-            <div v-else>
+            <div v-if="nuevaDireccion">
                 <div class="field">
-                    <label for="description">Calle 1</label>
+                    <label for="description">Calle Principal</label>
                     <InputText id="description" v-model="direccionEnvio.calle1" required="true"  :class="{'p-invalid': direccionSubmitted && !direccionEnvio.calle1}"   />
                     <small class="p-error" v-if="direccionSubmitted && !direccionEnvio.calle1">Ingrese Calle principal</small>
                 </div>
@@ -582,16 +611,19 @@ const validarForm = (event) => {
                 </div>
                 <div class="field " >
                     <label for="nombreu">Departamento</label>
-                    <Dropdown v-model="direccionEnvio.departamento" :options="departamentos" optionLabel="descripcion" placeholder="Seleccione una ciudad"  @change="getCiudades(direccionEnvio.departamento.id)"  />
+                    <Dropdown v-model="direccionEnvio.departamento" :options="departamentos" optionLabel="descripcion" placeholder="Seleccione un departamento"  @change="getCiudades(direccionEnvio.departamento.id)"  />
                 </div>
                 <div class="field " >
                     <label for="nombreu">Ciudad</label>
-                    <Dropdown v-model="direccionEnvio.ciudad" :options="ciudades" optionLabel="descripcion" placeholder="Seleccione una ciudad"  @change="searchEnvio(direccionEnvio.ciudad.id)" :class="{'p-invalid': direccionSubmitted && !direccionEnvio.ciudad}" />
+                    <Dropdown v-model="direccionEnvio.ciudad" :options="ciudades" optionLabel="descripcion" placeholder="Seleccione una ciudad"  @change="searchMediosEnvio(direccionEnvio.ciudad.id)" :class="{'p-invalid': direccionSubmitted && !direccionEnvio.ciudad}" />
                     <small class="p-error" v-if="direccionSubmitted && !direccionEnvio.ciudad">Ingrese Ciudad</small>
                 </div>
                 <div class="field">
                     <label for="description">Ubicar en el mapa</label>
                     <MapComponent @getUbicacion="getUbicacionEnvio"  :lat="direccionEnvio.lat" :lng="direccionEnvio.lng"/>
+                </div>
+                <div class="flex" v-if="direcciones.length > 0" style="justify-content: start; width: max-content;" >
+                    <Button label="Ver direcciones" link @click="agregarNuevaDireccion(false)" />
                 </div>
 
             </div>
@@ -619,16 +651,17 @@ const validarForm = (event) => {
         </div>
 
         <template #footer>
-            <Button label="Cancel" icon="pi pi-times" text @click="hideDialog"/>
+            <Button label="Cancel" icon="pi pi-times" text @click="closeEntregaDialog"/>
             <Button label="Save" icon="pi pi-check" text @click="saveEntrega" />
         </template>
     </Dialog>
 
     <!--Dialog Registrar Modificar Cliente-->
-    <Dialog v-model:visible="clienteDialog" :style="{width: '450px'}" header="Cliente" :modal="true" class="p-fluid">
+    <Dialog v-model:visible="clienteDialog" :closable="false" :style="{width: '450px'}" header="Cliente" :modal="true" class="p-fluid">
         <div class="field">
             <label for="name">Nombre</label>
-            <InputText id="name" v-model.trim="cliente.nombre" required="true" autofocus  />
+            <InputText id="name" v-model.trim="cliente.nombre" required="true" autofocus :class="{'p-invalid': submitted && !cliente.nombre}" />
+            <small class="p-error" v-if="submitted && !cliente.nombre">Ingrese un Nombre</small>
         </div>
         <div class="field">
             <label for="description">Apellido</label>
@@ -647,8 +680,9 @@ const validarForm = (event) => {
             <InputText id="description" v-model="cliente.telefono" required="true"  />
         </div>
         <div class="field">
-            <label for="description">Calle 1</label>
-            <InputText id="description" v-model="direccion.calle1" required="true"  />
+            <label for="description">Calle Principal</label>
+            <InputText id="description" v-model="direccion.calle1" required="true" :class="{'p-invalid': submitted && !validarDireccionCliente(direccion) && !direccion.calle1}" />
+            <small class="p-error" v-if="submitted && !validarDireccionCliente(direccion) && !direccion.calle1">Ingrese Calle Principal</small>
         </div>
         
         <div class="field">
@@ -668,11 +702,12 @@ const validarForm = (event) => {
         </div>
         <div class="field " >
             <label for="nombreu">Departamento</label>
-            <Dropdown v-model="direccion.ciudad.departamento" :options="departamentos" optionLabel="descripcion" placeholder="Seleccione una ciudad" @change="getCiudades(direccion.ciudad.departamento.id)"  />
+            <Dropdown v-model="direccion.departamento" :options="departamentos" optionLabel="descripcion" placeholder="Seleccione un departamento" @change="getCiudades(direccion.departamento.id)"  />
         </div>
         <div class="field " >
             <label for="nombreu">Ciudad</label>
-            <Dropdown v-model="direccion.ciudad" :options="ciudades" optionLabel="descripcion" placeholder="Seleccione una ciudad"   />
+            <Dropdown v-model="direccion.ciudad" :options="ciudades" optionLabel="descripcion" placeholder="Seleccione una ciudad" :class="{'p-invalid': submitted && !validarDireccionCliente(direccion) && !direccion.ciudad}"  />
+            <small class="p-error" v-if="submitted && !validarDireccionCliente(direccion) && !direccion.ciudad">Ingrese Ciudad</small>
         </div>
         <div class="field">
             <label for="description">Ubicar en el mapa</label>
@@ -728,7 +763,7 @@ const validarForm = (event) => {
             
         </template>
         <template #content>
-            <div id="clienteDiv" class="card flex justify-content-start" link >
+            <div id="clienteDiv">
 
             </div>
             <div class="flex flex-column align-options-start">
@@ -766,15 +801,16 @@ const validarForm = (event) => {
             
         </template>
         <template #content>
-            <div id="entregaDiv" class="card flex justify-content-start" link >
-                {{ selectedFormaEntrega.descripcion }}
-            </div>
-            <div class="flex flex-column align-options-start">
-            
-                <div  >
-              
+            <div id="entregaDiv"  >
+                <p class="m-0">
+                <div v-for="v in infoEntrega">
+                    {{ v.valor }} <br>
                 </div>
+                
+            </p>
+                
             </div>
+ 
            
             
         </template>
@@ -783,13 +819,6 @@ const validarForm = (event) => {
             <div class="field col-12 md:col-12">
                 <CardDetalle ref="productos"/>
             </div>
-            <div>
-                <SearchCliente ref="searchCard" @getCliente="getCliente" />
-            </div>
-            <div>
-                <CardEntrega ref="modoEntrega" @getEntrega="getEntrega" />
-            </div>
-            
         </div>
       
     </Panel>
@@ -800,6 +829,13 @@ const validarForm = (event) => {
 .p-inputgroup-addon{
     padding: 0%;
 }
+
+.p-inputnumber-buttons-stacked .p-inputnumber-button-group .p-button.p-inputnumber-button {
+    flex: 1 1 auto;
+    padding: 0rem;
+    width: 1rem;
+}
+
 /*
 
 .p-accordion-tab{

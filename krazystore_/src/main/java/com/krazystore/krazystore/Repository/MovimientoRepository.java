@@ -47,7 +47,7 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
             + "LEFT JOIN PagoEntity pagos "
             + "ON pagos.movimiento = m "
             + "LEFT JOIN pagos.formaPago f "
-            + "WHERE p.id = ?1 OR pv.id = ?1 OR pr.id = ?1 "
+            + "WHERE (p.id = ?1 OR pv.id = ?1 OR pr.id = ?1) AND m.estado = 'C' "
             + "ORDER BY m.id DESC"
            )
     public List<PRUEBADTO> prueba(Long id);
@@ -131,7 +131,7 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
     @Query(
   value = """
           SELECT * FROM movimientos m 
-          where m.estado = false 
+          where m.estado = 'P' 
           """, 
   nativeQuery = true)
     List<MovimientoEntity> getFacturasPendientes();

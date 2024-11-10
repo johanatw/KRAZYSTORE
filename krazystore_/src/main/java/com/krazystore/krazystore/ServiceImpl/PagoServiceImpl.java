@@ -67,21 +67,22 @@ public class PagoServiceImpl implements PagoService {
     public Iterable<PagoEntity> savePagos(MovimientoEntity movimiento, List<PagoEntity> pagos) {
          
         List<AnticipoEntity> anticiposUtilizados = new ArrayList<>();
+        List<PagoEntity> pagosGuardar = new ArrayList<>();
         
         pagos.forEach(d -> {
-            if(d.getFormaPago() != null && d.getImporte()>0){
+            if(d.getImporte()>0){
                 d.setMovimiento(movimiento);
-            
-                if("Anticipo".equals(d.getFormaPago().getDescripcion())){
-                  AnticipoEntity anticipo = d.getAnticipo();
-                  anticipo.setUtilizado(anticipo.getUtilizado() + (int)(long)d.getImporte());
-                  anticipo.setSaldo(anticipo.getSaldo() - (int)(long)d.getImporte());
-                  anticiposUtilizados.add(anticipo);
+                if(d.getAnticipo() != null){
+                    AnticipoEntity anticipo = d.getAnticipo();
+                    anticipo.setUtilizado(anticipo.getUtilizado() + (int)(long)d.getImporte());
+                    anticipo.setSaldo(anticipo.getSaldo() - (int)(long)d.getImporte());
+                    anticiposUtilizados.add(anticipo);
                 }
+                pagosGuardar.add(d);
             }
             
         });
-        Iterable<PagoEntity> newPagos =  pagoRepository.saveAll(pagos);
+        Iterable<PagoEntity> newPagos =  pagoRepository.saveAll(pagosGuardar);
         
         if(!anticiposUtilizados.isEmpty()){
            anticipoService.updateAnticipos(anticiposUtilizados);
@@ -105,7 +106,7 @@ public class PagoServiceImpl implements PagoService {
             p.setAnticipo(d.getAnticipo());
             pagosAnulados.add(p);
             
-            if("Anticipo".equals(d.getFormaPago().getDescripcion())){
+            if(d.getAnticipo() != null){
               AnticipoEntity anticipo = d.getAnticipo();
               anticipo.setUtilizado(anticipo.getUtilizado() - (int)(long)d.getImporte());
               anticipo.setSaldo(anticipo.getSaldo() + (int)(long)d.getImporte());
@@ -184,6 +185,22 @@ public class PagoServiceImpl implements PagoService {
     
     @Override
     public void deletePagosByMovimiento(Long id) {
+        List<PagoEntity> pagos = pagoRepository.findByIdMovimiento(id);
+        List<AnticipoEntity> anticipos = new ArrayList<>();
+        pagos.forEach(d -> {
+
+            if(d.getAnticipo() != null){
+              AnticipoEntity anticipo = d.getAnticipo();
+              anticipo.setUtilizado(anticipo.getUtilizado() - (int)(long)d.getImporte());
+              anticipo.setSaldo(anticipo.getSaldo() + (int)(long)d.getImporte());
+              anticipos.add(anticipo);
+            }
+        });
+        
+        if(!anticipos.isEmpty()){
+           anticipoService.updateAnticipos(anticipos);
+       }
+        
         pagoRepository.deletePagosByMovimiento(id);
     }
     

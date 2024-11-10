@@ -47,14 +47,6 @@ const router = createRouter({
       component: () => import('@/modules/Pedidos/views/ModificarPedido.vue')
     },
     {
-      path: '/addPago/:id',
-      name: 'AddPago',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('@/modules/Pedidos/components/RegistrarPago.vue')
-    },
-    {
       path: '/anticipos',
       name: 'anticipos',
       // route level code-splitting
@@ -63,22 +55,6 @@ const router = createRouter({
       component: () => import('@/modules/Pagos/views/ListaAnticipos.vue')
     }
     ,
-    {
-      path: '/reembolsar/:id',
-      name: 'reembolsar',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('@/modules/Pagos/views/ReembolsarAnticipo.vue')
-    },
-    {
-      path: '/verAnticipo/:id',
-      name: 'verAnticipo',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('@/modules/Pagos/views/VerAnticipo.vue')
-    },
     {
       path: '/reembolsos',
       name: 'reembolsos',
@@ -93,15 +69,7 @@ const router = createRouter({
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import('@/modules/Pedidos/components/registrarPagoant.vue')
-    },
-    {
-      path: '/caja',
-      name: 'caja',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      //component: () => import('@/modules/Pagos/views/Caja.vue')
+      component: () => import('@/modules/Pedidos/views/NuevaFactura.vue')
     },
     {path: '/cajas',
       name: 'cajas',
@@ -140,6 +108,22 @@ const router = createRouter({
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('@/modules/Pagos/views/VerFactura.vue')
+    },
+    {
+      path: '/compras',
+      name: 'compras',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Compras/views/RegistrarCompra.vue')
+    },
+    {
+      path: '/preparar_pedido',
+      name: 'preparar',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Entregas/views/PrepararPedido.vue')
     }
   ]
 })

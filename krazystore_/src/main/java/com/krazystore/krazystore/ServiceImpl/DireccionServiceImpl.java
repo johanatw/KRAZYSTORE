@@ -61,6 +61,7 @@ public class DireccionServiceImpl implements DireccionService {
     public boolean algunCampoTieneValor(DireccionEntity direccion) {
         return (direccion.getCalle1() != null && !direccion.getCalle1().isEmpty()) ||
                (direccion.getCalle2() != null && !direccion.getCalle2().isEmpty()) ||
+                (direccion.getCalle3() != null && !direccion.getCalle3().isEmpty()) ||
                (direccion.getNroCasa() != null && !direccion.getNroCasa().isEmpty()) ||
                 (direccion.getDireccion() != null && !direccion.getDireccion().isEmpty()) ||
                 (direccion.getLat() != null) ||

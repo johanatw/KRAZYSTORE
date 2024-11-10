@@ -113,11 +113,11 @@ public class MovimientoServiceImpl implements MovimientoService {
         
         MovimientoEntity movimiento = movimientoRepository.findById(movimientoEntity.getId()).get();
         movimiento.setCaja(cajaService.getCaja());
-        System.out.println(movimiento.isEstado());
-        movimiento.setEstado(true);
-        System.out.println(movimiento.isEstado());
+        
+        movimiento.setEstado('C');
+    
         MovimientoEntity nuevoMovimiento = movimientoRepository.save(movimiento);
-        System.out.println(movimiento.isEstado());
+     
         pagoService.savePagos(nuevoMovimiento, pagos);
         
         if(nuevoMovimiento.getVenta().getPedido() != null){
@@ -170,7 +170,7 @@ public class MovimientoServiceImpl implements MovimientoService {
         nuevoMovimiento.setMonto(venta.getMontoTotal());
         
         nuevoMovimiento.setNroDocumento(venta.getNroFactura());
-        nuevoMovimiento.setEstado(false);
+        nuevoMovimiento.setEstado('P');
         //nuevoMovimiento.setCaja(caja);
         //if(anular){
           //  nuevoMovimiento.setFecha(new Date());
@@ -225,8 +225,34 @@ public class MovimientoServiceImpl implements MovimientoService {
     @Transactional
     @Override
     public void deleteMovimiento(Long id) {
+        MovimientoEntity movimiento = movimientoRepository.findById(id).get();
         pagoService.deletePagosByMovimiento(id);
-        movimientoRepository.deleteById(id);
+        if(movimiento.getVenta() == null){
+            movimientoRepository.deleteById(id);
+        }else{
+            movimiento.setEstado('P');
+            movimiento.setCaja(null);
+            movimientoRepository.save(movimiento);
+            
+            if(movimiento.getVenta().getPedido()!=null){
+                //Se actualiza estado de pago del Pedido
+                EstadoEntity estadoPago = getEstadoPagoPedido(movimiento.getVenta().getPedido().getId());
+                pedidoService.updateEstadoPagoPedido( movimiento.getVenta().getPedido(), estadoPago);
+            }
+        }
+    }
+    
+    @Transactional
+    @Override
+    public void deleteVenta(Long id) {
+       
+
+        //Se obtiene el movimiento de caja correspondiente al anticipo
+        MovimientoEntity movimiento = movimientoRepository.findByIdVenta(id);
+
+         // Se elimina el movimiento      
+        movimientoRepository.deleteById(movimiento.getId());       
+
     }
 
 
@@ -353,32 +379,7 @@ public class MovimientoServiceImpl implements MovimientoService {
              
     }
     
-    @Transactional
-    @Override
-    public void anularVenta(VentaEntity ventaEntity) {
 
-        //Se obtiene el movimiento de caja correspondiente a la venta
-        MovimientoEntity movimientoVenta = movimientoRepository.findByIdVenta(ventaEntity.getId());
-        movimientoRepository.deleteById(movimientoVenta.getId());
-        //Se optiene los pagos del movimiento
-        //List<PagoEntity> pagos = pagoService.findByIdMovimiento(movimientoVenta.getId());
-       
-        //Se crea movimiento de Anulacion de Factura
-        //MovimientoEntity movimiento = crearMovimiento(ventaEntity,true);
-        
-        //Se guarda movimiento
-        //MovimientoEntity nuevoMovimiento = movimientoRepository.save(movimiento);
-        
-        //Se revierten los pagos de la venta
-        //pagoService.revertirPagos(nuevoMovimiento, pagos);
-        
-        //Si esta asociado a pedido se actualiza estado de pago del pedido
-       /* if(nuevoMovimiento.getVenta().getPedido() != null){
-            EstadoEntity estadoPago = getEstadoPagoPedido(nuevoMovimiento.getVenta().getPedido().getId());
-            pedidoService.updateEstadoPagoPedido( nuevoMovimiento.getVenta().getPedido(), estadoPago);
-        }*/
-
-    }
 
     @Override
     public Long validarEliminacionPedido(Long id) {
@@ -391,10 +392,15 @@ public class MovimientoServiceImpl implements MovimientoService {
     }
     
     @Override
-    public boolean getEstadoPago(VentaEntity ventaEntity) {
+    public char getEstadoPago(VentaEntity ventaEntity) {
 
          MovimientoEntity movimiento = movimientoRepository.findByIdVenta(ventaEntity.getId());
-         return movimiento.isEstado();
+         if(movimiento != null){
+             return movimiento.getEstado();
+         }
+         
+         return 'S';
+         
 
     }
 }

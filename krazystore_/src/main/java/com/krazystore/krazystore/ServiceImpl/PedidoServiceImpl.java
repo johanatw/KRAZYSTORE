@@ -93,10 +93,16 @@ public class PedidoServiceImpl implements PedidoService {
         updatedPedido.setTotal(pedidoEntity.getTotal());
         updatedPedido.setModoEntrega(pedidoEntity.getModoEntrega());
         updatedPedido.setFormaPago(pedidoEntity.getFormaPago());
-        
+        updatedPedido.setDireccionEnvio(pedidoEntity.getDireccionEnvio());
         updatedPedido.setEstadoPago(pedidoEntity.getEstadoPago());
         
+        PersonaCreationDTO personaDTO = new PersonaCreationDTO();
+        personaDTO.setPersonaEntity(pedidoEntity.getCliente());
+        personaDTO.setDireccion(pedidoEntity.getDireccionEnvio());
         
+        if(pedidoEntity.getDireccionEnvio()!= null && pedidoEntity.getDireccionEnvio().getId() == null ){
+            personaService.updatePersona(personaDTO, pedidoEntity.getCliente().getId());
+        }
 
         PedidoEntity pedido = pedidorepository.save(updatedPedido);
         detallePedidoService.updateDetallesPedido(detalle, id);

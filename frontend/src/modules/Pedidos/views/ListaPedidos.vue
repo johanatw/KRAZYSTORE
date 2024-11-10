@@ -31,7 +31,7 @@ const pedidos = ref();
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import Toast from 'primevue/toast';
-import RegistrarPago from '../components/RegistrarPago.vue';
+
 
 const opciones = ref([{id: 1, descripcion: 'Facturar productos disponibles en stock.'},
                     {id: 2, descripcion: 'Registrar anticipo para productos no disponibles en stock.'}]);
@@ -336,7 +336,7 @@ const reload = () =>{
 </script>
 
 <template>
-  <div class="card flex p-fluid justify-content-center " >
+  <div class="flex p-fluid justify-content-center " >
     
 
 <ConfirmDialog group="errorEliminarPedido">
@@ -447,7 +447,7 @@ const reload = () =>{
       </template>
       
   
-      <div class="card">
+      <div >
         
         <DataTable  :value="pedidos " scrollHeight="400px"  
           :paginator="true" :rows="7" :filters="filters"

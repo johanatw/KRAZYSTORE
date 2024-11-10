@@ -5,9 +5,9 @@ import Button from 'primevue/button';
 
 import Card from 'primevue/card';
 import { ref, onMounted } from "vue";
-import ListaProductos from '@/modules/Pedidos/components/ListaProductos.vue';
+
 import Dialog from 'primevue/dialog';
-import Detalle from '@/modules/Pedidos/components/Detalle.vue';
+
 import { FilterMatchMode, FilterOperator } from 'primevue/api';
 import { ProductoServices } from '@/services/ProductoServices';
 import DataTable from 'primevue/datatable';

@@ -16,9 +16,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface FormaPagoRepository extends JpaRepository<FormaPagoEntity, Long>{
-    @Query(
-  value = "SELECT * FROM formas_pago f WHERE f.descripcion <> 'Anticipo'", 
-  nativeQuery = true)
-    public List<FormaPagoEntity> findAllSinAnticipo();
+
 }
     

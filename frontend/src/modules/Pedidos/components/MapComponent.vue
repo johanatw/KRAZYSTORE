@@ -27,9 +27,11 @@
         }
         //Coordenada inicial
         const userLatLng = [lat,lng];
+        console.log("latlng");
+        console.log(userLatLng);
 
         // Crear el mapa centrado en una ubicación predeterminada
-        map.value = L.map('map').setView(userLatLng, 13); // Coordenadas iniciales (Londres)
+        map.value = L.map('map').setView(userLatLng, 21); // Coordenadas iniciales (Londres)
         
 
   

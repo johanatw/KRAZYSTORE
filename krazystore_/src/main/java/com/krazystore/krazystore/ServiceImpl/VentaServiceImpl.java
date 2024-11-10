@@ -141,12 +141,17 @@ public class VentaServiceImpl implements VentaService{
     public int anularFactura(Long id) {
         
         VentaEntity facturaVenta = ventarepository.findById(id).get();
-        Boolean pagado = movimientoService.getEstadoPago(facturaVenta);
+        char pagado = movimientoService.getEstadoPago(facturaVenta);
         
-        if(pagado){
-            return 1;
+        switch(pagado){
+            case 'C':
+                return 1;
+            case 'P':
+                movimientoService.deleteVenta(id);
+                break;
         }
-        movimientoService.anularVenta(facturaVenta);
+        
+        
             
         facturaVenta.setActivo(false);
         List<DetalleVentaEntity> detalleVenta = detalleVentaService.findByIdVenta(id);

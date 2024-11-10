@@ -1,7 +1,7 @@
 <template>
     
 
-    <div class="card flex p-fluid justify-content-center " >
+    <div class=" flex p-fluid justify-content-center " >
      
     
         <Panel style=" position: relative; width: 80%;" >
@@ -15,7 +15,7 @@
             
             
             </template>
-            <div class="card flex p-fluid justify-content-center " >
+            <div class="flex p-fluid justify-content-center " >
                         <object  :data="pdf" type="application/pdf" width="100%" height="594px"></object>
                 </div>
    

@@ -28,11 +28,6 @@ public class FormaPagoController {
     public List<FormaPagoEntity> findAll() {
         return formaPagoService.findAll();
     }
-    
-    @GetMapping("/sin_anticipo")
-    public List<FormaPagoEntity> findAllSinAnticipo() {
-        return formaPagoService.findAllSinAnticipo();
-    }
 
     @GetMapping("/{id}")
     public Optional<FormaPagoEntity> findById(@PathVariable("id") Long id) {

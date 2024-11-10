@@ -12,6 +12,9 @@ import ConfirmationService from 'primevue/confirmationservice';
 import 'primeflex/primeflex.css';
 import 'leaflet/dist/leaflet.css'; 
 import Tooltip from 'primevue/tooltip';
+import BadgeDirective from 'primevue/badgedirective';
+
+
 
 
 
@@ -23,4 +26,5 @@ app.use(ToastService)
 app.use(PrimeVue)
 app.use(router)
 app.directive('tooltip', Tooltip);
+app.directive('badge', BadgeDirective);
 app.mount('#app')

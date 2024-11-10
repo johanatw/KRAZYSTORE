@@ -39,13 +39,7 @@ const toast = useToast();
 
 
 const items = ref([
-    {
-        label: 'Home',
-        icon: 'pi pi-home',
-        command: () => {
-            router.push({name: 'home'});
-        }
-    },,
+   
     { 
         label: 'Ventas',
         icon: 'pi pi-bill',
@@ -64,6 +58,21 @@ const items = ref([
                     router.push({name: 'pedidos'});
                 }
             },
+
+        ]
+    },
+    { 
+        label: 'Compras',
+        icon: 'pi pi-bill',
+        items: [
+            {
+                label: 'Facturas de ventas',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'compras'});
+                }
+            },
+          
 
         ]
     },
@@ -95,6 +104,21 @@ const items = ref([
             },
             
            
+        ]
+    },
+    { 
+        label: 'Inventario',
+        icon: 'pi pi-bill',
+        items: [
+            {
+                label: 'Facturas de ventas',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'preparar'});
+                }
+            },
+          
+
         ]
     },
 

@@ -1,8 +1,6 @@
 <script setup>
-import CardCliente from "@/modules/Pedidos/components/CardCliente.vue";
 import CardDetalle from "@/modules/Pedidos/components/CardDetalle.vue";
-import CardEntrega from "@/modules/Pedidos/components/CardEntrega.vue";
-import CardPago from "@/modules/Pedidos/components/CardPago.vue";
+
 import MiCard from "@/modules/Pedidos/components/MiCard.vue";
 import DetallePedido from '@/modules/Pedidos/components/DetallePedido.vue';
 import Button from 'primevue/button';
@@ -225,12 +223,7 @@ const getEntrega = (formaEntrega, envio) =>{
             <div class="field col-12 md:col-12">
                 <DetallePedido ref="detalle"/>
             </div>
-            <div>
-                <SearchCliente ref="searchCard" @getCliente="getCliente" />
-            </div>
-            <div>
-                <CardEntrega ref="modoEntrega" @getEntrega="getEntrega" />
-            </div>
+
             <div class="field col-12 md:col-12">
                 <Card style="height: 100%;" >
                             <template #title>

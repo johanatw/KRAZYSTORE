@@ -55,19 +55,20 @@ public class MovimientoEntity {
     @Column
     private long egreso=0;
     @Column
-    private boolean estado=true;
+    private char estado='C';
 
     public MovimientoEntity() {
     }
 
-    public boolean isEstado() {
+    public char getEstado() {
         return estado;
     }
 
-    public void setEstado(boolean estado) {
+    public void setEstado(char estado) {
         this.estado = estado;
     }
 
+   
     
 
     

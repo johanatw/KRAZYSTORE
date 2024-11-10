@@ -8,7 +8,10 @@ const caja = ref();
       return valor.toLocaleString("de-DE");
   }
 
+  
+
   let fecha = new Date(valor);
+  console.log(typeof(valor));
   let fechaFormateada = fecha.getDate() + '/' + (fecha.getMonth()+1) + '/' +fecha.getFullYear()+' '+ fecha.getHours()+':'+fecha.getMinutes()+':'+fecha.getSeconds();
   return fechaFormateada;
 }

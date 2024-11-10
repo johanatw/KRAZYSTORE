@@ -25,6 +25,8 @@ public class DireccionEntity {
     @Column
     private String calle2;
     @Column
+    private String calle3;
+    @Column
     private String nroCasa;
     @Column
     private char tipo;
@@ -48,6 +50,15 @@ public class DireccionEntity {
         return ciudad;
     }
 
+    public String getCalle3() {
+        return calle3;
+    }
+
+    public void setCalle3(String calle3) {
+        this.calle3 = calle3;
+    }
+
+    
     public void setCiudad(CiudadEntity ciudad) {
         this.ciudad = ciudad;
     }

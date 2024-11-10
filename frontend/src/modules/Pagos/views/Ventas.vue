@@ -41,18 +41,18 @@ const reembolsos = ref();
 const movimientos = ref();
 const ventas= ref();
 
-const confirm2 = (id) => {
+const confirm2 = (id, nro) => {
    
     confirm.require({
-        message: 'Eliminar el reembolso #'+ id + '?',
+        message: 'Anular la factura #'+ nro+ '?',
         header: 'Confirmacion',
         icon: 'pi pi-info-circle',
         rejectLabel: 'Cancelar',
-        acceptLabel: 'Eliminar',
+        acceptLabel: 'Anular',
         rejectClass: 'p-button-secondary p-button-outlined',
         acceptClass: 'p-button-danger',
         accept: () => {
-            deleteReembolso(id);
+            anular(id);
             
         },
         
@@ -97,7 +97,7 @@ const anular = (id) =>{
     let pagosAsociados = 1;
     VentaServices.anularVenta(id).then((response)=>{
         if (response.data == pagosAsociados) {
-            toast.add({ severity: 'success', detail: 'Pagos asociados', life: 5000 });
+            toast.add({ severity: 'warn', detail: 'Debe eliminar los pagos asociados', life: 5000 });
         } else {
             getVentas();
             toast.add({ severity: 'success', detail: 'Factura anulada', life: 5000 });
@@ -192,7 +192,7 @@ const nuevoPedido = () =>{
 
 <template>
     
-  <div class="card flex p-fluid justify-content-center " >
+  <div class=" flex p-fluid justify-content-center " >
 
     <ConfirmDialog ></ConfirmDialog>
     <Toast />
@@ -210,7 +210,7 @@ const nuevoPedido = () =>{
       
       
   
-      <div class="card">
+      <div >
         
         <DataTable  :value="ventas" scrollHeight="400px"  
           :paginator="true" :rows="7" :filters="filters"
@@ -258,7 +258,7 @@ const nuevoPedido = () =>{
                 <div style="display: flex;" >
                     <Button  label="Revisar" @click="verFactura(slotProps.data.id)"  style="height: 2rem !important; width: 5rem !important; margin-right: 1%; font-size: 14px; " />
                     <div v-if="slotProps.data.activo">
-                        <Button  severity="danger"  label="Anular" @click="anular(slotProps.data.id)"  style="height: 2rem !important; width: 5rem !important; font-size: 14px;" />
+                        <Button  severity="danger"  label="Anular" @click="confirm2(slotProps.data.id,slotProps.data.nroFactura )"  style="height: 2rem !important; width: 5rem !important; font-size: 14px;" />
                 </div>
                 <div v-else>
                     <Button  severity="danger"  label="Anular" disabled  style="height: 2rem !important; width: 5rem !important; font-size: 14px;" />

@@ -27,11 +27,6 @@ public class FormaPagoServiceImpl implements FormaPagoService {
     public List<FormaPagoEntity> findAll() {
         return formapagorepository.findAll();
     }
-    
-    @Override
-    public List<FormaPagoEntity> findAllSinAnticipo() {
-        return formapagorepository.findAllSinAnticipo();
-    }
 
     @Override
     public Optional<FormaPagoEntity> findById(Long id) {

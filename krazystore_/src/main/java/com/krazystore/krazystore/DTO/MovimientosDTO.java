@@ -18,13 +18,13 @@ public class MovimientosDTO {
     private String formaPago;
     private Long total;
     private String factura;
-    private boolean estado;
+    private char estado;
     private char tipo;
 
     public MovimientosDTO() {
     }
 
-    public MovimientosDTO(Long id, Date fecha, String concepto, String formaPago, Long total, String factura, boolean estado, char tipo) {
+    public MovimientosDTO(Long id, Date fecha, String concepto, String formaPago, Long total, String factura, char estado, char tipo) {
         this.id = id;
         this.fecha = fecha;
         this.concepto = concepto;
@@ -103,13 +103,15 @@ public class MovimientosDTO {
         this.factura = factura;
     }
 
-    public boolean isEstado() {
+    public char getEstado() {
         return estado;
     }
 
-    public void setEstado(boolean estado) {
+    public void setEstado(char estado) {
         this.estado = estado;
     }
+
+    
     
     
     

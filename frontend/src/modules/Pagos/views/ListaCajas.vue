@@ -75,7 +75,7 @@ const verCaja = (caja) =>{
 
 <template>
 
-    <div class="card flex p-fluid justify-content-center " >
+    <div class=" flex p-fluid justify-content-center " >
         <Toast />
         <!--Pantalla Principal Lista de Cajas-->
         <Panel style=" position: relative; width: 100%;" >
@@ -91,7 +91,7 @@ const verCaja = (caja) =>{
                 </div>
             </template>
       
-            <div class="card">
+            <div >
                 <DataTable  :value="cajas " scrollHeight="400px"  
                 :paginator="true" :rows="7" :filters="filters"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 

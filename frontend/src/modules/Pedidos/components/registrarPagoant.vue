@@ -42,82 +42,7 @@
 
                 
                     <div class="field col-12 md:col-6">
-                        <Card style="height: 100%;" >
-                            <template #title>
-            <div class="flex justify-content-between ">
-                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
-                    Medios de pago
-                </div>
-                <div >
-                    <Button label="+ Forma de pago"   @click="addRow()" link />
-                    </div>
-
-            </div>
-            
-        </template>
-                            <!---->
-                            <template #content>
-                                <div>
-                                    <div class="formgrid grid" v-for="item, index in pagos" :key="item" >
-                                        <div class="flex field col-12 md:col-12" >
-                                            <div class="field col-4 md:col-4" style="justify-content: start;  ">
-                                                <Dropdown style="padding: 0rem !important;" v-model="item.formaPago" :options="formasPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   />
-                                                
-                                            </div>
-                                            <div v-if="item.formaPago && item.formaPago.descripcion == 'Anticipo'" class=" field col-4 md:col-4" style=" justify-content: start; " >
-                                                <Dropdown style="padding: 0rem !important;" v-model="item.anticipo" :options="anticipos" optionLabel="id" placeholder="Seleccione un elemento" @change="verificarSaldoAnticipo(item, index)" >
-                                                    <template #value="slotProps">
-                                                        <div v-if="slotProps.value" class="flex align-items-center">
-                                                            <div>ANT-{{ slotProps.value.id }} - {{ formatearNumero(slotProps.value.saldo) }} Gs. </div>
-                                                        </div>
-                                                        <span v-else>
-                                                            {{ slotProps.placeholder }}
-                                                        </span>
-                                                    </template>
-                                                    
-                                                    <template #option="slotProps">
-                                                    <div class="flex align-items-center">
-                                                        <div>ANT-{{ slotProps.option.id }}  - {{ formatearNumero(slotProps.option.saldo) }} Gs.</div>
-                                                    </div>
-                                                </template>
-                                            </Dropdown>
-                                            </div>
-                                            <div v-else class=" field col-4 md:col-4" style=" justify-content: start; " ></div>
-                                            <div v-if="item.anticipo" class=" field col-3 md:col-3" style=" justify-content: start; " >
-                                               
-                                                <InputNumber name="input" style="padding: 0rem !important;" :max=" item.anticipo.saldo " v-model="item.importe" @input="calcularAbonado($event,item.anticipo.saldo)"  />
-                                            
-                                            </div>
-                                            <div v-else class=" field col-3 md:col-3" style=" justify-content: start; " >
-                                                <InputNumber disabled=true name="input" style="padding: 0rem !important;" v-model="item.importe" @input="calcularAbonado($event)"  />
-                                            </div>
-                                            <div v-if="index > 0" class=" field col-1 md:col-1" style=" justify-content: flex-end">
-                                                <Button style="background: none !important; border: none !important " icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="eliminarRow(index)" />
-                                    
-                                            </div>
-
-                                        </div>
-                                    </div>
-
-                                    
-
-                                    <div class="formgrid grid">
-                                        <div class="flex field col-12 md:col-12" >
-                                            
-                                            <div class="flex field col-9 md:col-9 justify-content-start" >
-                                                <label for="totalPagos"> Total abonado: </label>
-                                                
-                                            </div>
-                                            <div class="flex field col-3 md:col-3" style=" justify-content: center; " >
-                                                {{ abonado.toLocaleString("de-DE") }}
-
-                                            </div>
-                                        </div>
-                                    
-                                    </div>
-                                </div>
-                            </template>
-                        </Card>
+                        
 
                     </div>
                 </div>
@@ -804,7 +729,7 @@ const eliminar = (detalle) => {
     console.log(pagos.value);
     console.log("detalle");
     console.log(detalleFacturar.value);
-
+    
     let fechaAnticipo = new Date();
     let ant = {montoTotal: abonado.value, fecha: fechaAnticipo, pedido: pedido.value,cliente: selectedClient.value, montoIva: montoIva.value};
 

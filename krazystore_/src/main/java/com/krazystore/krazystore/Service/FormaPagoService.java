@@ -18,5 +18,4 @@ public interface FormaPagoService {
     FormaPagoEntity saveFormaPago(FormaPagoEntity formaPagoEntity);
     FormaPagoEntity updateFormaPago(FormaPagoEntity formaPagoEntity, Long id);
     void deleteFormaPago(Long id);
-    List<FormaPagoEntity> findAllSinAnticipo();
 }
