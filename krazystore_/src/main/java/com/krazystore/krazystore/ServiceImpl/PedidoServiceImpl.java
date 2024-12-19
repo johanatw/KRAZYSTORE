@@ -4,9 +4,12 @@
  */
 package com.krazystore.krazystore.ServiceImpl;
 
+import Utils.ProductosReservadosEvent;
+import Utils.TipoEventoExistencias;
 import com.krazystore.krazystore.DTO.Pedido;
 import com.krazystore.krazystore.DTO.PedidoDTO;
 import com.krazystore.krazystore.DTO.PersonaCreationDTO;
+import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
 import com.krazystore.krazystore.Entity.DetallePedidoEntity;
 import com.krazystore.krazystore.Entity.EstadoEntity;
 import com.krazystore.krazystore.Entity.PedidoEntity;
@@ -24,6 +27,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -33,10 +37,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class PedidoServiceImpl implements PedidoService {
     private final PedidoRepository pedidorepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public PedidoServiceImpl(PedidoRepository pedidorepository) {
+    public PedidoServiceImpl(PedidoRepository pedidorepository, ApplicationEventPublisher eventPublisher) {
         this.pedidorepository = pedidorepository;
+        this.eventPublisher = eventPublisher;
     }
+
+    
     
     @Autowired
     private PersonaService personaService;
@@ -74,7 +82,8 @@ public class PedidoServiceImpl implements PedidoService {
         
         PedidoEntity nuevoPedido = pedidorepository.save(pedidoEntity);
         
-        detallePedidoService.saveDetallePedido(nuevoPedido.getId(), detalle);
+        List<ProductoExistenciasDTO> productosActualizarExistencias = detallePedidoService.saveDetallePedido(nuevoPedido.getId(), detalle);
+        actualizarExistencias(productosActualizarExistencias);
         
         return nuevoPedido;
     }
@@ -105,8 +114,10 @@ public class PedidoServiceImpl implements PedidoService {
         }
 
         PedidoEntity pedido = pedidorepository.save(updatedPedido);
-        detallePedidoService.updateDetallesPedido(detalle, id);
-        
+        List<ProductoExistenciasDTO> productosActualizarExistencias = detallePedidoService.updateDetallesPedido(detalle, id);
+        System.out.println("PEDIDO PRODUCTSO ACTUALIZAR");
+        System.out.println(productosActualizarExistencias.get(0).getIdProducto());
+        actualizarExistencias(productosActualizarExistencias);
         return pedido;
     }
    @Override  
@@ -143,6 +154,12 @@ public class PedidoServiceImpl implements PedidoService {
         }
         
         return 0;
+    }
+    
+    public void actualizarExistencias(List<ProductoExistenciasDTO> productosActualizarExistencias) {
+        // Publicar el evento
+        ProductosReservadosEvent evento = new ProductosReservadosEvent(productosActualizarExistencias, TipoEventoExistencias.ACTUALIZAR_RESERVAS);
+        eventPublisher.publishEvent(evento);
     }
     
 }

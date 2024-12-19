@@ -66,10 +66,24 @@ const items = ref([
         icon: 'pi pi-bill',
         items: [
             {
-                label: 'Facturas de ventas',
+                label: 'Pedidos',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'pedidos_compras'});
+                }
+            },
+            {
+                label: 'Facturas de compras',
                 icon: 'pi pi-star',
                 command: () => {
                     router.push({name: 'compras'});
+                }
+            },
+            {
+                label: 'Recepciones',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'recepciones'});
                 }
             },
           
@@ -111,10 +125,10 @@ const items = ref([
         icon: 'pi pi-bill',
         items: [
             {
-                label: 'Facturas de ventas',
+                label: 'Existencias',
                 icon: 'pi pi-star',
                 command: () => {
-                    router.push({name: 'preparar'});
+                    router.push({name: 'existencias'});
                 }
             },
           

@@ -77,6 +77,18 @@ public class DetallePedidoEntity {
         this.cantidadPagado = cantidadPagado;
     }
 
+    public DetallePedidoEntity(DetallePedidoEntity detalle) {
+        this.id = detalle.getId();
+        this.pedido = detalle.getPedido();
+        this.producto = detalle.getProducto();
+        this.cantidad = detalle.getCantidad();
+        this.subtotal = detalle.getSubtotal();
+        this.saldoPendiente = detalle.getSaldoPendiente();
+        this.cantidadFacturada = detalle.getCantidadFacturada();
+    }
+    
+    
+
     public int getCantidadFacturada() {
         return cantidadFacturada;
     }

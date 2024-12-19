@@ -4,6 +4,8 @@
  */
 package com.krazystore.krazystore.DTO;
 
+import com.krazystore.krazystore.Entity.CategoriaEntity;
+
 /**
  *
  * @author HP
@@ -11,8 +13,7 @@ package com.krazystore.krazystore.DTO;
 public class ProductoDTO {
     private Long id;
     private String nombre;
-    private Long idCategoria;
-    private String categoria;
+    private CategoriaEntity categoria;
     private int precio;
     private int costo;
     private Boolean estado;
@@ -25,28 +26,48 @@ public class ProductoDTO {
     public ProductoDTO() {
     }
 
-    public ProductoDTO(Long id, String nombre, Long idCategoria, String categoria, int precio, int costo, Boolean estado, Boolean preVenta, int cantPreVenta, int cantStock, int cantDisponible, int cantReservada) {
-        this.id =  id;
-        this.idCategoria = idCategoria;
+  
+
+    public ProductoDTO(Long id, String nombre) {
+        this.id = id;
+        this.nombre = nombre;
+    }
+
+    public ProductoDTO(Long id, String nombre, int precio) {
+        this.id = id;
+        this.nombre = nombre;
+        this.precio = precio;
+    }
+
+    public ProductoDTO(Long id, String nombre, int precio, int costo) {
+        this.id = id;
+        this.nombre = nombre;
+        this.precio = precio;
+        this.costo = costo;
+    }
+
+    public ProductoDTO(Long id, String nombre, CategoriaEntity categoria, int precio, int costo, Boolean bajoDemanda, int cantLimBajoDemanda, int cantStock, int cantDisponible, int cantReservada) {
+        this.id = id;
         this.nombre = nombre;
         this.categoria = categoria;
         this.precio = precio;
         this.costo = costo;
-        this.estado = estado;
-        this.bajoDemanda = preVenta;
-        this.cantLimBajoDemanda = cantPreVenta;
+        this.bajoDemanda = bajoDemanda;
+        this.cantLimBajoDemanda = cantLimBajoDemanda;
         this.cantStock = cantStock;
         this.cantDisponible = cantDisponible;
         this.cantReservada = cantReservada;
     }
 
-    public Long getIdCategoria() {
-        return idCategoria;
+    public CategoriaEntity getCategoria() {
+        return categoria;
     }
 
-    public void setIdCategoria(Long idCategoria) {
-        this.idCategoria = idCategoria;
+    public void setCategoria(CategoriaEntity categoria) {
+        this.categoria = categoria;
     }
+
+
 
     public Long getId() {
         return id;
@@ -64,13 +85,6 @@ public class ProductoDTO {
         this.nombre = nombre;
     }
 
-    public String getCategoria() {
-        return categoria;
-    }
-
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
-    }
 
     public int getPrecio() {
         return precio;

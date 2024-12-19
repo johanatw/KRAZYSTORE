@@ -37,7 +37,7 @@ public class ProductoController {
    
 
     @GetMapping
-    public List<ProductoEntity> findAll() {
+    public List<ProductoDTO> findAll() {
         return productoService.findAll();
     }
 

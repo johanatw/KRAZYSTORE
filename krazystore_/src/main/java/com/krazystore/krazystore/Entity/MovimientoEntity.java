@@ -43,6 +43,9 @@ public class MovimientoEntity {
     @JoinColumn(name = "id_venta")
     private VentaEntity venta;
     @ManyToOne
+    @JoinColumn(name = "id_compra")
+    private CompraEntity compra;
+    @ManyToOne
     @JoinColumn(name = "id_concepto")
     private ConceptoEntity concepto;
     @ManyToOne
@@ -66,6 +69,14 @@ public class MovimientoEntity {
 
     public void setEstado(char estado) {
         this.estado = estado;
+    }
+
+    public CompraEntity getCompra() {
+        return compra;
+    }
+
+    public void setCompra(CompraEntity compra) {
+        this.compra = compra;
     }
 
    

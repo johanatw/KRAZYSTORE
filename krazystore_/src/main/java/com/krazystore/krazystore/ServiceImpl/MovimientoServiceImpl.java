@@ -3,12 +3,14 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.krazystore.krazystore.ServiceImpl;
-
+import Utils.PagoRegistradoEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import com.krazystore.krazystore.DTO.MovimientosDTO;
 import com.krazystore.krazystore.DTO.PRUEBADTO;
 import com.krazystore.krazystore.DTO.PedidoMontoPagadoDTO;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.CajaEntity;
+import com.krazystore.krazystore.Entity.CompraEntity;
 import com.krazystore.krazystore.Entity.ConceptoEntity;
 import com.krazystore.krazystore.Entity.EstadoEntity;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
@@ -38,10 +40,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class MovimientoServiceImpl implements MovimientoService {
     private final MovimientoRepository movimientoRepository;
-  
+    private final ApplicationEventPublisher eventPublisher;
+    static char PAGADO = 'C';
+    static char PENDIENTE = 'P';
 
-    public MovimientoServiceImpl(MovimientoRepository movimientoRepository) {
+    public MovimientoServiceImpl(MovimientoRepository movimientoRepository, ApplicationEventPublisher eventPublisher) {
         this.movimientoRepository = movimientoRepository;
+        this.eventPublisher = eventPublisher;
     }
     
     @Autowired
@@ -120,12 +125,14 @@ public class MovimientoServiceImpl implements MovimientoService {
      
         pagoService.savePagos(nuevoMovimiento, pagos);
         
-        if(nuevoMovimiento.getVenta().getPedido() != null){
+        if(movimiento.getVenta() !=null && movimiento.getVenta().getPedido() != null){
             EstadoEntity estadoPago = getEstadoPagoPedido(nuevoMovimiento.getVenta().getPedido().getId());
             pedidoService.updateEstadoPagoPedido( nuevoMovimiento.getVenta().getPedido(), estadoPago);
         }
         
-        
+        if(nuevoMovimiento.getCompra() != null){
+            cambiarEstadoPagoCompra(movimiento.getCompra().getId(), PAGADO);
+        }
         
         return nuevoMovimiento;
         
@@ -227,18 +234,23 @@ public class MovimientoServiceImpl implements MovimientoService {
     public void deleteMovimiento(Long id) {
         MovimientoEntity movimiento = movimientoRepository.findById(id).get();
         pagoService.deletePagosByMovimiento(id);
-        if(movimiento.getVenta() == null){
+        if(movimiento.getVenta() == null && movimiento.getCompra() == null ){
             movimientoRepository.deleteById(id);
         }else{
             movimiento.setEstado('P');
             movimiento.setCaja(null);
             movimientoRepository.save(movimiento);
             
-            if(movimiento.getVenta().getPedido()!=null){
+            if(movimiento.getVenta() !=null && movimiento.getVenta().getPedido() != null){
                 //Se actualiza estado de pago del Pedido
                 EstadoEntity estadoPago = getEstadoPagoPedido(movimiento.getVenta().getPedido().getId());
                 pedidoService.updateEstadoPagoPedido( movimiento.getVenta().getPedido(), estadoPago);
             }
+            
+            if(movimiento.getCompra()!= null){
+                cambiarEstadoPagoCompra(movimiento.getCompra().getId(), PENDIENTE);
+            }
+            
         }
     }
     
@@ -403,4 +415,45 @@ public class MovimientoServiceImpl implements MovimientoService {
          
 
     }
+    
+    @Override
+    public MovimientoEntity saveMovimiento(CompraEntity compraEntity) {
+     
+        
+        MovimientoEntity movimiento = crearMovimiento(compraEntity);
+        MovimientoEntity nuevoMovimiento = movimientoRepository.save(movimiento);
+        
+        return nuevoMovimiento;
+        
+    }
+    
+    @Override
+    public MovimientoEntity crearMovimiento(CompraEntity compraEntity) {
+        CajaEntity caja = cajaService.getCaja();
+        MovimientoEntity nuevoMovimiento = new MovimientoEntity();
+        
+        nuevoMovimiento.setCompra(compraEntity);
+        nuevoMovimiento.setMonto(compraEntity.getTotal());
+        
+        nuevoMovimiento.setNroDocumento(compraEntity.getNroFactura());
+        nuevoMovimiento.setEstado('P');
+        //nuevoMovimiento.setCaja(caja);
+        //if(anular){
+          //  nuevoMovimiento.setFecha(new Date());
+          //  nuevoMovimiento.setConcepto(new ConceptoEntity((long)11,"ANULACION"));
+        //}else{          
+            nuevoMovimiento.setFecha(compraEntity.getFecha());
+            nuevoMovimiento.setConcepto(new ConceptoEntity((long)6,"COMPRA"));  
+        //}
+        
+        return nuevoMovimiento;
+    }
+    
+    public void cambiarEstadoPagoCompra(Long idCompra, char estado) {
+        
+        // Publicar el evento
+        PagoRegistradoEvent evento = new PagoRegistradoEvent(this, idCompra, estado);
+        eventPublisher.publishEvent(evento);
+    }
+    
 }

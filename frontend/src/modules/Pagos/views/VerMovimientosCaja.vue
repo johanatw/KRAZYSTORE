@@ -202,7 +202,7 @@
                                             {{ formatearNumero(slotProps.data.monto) }}
                                     </template>        
                                 </Column>
-                                <Column field="venta.nroFactura"  header="N° Factura" aria-sort="ascending" sortable></Column>
+                                <Column field="nroDocumento"  header="N° Factura" aria-sort="ascending" sortable></Column>
                                 <Column  :exportable="false">
                                     <template #body="slotProps">
                                         <Button  icon="pi pi-money-bill" severity="danger" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="registrarPago(slotProps.data)"   />
@@ -467,9 +467,10 @@ const registrarPago = (movimiento) => {
     movimientoPagar.value = movimiento;
     //total.value = movimiento.venta.montoTotal;
     console.log(movimiento);
-    if (movimiento.venta != null) {
+    total.value = movimiento.monto;
+    /*if (movimiento.venta != null) {
         total.value = movimiento.venta.montoTotal;
-    } 
+    } */
     if (movimiento.venta != null && movimiento.venta.pedido != null) {
         
         getAnticipos(movimiento.venta.pedido.id);

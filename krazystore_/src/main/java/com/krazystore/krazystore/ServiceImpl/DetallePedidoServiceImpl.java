@@ -4,8 +4,11 @@
  */
 package com.krazystore.krazystore.ServiceImpl;
 
+import Utils.TipoAjusteExistencia;
+import Utils.TipoOperacionDetalle;
 import com.krazystore.krazystore.DTO.DetallePedidoCreationRequest;
 import com.krazystore.krazystore.DTO.DetallePedidoDTO;
+import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
 import com.krazystore.krazystore.Entity.CategoriaEntity;
 
 import com.krazystore.krazystore.Entity.DetallePedidoEntity;
@@ -21,10 +24,12 @@ import com.krazystore.krazystore.exception.BadRequestException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,85 +74,127 @@ public class DetallePedidoServiceImpl implements DetallePedidoService{
     
     @Transactional
     @Override
-    public Iterable<DetallePedidoEntity> saveDetallePedido(Long idPedido, List<DetallePedidoEntity> detalles) {
-        System.out.println("entraaca");
+    public List<ProductoExistenciasDTO> saveDetallePedido(Long idPedido, List<DetallePedidoEntity> detalles) {
+  
+        List<ProductoExistenciasDTO> productosActualizarExistencias = new ArrayList<>();
         List<ProductoEntity> productosActualizar = new ArrayList<>();
         PedidoEntity pedido = new PedidoEntity();
         pedido.setId(idPedido);
         detalles.forEach(d -> {
+            ProductoExistenciasDTO productoActualizar = new ProductoExistenciasDTO(
+                    d.getProducto().getId(),
+                    d.getCantidad(),
+                    TipoAjusteExistencia.INCREMENTAR
+            );
             d.setPedido(pedido);
             d.setSaldoPendiente(d.getSubtotal());
-            productosActualizar.add(d.getProducto());
+            productosActualizarExistencias.add(productoActualizar);
         });
         
-        productoService.updateExistencias(productosActualizar);
-        return detallepedidorepository.saveAll(detalles);
+        //productoService.updateExistencias(productosActualizar);
+        detallepedidorepository.saveAll(detalles);
+        return productosActualizarExistencias;
+        
     }
 
 
 
     @Transactional
     @Override
-    public Iterable<DetallePedidoEntity> updateDetallesPedido(List<DetallePedidoEntity> nuevosDetalles, Long id) throws Exception {
+    public List<ProductoExistenciasDTO> updateDetallesPedido(List<DetallePedidoEntity> nuevosDetalles, Long id) throws Exception {
         List<DetallePedidoEntity> detallesAnteriores = detallepedidorepository.findByNroPedido(id); 
+        List<ProductoExistenciasDTO> productosActualizarExistencias = new ArrayList<>();
+        
+        // Crear copias de los objetos para evitar que se modifiquen las referencias originales
+            List<DetallePedidoEntity> anterioresCopias = detallesAnteriores.stream()
+                .map(item -> new DetallePedidoEntity(item)) // Constructor de copia
+                .collect(Collectors.toList());
 
-        // Procesar eliminaciones
-        List<ProductoEntity> productosActualizarExistencias = new ArrayList<>();
-        productosActualizarExistencias.addAll(procesarEliminaciones(detallesAnteriores, nuevosDetalles));
+        // Procesar cambios en los detalles
+        procesarCambiosEnDetalles(detallesAnteriores, nuevosDetalles);
+        
+        //List<DetallePedidoEntity> detallesAnteriores = detallepedidorepository.findByNroPedido(id);
+        productosActualizarExistencias = calcularProductosExistencias(anterioresCopias, nuevosDetalles);
 
-        // Procesar modificaciones
-        productosActualizarExistencias.addAll(procesarModificaciones(detallesAnteriores, nuevosDetalles));
-
-        // Procesar registros
-        productosActualizarExistencias.addAll(procesarRegistros(detallesAnteriores, nuevosDetalles));
-
-        // Actualizar existencias de productos
-        if (!productosActualizarExistencias.isEmpty()) {
-            productoService.updateExistencias(productosActualizarExistencias);
-        }
-
-        // Retornar los detalles del pedido actualizados
-        return detallepedidorepository.findByNroPedido(id);
+        // Calcular productos a actualizar existencias
+        return productosActualizarExistencias;
         
     }
     
-    
-    private List<ProductoEntity> procesarEliminaciones(List<DetallePedidoEntity> detallesAnteriores, List<DetallePedidoEntity> nuevosDetalles) throws Exception {
-        List<DetallePedidoEntity> itemsEliminar = getElementosEliminar(detallesAnteriores, nuevosDetalles);
-        List<ProductoEntity> productosActualizarExistencias = new ArrayList<>();
-
-        if (!itemsEliminar.isEmpty()) {
-            productosActualizarExistencias.addAll(getProductosExistenciasActualizadas(itemsEliminar, null, "ELIMINAR"));
-            detallepedidorepository.deleteAll(itemsEliminar);
-        }
-
-        return productosActualizarExistencias;
+    private void procesarCambiosEnDetalles(List<DetallePedidoEntity> detallesAnteriores, List<DetallePedidoEntity> nuevosDetalles) throws Exception {
+        procesarEliminaciones(detallesAnteriores, nuevosDetalles);
+        procesarModificaciones(detallesAnteriores, nuevosDetalles);
+        procesarRegistros(detallesAnteriores, nuevosDetalles);
     }
     
+    private void procesarEliminaciones(List<DetallePedidoEntity> detallesAnteriores, List<DetallePedidoEntity> nuevosDetalles) throws Exception {
+        List<DetallePedidoEntity> itemsEliminar = getElementosEliminar(detallesAnteriores, nuevosDetalles);
+        if (!itemsEliminar.isEmpty()) {
+            detallepedidorepository.deleteAll(itemsEliminar);
+        }
+    }
     
-    private List<ProductoEntity> procesarModificaciones(List<DetallePedidoEntity> detallesAnteriores, List<DetallePedidoEntity> nuevosDetalles)throws Exception {
+    private void procesarModificaciones(List<DetallePedidoEntity> detallesAnteriores, List<DetallePedidoEntity> nuevosDetalles) throws Exception {
         List<DetallePedidoEntity> itemsModificar = getElementosModificar(detallesAnteriores, nuevosDetalles);
-        List<ProductoEntity> productosActualizarExistencias = new ArrayList<>();
-
         if (!itemsModificar.isEmpty()) {
-            productosActualizarExistencias.addAll(getProductosExistenciasActualizadas(itemsModificar, detallesAnteriores, "MODIFICAR"));
             detallepedidorepository.saveAll(itemsModificar);
         }
 
-        return productosActualizarExistencias;
     }
     
-    private List<ProductoEntity> procesarRegistros(List<DetallePedidoEntity> detallesAnteriores, List<DetallePedidoEntity> nuevosDetalles) {
+    private void procesarRegistros(List<DetallePedidoEntity> detallesAnteriores, List<DetallePedidoEntity> nuevosDetalles) {
         List<DetallePedidoEntity> itemsRegistrar = getElementosRegistrar(detallesAnteriores, nuevosDetalles);
-        List<ProductoEntity> productosActualizarExistencias = new ArrayList<>();
-
         if (!itemsRegistrar.isEmpty()) {
-            productosActualizarExistencias.addAll(getProductosExistenciasActualizadas(itemsRegistrar, null, "REGISTRAR"));
             detallepedidorepository.saveAll(itemsRegistrar);
         }
-
-        return productosActualizarExistencias;
     }
+    
+    private List<ProductoExistenciasDTO> calcularProductosExistencias(List<DetallePedidoEntity> detallesAnteriores, List<DetallePedidoEntity> nuevosDetalles) throws Exception {
+        List<ProductoExistenciasDTO> productosExistencias = new ArrayList<>();
+
+        // Agregar productos de eliminaciones
+        productosExistencias.addAll(getProductosExistencias(detallesAnteriores, nuevosDetalles, TipoOperacionDetalle.ELIMINAR));
+
+        // Agregar productos de modificaciones
+        productosExistencias.addAll(getProductosExistencias(detallesAnteriores, nuevosDetalles, TipoOperacionDetalle.MODIFICAR));
+
+        // Agregar productos de registros
+        productosExistencias.addAll(getProductosExistencias(detallesAnteriores, nuevosDetalles, TipoOperacionDetalle.REGISTRAR));
+
+        return productosExistencias;
+    }
+    
+    private List<ProductoExistenciasDTO> getProductosExistencias(List<DetallePedidoEntity> detallesAnteriores, List<DetallePedidoEntity> nuevosDetalles, TipoOperacionDetalle tipoOperacion) throws Exception{
+        List<ProductoExistenciasDTO> productosExistencias = new ArrayList<>();
+        Map<Long, Integer> mapaCantidadAnterior = construirMapaCantidadAnterior(detallesAnteriores);
+
+        List<DetallePedidoEntity> detallesProcesar = switch (tipoOperacion) {
+            case REGISTRAR -> getElementosRegistrar(detallesAnteriores, nuevosDetalles);
+            case MODIFICAR -> getElementosModificar(detallesAnteriores, nuevosDetalles);
+            case ELIMINAR -> getElementosEliminar(detallesAnteriores, nuevosDetalles);
+        };
+                
+        for (DetallePedidoEntity detalle : detallesProcesar) {
+            Long idProducto = detalle.getProducto().getId();
+            
+            int cantidadAnterior = (tipoOperacion == TipoOperacionDetalle.MODIFICAR ) ? mapaCantidadAnterior.getOrDefault(idProducto, 0): 0;
+            int cantidadNueva = detalle.getCantidad();
+            
+            ProductoExistenciasDTO productoActualizar = new ProductoExistenciasDTO();
+            productoActualizar.setIdProducto(idProducto);
+            productoActualizar.setCantidad(cantidadNueva - cantidadAnterior);
+            productoActualizar.setAccion(determinarAccion(tipoOperacion));
+            productosExistencias.add(productoActualizar);
+        }
+
+        return productosExistencias;
+    }
+    
+
+    private TipoAjusteExistencia determinarAccion(TipoOperacionDetalle tipoOperacion) {
+        return (tipoOperacion == TipoOperacionDetalle.ELIMINAR) ? TipoAjusteExistencia.DISMINUIR : TipoAjusteExistencia.INCREMENTAR;
+    }
+    
     
     public List<DetallePedidoEntity> getElementosEliminar (List<DetallePedidoEntity> anteriorDetalle, List<DetallePedidoEntity> actualDetalle)throws Exception {
         List<DetallePedidoEntity> elementos = new ArrayList<>();
@@ -174,7 +221,7 @@ public class DetallePedidoServiceImpl implements DetallePedidoService{
     
     public List<DetallePedidoEntity> getElementosModificar (List<DetallePedidoEntity> anteriorDetalle, List<DetallePedidoEntity> actualDetalle)throws Exception {
         List<DetallePedidoEntity> elementos = new ArrayList<>();
-                           
+        
         // Recorre detalle anterior
         anteriorDetalle.forEach(anterior -> {
             // Busca si el producto del detalle anterior existe en el detalle actual
@@ -221,63 +268,87 @@ public class DetallePedidoServiceImpl implements DetallePedidoService{
     }
     
     
-    public List<ProductoEntity> getProductosExistenciasActualizadas(List<DetallePedidoEntity> detalleProcesar, List<DetallePedidoEntity> detalleAnterior, String tipoItems) {
+    public List<ProductoExistenciasDTO> getProductosExistenciasActualizadas(List<DetallePedidoEntity> detalleProcesar, List<DetallePedidoEntity> detalleAnterior, String tipoItems) {
         List<ProductoEntity> productosActualizarExistencias = new ArrayList<>();
+        List<ProductoExistenciasDTO> productosExistencias = new ArrayList<>();
 
         for (DetallePedidoEntity detalle : detalleProcesar) {
+            ProductoExistenciasDTO productoActualizar = new ProductoExistenciasDTO();
             ProductoEntity producto = detalle.getProducto();
 
             switch (tipoItems) {
                 case "REGISTRAR":
-                    procesarRegistro(detalle, producto);
+                    procesarRegistro(detalle, productoActualizar);
                     break;
 
                 case "MODIFICAR":
-                    procesarModificacion(detalle, detalleAnterior, producto);
+                    procesarModificacion(detalle, detalleAnterior, productoActualizar);
                     break;
 
                 case "ELIMINAR":
-                    procesarEliminacion(detalle, producto);
+                    procesarEliminacion(detalle, productoActualizar);
                     break;
 
                 default:
                     throw new IllegalArgumentException("Tipo de operación no soportada: " + tipoItems);
             }
 
-            productosActualizarExistencias.add(producto);
+            //productosActualizarExistencias.add(producto);
+            productosExistencias.add(productoActualizar);
         }
 
-        return productosActualizarExistencias;
+        return productosExistencias;
     }
 
-    private void procesarRegistro(DetallePedidoEntity detalle, ProductoEntity productoActual) {
-        ProductoEntity producto = productoService.findById(productoActual.getId()).get();
+    private void procesarRegistro(DetallePedidoEntity detalle, ProductoExistenciasDTO productoActualizar) {
+        productoActualizar.setIdProducto(detalle.getProducto().getId());
+        productoActualizar.setCantidad(detalle.getCantidad());
+        productoActualizar.setAccion(TipoAjusteExistencia.INCREMENTAR);
+ 
+        /*ProductoEntity producto = productoService.findById(productoActual.getId()).get();
         
         productoActual.setCantDisponible(producto.getCantDisponible() - detalle.getCantidad());
-        productoActual.setCantReservada(producto.getCantReservada() + detalle.getCantidad());
+        productoActual.setCantReservada(producto.getCantReservada() + detalle.getCantidad());*/
     }
 
-    private void procesarModificacion(DetallePedidoEntity detalle, List<DetallePedidoEntity> detallesAnteriores, ProductoEntity producto) {
+    private void procesarModificacion(DetallePedidoEntity detalle, List<DetallePedidoEntity> detallesAnteriores, ProductoExistenciasDTO productoActualizar) {
+        productoActualizar.setIdProducto(detalle.getProducto().getId());
         DetallePedidoEntity detalleAnterior = detallesAnteriores.stream()
-                .filter(d -> Objects.equals(d.getProducto().getId(), detalle.getProducto().getId()))
+                .filter(d -> Objects.equals(d.getProducto().getId(), productoActualizar.getIdProducto()))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el detalle anterior para el producto: " + detalle.getProducto().getId()));
+                .orElseThrow(() -> new IllegalArgumentException("No se encontró el detalle anterior para el producto: " + productoActualizar.getIdProducto()));
 
-        int cantDisponibleAnt = detalleAnterior.getProducto().getCantDisponible();
-        int cantReservadaAnt = detalleAnterior.getProducto().getCantReservada();
+        //int cantDisponibleAnt = detalleAnterior.getProducto().getCantDisponible();
+        //int cantReservadaAnt = detalleAnterior.getProducto().getCantReservada();
 
         int cantidadAnterior = detalleAnterior.getCantidad();
         int cantidadNueva = detalle.getCantidad();
-
-        producto.setCantDisponible(cantDisponibleAnt + cantidadAnterior - cantidadNueva);
-        producto.setCantReservada(cantReservadaAnt - cantidadAnterior + cantidadNueva);
+        
+        productoActualizar.setCantidad(cantidadNueva - cantidadAnterior);
+        
+        TipoAjusteExistencia accion = (productoActualizar.getCantidad() < 0) ? TipoAjusteExistencia.INCREMENTAR : TipoAjusteExistencia.DISMINUIR;
+        productoActualizar.setAccion(accion);
+        
+        //producto.setCantDisponible(cantDisponibleAnt + cantidadAnterior - cantidadNueva);
+        //producto.setCantReservada(cantReservadaAnt - cantidadAnterior + cantidadNueva);
     }
 
-    private void procesarEliminacion(DetallePedidoEntity detalle, ProductoEntity producto) {
-        producto.setCantDisponible(producto.getCantDisponible() + detalle.getCantidad());
-        producto.setCantReservada(producto.getCantReservada() - detalle.getCantidad());
+    private void procesarEliminacion(DetallePedidoEntity detalle, ProductoExistenciasDTO productoActualizar) {
+        productoActualizar.setIdProducto(detalle.getProducto().getId());
+        productoActualizar.setCantidad(detalle.getCantidad());
+        productoActualizar.setAccion(TipoAjusteExistencia.DISMINUIR);
+        //producto.setCantDisponible(producto.getCantDisponible() + detalle.getCantidad());
+        //producto.setCantReservada(producto.getCantReservada() - detalle.getCantidad());
     }
 
+    private Map<Long, Integer> construirMapaCantidadAnterior(List<DetallePedidoEntity> detallesAnteriores) {
+        return detallesAnteriores.stream()
+                .collect(Collectors.toMap(
+                    detalle -> detalle.getProducto().getId(),
+                    DetallePedidoEntity::getCantidad
+                ));
+    }
+    
     
  
   

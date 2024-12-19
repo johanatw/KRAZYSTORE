@@ -16,7 +16,7 @@ import java.util.Optional;
  * @author HP
  */
 public interface ProductoService {
-    List<ProductoEntity> findAll();
+    List<ProductoDTO> findAll();
     
     Optional<ProductoEntity> findById(Long id);
     ProductoEntity saveProducto(ProductoEntity productoEntity);

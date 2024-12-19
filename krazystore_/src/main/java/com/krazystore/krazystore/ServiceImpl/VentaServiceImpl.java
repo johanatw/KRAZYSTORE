@@ -5,6 +5,10 @@
 package com.krazystore.krazystore.ServiceImpl;
 
 import Utils.NumberToLetterConverter;
+import Utils.PedidoFacturadoEvent;
+import Utils.ProductosFacturadosEvent;
+import Utils.TipoEventoExistencias;
+import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.ConceptoEntity;
 import com.krazystore.krazystore.Entity.DetallePedidoEntity;
@@ -55,6 +59,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,10 +70,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class VentaServiceImpl implements VentaService{
     private final VentaRepository ventarepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public VentaServiceImpl(VentaRepository ventarepository) {
+    public VentaServiceImpl(VentaRepository ventarepository, ApplicationEventPublisher eventPublisher) {
         this.ventarepository = ventarepository;
+        this.eventPublisher = eventPublisher;
     }
+    
     @Autowired
     private DetalleVentaService detalleVentaService;
     
@@ -95,23 +103,36 @@ public class VentaServiceImpl implements VentaService{
         return ventarepository.findById(id);
     }
 
+    @Transactional
     @Override
     public VentaEntity saveVenta(VentaEntity ventaEntity, List<DetalleVentaEntity> detalle, List<PagoEntity> pagos) {
+        //Trae timbrado para factura
         TimbradoEntity timbrado = timbradoService.getTimbradoVigente().get();
         ventaEntity.setTimbrado(timbrado);
         ventaEntity.setNroFactura(timbradoService.getNroFactura(timbrado));
+        //Guarda venta
         VentaEntity venta = ventarepository.save(ventaEntity);
+        //actualiza cantidad utilizado de timbrado
         timbrado.setCantUtilizada(timbrado.getCantUtilizada() + 1);
         timbrado.setUltimoRemitido(timbrado.getUltimoRemitido()+1);
         timbradoService.updateTimbrado(timbrado);
+
+        //Guarda detalles y trae productos a actualizar existencias
+        List<ProductoExistenciasDTO> productosActualizarExistencias = detalleVentaService.saveDetalleVenta(venta, detalle);
         
-        detalleVentaService.saveDetalleVenta(venta, detalle);
-        
+        //Guarda Movimiento en caja
         movimientoService.saveMovimiento(venta);
         
+        //Si la factura viene de un pedido
         if(venta.getPedido() != null){
+            //Modifica cantidad facturada del pedido
             PedidoEntity pedido = venta.getPedido();
             detallePedidoService.updateDetallesFacturadas(detalle, pedido, "REGISTRAR");
+            //actualiza existencias de los productos del pedido
+            actualizarProductosPedidoFacturado(productosActualizarExistencias);
+        }else{
+            //actualiza existencias de los productos de la venta
+            actualizarProductosFacturados(productosActualizarExistencias);
         }
         
         try {
@@ -701,5 +722,19 @@ table3.addCell(new PdfPCell(new Phrase("sueño",fontH1))).setBorder(0);
         } catch (IOException ex) {
             Logger.getLogger(AnticipoServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
         } 
+    }
+    
+    public void actualizarProductosFacturados(List<ProductoExistenciasDTO> productosActualizarExistencias) {
+      
+        // Publicar el evento
+        ProductosFacturadosEvent evento = new ProductosFacturadosEvent(productosActualizarExistencias, TipoEventoExistencias.FACTURACION_PRODUCTOS );
+        eventPublisher.publishEvent(evento);
+    }
+    
+    public void actualizarProductosPedidoFacturado(List<ProductoExistenciasDTO> productosActualizarExistencias) {
+      
+        // Publicar el evento
+        PedidoFacturadoEvent evento = new PedidoFacturadoEvent(productosActualizarExistencias, TipoEventoExistencias.FACTURACION_PEDIDOS);
+        eventPublisher.publishEvent(evento);
     }
 }

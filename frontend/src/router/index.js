@@ -115,15 +115,104 @@ const router = createRouter({
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import('@/modules/Compras/views/RegistrarCompra.vue')
+      component: () => import('@/modules/Compras/views/ListaCompras.vue')
     },
     {
-      path: '/preparar_pedido',
-      name: 'preparar',
+      path: '/recepciones',
+      name: 'recepciones',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import('@/modules/Entregas/views/PrepararPedido.vue')
+      component: () => import('@/modules/Compras/views/ListaRecepciones.vue')
+    },
+    {
+      path: '/modificar_recepcion/:id',
+      name: 'modificar_recepcion',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Compras/views/ModificarRecepcion.vue')
+    },
+    {
+      path: '/nueva_compra/:id',
+      name: 'nueva_factura_compra',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Compras/views/NuevaFactura.vue')
+    },
+    {
+      path: '/ver_recepcion/:id',
+      name: 'ver_recepcion',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Compras/views/VerRecepcion.vue')
+    },
+    {
+      path: '/pedidos_compras',
+      name: 'pedidos_compras',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Compras/views/ListaPedidos.vue')
+    },
+    {
+      path: '/nuevo_pedido_compra',
+      name: 'nuevo_pedido_compra',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Compras/views/NuevoPedido.vue')
+    },
+    
+    {
+      path: '/pedido_compra/:id',
+      name: 'ver_pedido_compra',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Compras/views/VerPedido.vue')
+    },
+    {
+      path: '/modificar_pedido/:id',
+      name: 'modificar_pedido_compra',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Compras/views/ModificarPedido.vue')
+    },
+    {
+      path: '/nueva_compra',
+      name: 'nueva_compra',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Compras/views/NuevaCompra.vue')
+    },
+    {
+      path: '/compra/:id',
+      name: 'ver_compra',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Compras/views/VerCompra.vue')
+    },
+    {
+      path: '/recepcionar/:id',
+      name: 'recepcionarPedido',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Compras/views/RecepcionarPedido.vue')
+    },
+    {
+      path: '/existencias',
+      name: 'existencias',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Inventario/views/Existencias.vue')
     }
   ]
 })

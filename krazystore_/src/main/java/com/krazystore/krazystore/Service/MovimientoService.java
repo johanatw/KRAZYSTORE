@@ -8,6 +8,7 @@ import com.krazystore.krazystore.DTO.MovimientosDTO;
 import com.krazystore.krazystore.DTO.PRUEBADTO;
 import com.krazystore.krazystore.DTO.PedidoMontoPagadoDTO;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
+import com.krazystore.krazystore.Entity.CompraEntity;
 import com.krazystore.krazystore.Entity.EstadoEntity;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
 import com.krazystore.krazystore.Entity.PagoEntity;
@@ -46,4 +47,6 @@ public interface MovimientoService {
     MovimientoEntity savePagosMovimiento(MovimientoEntity movimientoEntity, List<PagoEntity> pagos);
     char getEstadoPago(VentaEntity ventaEntity);
     List<MovimientosDTO> findByIdCaja(Long id);
+    public MovimientoEntity saveMovimiento(CompraEntity compraEntity);
+    public MovimientoEntity crearMovimiento(CompraEntity compraEntity);
 }

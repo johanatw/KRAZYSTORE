@@ -56,14 +56,15 @@ public class DetallePedidoController {
     @PostMapping("/{idPedido}")
     public Iterable<DetallePedidoEntity> saveDetallePedido(@PathVariable long idPedido, @RequestBody List<DetallePedidoEntity> detalles) {
         
-        return detallePedidoService.saveDetallePedido(idPedido, detalles);
+        //return detallePedidoService.saveDetallePedido(idPedido, detalles);
+        return null;
     }
  
     @PutMapping("/update/{id}")
     public Iterable<DetallePedidoEntity> updateDetalles(@PathVariable long id, @RequestBody List<DetallePedidoEntity> detalle)throws Exception {
+        return null;
         
-        
-            return detallePedidoService.updateDetallesPedido(detalle, id);
+            //return detallePedidoService.updateDetallesPedido(detalle, id);
         
     }
             

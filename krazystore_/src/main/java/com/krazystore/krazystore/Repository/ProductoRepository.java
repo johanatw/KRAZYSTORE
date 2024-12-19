@@ -21,5 +21,15 @@ public interface ProductoRepository extends JpaRepository<ProductoEntity, Long>{
     
     @Query(nativeQuery = true)
         List<ProductoDTO> findProductosDTO();
+        
+        @Query(
+    "SELECT new com.krazystore.krazystore.DTO.ProductoDTO(p.id, p.nombre, c, p.precio, "
+            + "COALESCE(t.costo, 0), p.preVenta, COALESCE(p.cantPreVenta, 0), p.cantStock, p.cantDisponible, p.cantReservada ) "
+            + "FROM ProductoEntity p "
+            + "LEFT JOIN CategoriaEntity c ON p.categoria = c "
+            + "LEFT JOIN CostoEntity t ON p.id = t.producto.id AND t.fechaInicio = " 
+            + " (SELECT MAX(tc.fechaInicio) FROM CostoEntity tc WHERE tc.producto.id = p.id)"
+           )
+    public List<ProductoDTO> findProductos();
     
 }

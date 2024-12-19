@@ -5,12 +5,21 @@
  */
 package com.krazystore.krazystore.ServiceImpl;
 
+import Utils.CambioExistenciasEvent;
+import Utils.PedidoFacturadoEvent;
+import Utils.ProductosFacturadosEvent;
+import Utils.ProductosReservadosEvent;
+import static Utils.TipoAjusteExistencia.DISMINUIR;
+import Utils.TipoEventoExistencias;
 import com.krazystore.krazystore.DTO.ProductoDTO;
+import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
 import com.krazystore.krazystore.Entity.ProductoEntity;
 import com.krazystore.krazystore.Repository.ProductoRepository;
 import com.krazystore.krazystore.Service.ProductoService;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,9 +36,9 @@ public class ProductoServiceImpl implements ProductoService{
     
 
     @Override
-    public List<ProductoEntity> findAll() {
-        return productorepository.findAll();
-        //return productorepository.findProductosDTO();
+    public List<ProductoDTO> findAll() {
+        //return productorepository.findAll();
+        return productorepository.findProductos();
     }
     
     
@@ -93,4 +102,43 @@ public class ProductoServiceImpl implements ProductoService{
         productorepository.deleteById(id);
     }
     
+    
+    
+    @EventListener
+    public void handleCambioExistencias(CambioExistenciasEvent event) {
+        actualizarExistencias(event.getProductosActualizar(), event.getTipoEvento());
+    }
+    
+    private void actualizarExistencias(List<ProductoExistenciasDTO> productos, TipoEventoExistencias tipoEvento) {
+        List<ProductoEntity> productosActualizar = new ArrayList<>();
+
+        productos.forEach(d -> {
+            ProductoEntity producto = productorepository.findById(d.getIdProducto())
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+            switch (d.getAccion()) {
+                case INCREMENTAR:                  
+                    if (tipoEvento == TipoEventoExistencias.FACTURACION_PEDIDOS) {
+                        producto.setCantStock(producto.getCantStock() - d.getCantidad());
+                        producto.setCantReservada(producto.getCantReservada() - d.getCantidad());
+                    } else if (tipoEvento == TipoEventoExistencias.FACTURACION_PRODUCTOS) {
+                        producto.setCantDisponible(producto.getCantDisponible() - d.getCantidad());
+                        producto.setCantStock(producto.getCantStock() - d.getCantidad());
+                    } else if (tipoEvento == TipoEventoExistencias.ACTUALIZAR_RESERVAS) {
+                        producto.setCantReservada(producto.getCantReservada() + d.getCantidad());
+                        producto.setCantDisponible(producto.getCantDisponible() - d.getCantidad());
+                    }
+                    break;
+                case DISMINUIR:
+                    if (tipoEvento == TipoEventoExistencias.ACTUALIZAR_RESERVAS) {
+                        producto.setCantReservada(producto.getCantReservada() - d.getCantidad());
+                        producto.setCantDisponible(producto.getCantDisponible() + d.getCantidad());
+                    }
+            }
+
+            productosActualizar.add(producto);
+        });
+
+        productorepository.saveAll(productosActualizar);
+    }
 }

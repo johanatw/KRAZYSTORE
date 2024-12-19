@@ -4,7 +4,9 @@
  */
 package com.krazystore.krazystore.ServiceImpl;
 
+import Utils.TipoAjusteExistencia;
 import com.krazystore.krazystore.DTO.DetalleVentaCreationRequest;
+import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
 import com.krazystore.krazystore.Entity.DetalleVentaEntity;
 import com.krazystore.krazystore.Entity.ProductoEntity;
 import com.krazystore.krazystore.Entity.VentaEntity;
@@ -47,15 +49,22 @@ public class DetalleVentaServiceImpl implements DetalleVentaService{
     }
 
     @Override
-    public Iterable<DetalleVentaEntity> saveDetalleVenta(VentaEntity venta, List<DetalleVentaEntity> detalle) {
-
+    public List<ProductoExistenciasDTO> saveDetalleVenta(VentaEntity venta, List<DetalleVentaEntity> detalle) {
+        List<ProductoExistenciasDTO> productosActualizarExistencias = new ArrayList<>();
+        
         detalle.forEach(d -> {
+            ProductoExistenciasDTO productoActualizar = new ProductoExistenciasDTO(
+                    d.getProducto().getId(),
+                    d.getCantidad(),
+                    TipoAjusteExistencia.INCREMENTAR
+            );
             d.setVenta(venta);
-            
-      
+            productosActualizarExistencias.add(productoActualizar);
         });
         
-        return detalleventarepository.saveAll(detalle);
+        detalleventarepository.saveAll(detalle);
+        return productosActualizarExistencias;
+        
     }
 
     @Override
