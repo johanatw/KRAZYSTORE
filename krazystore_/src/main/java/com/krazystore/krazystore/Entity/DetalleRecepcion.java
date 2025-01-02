@@ -43,6 +43,16 @@ public class DetalleRecepcion {
     @JoinColumn(name="id_det_ped")
     private DetallePedidoCompra detallePedido;
 
+    public DetalleRecepcion(DetalleRecepcion detalle) {
+        this.id = detalle.getId();
+        this.cantRecepcionada = detalle.getCantRecepcionada();
+        this.cantAceptada = detalle.getCantAceptada();
+        this.cantRechazada = detalle.getCantRechazada();
+        this.recepcion = detalle.getRecepcion();
+        this.detallePedido = detalle.getDetallePedido();
+    }
+
+    
     public Long getId() {
         return id;
     }

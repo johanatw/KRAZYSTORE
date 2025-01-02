@@ -131,6 +131,13 @@ const items = ref([
                     router.push({name: 'existencias'});
                 }
             },
+            {
+                label: 'Inventario',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'inventario'});
+                }
+            },
           
 
         ]

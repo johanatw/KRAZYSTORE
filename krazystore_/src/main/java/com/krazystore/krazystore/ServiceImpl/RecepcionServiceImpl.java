@@ -5,8 +5,11 @@
 package com.krazystore.krazystore.ServiceImpl;
 import org.springframework.context.ApplicationEventPublisher;
 import Utils.ProductosPedidoRecepcionadosEvent;
+import Utils.ProductosRecepcionadosEvent;
 import Utils.RecepcionFacturada;
+import Utils.TipoEventoExistencias;
 import com.krazystore.krazystore.DTO.DetalleRecepcionDTO;
+import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
 import com.krazystore.krazystore.DTO.RecepcionCreationDTO;
 import com.krazystore.krazystore.DTO.RecepcionDTO;
 import com.krazystore.krazystore.Entity.DetalleRecepcion;
@@ -69,9 +72,10 @@ public class RecepcionServiceImpl implements RecepcionService {
         recepcion = recepcionDTO.getRecepcion();
         
         RecepcionEntity nuevaRecepcion = recepcionRepository.save(recepcion);
-        detalle = detalleService.saveDetRecepcion(recepcionDTO.getDetalle(), nuevaRecepcion.getId());
+        List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.saveDetRecepcion(recepcionDTO.getDetalle(), nuevaRecepcion.getId());
         
         actualizarRecepcionPedidoCompra(recepcionDTO.getDetalle().get(0).getDetallePedido().getPedidoCompra().getId());
+        actualizarExistencias(productosActualizarExistencias);
         //pedidoService.actualizarCantidadesRecepcionadas(detalle);
         
         return nuevaRecepcion;
@@ -99,10 +103,10 @@ public class RecepcionServiceImpl implements RecepcionService {
         detalleAnterior = detalleService.findByIdRecepcion(updatedRecepcion.getId());
         
         
-        detalleActual = detalleService.updateDetRecepcion(recepcionDTO.getDetalle(), updatedRecepcion.getId());
+        List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.updateDetRecepcion(recepcionDTO.getDetalle(), updatedRecepcion.getId());
         
-        actualizarRecepcionPedidoCompra(detalleActual.get(0).getDetallePedido().getPedidoCompra().getId());
-        
+        actualizarRecepcionPedidoCompra(detalleAnterior.get(0).getDetallePedido().getPedidoCompra().getId());
+        actualizarExistencias(productosActualizarExistencias);
        // pedidoService.modificarCantidadesRecepcionadas(detalleActual, detalleAnterior);
         
         return updatedRecepcion;
@@ -145,6 +149,12 @@ public class RecepcionServiceImpl implements RecepcionService {
         recepcionRepository.save(recepcion);
 
        
+    }
+    
+    public void actualizarExistencias(List<ProductoExistenciasDTO> productosActualizarExistencias) {
+        // Publicar el evento
+        ProductosRecepcionadosEvent evento = new ProductosRecepcionadosEvent(productosActualizarExistencias, TipoEventoExistencias.RECEPCIONAR_PRODUCTOS);
+        eventPublisher.publishEvent(evento);
     }
     
 }

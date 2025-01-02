@@ -43,6 +43,16 @@ public class DetalleCompra {
     @Column(name="costo_compra")
     private int costoCompra;
 
+    public DetalleCompra(DetalleCompra detalle) {
+        this.id = detalle.getId();
+        this.cantidad = detalle.getCantidad();
+        this.subTotal = detalle.getSubTotal();
+        this.producto = detalle.getProducto();
+        this.compra = detalle.getCompra();
+        this.costoCompra = detalle.getCostoCompra();
+    }
+    
+
     public Long getId() {
         return id;
     }

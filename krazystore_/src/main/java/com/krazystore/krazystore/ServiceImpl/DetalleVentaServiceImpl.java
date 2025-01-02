@@ -86,4 +86,22 @@ public class DetalleVentaServiceImpl implements DetalleVentaService{
         detalleventarepository.deleteById(id);
     }
     
+    @Override
+    public List<ProductoExistenciasDTO> anularDetalleVenta(Long idVenta) {
+        List<ProductoExistenciasDTO> productosActualizarExistencias = new ArrayList<>();
+        List<DetalleVentaEntity> detalle = detalleventarepository.findByIdVenta(idVenta);
+        detalle.forEach(d -> {
+            ProductoExistenciasDTO productoActualizar = new ProductoExistenciasDTO(
+                    d.getProducto().getId(),
+                    d.getCantidad(),
+                    TipoAjusteExistencia.DISMINUIR
+            );
+ 
+            productosActualizarExistencias.add(productoActualizar);
+        });
+        
+        return productosActualizarExistencias;
+        
+    }
+    
 }

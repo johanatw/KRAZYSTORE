@@ -5,6 +5,7 @@
 package com.krazystore.krazystore.Service;
 
 import com.krazystore.krazystore.DTO.DetallePedidoRecepcionDTO;
+import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
 import com.krazystore.krazystore.Entity.DetalleRecepcion;
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +16,7 @@ import java.util.Optional;
  */
 public interface DetalleRecepcionService {
     List<DetalleRecepcion> findByIdRecepcion(Long id);
-    List<DetalleRecepcion> saveDetRecepcion (List<DetalleRecepcion> detalle, Long idRecepcion);
-    List<DetalleRecepcion> updateDetRecepcion(List<DetalleRecepcion> detalle, Long idRecepcion);
+    List<ProductoExistenciasDTO> saveDetRecepcion (List<DetalleRecepcion> detalle, Long idRecepcion);
+    List<ProductoExistenciasDTO> updateDetRecepcion(List<DetalleRecepcion> detalle, Long idRecepcion);
     void deleteDetRecepcion(Long idRecepcion);
 }

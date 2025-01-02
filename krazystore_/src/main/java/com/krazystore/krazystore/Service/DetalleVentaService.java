@@ -27,4 +27,5 @@ public interface DetalleVentaService {
     List<DetalleVentaEntity> findByIdVenta(Long id);
     DetalleVentaEntity updateDetalleVenta(DetalleVentaEntity detalleVenta, Long id);
     void deleteDetalleVenta(Long id);
+    List<ProductoExistenciasDTO> anularDetalleVenta(Long idVenta);
 }

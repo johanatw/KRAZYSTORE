@@ -178,11 +178,17 @@ public class VentaServiceImpl implements VentaService{
         List<DetalleVentaEntity> detalleVenta = detalleVentaService.findByIdVenta(id);
 
 
-
+        //Trae productos a actualizar existencias
+        List<ProductoExistenciasDTO> productosActualizarExistencias = detalleVentaService.anularDetalleVenta(id);
+        
         if(facturaVenta.getPedido() != null){
             PedidoEntity pedido = facturaVenta.getPedido();
             detallePedidoService.updateDetallesFacturadas(detalleVenta, pedido, "ELIMINAR");
-
+            //actualiza existencias de los productos de la venta
+            actualizarProductosPedidoFacturado(productosActualizarExistencias);
+        }else{
+            //actualiza existencias de los productos de la venta
+            actualizarProductosFacturados(productosActualizarExistencias);
         }
         
         return 0;
@@ -215,143 +221,7 @@ public class VentaServiceImpl implements VentaService{
         generarDatosEmision(venta, document);
         generarDetalle(venta, document);
         generarSubTotales(venta, document);
-        /*
-        Font fontParagraph = FontFactory.getFont(FontFactory.TIMES_BOLD);
-        fontParagraph.setStyle(12);
-        fontParagraph.setStyle( Font.NORMAL);
         
-        Font fontParagraph2 = FontFactory.getFont(FontFactory.TIMES);
-        fontParagraph2.setStyle(11);
-        fontParagraph2.setStyle( Font.NORMAL);
-        
-  
-        Image img = Image.getInstance("src/main/resources/logo.png");
-        img.scaleAbsolute(80, 80);
-        img.setAlignment(Image.ALIGN_LEFT);
-        PdfPTable table1 = new PdfPTable(2);
-        float secondcolWidth[]= {40f,60f};
-        table1.setWidths(secondcolWidth);
-        table1.setWidthPercentage(100);
-        PdfPCell cell = new PdfPCell();
-        PdfPCell cell2 = new PdfPCell();
-        
-        cell.addElement(img);
-        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-
-        table1.addCell(cell);
-       
-        table1.getDefaultCell().setBorder(0);
-        //document.add(table1);
-        
-        float secondcolWidth_[]= {50f,50f};
-        float colors[] = null;
-        PdfPTable table2 = new PdfPTable(2);
-         table2.setWidths(secondcolWidth_);
-        table2.setWidthPercentage(100);
-        
-        PdfPCell cell3 = new PdfPCell();
-        cell3.addElement(img);
-        cell3.setBorder(0);
-        cell3.setHorizontalAlignment(Element.ALIGN_LEFT);
-        
-        table2.addCell(cell3);
-        table2.setSpacingAfter(20f);
-        Paragraph paragraph2 = new Paragraph();
-        paragraph2.clear();
-        
-        Font fontTitle = FontFactory.getFont(FontFactory.TIMES_BOLD);
-        fontTitle.setStyle(Font.NORMAL);
-        fontTitle.setSize(20f);
-        colors = Color.RGBtoHSB(142, 42, 121, colors);
-        
-        fontTitle.setColor(Color.getHSBColor(colors[0],colors[1],colors[2]));
-        
-        
-        paragraph2.setFont(fontTitle);
-        paragraph2.add("Recibo N° "+ 10);
-        paragraph2.setAlignment(Paragraph.ALIGN_RIGHT);
-        paragraph2.setExtraParagraphSpace(0f);
-        //table2.addCell("Recibo N° 1");
-        
-        PdfPCell cell4= new PdfPCell();
-        
-        cell4.addElement(paragraph2);
-        cell4.setPaddingTop(0f);
-        cell4.setVerticalAlignment(PdfPCell.ALIGN_MIDDLE);
-        cell4.setHorizontalAlignment(Element.ALIGN_RIGHT);
-        cell4.setBorder(0);
-        table2.addCell(cell4);
-        table2.setHorizontalAlignment(5);
-        table2.completeRow();
-        
-        PdfPTable table3 = new PdfPTable(2);
-        
-        table3.setWidthPercentage(50);
-        table3.setSpacingAfter(20f);
-        table3.setHorizontalAlignment(Element.ALIGN_LEFT);
-        table3.getDefaultCell().setBorder(0);
-        //table3.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
-        
-        Font fontH1 = new Font();
-
-        fontH1.setSize(11f);
-
-table3.addCell(new PdfPCell(new Phrase("sueño",fontH1))).setBorder(0);
-        Font fontText = FontFactory.getFont(FontFactory.TIMES);
-        fontText.setStyle(Font.NORMAL);
-        fontText.setSize(9f);
-        Phrase p1 = new Phrase("hola");
-        p1.setFont(fontText);
-        Paragraph p = new Paragraph("Cliente: ");
-        p.setFont(fontText);
-        
-        table3.addCell(p1);
-        
-        table3.addCell("johana");
-        table3.addCell("Fecha: ");
-        table3.addCell("09/02/2024");
-        table3.addCell("Telefono:");
-        table3.addCell("098555566226");
-        
-        float[] widths2 = new float[] { 3f, 1f };
-        PdfPTable table4 = new PdfPTable(2);
-        table4.setWidthPercentage(100);
-        table4.setWidths(widths2);
-        //table4.getDefaultCell().setBorder(0);
-        
-        table4.getDefaultCell().setBackgroundColor(Color.magenta);
-        
-        table4.addCell("Descripcion");
-        table4.addCell("Importe");
-        
-        
-        PdfPTable table6 = new PdfPTable(2);
-        
-        table6.setWidthPercentage(100);
-        table6.setWidths(widths2);
-        
-            
-            table6.addCell("Pago de anticipo");
-            table6.addCell("60000");
-         
-       
-        
-        table6.setSpacingAfter(20f);
-        
-        
-        PdfPTable table5 = new PdfPTable(2);
-        table5.setWidthPercentage(40);
-        table5.setHorizontalAlignment(Element.ALIGN_RIGHT);
-        table5.getDefaultCell().setBorder(0);
-        table5.getDefaultCell().setHorizontalAlignment(Element.ALIGN_RIGHT);
-        table5.addCell("Total: ");
-        table5.addCell("50000 Gs");
-        
-        document.add(table2);
-        document.add(table3);
-        document.add(table4);
-        document.add(table6);
-        document.add(table5);*/
         document.close();
         } catch (BadElementException ex) {
             //Logger.getLogger(AnticipoServiceImpl.class.getName()).log(Level.SEVERE, null, ex);

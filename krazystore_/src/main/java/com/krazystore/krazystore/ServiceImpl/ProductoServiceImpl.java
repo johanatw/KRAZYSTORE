@@ -127,12 +127,24 @@ public class ProductoServiceImpl implements ProductoService{
                     } else if (tipoEvento == TipoEventoExistencias.ACTUALIZAR_RESERVAS) {
                         producto.setCantReservada(producto.getCantReservada() + d.getCantidad());
                         producto.setCantDisponible(producto.getCantDisponible() - d.getCantidad());
+                    } else if (tipoEvento == TipoEventoExistencias.RECEPCIONAR_PRODUCTOS) {
+                        producto.setCantStock(producto.getCantStock() + d.getCantidad());
+                        producto.setCantDisponible(producto.getCantDisponible() + d.getCantidad());
+                    } else if (tipoEvento == TipoEventoExistencias.AJUSTAR_INVENTARIO) {
+                        producto.setCantStock(producto.getCantStock() + d.getCantidad());
+                        producto.setCantDisponible(producto.getCantDisponible() + d.getCantidad());
                     }
                     break;
                 case DISMINUIR:
                     if (tipoEvento == TipoEventoExistencias.ACTUALIZAR_RESERVAS) {
                         producto.setCantReservada(producto.getCantReservada() - d.getCantidad());
                         producto.setCantDisponible(producto.getCantDisponible() + d.getCantidad());
+                    } else if (tipoEvento == TipoEventoExistencias.FACTURACION_PRODUCTOS) {
+                        producto.setCantDisponible(producto.getCantDisponible() + d.getCantidad());
+                        producto.setCantStock(producto.getCantStock() + d.getCantidad());
+                    } else if (tipoEvento == TipoEventoExistencias.FACTURACION_PEDIDOS) {
+                        producto.setCantStock(producto.getCantStock() + d.getCantidad());
+                        producto.setCantReservada(producto.getCantReservada() + d.getCantidad());
                     }
             }
 

@@ -120,7 +120,7 @@ const mostrarCliente = (proveedor) =>{
 }
 
 const modificarPedido = (id) => {
-    router.push({name: 'modificar_pedido_compra', params: {id}});
+    router.push({name: 'modificar_compra', params: {id}});
   
   }
 

@@ -5,8 +5,11 @@
 package com.krazystore.krazystore.ServiceImpl;
 
 import Utils.PagoRegistradoEvent;
+import Utils.ProductosRecepcionadosEvent;
 import Utils.RecepcionFacturada;
+import Utils.TipoEventoExistencias;
 import com.krazystore.krazystore.DTO.CompraCreationDTO;
+import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
 import com.krazystore.krazystore.Entity.CompraEntity;
 import com.krazystore.krazystore.Repository.CompraRepository;
 import com.krazystore.krazystore.Service.CompraService;
@@ -63,10 +66,12 @@ public class CompraServiceImpl implements CompraService {
         }
         CompraEntity nuevaCompra;
         nuevaCompra = compraRepository.save(compraDTO.getCompra());
-        detalleService.saveDetCompra(compraDTO.getDetalle(), nuevaCompra.getId());
+        List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.saveDetCompra(compraDTO.getDetalle(), nuevaCompra.getId());
         
         if(nuevaCompra.getRecepcion() != null){
             actualizarEstadoRecepcion(nuevaCompra.getRecepcion().getId(), 'F');
+        }else{
+            actualizarExistencias(productosActualizarExistencias);
         }
         
         movimientoService.saveMovimiento(nuevaCompra);
@@ -79,7 +84,6 @@ public class CompraServiceImpl implements CompraService {
     public CompraEntity updateCompra(CompraCreationDTO compraDTO, Long id)throws Exception {
         CompraEntity compra = compraDTO.getCompra();
         CompraEntity updatedCompra = compraRepository.findById(id).get();
-        
         //No puede modificar una factura si ya esta pagado
         if(PAGADO == updatedCompra.getEstado()){
             throw new BadRequestException("No se puede modificar " );
@@ -93,7 +97,8 @@ public class CompraServiceImpl implements CompraService {
             updatedCompra.setProveedor(compra.getProveedor());
             updatedCompra.setTotal(compra.getTotal());
             compraRepository.save(updatedCompra);
-            detalleService.saveDetCompra(compraDTO.getDetalle(), id);
+            List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.updateDetCompra(compraDTO.getDetalle(), id);
+            actualizarExistencias(productosActualizarExistencias);
         }else{
             compraRepository.save(updatedCompra);
         }
@@ -132,6 +137,12 @@ public class CompraServiceImpl implements CompraService {
         
         // Publicar el evento
         RecepcionFacturada evento = new RecepcionFacturada(idRecepcion, estado, this);
+        eventPublisher.publishEvent(evento);
+    }
+    
+    public void actualizarExistencias(List<ProductoExistenciasDTO> productosActualizarExistencias) {
+        // Publicar el evento
+        ProductosRecepcionadosEvent evento = new ProductosRecepcionadosEvent(productosActualizarExistencias, TipoEventoExistencias.RECEPCIONAR_PRODUCTOS);
         eventPublisher.publishEvent(evento);
     }
     
