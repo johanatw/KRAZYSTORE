@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class AjustarInventario extends CambioExistenciasEvent {
     
-    public AjustarInventario(List<ProductoExistenciasDTO> productosActualizar, TipoEventoExistencias tipoEvento) {
+    public AjustarInventario(List<ProductoExistenciasDTO> productosActualizar, TipoEvento tipoEvento) {
         super(productosActualizar, tipoEvento);
     }
     

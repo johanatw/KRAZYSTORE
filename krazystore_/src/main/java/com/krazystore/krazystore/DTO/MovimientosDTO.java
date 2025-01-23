@@ -34,6 +34,8 @@ public class MovimientosDTO {
         this.estado = estado;
         this.tipo = tipo;
     }
+    
+    
 
     public char getTipo() {
         return tipo;

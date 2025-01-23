@@ -4,17 +4,18 @@
  */
 package com.krazystore.krazystore.ServiceImpl;
 
+import Utils.FacturaCompraPagadoEvent;
+import Utils.NuevaFacturaCompraEvent;
 import Utils.PagoRegistradoEvent;
 import Utils.ProductosRecepcionadosEvent;
 import Utils.RecepcionFacturada;
-import Utils.TipoEventoExistencias;
+import Utils.TipoEvento;
 import com.krazystore.krazystore.DTO.CompraCreationDTO;
 import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
 import com.krazystore.krazystore.Entity.CompraEntity;
 import com.krazystore.krazystore.Repository.CompraRepository;
 import com.krazystore.krazystore.Service.CompraService;
 import com.krazystore.krazystore.Service.DetalleCompraService;
-import com.krazystore.krazystore.Service.MovimientoService;
 import com.krazystore.krazystore.exception.BadRequestException;
 import java.util.List;
 import java.util.Optional;
@@ -45,9 +46,6 @@ public class CompraServiceImpl implements CompraService {
     @Autowired
     private DetalleCompraService detalleService;
     
-    @Autowired
-    private MovimientoService movimientoService;
-    
     @Override
     public List<CompraEntity> findAll() {
         return compraRepository.findAll();
@@ -74,7 +72,7 @@ public class CompraServiceImpl implements CompraService {
             actualizarExistencias(productosActualizarExistencias);
         }
         
-        movimientoService.saveMovimiento(nuevaCompra);
+        notificarFacturaCompraPendiente(nuevaCompra);
         
         return nuevaCompra;
     }
@@ -120,7 +118,7 @@ public class CompraServiceImpl implements CompraService {
     }
     
     @EventListener
-    public void handleCambioEstado(PagoRegistradoEvent event) {
+    public void handleCambioEstado(FacturaCompraPagadoEvent event) {
         Long compraId = event.getFacturaId();
         char estado = event.getEstado();
         // Buscar la factura y actualizar el estado
@@ -142,7 +140,13 @@ public class CompraServiceImpl implements CompraService {
     
     public void actualizarExistencias(List<ProductoExistenciasDTO> productosActualizarExistencias) {
         // Publicar el evento
-        ProductosRecepcionadosEvent evento = new ProductosRecepcionadosEvent(productosActualizarExistencias, TipoEventoExistencias.RECEPCIONAR_PRODUCTOS);
+        ProductosRecepcionadosEvent evento = new ProductosRecepcionadosEvent(productosActualizarExistencias, TipoEvento.RECEPCIONAR_PRODUCTOS);
+        eventPublisher.publishEvent(evento);
+    }
+    
+    public void notificarFacturaCompraPendiente(CompraEntity nuevaCompra) {
+        // Publicar el evento
+        NuevaFacturaCompraEvent evento = new NuevaFacturaCompraEvent(TipoEvento.NUEVA_COMPRA, nuevaCompra );
         eventPublisher.publishEvent(evento);
     }
     

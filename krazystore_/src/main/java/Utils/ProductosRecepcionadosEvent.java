@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class ProductosRecepcionadosEvent extends CambioExistenciasEvent{
 
-    public ProductosRecepcionadosEvent(List<ProductoExistenciasDTO> productosActualizar, TipoEventoExistencias tipoEvento) {
+    public ProductosRecepcionadosEvent(List<ProductoExistenciasDTO> productosActualizar, TipoEvento tipoEvento) {
         super(productosActualizar, tipoEvento);
     }
     

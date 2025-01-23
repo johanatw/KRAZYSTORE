@@ -37,7 +37,7 @@ public class VentaEntity {
     @Column
     private int montoTotal;
     @Column
-    private boolean activo=true;
+    private Character estado;
 
     public VentaEntity() {
     }
@@ -50,13 +50,13 @@ public class VentaEntity {
         this.montoTotal = monto_total;
     }
 
-    public boolean isActivo() {
-        return activo;
+    public Character getEstado() {
+        return estado;
     }
 
-    public void setActivo(boolean activo) {
-        this.activo = activo;
-    }
+    public void setEstado(Character estado) {
+        this.estado = estado;
+    }  
 
     
     public TimbradoEntity getTimbrado() {

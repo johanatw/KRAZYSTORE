@@ -472,14 +472,29 @@ const registrarPago = (movimiento) => {
         total.value = movimiento.venta.montoTotal;
     } */
     if (movimiento.venta != null && movimiento.venta.pedido != null) {
-        
-        getAnticipos(movimiento.venta.pedido.id);
+        getAnticiposByIdPedidoVenta(movimiento.venta.pedido.id);
     } 
+
+    if(movimiento.compra != null && movimiento.compra.recepcion.pedidoCompra != null ){
+        getAnticiposByIdPedidoCompra(movimiento.compra.recepcion.pedidoCompra.id);
+    }
 };
 
-const getAnticipos = (idPedido) => {
+const getAnticiposByIdPedidoVenta = (idPedido) => {
 console.log("getAnticipos");
-AnticipoServices.getAnticipos(idPedido).then((data) => {
+AnticipoServices.getAnticiposByIdPedidoVenta(idPedido).then((data) => {
+    anticipos.value = data.data;
+    console.log(formasPago.value);
+    if (anticipos.value.length > 0) {
+        anticiposAsociados.value = true;
+    }   
+
+});
+};
+
+const getAnticiposByIdPedidoCompra = (idPedido) => {
+console.log("getCompra");
+AnticipoServices.getAnticiposByIdPedidoCompra(idPedido).then((data) => {
     anticipos.value = data.data;
     console.log(formasPago.value);
     if (anticipos.value.length > 0) {

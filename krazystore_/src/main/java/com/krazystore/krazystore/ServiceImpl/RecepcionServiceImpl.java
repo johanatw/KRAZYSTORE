@@ -7,7 +7,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import Utils.ProductosPedidoRecepcionadosEvent;
 import Utils.ProductosRecepcionadosEvent;
 import Utils.RecepcionFacturada;
-import Utils.TipoEventoExistencias;
+import Utils.TipoEvento;
 import com.krazystore.krazystore.DTO.DetalleRecepcionDTO;
 import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
 import com.krazystore.krazystore.DTO.RecepcionCreationDTO;
@@ -153,7 +153,7 @@ public class RecepcionServiceImpl implements RecepcionService {
     
     public void actualizarExistencias(List<ProductoExistenciasDTO> productosActualizarExistencias) {
         // Publicar el evento
-        ProductosRecepcionadosEvent evento = new ProductosRecepcionadosEvent(productosActualizarExistencias, TipoEventoExistencias.RECEPCIONAR_PRODUCTOS);
+        ProductosRecepcionadosEvent evento = new ProductosRecepcionadosEvent(productosActualizarExistencias, TipoEvento.RECEPCIONAR_PRODUCTOS);
         eventPublisher.publishEvent(evento);
     }
     

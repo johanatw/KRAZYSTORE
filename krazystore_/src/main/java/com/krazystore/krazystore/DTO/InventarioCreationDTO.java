@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class InventarioCreationDTO {
     InventarioEntity inventario;
-    private List<DetalleInventario> detalle;
+    private List<DetalleInventarioDTO> detalle;
     private List<CategoriaEntity> filtrosInventario;
 
     public InventarioEntity getInventario() {
@@ -26,13 +26,14 @@ public class InventarioCreationDTO {
         this.inventario = inventario;
     }
 
-    public List<DetalleInventario> getDetalle() {
+    public List<DetalleInventarioDTO> getDetalle() {
         return detalle;
     }
 
-    public void setDetalle(List<DetalleInventario> detalle) {
+    public void setDetalle(List<DetalleInventarioDTO> detalle) {
         this.detalle = detalle;
     }
+
 
     public List<CategoriaEntity> getFiltrosInventario() {
         return filtrosInventario;

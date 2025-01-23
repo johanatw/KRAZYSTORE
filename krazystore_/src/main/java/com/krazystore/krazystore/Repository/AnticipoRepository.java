@@ -25,12 +25,12 @@ public interface AnticipoRepository extends JpaRepository<AnticipoEntity,Long>{
     public List<AnticipoEntity> findAllByOrderByIdDesc();
     
     @Query(
-  value = "SELECT * FROM anticipos a WHERE a.id_pedido = ?1 ORDER BY a.fecha DESC ", 
+  value = "SELECT * FROM anticipos a WHERE a.id_pedido = ?1 AND a.tipo_pedido = ?2 ORDER BY a.fecha DESC ", 
   nativeQuery = true)
-    public List<AnticipoEntity> findByIdPedido(Long id);
+    public List<AnticipoEntity> findByIdPedido(Long id, char tipoPedido);
     
     
-    public boolean existsByPedido(PedidoEntity p);
+    //public boolean existsByPedido(PedidoEntity p);
     
     @Query(
   value = "SELECT \n" +

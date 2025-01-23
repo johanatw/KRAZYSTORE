@@ -93,6 +93,7 @@ const proveedor = ref({});
 
 onMounted(() => {
     RecepcionServices.getRecepcion(router.currentRoute.value.params.id).then((data) => {
+        console.log(data.data);
         pedido.value = data.data;
    });
 

@@ -13,23 +13,6 @@ import java.util.Date;
  *
  * @author HP
  */
-@NamedNativeQuery(name= "PedidoEntity.findAllPedidos",
-        query="SELECT p.id_pedido as id, p.fecha as fecha, p.total as total, COALESCE(e.costo, 0) as costoEnvio, c.nombre || ' ' || COALESCE(c.apellido,'') as cliente, c.telefono as telefono, s.descripcion as estadoPedido, r.descripcion as estadoPago, sum(CASE WHEN o.pre_venta THEN t.cantidad ELSE 0 END) as cantPreVenta, sum(t.cantidad) as totalItems FROM pedidos p LEFT JOIN personas c ON c.id = p.id_cliente LEFT JOIN costos_envio e ON e.id = p.costo_envio JOIN estados s ON s.id = p.estado_pedido JOIN estados r ON r.id = p.estado_pago JOIN detalle_pedidos t ON t.id_pedido = p.id_pedido JOIN productos o ON o.id = t.id_producto GROUP BY p.id_pedido, e.costo, c.nombre,c.apellido,c.telefono,s.descripcion,r.descripcion order by id DESC",
-        resultSetMapping = "Mapping.PedidoDTO")
-@SqlResultSetMapping(name="Mapping.PedidoDTO",
-        classes = @ConstructorResult(targetClass = PedidoDTO.class,
-                columns = {@ColumnResult(name = "id"),
-                @ColumnResult(name = "fecha"),
-                @ColumnResult(name = "total"),
-                @ColumnResult(name = "costoEnvio"),
-                @ColumnResult(name = "cliente"),
-                @ColumnResult(name = "telefono"),
-                @ColumnResult(name = "estadoPedido"),
-                @ColumnResult(name = "estadoPago"),
-                @ColumnResult(name = "cantPreVenta"),
-                @ColumnResult(name = "totalItems")}))
-
-
 
 @Entity
 @Table(name = "pedidos")
@@ -49,13 +32,9 @@ public class PedidoEntity {
     @ManyToOne
     @JoinColumn(name = "costo_envio")
     private CostoEnvioEntity costoEnvio;
-  
-    @ManyToOne
-    @JoinColumn(name = "estado_pedido")
-    private EstadoEntity estadoPedido;
-    @ManyToOne
-    @JoinColumn(name = "estado_pago")
-    private EstadoEntity estadoPago;
+
+    @Column(name = "estado")
+    private Character estadoPedido;
     @ManyToOne
     @JoinColumn(name = "forma_pago")
     private FormaPagoEntity formaPago;
@@ -72,14 +51,13 @@ public class PedidoEntity {
     public PedidoEntity() {
     }
 
-    public PedidoEntity(Long id, Date fecha, int montoIva, int total, CostoEnvioEntity costoEnvio, EstadoEntity estadoPedido, EstadoEntity estadoPago, FormaPagoEntity formaPago, ModoEntregaEntity modoEntrega, PersonaEntity cliente) {
+    public PedidoEntity(Long id, Date fecha, int montoIva, int total, CostoEnvioEntity costoEnvio, Character estadoPedido, FormaPagoEntity formaPago, ModoEntregaEntity modoEntrega, PersonaEntity cliente) {
         this.id = id;
         this.fecha = fecha;
         this.montoIva = montoIva;
         this.total = total;
         this.costoEnvio = costoEnvio;
         this.estadoPedido = estadoPedido;
-        this.estadoPago = estadoPago;
         this.formaPago = formaPago;
         this.modoEntrega = modoEntrega;
         this.cliente = cliente;
@@ -146,21 +124,13 @@ public class PedidoEntity {
         this.costoEnvio = costoEnvio;
     }
 
-    public EstadoEntity getEstadoPedido() {
+    public Character getEstadoPedido() {
         return estadoPedido;
     }
 
-    public void setEstadoPedido(EstadoEntity estadoPedido) {
+    public void setEstadoPedido(Character estadoPedido) {
         this.estadoPedido = estadoPedido;
-    }
-
-    public EstadoEntity getEstadoPago() {
-        return estadoPago;
-    }
-
-    public void setEstadoPago(EstadoEntity estadoPago) {
-        this.estadoPago = estadoPago;
-    }
+    } 
 
     public FormaPagoEntity getFormaPago() {
         return formaPago;

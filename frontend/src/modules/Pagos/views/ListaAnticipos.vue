@@ -20,8 +20,7 @@ import ConfirmDialog from 'primevue/confirmdialog';
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import InputGroup from 'primevue/inputgroup';
-import {formatearNumero, existeCajaAbierta} from '@/utils/utils';
-
+import {formatearNumero, formatearFecha, existeCajaAbierta} from '@/utils/utils';
 
 const visible = ref(false);
 const  formasPago = ref();
@@ -46,16 +45,30 @@ const id = ref();
 const visibleDeleteDialog = ref(false);
 const anticipo = ref();
 const cajaAbierta = ref({});
-
+const tipoPedido = ref({cod: 'V', descripcion:'Venta'});
+const optionsPedido = ref([{cod: 'V', descripcion:'Venta'}, {cod: 'C', descripcion:'Compra'}]);
 
 //Funciones Registrar Anticipo
-const buscarPedido= (id) => {
+const buscarPedido= (id, e) => {
   
-    CajaServices.obtenerPagosPedido(id).then((data) => {
-        pedido.value = data.data;
-        searched.value = true;
-        console.log(data.data);
-    });
+    var code = (e.keyCode ? e.keyCode : e.which);
+    if (code == 13) { //Enter keycode   
+        if (tipoPedido.value.descripcion == 'Venta' ) {
+            CajaServices.obtenerPagosPedido(id).then((data) => {
+                pedido.value = data.data;
+                searched.value = true;
+                console.log(data.data);
+            });
+        } else {
+            CajaServices.obtenerPagosPedidoCompra(id).then((data) => {
+                pedido.value = data.data;
+                searched.value = true;
+                console.log(data.data);
+            });
+        }                     
+        
+    }
+    
 
 }
 
@@ -129,7 +142,7 @@ async function guardarAnticipo() {
     console.log(d);
     if (d) {
         let fechaAnticipo = new Date();
-    let ant = {total: abonado.value, fecha: fechaAnticipo, pedido: pedido.value};
+    let ant = {total: abonado.value, fecha: fechaAnticipo, idPedido: pedido.value.id, tipoPedido: tipoPedido.value.cod};
 
     let anticipoCreationDTO = {anticipo: ant, pagos: pagosAnticipo.value};
     CajaServices.saveAnticipo(anticipoCreationDTO ).then((data)=> {
@@ -309,6 +322,7 @@ const guardarReembolso = () =>{
 
 async function getAnticipos() {
   await AnticipoServices.obtenerAnticipos().then((data) => {
+        console.log(data.data);
        anticipos.value = data.data;
    });
  
@@ -346,20 +360,6 @@ const messageError = (msg) => {
     });
 };
 
-const deleteAnticipoReembolsos = () =>{
-    const cantidad= 1;
-    const index = anticipos.value.findIndex((loopVariable) => loopVariable.id === anticipoToDelete.value);
-
-    CajaServices.deleteAnticipoReembolsos(anticipoToDelete.value).then((data)=> {
-
-        anticipos.value.splice(index,cantidad);
-        visibleDeleteDialog.value= false;
-            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 5000 });
-        
-    } );
-    
-};
-
 const deleteAnticipo = (id) =>{
     const cantidad= 1;
     const index = anticipos.value.findIndex((loopVariable) => loopVariable.id === id);
@@ -367,6 +367,7 @@ const deleteAnticipo = (id) =>{
     CajaServices.deleteAnticipo(id).then((response)=>{
 
         anticipos.value.splice(index,cantidad);
+        visibleDeleteDialog.value= false;
         toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 5000 });
 
     })
@@ -376,14 +377,22 @@ const deleteAnticipo = (id) =>{
 const verificarEstadoAnticipo = (id) =>{
     const index = anticipos.value.findIndex((loopVariable) => loopVariable.id === id);
     
-    if (anticipos.value[index].utilizado > 0) {
-      
-        messageError("Este anticipo ya fue utilizado");
-    } else if (anticipos.value[index].reembolsado > 0) {
+    if (anticipos.value[index].reembolsado > 0) {
         visibleDeleteDialog.value = true;
         anticipoToDelete.value = id;
     } else {
         deleteAnticipo(id);
+    }
+    
+   
+}
+
+const puedeEliminarAnticipo = (anticipo) =>{
+
+    if (anticipos.utilizado > 0) {
+        return false;
+    } else {
+        return true;
       }
     
    
@@ -469,7 +478,7 @@ const getFormasPago= () => {
                         
                 <template #footer>
                     <div class="card flex" style="justify-content: end;">  
-                        <Button label="Aceptar" style="margin-right: 1%;" @click="deleteAnticipoReembolsos()" />
+                        <Button label="Aceptar" style="margin-right: 1%;" @click="deleteAnticipo(anticipoToDelete)" />
                         <Button  label="Cancelar"  @click="visibleDeleteDialog=false"  />
                     </div>
                 </template>
@@ -495,7 +504,7 @@ const getFormasPago= () => {
                                     <template #content>
                                         <div >
                                             <label for="fecha" style="font-weight: 600;" >Fecha:</label>
-                                            {{ formatearNumero(anticipo.fecha) }}<br>
+                                            {{ formatearFecha(anticipo.fecha) }}<br>
                                             <label for="fecha" style="font-weight: 600;" >Monto total Anticipo:</label>
                                             {{ formatearNumero(anticipo.total) }} Gs.<br>
                                             <label for="fecha" style="font-weight: 600;"  >Monto utilizado:</label>
@@ -581,13 +590,19 @@ const getFormasPago= () => {
                                 <template #title> Detalle del Pedido </template>
                                 <template #content>
                                     <div class="formgrid grid">
+                                        <div class="flex field col-12 md:col-6">
+                                            <label for="username" class="font-semibold w-9rem">Tipo Pedido</label>
+                                        </div>
+                                        <div class="flex field col-12 md:col-6">
+                                            <Dropdown v-model:model-value="tipoPedido" :options="optionsPedido" optionLabel="descripcion" placeholder="Seleccione un elemento" checkmark :highlightOnSelect="false" class="w-full md:w-14rem"  />
+                                        </div>
                                         <div class="flex field col-12 md:col-6 "style="height: 1.5rem;" >
                                             <label for="email" class="w-9rem" style="font-weight: 600;" >Pedido N°</label>
                                         </div>
                                         <div class="flex field col-12 md:col-6 " style="height: 1.5rem;">
                                             <InputGroup>
-                                                <InputText v-model="id" placeholder="N° Pedido" />
-                                                <Button icon="pi pi-search"  @click="buscarPedido(id)" />
+                                                <InputText v-model="id" placeholder="N° Pedido" @keypress="buscarPedido(id, $event)" />
+                                                <Button icon="pi pi-search" />
                                             </InputGroup>
                                         </div>
                                         <div class="flex field col-12 md:col-6" style="height: 1.5rem;">
@@ -692,7 +707,7 @@ const getFormasPago= () => {
                     <Column field="id" sortable header="N°" aria-sort="ascending" ></Column>
                     <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
                         <template #body="slotProps">
-                            {{ formatearNumero(slotProps.data.fecha) }}
+                            {{ formatearFecha(slotProps.data.fecha) }}
                         </template>
                     </Column>
                     <Column field="pedido.id" header="Pedido N°" aria-sort="ascending" sortable></Column>
@@ -719,7 +734,7 @@ const getFormasPago= () => {
                     <Column :exportable="false" style="min-width:8rem">
                         <template #body="slotProps">
                             <Button icon="pi pi-sync" severity="success" text rounded aria-label="Cancel" @click="showDialogReembolso(slotProps.data)"  style="height: 2rem !important; width: 2rem !important;" />
-                            <Button :disabled="registradoEnCajaActualAbierta(slotProps.data.fecha)"  icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                            <Button :disabled="registradoEnCajaActualAbierta(slotProps.data.fecha) && !puedeEliminarAnticipo(slotProps.data) "  icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                             
                         </template>
                     </Column>

@@ -4,8 +4,11 @@
  */
 package com.krazystore.krazystore.Repository;
 
+import com.krazystore.krazystore.DTO.DetallePagoPedidoDTO;
+import com.krazystore.krazystore.DTO.EstadoPagoPedidoDTO;
 import com.krazystore.krazystore.DTO.MovimientosDTO;
 import com.krazystore.krazystore.DTO.PRUEBADTO;
+import com.krazystore.krazystore.DTO.PedidoMontoPagadoDTO;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +34,7 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
            + "LEFT JOIN FETCH m.reembolso r LEFT JOIN FETCH"
            + " m.venta v LEFT JOIN FETCH m.concepto c "
            + "WHERE m.id = 31")*/
-    @Query(
+   /* @Query(
     "SELECT new com.krazystore.krazystore.DTO.PRUEBADTO(m.id, c.descripcion"
             
             + ", m.fecha"
@@ -50,8 +53,71 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
             + "WHERE (p.id = ?1 OR pv.id = ?1 OR pr.id = ?1) AND m.estado = 'C' "
             + "ORDER BY m.id DESC"
            )
-    public List<PRUEBADTO> prueba(Long id);
-     
+    public List<PRUEBADTO> prueba(Long id);*/
+     /*
+    @Query(
+        "SELECT new com.krazystore.krazystore.DTO.EstadoPagoPedidoDTO( " +
+        "    p.id, p.total, " +
+        "    SUM(CASE " +
+        "        WHEN c.descripcion = 'Anticipo' THEN COALESCE(m.monto, 0) " +
+        "        WHEN c.descripcion = 'Venta' THEN COALESCE(dp.importe, 0) " +
+        "        ELSE 0 " +
+        "    END) " +
+        ") " 
+            + "FROM MovimientoEntity m "
+            + "LEFT JOIN ConceptoEntity c ON m.concepto = c "
+            + "LEFT JOIN PagoEntity dp ON dp.movimiento = m AND dp.anticipo IS NULL "
+            + "LEFT JOIN AnticipoEntity a ON m.anticipo = a "
+            + "LEFT JOIN VentaEntity v ON m.venta = v "
+            + "LEFT JOIN PedidoEntity p ON (a.idPedido = p.id AND a.tipoPedido = 'V') OR v.pedido = p "
+            + "WHERE p.id = ?1 "
+            + "GROUP BY p.id"
+           )*/
+    
+
+    @Query(
+    "SELECT new com.krazystore.krazystore.DTO.EstadoPagoPedidoDTO( " +
+    "    p.id, p.total, " +
+    "    SUM(CASE " +
+    "        WHEN c.descripcion = 'Anticipo' THEN COALESCE(m.monto, 0) " +
+    "        ELSE 0 " +
+    "    END) - " +
+    "   SUM(CASE " +
+    "       WHEN c.descripcion = 'Reembolso' THEN COALESCE(m.monto, 0) " +
+    "       ELSE 0 " +
+    "   END ) " +
+    ") " +
+    "FROM PedidoEntity p " +
+    "LEFT JOIN AnticipoEntity a ON a.idPedido = p.id AND a.tipoPedido = 'V' " +
+    "LEFT JOIN ReembolsoEntity r ON r.anticipo = a " +
+    "LEFT JOIN MovimientoEntity m ON m.anticipo = a OR m.reembolso = r " +
+    "LEFT JOIN ConceptoEntity c ON m.concepto = c " +
+    "WHERE p.id = ?1 " +
+    "GROUP BY p.id"
+    )
+    public Optional<EstadoPagoPedidoDTO> getEstadoPagoPedidoVenta(Long id);
+    
+    @Query(
+    "SELECT DISTINCT new com.krazystore.krazystore.DTO.EstadoPagoPedidoDTO( " +
+    "    p.id, p.total, " +
+    "    SUM(CASE " +
+    "        WHEN c.descripcion = 'Anticipo' THEN COALESCE(m.monto, 0) " +
+    "        ELSE 0 " +
+    "    END) - " +
+    "   SUM(CASE " +
+    "       WHEN c.descripcion = 'Reembolso' THEN COALESCE(m.monto, 0) " +
+    "       ELSE 0 " +
+    "   END ) " +
+    ") " +
+    "FROM PedidoCompraEntity p " +
+    "LEFT JOIN AnticipoEntity a ON a.idPedido = p.id AND a.tipoPedido = 'C' " +
+    "LEFT JOIN ReembolsoEntity r ON r.anticipo = a " +
+    "LEFT JOIN MovimientoEntity m ON m.anticipo = a OR m.reembolso = r " +
+    "LEFT JOIN ConceptoEntity c ON m.concepto = c " +
+    "WHERE p.id = ?1 " +
+    "GROUP BY p.id"
+    )
+    public Optional<EstadoPagoPedidoDTO> getEstadoPagoPedidoCompra(Long id);
   
     @Query(
     "SELECT new com.krazystore.krazystore.DTO.MovimientosDTO(m.id, m.fecha, c.descripcion, f.descripcion"

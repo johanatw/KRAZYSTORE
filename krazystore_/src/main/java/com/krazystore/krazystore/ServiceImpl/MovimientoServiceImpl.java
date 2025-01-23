@@ -3,11 +3,23 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.krazystore.krazystore.ServiceImpl;
+
+import Utils.Estado;
+import Utils.FacturaCompraPagadoEvent;
+import Utils.FacturaVentaPagadoEvent;
 import Utils.PagoRegistradoEvent;
-import org.springframework.context.ApplicationEventPublisher;
+import Utils.PedidoCompraEvent;
+import Utils.PedidoEvent;
+import Utils.TipoEvento;
+import Utils.TipoPedido;
+import com.krazystore.krazystore.DTO.AnticipoCreationDTO;
+import com.krazystore.krazystore.DTO.EstadoPagoPedidoDTO;
+import com.krazystore.krazystore.DTO.MovimientoCreationDTO;
 import com.krazystore.krazystore.DTO.MovimientosDTO;
 import com.krazystore.krazystore.DTO.PRUEBADTO;
 import com.krazystore.krazystore.DTO.PedidoMontoPagadoDTO;
+import com.krazystore.krazystore.DTO.ReembolsoCreationDTO;
+import com.krazystore.krazystore.DTO.VentaCreationDTO;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.CajaEntity;
 import com.krazystore.krazystore.Entity.CompraEntity;
@@ -15,23 +27,23 @@ import com.krazystore.krazystore.Entity.ConceptoEntity;
 import com.krazystore.krazystore.Entity.EstadoEntity;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
 import com.krazystore.krazystore.Entity.PagoEntity;
-import com.krazystore.krazystore.Entity.PedidoEntity;
 import com.krazystore.krazystore.Entity.ReembolsoEntity;
 import com.krazystore.krazystore.Entity.VentaEntity;
 import com.krazystore.krazystore.Repository.MovimientoRepository;
 import com.krazystore.krazystore.Service.AnticipoService;
-import com.krazystore.krazystore.Service.CajaService;
-import com.krazystore.krazystore.Service.MovimientoService;
 import com.krazystore.krazystore.Service.PagoService;
-import com.krazystore.krazystore.Service.PedidoService;
 import com.krazystore.krazystore.Service.ReembolsoService;
-import java.util.Date;
+import com.krazystore.krazystore.Service.VentaService;
+
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.krazystore.krazystore.Service.MovimientoService;
+import com.krazystore.krazystore.Service.PedidoCompraService;
+import com.krazystore.krazystore.Service.PedidoService;
 
 /**
  *
@@ -39,238 +51,206 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class MovimientoServiceImpl implements MovimientoService {
-    private final MovimientoRepository movimientoRepository;
-    private final ApplicationEventPublisher eventPublisher;
-    static char PAGADO = 'C';
-    static char PENDIENTE = 'P';
 
     public MovimientoServiceImpl(MovimientoRepository movimientoRepository, ApplicationEventPublisher eventPublisher) {
         this.movimientoRepository = movimientoRepository;
         this.eventPublisher = eventPublisher;
     }
     
-    @Autowired
-    private PagoService pagoService;
-    
-    @Autowired
-    private PedidoService pedidoService;
+    private final MovimientoRepository movimientoRepository;
+    private final ApplicationEventPublisher eventPublisher;
     
     @Autowired
     private AnticipoService anticipoService;
     
     @Autowired
+    private PedidoService pedidoService;
+    
+    @Autowired
+    private PedidoCompraService pedidoCompraService;
+    
+    @Autowired
     private ReembolsoService reembolsoService;
     
     @Autowired
-    private CajaService cajaService;
+    private PagoService pagoService;
 
-    @Override
-    public List<MovimientosDTO> findAll() {
-
-        return movimientoRepository.findMovimientosDTO();
-    }
-    
-
-    @Override
-    public Optional<MovimientoEntity> findById(Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-    
     @Override
     public List<MovimientosDTO> findByIdCaja(Long id) {
         return movimientoRepository.findByIdCaja(id);
     }
-
+    
     @Override
-    public MovimientoEntity saveMovimiento(MovimientoEntity movimientoEntity) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public EstadoPagoPedidoDTO getEstadoPagoPedidoCompra(Long id) {
+        return movimientoRepository.getEstadoPagoPedidoCompra(id).orElse(null);
     }
     
     @Override
-    public MovimientoEntity saveMovimiento(MovimientoEntity movimientoEntity, List<PagoEntity> pagos) {
-        MovimientoEntity nuevoMovimiento = movimientoRepository.save(movimientoEntity);
-        
-        pagoService.savePagos(nuevoMovimiento, pagos);
-        
-        return nuevoMovimiento;
+    public EstadoPagoPedidoDTO getEstadoPagoPedidoVenta(Long id) {
+        return movimientoRepository.getEstadoPagoPedidoVenta(id).orElse(null);
     }
     
     @Override
-    public MovimientoEntity saveMovimiento(AnticipoEntity anticipoEntity, List<PagoEntity> pagos) {
+    public List<MovimientoEntity> getFacturasPendientes() {
+        return movimientoRepository.getFacturasPendientes();
+    }
+    
+    @Override
+    public MovimientoEntity saveMovimiento(AnticipoCreationDTO anticipoDTO, CajaEntity caja) {
        
-        anticipoEntity.setSaldo(anticipoEntity.getTotal());
-        AnticipoEntity newAnticipo = anticipoService.saveAnticipo(anticipoEntity);
+        anticipoDTO.getAnticipo().setSaldo(anticipoDTO.getAnticipo().getTotal());
+        AnticipoEntity newAnticipo = anticipoService.saveAnticipo(anticipoDTO.getAnticipo());
         
-        MovimientoEntity movimiento = crearMovimiento(newAnticipo);
+        MovimientoEntity movimiento = crearMovimiento(newAnticipo, caja);
         MovimientoEntity nuevoMovimiento = movimientoRepository.save(movimiento);
-        pagoService.savePagos(nuevoMovimiento, pagos);
+        pagoService.savePagos(nuevoMovimiento, anticipoDTO.getPagos());
         
-        EstadoEntity estadoPago = getEstadoPagoPedido(nuevoMovimiento.getAnticipo().getPedido().getId());
-        pedidoService.updateEstadoPagoPedido( nuevoMovimiento.getAnticipo().getPedido(), estadoPago);
-        
-        return nuevoMovimiento;
-        
-    }
-    
-    @Override
-    public MovimientoEntity savePagosMovimiento(MovimientoEntity movimientoEntity, List<PagoEntity> pagos) {
-        System.out.println("holaaaa");
-        
-        MovimientoEntity movimiento = movimientoRepository.findById(movimientoEntity.getId()).get();
-        movimiento.setCaja(cajaService.getCaja());
-        
-        movimiento.setEstado('C');
-    
-        MovimientoEntity nuevoMovimiento = movimientoRepository.save(movimiento);
-     
-        pagoService.savePagos(nuevoMovimiento, pagos);
-        
-        if(movimiento.getVenta() !=null && movimiento.getVenta().getPedido() != null){
-            EstadoEntity estadoPago = getEstadoPagoPedido(nuevoMovimiento.getVenta().getPedido().getId());
-            pedidoService.updateEstadoPagoPedido( nuevoMovimiento.getVenta().getPedido(), estadoPago);
-        }
-        
-        if(nuevoMovimiento.getCompra() != null){
-            cambiarEstadoPagoCompra(movimiento.getCompra().getId(), PAGADO);
-        }
+        actualizarEstadoPedido(nuevoMovimiento.getAnticipo().getIdPedido(), 
+                nuevoMovimiento.getAnticipo().getTipoPedido(), TipoEvento.ANTICIPO_CREADO);
         
         return nuevoMovimiento;
         
     }
     
     @Override
-    public MovimientoEntity saveMovimiento(VentaEntity ventaEntity) {
-     
-        
-        MovimientoEntity movimiento = crearMovimiento(ventaEntity, false);
-        MovimientoEntity nuevoMovimiento = movimientoRepository.save(movimiento);
-        //pagoService.savePagos(nuevoMovimiento, pagos);
-        
-        /*if(nuevoMovimiento.getVenta().getPedido() != null){
-            EstadoEntity estadoPago = getEstadoPagoPedido(nuevoMovimiento.getVenta().getPedido().getId());
-            pedidoService.updateEstadoPagoPedido( nuevoMovimiento.getVenta().getPedido(), estadoPago);
-        }*/
-        
-        
-        
-        return nuevoMovimiento;
-        
-    }
-    
-    @Override
-    public void saveMovimientos(List<MovimientoEntity> movimientos) {
-        movimientoRepository.saveAll(movimientos);
-    }
-
-    @Override
-    public MovimientoEntity updateMovimiento(MovimientoEntity movimientoEntity, Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-    
-    
-    @Override
-    public MovimientoEntity crearMovimiento(VentaEntity venta, boolean anular) {
-        CajaEntity caja = cajaService.getCaja();
-        MovimientoEntity nuevoMovimiento = new MovimientoEntity();
-        
-        nuevoMovimiento.setVenta(venta);
-        nuevoMovimiento.setMonto(venta.getMontoTotal());
-        
-        nuevoMovimiento.setNroDocumento(venta.getNroFactura());
-        nuevoMovimiento.setEstado('P');
-        //nuevoMovimiento.setCaja(caja);
-        //if(anular){
-          //  nuevoMovimiento.setFecha(new Date());
-          //  nuevoMovimiento.setConcepto(new ConceptoEntity((long)11,"ANULACION"));
-        //}else{          
-            nuevoMovimiento.setFecha(venta.getFecha());
-            nuevoMovimiento.setConcepto(new ConceptoEntity((long)3,"VENTA"));  
-        //}
-        
-        return nuevoMovimiento;
-    }
-    
-    @Override
-    public MovimientoEntity crearMovimiento(AnticipoEntity anticipo) {
+    public MovimientoEntity crearMovimiento(AnticipoEntity anticipo, CajaEntity caja) {
         MovimientoEntity nuevoMovimiento = new MovimientoEntity();
         nuevoMovimiento.setAnticipo(anticipo);
         nuevoMovimiento.setFecha(anticipo.getFecha());
         nuevoMovimiento.setMonto(anticipo.getTotal());
         nuevoMovimiento.setConcepto(new ConceptoEntity((long)1,"ANTICIPO"));
-        nuevoMovimiento.setCaja(cajaService.getCajaAbierta().get());
+        nuevoMovimiento.setCaja(caja);
+        return nuevoMovimiento;
+    }
 
+    @Override
+    public MovimientoEntity saveMovimiento(ReembolsoCreationDTO reembolsoDTO, CajaEntity caja) {
+        ReembolsoEntity reembolso = reembolsoService.saveReembolso(reembolsoDTO.getReembolso());
+        
+        MovimientoEntity movimiento = crearMovimiento(reembolso, caja);
+        MovimientoEntity nuevoMovimiento = movimientoRepository.save(movimiento);
+        pagoService.savePagos(nuevoMovimiento, reembolsoDTO.getPagos());
+        
+        actualizarSaldoAnticipo(reembolso.getAnticipo().getId(), reembolso.getMonto());
         return nuevoMovimiento;
     }
     
     @Override
-    public MovimientoEntity crearMovimiento(ReembolsoEntity reembolso) {
+    public MovimientoEntity crearMovimiento(ReembolsoEntity reembolso, CajaEntity caja) {
         MovimientoEntity nuevoMovimiento = new MovimientoEntity();
         nuevoMovimiento.setReembolso(reembolso);
         nuevoMovimiento.setFecha(reembolso.getFecha());
         nuevoMovimiento.setMonto(reembolso.getMonto());
         nuevoMovimiento.setConcepto(new ConceptoEntity((long)2,"REEMBOLSO"));
-        nuevoMovimiento.setCaja(cajaService.getCajaAbierta().get());
+        nuevoMovimiento.setCaja(caja);
+        return nuevoMovimiento;
+    }
+    
+    @Transactional
+    private void actualizarSaldoAnticipo(Long idAnticipo, int montoReembolsado){
+        anticipoService.actualizarSaldoAnticipo(idAnticipo, montoReembolsado);
+        
+    }
+
+    @Override
+    public MovimientoEntity saveMovimiento(MovimientoCreationDTO movimientoDTO, CajaEntity caja) {
+        movimientoDTO.getMovimiento().setCaja(caja);
+        MovimientoEntity nuevoMovimiento = movimientoRepository.save(movimientoDTO.getMovimiento());
+        
+        pagoService.savePagos(nuevoMovimiento, movimientoDTO.getPago());
+        
         return nuevoMovimiento;
     }
     
     @Override
-    public EstadoEntity getEstadoPagoPedido(Long idPedido) {
+    public MovimientoEntity saveMovimiento(VentaEntity ventaEntity) {
 
-        PedidoMontoPagadoDTO pedido = getMontoPagadoPedido(idPedido);
- 
-        EstadoEntity estadoPago = new EstadoEntity();
-        if(pedido.getTotalPagos() >= pedido.getTotal()){
-            estadoPago.setId((long)2);
-        }else if(pedido.getTotalPagos() > 0){
-            estadoPago.setId((long)7);   
-        }else{
-            estadoPago.setId((long)1);
-        }
-        return estadoPago;
-    }
-
-    @Transactional
-    @Override
-    public void deleteMovimiento(Long id) {
-        MovimientoEntity movimiento = movimientoRepository.findById(id).get();
-        pagoService.deletePagosByMovimiento(id);
-        if(movimiento.getVenta() == null && movimiento.getCompra() == null ){
-            movimientoRepository.deleteById(id);
-        }else{
-            movimiento.setEstado('P');
-            movimiento.setCaja(null);
-            movimientoRepository.save(movimiento);
-            
-            if(movimiento.getVenta() !=null && movimiento.getVenta().getPedido() != null){
-                //Se actualiza estado de pago del Pedido
-                EstadoEntity estadoPago = getEstadoPagoPedido(movimiento.getVenta().getPedido().getId());
-                pedidoService.updateEstadoPagoPedido( movimiento.getVenta().getPedido(), estadoPago);
-            }
-            
-            if(movimiento.getCompra()!= null){
-                cambiarEstadoPagoCompra(movimiento.getCompra().getId(), PENDIENTE);
-            }
-            
-        }
+        MovimientoEntity movimiento = crearMovimiento(ventaEntity);
+        MovimientoEntity nuevoMovimiento = movimientoRepository.save(movimiento);
+        
+        return nuevoMovimiento;
+        
     }
     
-    @Transactional
     @Override
-    public void deleteVenta(Long id) {
-       
-
-        //Se obtiene el movimiento de caja correspondiente al anticipo
-        MovimientoEntity movimiento = movimientoRepository.findByIdVenta(id);
-
-         // Se elimina el movimiento      
-        movimientoRepository.deleteById(movimiento.getId());       
-
+    public MovimientoEntity crearMovimiento(VentaEntity venta) {
+        MovimientoEntity nuevoMovimiento = new MovimientoEntity();
+        
+        nuevoMovimiento.setVenta(venta);
+        nuevoMovimiento.setMonto(venta.getMontoTotal());
+        nuevoMovimiento.setNroDocumento(venta.getNroFactura());
+        nuevoMovimiento.setEstado(Estado.PENDIENTE.getCodigo());       
+        nuevoMovimiento.setFecha(venta.getFecha());
+        nuevoMovimiento.setConcepto(new ConceptoEntity((long)3,"VENTA"));  
+        
+        return nuevoMovimiento;
+    }
+    
+    @Override
+    public MovimientoEntity saveMovimiento(CompraEntity compraEntity) {
+    
+        MovimientoEntity movimiento = crearMovimiento(compraEntity);
+        MovimientoEntity nuevoMovimiento = movimientoRepository.save(movimiento);
+        
+        return nuevoMovimiento;
+    }
+    
+    @Override
+    public MovimientoEntity crearMovimiento(CompraEntity compraEntity) {
+        MovimientoEntity nuevoMovimiento = new MovimientoEntity();
+        
+        nuevoMovimiento.setCompra(compraEntity);
+        nuevoMovimiento.setMonto(compraEntity.getTotal());
+        nuevoMovimiento.setNroDocumento(compraEntity.getNroFactura());
+        nuevoMovimiento.setEstado(Estado.PENDIENTE.getCodigo());
+        nuevoMovimiento.setFecha(compraEntity.getFecha());
+        nuevoMovimiento.setConcepto(new ConceptoEntity((long)6,"COMPRA"));  
+        
+        return nuevoMovimiento;
     }
 
-
     @Transactional
     @Override
+    public MovimientoEntity savePagosFactura(MovimientoCreationDTO movimientoDTO, CajaEntity caja) {
+
+        MovimientoEntity movimiento = movimientoRepository.findById(movimientoDTO.getMovimiento().getId())
+                .orElseThrow(() -> new RuntimeException("Movimiento no existe"));
+        
+        System.out.println("SAVEPAGOSMOVIMIENTOID");
+        System.out.println(movimiento.getId());
+        actualizarMovimiento(movimiento, caja);
+        MovimientoEntity nuevoMovimiento = movimientoRepository.save(movimiento);
+
+        pagoService.savePagos(nuevoMovimiento, movimientoDTO.getPago());
+
+        gestionarPagoVenta(nuevoMovimiento);
+        gestionarPagoCompra(nuevoMovimiento);
+        
+        return nuevoMovimiento;
+    }
+    
+    public void cambiarEstadoPagoCompra(Long idCompra, char estado) {
+        // Publicar el evento
+        FacturaCompraPagadoEvent evento = new FacturaCompraPagadoEvent(idCompra, estado);
+        eventPublisher.publishEvent(evento);
+    }
+    
+    public void cambiarEstadoPagoVenta(Long idVenta, char estado) {
+        // Publicar el evento
+        FacturaVentaPagadoEvent evento = new FacturaVentaPagadoEvent(idVenta, estado);
+        eventPublisher.publishEvent(evento);
+    }
+
+    @Override
     public void deleteAnticipo(Long id) {
+        //Se obtiene los reembolsos del anticipo
+        List<Long> reembolsosAnticipo = anticipoService.getIdReembolsosAnticipo(id);
+     
+        if(!reembolsosAnticipo.isEmpty()){
+            //Se obtiene los movimientos de los reembolsos
+            deleteReembolsos(reembolsosAnticipo);
+        }
+        
         //Se obtiene el anticipo
         AnticipoEntity anticipo = anticipoService.findById(id).get();
 
@@ -283,40 +263,17 @@ public class MovimientoServiceImpl implements MovimientoService {
          // Se elimina el movimiento      
         movimientoRepository.deleteById(movimiento.getId());
         
-        //Se actualiza estado de pago del Pedido
-        EstadoEntity estadoPago = getEstadoPagoPedido(anticipo.getPedido().getId());
-        pedidoService.updateEstadoPagoPedido( anticipo.getPedido(), estadoPago);
+        //Se guarda pedido
+        Long idPedido = anticipo.getIdPedido();
+        char tipoPedido = anticipo.getTipoPedido();
        
         //Se elimina el anticipo
         anticipoService.deleteAnticipo(id);
         
-
+        //Se actualiza estado de pago del Pedido
+        actualizarEstadoPedido(idPedido, 
+                tipoPedido, TipoEvento.ANTICIPO_ELIMINADO);
     }
-    
-    @Transactional
-     @Override
-    public void deleteAnticipoConReembolsos(Long id) {
-
-        //Se obtiene los reembolsos del anticipo
-        List<Long> reembolsosAnticipo = anticipoService.getIdReembolsosAnticipo(id);
-     
-        //Se obtiene los movimientos de los reembolsos
-        List<Long> movimientos = movimientoRepository.findByIdsReembolsos(reembolsosAnticipo);
-       
-        //Se eliminan los detalles de pago de los movimientos
-        pagoService.deletePagosByMovimientos(movimientos);
-   
-        //Se eliminan los movimientos
-        movimientoRepository.deleteByIds(movimientos);
-
-        //Se eliminan los reembolsos
-        reembolsoService.deleteReembolsos(reembolsosAnticipo);
-    
-        deleteAnticipo(id);
-       
-        
-    }
-    
     
     @Override
     @Transactional
@@ -329,131 +286,88 @@ public class MovimientoServiceImpl implements MovimientoService {
          // Se elimina el movimiento      
         movimientoRepository.deleteById(movimiento.getId());
         
-        AnticipoEntity anticipo= new AnticipoEntity();
-        
-        anticipo.setReembolsado(reembolso.getAnticipo().getReembolsado() - reembolso.getMonto());
-        anticipo.setSaldo(reembolso.getAnticipo().getSaldo() + reembolso.getMonto() );
-       
-        anticipoService.updateAnticipo(anticipo, reembolso.getAnticipo().getId());
-        
-        EstadoEntity estadoPago = getEstadoPagoPedido(reembolso.getAnticipo().getPedido().getId());
-        pedidoService.updateEstadoPagoPedido( reembolso.getAnticipo().getPedido(), estadoPago);
+        actualizarSaldoAnticipo(reembolso.getAnticipo().getId(), reembolso.getMonto());
         
         reembolsoService.deleteReembolso(id);
       
         
     }
     
-
-
     @Override
-    public List<PRUEBADTO> pr(Long id) {
-        return movimientoRepository.prueba(id);
-    }
+    public void deleteReembolsos(List<Long> ids){
+        List<Long> movimientos = movimientoRepository.findByIdsReembolsos(ids);
+            
+        //Se eliminan los detalles de pago de los movimientos
+        pagoService.deletePagosByMovimientos(movimientos);
 
-    @Override
-    public MovimientoEntity saveMovimiento(ReembolsoEntity reembolsoEntity, List<PagoEntity> pagos) {
+        //Se eliminan los movimientos
+        movimientoRepository.deleteByIds(movimientos);
         
-        ReembolsoEntity reembolso = reembolsoService.saveReembolso(reembolsoEntity);
-        
-        MovimientoEntity movimiento = crearMovimiento(reembolso);
-        MovimientoEntity nuevoMovimiento = movimientoRepository.save(movimiento);
-        pagoService.savePagos(nuevoMovimiento, pagos);
-        
-        EstadoEntity estadoPago = getEstadoPagoPedido(reembolso.getAnticipo().getPedido().getId());
-        pedidoService.updateEstadoPagoPedido( reembolso.getAnticipo().getPedido(), estadoPago);
-        
-        actualizarSaldoAnticipo(reembolso.getAnticipo(), reembolso);
-        return nuevoMovimiento;
+        //Se eliminan los reembolsos
+        reembolsoService.deleteReembolsos(ids);
     }
     
-    public void actualizarSaldoAnticipo(AnticipoEntity anticipoReembolsar, ReembolsoEntity reembolso) {
-        
-        anticipoReembolsar.setReembolsado(anticipoReembolsar.getReembolsado() + reembolso.getMonto());
-        anticipoReembolsar.setSaldo(anticipoReembolsar.getSaldo() - reembolso.getMonto());
-    
-        
-        anticipoService.updateAnticipo(anticipoReembolsar, anticipoReembolsar.getId());
-    }
-  
     @Override
-    public PedidoMontoPagadoDTO getMontoPagadoPedido(Long id) {
-        Optional<PedidoEntity> pedido = pedidoService.findById(id);
-        if(pedido.isEmpty()){
-            return null;
+    public void deleteMovimiento(Long id) {
+        movimientoRepository.deleteById(id);
+    }
+    
+    @Override
+    public void deleteVenta(Long idVenta) {
+
+        //Se obtiene el movimiento de caja correspondiente a la venta
+        MovimientoEntity movimiento = movimientoRepository.findByIdVenta(idVenta);
+       
+        List<PagoEntity> pagos = pagoService.findByIdMovimiento(movimiento.getId());
+
+        if(!pagos.isEmpty()){
+            throw new RuntimeException("Debe eliminar los pagos para eliminar el movimiento");
+        }
+
+         // Se elimina el movimiento      
+        movimientoRepository.deleteById(movimiento.getId());
+        
+    }
+    
+
+    @Transactional
+    public void actualizarEstadoPedido(Long idPedido, char tipoPedido, TipoEvento tipoEvento) {       
+        if (idPedido == null || (tipoPedido != 'V' && tipoPedido != 'C')) {
+            throw new IllegalArgumentException("Parámetros inválidos: idPedido o tipoPedido");
+        }
+        System.out.println("ACTUALIZARESTADOPEDIDO");
+        if(tipoPedido == TipoPedido.PEDIDOCOMPRA.getCodigo() ){
+            /*System.out.println("UIF");
+            PedidoCompraEvent evento = new PedidoCompraEvent(idPedido, tipoEvento);
+            eventPublisher.publishEvent(evento);*/
+        }else{
+            System.out.println("ELSE");
+            PedidoEvent evento = new PedidoEvent(idPedido, tipoEvento);
+            eventPublisher.publishEvent(evento);
         }
         
-        Optional<PedidoMontoPagadoDTO> pagosPedido = pagoService.getPagosPedido(id);
-        if(pagosPedido.isPresent()){
-            return pagosPedido.get();
+    }
+    
+    private void actualizarMovimiento(MovimientoEntity movimiento, CajaEntity caja) {
+        movimiento.setCaja(caja);
+        movimiento.setEstado(Estado.PAGOCOMPLETO.getCodigo());
+    }
+
+    private void gestionarPagoVenta(MovimientoEntity movimiento) {
+
+        if (movimiento.getVenta() != null) {
+            cambiarEstadoPagoVenta(movimiento.getVenta().getId(), Estado.PAGOCOMPLETO.getCodigo());
+
         }
-        return new PedidoMontoPagadoDTO(id, pedido.get().getTotal(), (long)0);
-             
-    }
-    
-
-
-    @Override
-    public Long validarEliminacionPedido(Long id) {
-        return movimientoRepository.validateOrderDeletion(id);
     }
 
-    @Override
-    public List<MovimientoEntity> getFacturasPendientes() {
-        return movimientoRepository.getFacturasPendientes();
-    }
-    
-    @Override
-    public char getEstadoPago(VentaEntity ventaEntity) {
+    private void gestionarPagoCompra(MovimientoEntity movimiento) {
 
-         MovimientoEntity movimiento = movimientoRepository.findByIdVenta(ventaEntity.getId());
-         if(movimiento != null){
-             return movimiento.getEstado();
-         }
-         
-         return 'S';
-         
-
+        if (movimiento.getCompra() != null) {
+            cambiarEstadoPagoCompra(movimiento.getCompra().getId(), Estado.PAGOCOMPLETO.getCodigo());
+        }
     }
     
-    @Override
-    public MovimientoEntity saveMovimiento(CompraEntity compraEntity) {
-     
-        
-        MovimientoEntity movimiento = crearMovimiento(compraEntity);
-        MovimientoEntity nuevoMovimiento = movimientoRepository.save(movimiento);
-        
-        return nuevoMovimiento;
-        
-    }
     
-    @Override
-    public MovimientoEntity crearMovimiento(CompraEntity compraEntity) {
-        CajaEntity caja = cajaService.getCaja();
-        MovimientoEntity nuevoMovimiento = new MovimientoEntity();
-        
-        nuevoMovimiento.setCompra(compraEntity);
-        nuevoMovimiento.setMonto(compraEntity.getTotal());
-        
-        nuevoMovimiento.setNroDocumento(compraEntity.getNroFactura());
-        nuevoMovimiento.setEstado('P');
-        //nuevoMovimiento.setCaja(caja);
-        //if(anular){
-          //  nuevoMovimiento.setFecha(new Date());
-          //  nuevoMovimiento.setConcepto(new ConceptoEntity((long)11,"ANULACION"));
-        //}else{          
-            nuevoMovimiento.setFecha(compraEntity.getFecha());
-            nuevoMovimiento.setConcepto(new ConceptoEntity((long)6,"COMPRA"));  
-        //}
-        
-        return nuevoMovimiento;
-    }
-    
-    public void cambiarEstadoPagoCompra(Long idCompra, char estado) {
-        
-        // Publicar el evento
-        PagoRegistradoEvent evento = new PagoRegistradoEvent(this, idCompra, estado);
-        eventPublisher.publishEvent(evento);
-    }
     
 }

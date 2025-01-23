@@ -91,7 +91,7 @@ public interface PagoRepository extends JpaRepository<PagoEntity,Long> {
             + "WHERE p.id = ?1  "
             + "GROUP BY p.id"
            )*/
-    @Query(
+   /* @Query(
     "SELECT new com.krazystore.krazystore.DTO.PedidoMontoPagadoDTO(p.id as id, p.total, SUM(CASE WHEN f.descripcion <> 'Anticipo' AND c.descripcion <> 'Reembolso' AND c.descripcion <> 'Anulación de Factura' THEN p1.importe ELSE 0 END) - SUM(CASE WHEN f.descripcion <> 'Anticipo' AND (c.descripcion = 'Reembolso' OR c.descripcion = 'Anulación de Factura') THEN p1.importe ELSE 0 END) ) "
             + " FROM PagoEntity p1 "
             + "LEFT JOIN p1.formaPago f "
@@ -109,7 +109,7 @@ public interface PagoRepository extends JpaRepository<PagoEntity,Long> {
             + "WHERE p.id = ?1  "
             + "GROUP BY p.id"
            )
-    public Optional<PedidoMontoPagadoDTO> getPagosPedido(Long id);
+    public Optional<PedidoMontoPagadoDTO> getPagosPedido(Long id);*/
     
     @Query(
     "SELECT p FROM PagoEntity p "

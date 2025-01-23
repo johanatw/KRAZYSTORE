@@ -25,7 +25,7 @@ public interface InventarioRepository extends JpaRepository<InventarioEntity, Lo
         + "WHERE i.id = ?1")
     Optional<InventarioDTO> findInventario(Long id);
 
-    @Query("SELECT new com.krazystore.krazystore.DTO.DetalleInventarioDTO(d.id, p.id, p.nombre, p.categoria.id, p.categoria.descripcion, d.cantStock, d.cantContada, d.diferencia) "
+    @Query("SELECT new com.krazystore.krazystore.DTO.DetalleInventarioDTO(d.id, p.id, p.nombre, p.categoria.id, p.categoria.descripcion, p.cantStock, d.cantContada, p.cantStock - d.cantContada) "
             + "FROM DetalleInventario d "
             + "JOIN d.producto p "
             + "WHERE d.inventario.id = ?1")

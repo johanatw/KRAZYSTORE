@@ -6,7 +6,9 @@ package com.krazystore.krazystore.Repository;
 
 import com.krazystore.krazystore.DTO.Pedido;
 import com.krazystore.krazystore.DTO.PedidoDTO;
+import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.PedidoEntity;
+import com.krazystore.krazystore.Entity.VentaEntity;
 import java.util.List;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -36,7 +38,17 @@ public interface PedidoRepository extends JpaRepository<PedidoEntity, Long>{
 //  nativeQuery = true)
 //        List<Pedido> findAllPedidos();
 //    }
-@Query(nativeQuery = true)
+@Query(
+    "SELECT new com.krazystore.krazystore.DTO.PedidoDTO(p.id, p.fecha, p.total, c.nombre, c.telefono, p.estadoPedido, "
+            + "sum(CASE WHEN o.preVenta THEN t.cantidad ELSE 0 END), sum(t.cantidad) ) "
+            + "FROM PedidoEntity p "
+           + "LEFT JOIN p.cliente as c "
+            + "LEFT JOIN DetallePedidoEntity t "
+            + "ON t.pedido = p "
+            + "LEFT JOIN t.producto o "
+            + "GROUP BY  p.id, p.fecha, p.total, c.nombre, c.telefono, p.estadoPedido "
+            + "ORDER BY p.id DESC"
+           )
         List<PedidoDTO> findAllPedidos();
         
         
@@ -59,6 +71,22 @@ public interface PedidoRepository extends JpaRepository<PedidoEntity, Long>{
 "Group by p.id_pedido ", 
   nativeQuery = true)
     public boolean existenAnticiposAsociados(Long id);
-    }
+    
+    @Query(
+    "SELECT f "
+            + "FROM VentaEntity f "
+            + "JOIN f.pedido p "
+            + "WHERE p.id = ?1 "
+           )
+        List<VentaEntity> getFacturas(Long id);
+        
+    @Query(
+    "SELECT a "
+            + "FROM AnticipoEntity a "
+            + "WHERE a.idPedido = ?1 AND a.tipoPedido = 'V' "
+           )
+        List<AnticipoEntity> getAnticipos(Long id);
+        
+}
 
 

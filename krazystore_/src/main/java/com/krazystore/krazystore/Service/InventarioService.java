@@ -17,7 +17,7 @@ import java.util.Optional;
  */
 public interface InventarioService {
     List<InventarioDTO> findAll();
-    Optional<InventarioDTO> findById(Long id);
+    InventarioCreationDTO findById(Long id);
     InventarioEntity saveInventario (InventarioCreationDTO inventarioDTO) throws Exception;
     InventarioEntity updateInventario(InventarioCreationDTO inventarioDTO, Long id)throws Exception;
     void deleteInventario(Long id);

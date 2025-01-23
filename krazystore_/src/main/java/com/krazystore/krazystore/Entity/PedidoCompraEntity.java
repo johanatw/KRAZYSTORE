@@ -38,18 +38,16 @@ public class PedidoCompraEntity {
     @ManyToOne
     @JoinColumn(name = "id_proveedor")
     private ProveedorEntity proveedor;
-    @Column
-    private char estado;
+    @Column(name = "estado")
+    private Character estadoPedido;
 
-    public char getEstado() {
-        return estado;
+    public Character getEstadoPedido() {
+        return estadoPedido;
     }
 
-    public void setEstado(char estado) {
-        this.estado = estado;
+    public void setEstadoPedido(Character estadoPedido) {
+        this.estadoPedido = estadoPedido;
     }
-    
-    
 
     public Long getId() {
         return id;

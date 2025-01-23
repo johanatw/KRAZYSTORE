@@ -35,11 +35,6 @@ public class PedidoController {
     public Optional<PedidoEntity> findById(@PathVariable("id") Long id) {
         return pedidoService.findById(id);
     }
-    
-    @GetMapping("/pedido/{id}")
-    public int verificarPedidoEstado(@PathVariable("id") Long id) {
-        return pedidoService.verificarPedidoEstado(id);
-    }
 
     @PostMapping
     public PedidoEntity savePedido(@RequestBody PedidoCreationDTO pedidoCreationDTO) {
@@ -53,8 +48,8 @@ public class PedidoController {
     }
 
     @DeleteMapping("/{id}")
-    public int deletePedido(@PathVariable("id") Long id) {
-        return pedidoService.deletePedido(id);
+    public void deletePedido(@PathVariable("id") Long id) {
+        pedidoService.deletePedido(id);
     }
 
     

@@ -21,7 +21,7 @@ import { useConfirm } from "primevue/useconfirm";
 import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
 import InputGroup from 'primevue/inputgroup';
-import {formatearNumero, existeCajaAbierta} from '@/utils/utils';
+import {formatearNumero, formatearFecha} from '@/utils/utils';
 
 const inventarios= ref();
 
@@ -30,19 +30,12 @@ const toast = useToast();
 async function getInventarios() {
     InventarioServices.obtenerInventarios().then((data) => {
        inventarios.value = data.data;
+       console.log(inventarios.value);
    });
  
 }
 
-
-
-
-
-
-//Otros
-
 onMounted(() => {
-   // name();
     getInventarios();
 });
 
@@ -74,9 +67,6 @@ const getEstado = (estado) => {
 const ajustarInventario = (id) =>{
     InventarioServices.ajustarInventario(id).then((data)=> {
         
-        //closeDialog();
-        //emit('anticipoGuardado', data.data.id);
-        
     } );
 }
 
@@ -89,7 +79,6 @@ const ajustarInventario = (id) =>{
 </style>
 
 <template>
-
     <div class=" flex p-fluid justify-content-center " >
         <Toast />
         <!--Pantalla Principal Lista de Cajas-->
@@ -112,15 +101,14 @@ const ajustarInventario = (id) =>{
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 
                 currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros" >
                 <template #empty> No customers found. </template>
-            <template #loading> Loading customers data. Please wait. </template>
+                <template #loading> Loading customers data. Please wait. </template>
                     <Column field="id" sortable header="N°" aria-sort="ascending" ></Column>
                     <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
                         <template #body="slotProps">
-                            {{ formatearNumero(slotProps.data.fecha) }}
+                            {{ formatearFecha(slotProps.data.fecha) }}
                         </template>
                     </Column>
                     <Column  field="estado" header="Estado" aria-sort="ascending" sortable >
-                        
                         <template #body="slotProps">
                             {{ getEstado(slotProps.data.estado) }}
                         </template>
@@ -129,7 +117,6 @@ const ajustarInventario = (id) =>{
                         <template #body="slotProps">
                             <Button icon="pi pi-search" text rounded aria-label="Search" style="height: 2rem !important; width: 2rem !important;" @click="verInventario(slotProps.data.id)" />
                             <Button v-if="slotProps.data.estado == 'F'" icon="pi pi-cog" text rounded aria-label="Search" style="height: 2rem !important; width: 2rem !important;" @click="ajustarInventario(slotProps.data.id)" />
-                       
                         </template>
                     </Column>
                 </DataTable>

@@ -8,10 +8,10 @@ package Utils;
  *
  * @author HP
  */
-public enum TipoEventoExistencias {
-    FACTURACION_PRODUCTOS,
-    FACTURACION_PEDIDOS,
-    ACTUALIZAR_RESERVAS,
-    RECEPCIONAR_PRODUCTOS,
-    AJUSTAR_INVENTARIO
+public class FacturaVentaPagadoEvent extends PagoRegistradoEvent {
+
+    public FacturaVentaPagadoEvent(Long facturaId, char estado) {
+        super(facturaId, estado);
+    }
+    
 }

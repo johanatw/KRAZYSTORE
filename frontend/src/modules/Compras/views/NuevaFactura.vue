@@ -379,6 +379,10 @@ const eliminar = (detalle) => {
  
  }
 
+ const verCompra = (id) =>{
+    router.push({name: 'ver_compra', params: {id}});
+    
+}
 
   const guardarFactura = () =>{
     if (!error.value){
@@ -392,13 +396,14 @@ const eliminar = (detalle) => {
         console.log("saveanticipothen");
         console.log("data");
         let id = data.data.id;
-        //verPedidoCompra(id);
+        verCompra(id);
         //closeDialog();
         //emit('anticipoGuardado', data.data.id);
         
     } );
 }
 }
+
 
 
 </script>

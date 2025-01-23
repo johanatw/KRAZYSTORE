@@ -16,6 +16,7 @@ import { ref, onMounted } from "vue";
 import InputNumber from 'primevue/inputnumber';
 import InputGroup from 'primevue/inputgroup';
 import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import { CajaServices } from "@/services/CajaServices";
 import Panel from 'primevue/panel';
 import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';

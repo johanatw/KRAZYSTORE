@@ -126,7 +126,7 @@ const getEstado = (estado) => {
        case 'N':
            return 'Pendiente de Pago';
 
-       case 'P':
+       case 'C':
            return 'Pagado';
 
        default:

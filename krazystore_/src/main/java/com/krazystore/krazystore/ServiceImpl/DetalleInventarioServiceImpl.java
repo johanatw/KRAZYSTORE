@@ -34,7 +34,7 @@ public class DetalleInventarioServiceImpl implements DetalleInventarioService{
     @Transactional
     @Override
     public List<DetalleInventario> findByIdInventario(Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return detalleRepository.findAllByIdInventario(id);
     }
 
     @Transactional
@@ -148,8 +148,6 @@ public class DetalleInventarioServiceImpl implements DetalleInventarioService{
                     }*/
                     
                     actual.get().setId(anterior.getId());
-                    actual.get().setInventario(anterior.getInventario());
-                    actual.get().setDiferencia(actual.get().getCantContada() - actual.get().getCantStock());
                     
                     elementos.add(actual.get());
                 }
@@ -161,7 +159,6 @@ public class DetalleInventarioServiceImpl implements DetalleInventarioService{
     }
     
     public List<DetalleInventario> getElementosRegistrar (List<DetalleInventario> anteriorDetalle, List<DetalleInventario> actualDetalle) {
-        InventarioEntity inventario = anteriorDetalle.get(0).getInventario();
         List<DetalleInventario> elementos = new ArrayList<>();
                            
         // Recorre detalle anterior
@@ -171,9 +168,7 @@ public class DetalleInventarioServiceImpl implements DetalleInventarioService{
                     .anyMatch(anterior -> Objects.equals(actual.getProducto().getId(), anterior.getProducto().getId()));
 
             // Si no existe en el detalle anterior, se intenta registrar
-            if (!existe) {
-                actual.setInventario(inventario);
-              
+            if (!existe) {              
                 elementos.add(actual);
             }
         });
@@ -181,15 +176,13 @@ public class DetalleInventarioServiceImpl implements DetalleInventarioService{
         return elementos;
     }
     
-    @Override
-    public List<DetalleInventarioDTO> getDetallesInventarioIniciales() {
-
-        return detalleRepository.getDetallesInventarioIniciales();
-    }
     
     @Override
     public List<DetalleInventario> obtenerDetallesCompletos(Long id) {
-
+        System.out.println("obtenercompleto");
+        detalleRepository.obtenerDetallesCompletos(id).forEach(d -> {
+            System.out.println(d.getProducto().getNombre());
+        });
         return detalleRepository.obtenerDetallesCompletos(id);
     }
     
@@ -213,6 +206,11 @@ public class DetalleInventarioServiceImpl implements DetalleInventarioService{
         
         return productosActualizarExistencias;
 
+    }
+
+    @Override
+    public List<DetalleInventario> getDetallesInventarioIniciales() {
+       return detalleRepository.getDetallesInventarioIniciales();
     }
     
 }

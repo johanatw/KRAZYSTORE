@@ -141,6 +141,11 @@ const search = (event) => {
     }, 10);
 }
 
+const verCompra = (id) =>{
+    router.push({name: 'ver_compra', params: {id}});
+    
+}
+
 const mostrarCliente = () =>{
     console.log(selectedCliente.value);
     let texto = selectedCliente.value.descripcion;
@@ -366,7 +371,7 @@ const eliminar = (detalle) => {
         console.log("saveanticipothen");
         console.log("data");
         let id = data.data.id;
-        //verPedidoCompra(id);
+        verCompra(id);
         //closeDialog();
         //emit('anticipoGuardado', data.data.id);
         

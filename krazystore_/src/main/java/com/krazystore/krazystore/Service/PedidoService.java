@@ -20,7 +20,5 @@ public interface PedidoService {
     Optional<PedidoEntity> findById(Long id);
     PedidoEntity savePedido(PedidoEntity pedido, List<DetallePedidoEntity> detalle);
     PedidoEntity updatePedido(PedidoEntity pedidoEntity, List<DetallePedidoEntity> detalle, Long id) throws Exception;
-    void updateEstadoPagoPedido(PedidoEntity pedido, EstadoEntity estado);
-    int deletePedido(Long id);
-    int verificarPedidoEstado(Long id);
+    void deletePedido(Long id);
 }

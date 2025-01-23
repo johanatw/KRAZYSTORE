@@ -17,23 +17,16 @@ public class InventarioDTO {
     private Long id;
     private char estado;
     private Date fecha;
-    private List<DetalleInventarioDTO> detalle;
-    private List<CategoriaEntity> filtrosInventario;
 
+    public InventarioDTO() {
+    }
+
+    
     public InventarioDTO(Long id, char estado, Date fecha) {
         this.id = id;
         this.estado = estado;
         this.fecha = fecha;
     }
-
-    public List<CategoriaEntity> getFiltrosInventario() {
-        return filtrosInventario;
-    }
-
-    public void setFiltrosInventario(List<CategoriaEntity> filtrosInventario) {
-        this.filtrosInventario = filtrosInventario;
-    }
-
     
     public Long getId() {
         return id;
@@ -59,13 +52,6 @@ public class InventarioDTO {
         this.fecha = fecha;
     }
 
-    public List<DetalleInventarioDTO> getDetalle() {
-        return detalle;
-    }
-
-    public void setDetalle(List<DetalleInventarioDTO> detalle) {
-        this.detalle = detalle;
-    }
     
     
 }

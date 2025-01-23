@@ -13,7 +13,7 @@ import java.util.List;
 
 public class ProductosReservadosEvent extends CambioExistenciasEvent{
 
-    public ProductosReservadosEvent(List<ProductoExistenciasDTO> productosActualizar, TipoEventoExistencias tipoEvento) {
+    public ProductosReservadosEvent(List<ProductoExistenciasDTO> productosActualizar, TipoEvento tipoEvento) {
         super(productosActualizar, tipoEvento);
     }
     

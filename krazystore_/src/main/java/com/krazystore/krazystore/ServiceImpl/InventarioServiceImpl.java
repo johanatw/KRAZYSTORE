@@ -6,7 +6,7 @@ package com.krazystore.krazystore.ServiceImpl;
 
 import Utils.Estado;
 import Utils.AjustarInventario;
-import Utils.TipoEventoExistencias;
+import Utils.TipoEvento;
 import com.krazystore.krazystore.DTO.DetalleInventarioDTO;
 import com.krazystore.krazystore.DTO.InventarioCreationDTO;
 import com.krazystore.krazystore.DTO.InventarioDTO;
@@ -15,11 +15,14 @@ import com.krazystore.krazystore.Entity.CategoriaEntity;
 import com.krazystore.krazystore.Entity.DetalleInventario;
 import com.krazystore.krazystore.Entity.InventarioEntity;
 import com.krazystore.krazystore.Entity.ProductoEntity;
+import com.krazystore.krazystore.Mapper.DetalleInventarioDTOMapper;
+import com.krazystore.krazystore.Mapper.DetalleInventarioMapper;
 import com.krazystore.krazystore.Repository.InventarioRepository;
 import com.krazystore.krazystore.Service.DetalleInventarioService;
 import com.krazystore.krazystore.Service.InventarioService;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -39,7 +42,11 @@ public class InventarioServiceImpl implements InventarioService {
         this.eventPublisher = eventPublisher;
     }
     
+    @Autowired
+    private DetalleInventarioDTOMapper detalleDTOMapper;
     
+    @Autowired
+    private DetalleInventarioMapper detalleMapper;
     
     @Autowired
     private DetalleInventarioService detalleService;
@@ -50,24 +57,38 @@ public class InventarioServiceImpl implements InventarioService {
     }
 
     @Override
-    public Optional<InventarioDTO> findById(Long id) {
-        Optional<InventarioDTO> inventario = inventarioRepository.findInventario(id);
+    public InventarioCreationDTO findById(Long id) {
+        Optional<InventarioEntity> inventario = inventarioRepository.findById(id);
+        InventarioCreationDTO inventarioDTO = new InventarioCreationDTO();
         if (inventario.isPresent()) {
-            List<DetalleInventarioDTO> detalles = inventarioRepository.findDetallesByIdInventario(id);
-            inventario.get().setDetalle(detalles);
+            List<DetalleInventarioDTO> detalles = detalleService.findByIdInventario(id)
+                .stream()
+                .map(detalleDTOMapper)
+                .collect(Collectors.toList());
+            
+            inventarioDTO.setDetalle(detalles);
+            inventarioDTO.setInventario(inventario.get());
         }
-        return inventario;
+        return inventarioDTO;
     }
 
     @Transactional
     @Override
     public InventarioEntity saveInventario(InventarioCreationDTO inventarioDTO) throws Exception {
-        List<DetalleInventario> detalle = inventarioDTO.getDetalle();
+        List<DetalleInventarioDTO> detalleDTO = inventarioDTO.getDetalle();
         InventarioEntity inventario = inventarioDTO.getInventario() ;
    
         inventario.setEstado(Estado.ENCURSO.getCodigo());
         InventarioEntity nuevoInventario = inventarioRepository.save(inventario);
-        if(!detalle.isEmpty()){
+        if(!detalleDTO.isEmpty()){
+            List<DetalleInventario> detalle = detalleDTO
+                .stream()
+                .map(detalleMapper)
+                .collect(Collectors.toList());
+            
+            // Establecer la relación bidireccional si es necesario
+            detalle.forEach(det -> det.setInventario(nuevoInventario));
+            
             detalleService.saveDetInventario(detalle, nuevoInventario.getId());
         }
         
@@ -77,20 +98,29 @@ public class InventarioServiceImpl implements InventarioService {
     @Transactional
     @Override
     public InventarioEntity updateInventario(InventarioCreationDTO inventarioDTO, Long id) throws Exception {
-        List<DetalleInventario> detalle = inventarioDTO.getDetalle();
-        InventarioEntity inventario = inventarioDTO.getInventario();
-        InventarioEntity updatedInventario = inventarioRepository.findById(id).get();
-        //No puede modificar si ya esta finalizado o ajustado
-        /*if(PAGADO == updatedCompra.getEstado()){
-            throw new BadRequestException("No se puede modificar " );
-        }*/
-        updatedInventario.setEstado(inventario.getEstado());
-        updatedInventario.setFecha(inventario.getFecha());
-        inventarioRepository.save(updatedInventario);
+        // Buscar el inventario existente o lanzar excepción
+        InventarioEntity inventario = inventarioRepository.findById(id)
+            .orElseThrow(() -> new Exception("El inventario con ID " + id + " no existe"));
         
-        detalleService.updateDetInventario(detalle, id);
+        // Actualizar campos del inventario
+        inventario.setFecha(inventarioDTO.getInventario().getFecha());
+        inventarioRepository.save(inventario);
         
-        return updatedInventario;
+        // Actualizar detalles si existen
+        List<DetalleInventarioDTO> detalleDTO = inventarioDTO.getDetalle();
+        if(detalleDTO != null && !detalleDTO.isEmpty()){
+            List<DetalleInventario> detalle = detalleDTO
+                .stream()
+                .map(detalleMapper)
+                .collect(Collectors.toList());
+            
+            // Establecer la relación bidireccional si es necesario
+            detalle.forEach(det -> det.setInventario(inventario));
+            
+            detalleService.updateDetInventario(detalle, id);
+        }
+        
+        return inventario;
     }
 
     @Transactional
@@ -100,17 +130,15 @@ public class InventarioServiceImpl implements InventarioService {
     }
     
     @Override
-    public List<DetalleInventarioDTO> getDetallesInventarioIniciales() {
-
-        return detalleService.getDetallesInventarioIniciales();
-    }
-    
-    @Override
     public InventarioCreationDTO obtenerDetallesCompletos(Long id) {
         InventarioCreationDTO inventarioDTO = new InventarioCreationDTO();
         Optional<InventarioEntity> inventario = inventarioRepository.findById(id);
         if (inventario.isPresent()) {
-            List<DetalleInventario> detalles = detalleService.obtenerDetallesCompletos(id);
+            List<DetalleInventarioDTO> detalles = detalleService.obtenerDetallesCompletos(id)
+                .stream()
+                .map(detalleDTOMapper)
+                .collect(Collectors.toList());
+            
             List<CategoriaEntity> filtros = inventarioRepository.obtenerFiltros(id);
             inventarioDTO.setInventario(inventario.get());
             inventarioDTO.setDetalle(detalles);
@@ -136,8 +164,16 @@ public class InventarioServiceImpl implements InventarioService {
     
     public void actualizarExistencias(List<ProductoExistenciasDTO> productosActualizarExistencias) {
         // Publicar el evento
-        AjustarInventario evento = new AjustarInventario(productosActualizarExistencias, TipoEventoExistencias.AJUSTAR_INVENTARIO);
+        AjustarInventario evento = new AjustarInventario(productosActualizarExistencias, TipoEvento.AJUSTAR_INVENTARIO);
         eventPublisher.publishEvent(evento);
+    }
+
+    @Override
+    public List<DetalleInventarioDTO> getDetallesInventarioIniciales() {
+        return detalleService.getDetallesInventarioIniciales()
+                .stream()
+                .map(detalleDTOMapper)
+                .collect(Collectors.toList());
     }
     
 }

@@ -22,9 +22,7 @@ import lombok.NoArgsConstructor;
  */
 @Entity
 @Table(name = "detalle_inventario")
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
+
 public class DetalleInventario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,18 +40,40 @@ public class DetalleInventario {
     private int cantContada;
     @Column
     private int diferencia;
-    
-    public DetalleInventario(Long id, Long idProducto, String producto, Long idCategoria, String categoria, int cantStock, int cantContada) {
-        this.id = id;
-        this.producto = new ProductoEntity();
-        this.producto.setId(idProducto);
-        this.producto.setNombre(producto);
-        this.producto.setCategoria(new CategoriaEntity(idCategoria, categoria));
-        this.cantStock = cantStock;
-        this.cantContada = cantContada;
-        this.diferencia = this.cantContada - this.cantStock;
+
+    public DetalleInventario(ProductoEntity producto) {
+        this.producto = producto;
+        this.cantStock = 0;
+        this.cantContada = 0;
+        this.diferencia = 0;
     }
 
+    public DetalleInventario() {
+    }
+
+    public DetalleInventario(Long id, InventarioEntity inventario, ProductoEntity producto, int cantStock, int cantContada, int diferencia) {
+        this.id = id;
+        this.inventario = inventario;
+        this.producto = producto;
+        this.cantStock = cantStock;
+        this.cantContada = cantContada;
+        this.diferencia = diferencia;
+    }
+
+    public DetalleInventario(Long id, ProductoEntity producto) {
+        this.id = id;
+        this.producto = producto;
+    }
+
+    public DetalleInventario(Long id, ProductoEntity producto, int cantStock, int cantContada, int diferencia) {
+        this.id = id;
+        this.producto = producto;
+        this.cantStock = cantStock;
+        this.cantContada = cantContada;
+        this.diferencia = diferencia;
+    }
+    
+    
     public Long getId() {
         return id;
     }

@@ -8,13 +8,12 @@ package Utils;
  *
  * @author HP
  */
-import org.springframework.context.ApplicationEvent;
-public class PagoRegistradoEvent extends ApplicationEvent{
+
+public abstract class PagoRegistradoEvent {
     private Long facturaId;
     private char estado;
     
-    public PagoRegistradoEvent(Object source, Long facturaId, char estado) {
-        super(source);
+    public PagoRegistradoEvent(Long facturaId, char estado) {
         this.facturaId = facturaId;
         this.estado = estado;
     }

@@ -138,7 +138,13 @@ const items = ref([
                     router.push({name: 'inventario'});
                 }
             },
-          
+            {
+                label: 'Ajustes de Stock',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'ajustes'});
+                }
+            },
 
         ]
     },

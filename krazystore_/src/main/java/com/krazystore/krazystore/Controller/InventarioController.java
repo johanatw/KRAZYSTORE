@@ -46,7 +46,7 @@ public class InventarioController {
     }
 
     @GetMapping("/{id}")
-    public Optional<InventarioDTO> findById(@PathVariable("id") Long id) {
+    public InventarioCreationDTO findById(@PathVariable("id") Long id) {
         return inventarioService.findById(id);
     }
     

@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.ServiceImpl;
 
+import Utils.TipoPedido;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 
 import com.krazystore.krazystore.Entity.MovimientoEntity;
@@ -11,7 +12,7 @@ import com.krazystore.krazystore.Entity.PagoEntity;
 import com.krazystore.krazystore.Entity.PedidoEntity;
 import com.krazystore.krazystore.Repository.AnticipoRepository;
 import com.krazystore.krazystore.Service.AnticipoService;
-import com.krazystore.krazystore.Service.MovimientoService;
+
 
 import com.krazystore.krazystore.Service.PedidoService;
 
@@ -53,6 +54,7 @@ import java.util.logging.Logger;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -117,6 +119,17 @@ public class AnticipoServiceImpl implements AnticipoService{
     }
     
    
+    @Transactional
+    @Override
+    public AnticipoEntity actualizarSaldoAnticipo(Long idAnticipo, int montoReembolsado){
+        AnticipoEntity anticipo= anticipoRepository.findById(idAnticipo)
+                .orElseThrow(() -> new RuntimeException("Anticipo no encontrado"));
+        
+        anticipo.setReembolsado(anticipo.getReembolsado() + montoReembolsado);
+        anticipo.setSaldo(anticipo.getSaldo() - montoReembolsado );
+        
+        return anticipoRepository.save(anticipo);
+    }
     
     @Override
     public List<AnticipoEntity> updateAnticipos(List<AnticipoEntity> anticipos) {
@@ -442,8 +455,7 @@ public class AnticipoServiceImpl implements AnticipoService{
         document.add(table5);
         document.close();
         
-        anticipoEntity.setNombre(nombre);
-        anticipoEntity.setId(lastId+1);
+        
         anticipoEntity.setFecha(fecha);
         
         return anticipoEntity;
@@ -630,14 +642,15 @@ table3.addCell(new PdfPCell(new Phrase("sueño",fontH1))).setBorder(0);
     }
     
     @Override
-    public List<AnticipoEntity> findByIdPedido(Long id) {
-        return anticipoRepository.findByIdPedido(id);
+    public List<AnticipoEntity> findByIdPedido(Long id, TipoPedido tipoPedido) {
+        return anticipoRepository.findByIdPedido(id, tipoPedido.getCodigo());
     }
     
     @Override
     public boolean existsByPedido(PedidoEntity p) {
         
-        return anticipoRepository.existsByPedido(p);
+        //return anticipoRepository.existsByPedido(p);
+        return false;
     }
 
     @Override

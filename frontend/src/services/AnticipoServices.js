@@ -76,17 +76,29 @@ getCantidadPagado(idPedido, idProducto) {
     }
     
   },
-  getAnticipos(idPedido) {
+  getAnticiposByIdPedidoVenta(idPedido) {
     //console.log("detalle", pedido);
     try {
       console.log("7");
-    return axios.get(ANTICIPO_API_BASE_URL+'/pedido/'+idPedido);
+    return axios.get(ANTICIPO_API_BASE_URL+'/pedido_venta/'+idPedido);
     
     } catch (error) {
       console.log("8");
     console.log(error.name);
     }
     
+},
+getAnticiposByIdPedidoCompra(idPedido) {
+  //console.log("detalle", pedido);
+  try {
+    console.log("7");
+  return axios.get(ANTICIPO_API_BASE_URL+'/pedido_compra/'+idPedido);
+  
+  } catch (error) {
+    console.log("8");
+  console.log(error.name);
+  }
+  
 },
 deleteAnticipo(id){
   

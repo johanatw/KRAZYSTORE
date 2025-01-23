@@ -10,8 +10,23 @@ package Utils;
  */
 public enum Estado {
     NUEVO('N'),
+    PENDIENTEDEPAGO('P'),
+    PAGADO('C'),
+    CONANTICIPO('A'),
+    ANULADO('A'),
+    FACTURADO('F'),
+    PENDIENTEDEFACTURA('P'),
+    RECEPCINADO('R'),
+    PARCIALMENTERECEPCINADO('P'),
+    
     PENDIENTE('P'),
     FINALIZADO('F'),
+    PENDIENTEAJUSTE('P'),
+    AJUSTADO('A'),
+    PAGOCOMPLETO('C'),
+    
+    CAJACERRADA('C'),
+    CAJAABIERTA('A'),
     ENCURSO('S');
     
     private final char codigo;

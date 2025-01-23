@@ -211,7 +211,7 @@ public class PagoServiceImpl implements PagoService {
 
     @Override
     public Optional<PedidoMontoPagadoDTO> getPagosPedido(Long id) {
-        return pagoRepository.getPagosPedido(id);
-                
+        //return pagoRepository.getPagosPedido(id);
+                return null;
     }
 }

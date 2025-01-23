@@ -4,10 +4,13 @@
  */
 package com.krazystore.krazystore.ServiceImpl;
 
+import Utils.Estado;
+import Utils.FacturaVentaPagadoEvent;
+import Utils.NuevaFacturaVentaEvent;
 import Utils.NumberToLetterConverter;
 import Utils.PedidoFacturadoEvent;
 import Utils.ProductosFacturadosEvent;
-import Utils.TipoEventoExistencias;
+import Utils.TipoEvento;
 import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.ConceptoEntity;
@@ -23,8 +26,7 @@ import com.krazystore.krazystore.Repository.VentaRepository;
 import com.krazystore.krazystore.Service.AnticipoService;
 import com.krazystore.krazystore.Service.DetallePedidoService;
 import com.krazystore.krazystore.Service.DetalleVentaService;
-import com.krazystore.krazystore.Service.MovimientoService;
-import com.krazystore.krazystore.Service.PagoService;
+
 import com.krazystore.krazystore.Service.PedidoService;
 import com.krazystore.krazystore.Service.TimbradoService;
 import com.krazystore.krazystore.Service.VentaService;
@@ -60,6 +62,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,8 +84,7 @@ public class VentaServiceImpl implements VentaService{
     private DetalleVentaService detalleVentaService;
     
     
-    @Autowired
-    private MovimientoService movimientoService;
+  
     
     
     @Autowired
@@ -111,6 +113,7 @@ public class VentaServiceImpl implements VentaService{
         ventaEntity.setTimbrado(timbrado);
         ventaEntity.setNroFactura(timbradoService.getNroFactura(timbrado));
         //Guarda venta
+        ventaEntity.setEstado(Estado.PENDIENTEDEPAGO.getCodigo());
         VentaEntity venta = ventarepository.save(ventaEntity);
         //actualiza cantidad utilizado de timbrado
         timbrado.setCantUtilizada(timbrado.getCantUtilizada() + 1);
@@ -121,7 +124,7 @@ public class VentaServiceImpl implements VentaService{
         List<ProductoExistenciasDTO> productosActualizarExistencias = detalleVentaService.saveDetalleVenta(venta, detalle);
         
         //Guarda Movimiento en caja
-        movimientoService.saveMovimiento(venta);
+        notificarFacturaVentaPendiente(venta);
         
         //Si la factura viene de un pedido
         if(venta.getPedido() != null){
@@ -162,22 +165,13 @@ public class VentaServiceImpl implements VentaService{
     public int anularFactura(Long id) {
         
         VentaEntity facturaVenta = ventarepository.findById(id).get();
-        char pagado = movimientoService.getEstadoPago(facturaVenta);
-        
-        switch(pagado){
-            case 'C':
-                return 1;
-            case 'P':
-                movimientoService.deleteVenta(id);
-                break;
-        }
-        
-        
             
-        facturaVenta.setActivo(false);
+        facturaVenta.setEstado(Estado.ANULADO.getCodigo());
         List<DetalleVentaEntity> detalleVenta = detalleVentaService.findByIdVenta(id);
 
-
+        //Guardar factura
+        ventarepository.save(facturaVenta);
+        
         //Trae productos a actualizar existencias
         List<ProductoExistenciasDTO> productosActualizarExistencias = detalleVentaService.anularDetalleVenta(id);
         
@@ -191,6 +185,7 @@ public class VentaServiceImpl implements VentaService{
             actualizarProductosFacturados(productosActualizarExistencias);
         }
         
+        notificarFacturaVentaAnulada(facturaVenta);
         return 0;
        
     }
@@ -520,7 +515,7 @@ public class VentaServiceImpl implements VentaService{
             
             table2.addCell(cell4).setBorder(PdfPCell.NO_BORDER);
             
-            PdfPCell cell5 = new PdfPCell(table2);
+            PdfPCell cell5 = new PdfPCell(table2); 
             cell5.setColspan(6);
             //cell5.setBorder(PdfPCell.NO_BORDER);
             table.addCell(cell5);
@@ -597,14 +592,40 @@ public class VentaServiceImpl implements VentaService{
     public void actualizarProductosFacturados(List<ProductoExistenciasDTO> productosActualizarExistencias) {
       
         // Publicar el evento
-        ProductosFacturadosEvent evento = new ProductosFacturadosEvent(productosActualizarExistencias, TipoEventoExistencias.FACTURACION_PRODUCTOS );
+        ProductosFacturadosEvent evento = new ProductosFacturadosEvent(productosActualizarExistencias, TipoEvento.FACTURACION_PRODUCTOS );
         eventPublisher.publishEvent(evento);
     }
     
     public void actualizarProductosPedidoFacturado(List<ProductoExistenciasDTO> productosActualizarExistencias) {
       
         // Publicar el evento
-        PedidoFacturadoEvent evento = new PedidoFacturadoEvent(productosActualizarExistencias, TipoEventoExistencias.FACTURACION_PEDIDOS);
+        PedidoFacturadoEvent evento = new PedidoFacturadoEvent(productosActualizarExistencias, TipoEvento.FACTURACION_PEDIDOS);
         eventPublisher.publishEvent(evento);
+    }
+    
+    public void notificarFacturaVentaPendiente(VentaEntity nuevaVenta) {
+        // Publicar el evento
+        NuevaFacturaVentaEvent evento = new NuevaFacturaVentaEvent(TipoEvento.NUEVA_VENTA, nuevaVenta );
+        eventPublisher.publishEvent(evento);
+    }
+    
+    public void notificarFacturaVentaAnulada(VentaEntity ventaAnulada) {
+        // Publicar el evento
+        NuevaFacturaVentaEvent evento = new NuevaFacturaVentaEvent(TipoEvento.FACTURA_ANULADA, ventaAnulada );
+        eventPublisher.publishEvent(evento);
+    }
+    
+    @EventListener
+    public void handleCambioEstado(FacturaVentaPagadoEvent event) {
+        Long ventaId = event.getFacturaId();
+        char estado = event.getEstado();
+        // Buscar la factura y actualizar el estado
+        VentaEntity venta = ventarepository.findById(ventaId)
+            .orElseThrow(() -> new RuntimeException("Factura no encontrada"));
+
+        venta.setEstado(estado);
+        ventarepository.save(venta);
+
+        System.out.println("Estado de la factura actualizado a 'Pagado'");
     }
 }

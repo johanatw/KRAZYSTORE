@@ -18,7 +18,7 @@ public interface DetalleInventarioService {
     List<DetalleInventario> saveDetInventario(List<DetalleInventario> detalle, Long idInventario) throws Exception;
     List<DetalleInventario> updateDetInventario(List<DetalleInventario> detalle, Long idInventario)throws Exception;
     void deleteDetInventario(Long idInventario);
-    List<DetalleInventarioDTO> getDetallesInventarioIniciales();
+    List<DetalleInventario> getDetallesInventarioIniciales();
     List<DetalleInventario> obtenerDetallesCompletos(Long id);
     List<ProductoExistenciasDTO> getProductosActualizarExistencias(Long id);
 }

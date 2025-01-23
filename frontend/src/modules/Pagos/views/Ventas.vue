@@ -188,6 +188,22 @@ const nuevoPedido = () =>{
     router.push({name: 'nuevo_pedido'});
 }
 
+const getEstado = (estado) => {
+  
+  
+  switch (estado) {
+       case 'C':
+           return 'Pagado';
+       case 'P':
+           return 'Pendiente de pago';
+      case 'A':
+           return 'Anulado';
+
+       default:
+           return null;
+   }
+};
+
 </script>
 
 <template>
@@ -240,11 +256,8 @@ const nuevoPedido = () =>{
         </Column>
         <Column  header="Estado" aria-sort="ascending" sortable> 
             <template #body="slotProps">
-                <div v-if="slotProps.data.activo" style="color: rgb(34, 177, 76);">
-                    Activo
-                </div>
-                <div v-else style="color: red;">
-                    Anulado
+                <div style="color: rgb(34, 177, 76);">
+                    {{ getEstado(slotProps.data.estado)}}
                 </div>
             </template>           
         </Column>
@@ -257,7 +270,7 @@ const nuevoPedido = () =>{
             <template #body="slotProps">
                 <div style="display: flex;" >
                     <Button  label="Revisar" @click="verFactura(slotProps.data.id)"  style="height: 2rem !important; width: 5rem !important; margin-right: 1%; font-size: 14px; " />
-                    <div v-if="slotProps.data.activo">
+                    <div v-if="slotProps.data.estado == 'P'">
                         <Button  severity="danger"  label="Anular" @click="confirm2(slotProps.data.id,slotProps.data.nroFactura )"  style="height: 2rem !important; width: 5rem !important; font-size: 14px;" />
                 </div>
                 <div v-else>

@@ -3,19 +3,19 @@ import { ref, onMounted } from 'vue';
 
 const caja = ref();
 
-  export function formatearNumero(valor) {
-    if(typeof(valor) == "number"){
-      return valor.toLocaleString("de-DE");
-  }
+  export function formatearFecha(value) {
+    return new Date(value).toLocaleDateString('en-US', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+};
 
-  
-
-  let fecha = new Date(valor);
-  console.log(typeof(valor));
-  let fechaFormateada = fecha.getDate() + '/' + (fecha.getMonth()+1) + '/' +fecha.getFullYear()+' '+ fecha.getHours()+':'+fecha.getMinutes()+':'+fecha.getSeconds();
-  return fechaFormateada;
+export function formatearNumero(valor) {
+  if(typeof(valor) == "number"){
+    return valor.toLocaleString("de-DE");
 }
-
+};
 
 export async function existeCajaAbierta() {
    let c = (await CajaServices.getCajaAbierta()).data;

@@ -17,57 +17,74 @@ public class PedidoDTO {
     private int costoEnvio =0;
     private String cliente;
     private String telefono;
-    private String estadoPedido;
-    private String estadoPago;
-    private long cantPreVenta;
-    private long totalItems;         
+    private Character estadoPedido;
+    private Long cantPreVenta;
+    private Long totalItems;         
 
     public PedidoDTO() {
     }
 
-    public PedidoDTO(long id, Date fecha, int total, String cliente, String telefono, String estadoPedido, String estadoPago, long cantPreVenta, long totalItems) {
+
+    public PedidoDTO(long id, Long totalItems) {
+        this.id = id;
+        this.totalItems = totalItems;
+    }
+
+    public PedidoDTO(long id, Long cantPreVenta, Long totalItems) {
+        this.id = id;
+        this.cantPreVenta = cantPreVenta;
+        this.totalItems = totalItems;
+    }
+
+    public PedidoDTO(long id, Date fecha, int total, String cliente, String telefono, Long cantPreVenta, Long totalItems) {
+        this.id = id;
+        this.fecha = fecha;
+        this.total = total;
+        this.cliente = cliente;
+        this.telefono = telefono;
+        this.cantPreVenta = cantPreVenta;
+        this.totalItems = totalItems;
+    }
+
+    public PedidoDTO(long id, Date fecha, int total, String cliente, String telefono, Character estadoPedido, Long cantPreVenta, Long totalItems) {
         this.id = id;
         this.fecha = fecha;
         this.total = total;
         this.cliente = cliente;
         this.telefono = telefono;
         this.estadoPedido = estadoPedido;
-        this.estadoPago = estadoPago;
         this.cantPreVenta = cantPreVenta;
         this.totalItems = totalItems;
     }
 
-    public long getTotalItems() {
+    
+    
+    
+    
+
+    public Long getTotalItems() {
         return totalItems;
     }
 
-    public void setTotalItems(long totalItems) {
+    public void setTotalItems(Long totalItems) {
         this.totalItems = totalItems;
     }
 
     
 
-    public String getEstadoPedido() {
+    public Character getEstadoPedido() {
         return estadoPedido;
     }
 
-    public void setEstadoPedido(String estadoPedido) {
+    public void setEstadoPedido(Character estadoPedido) {
         this.estadoPedido = estadoPedido;
     }
 
-    public String getEstadoPago() {
-        return estadoPago;
-    }
-
-    public void setEstadoPago(String estadoPago) {
-        this.estadoPago = estadoPago;
-    }
-
-    public long getCantPreVenta() {
+    public Long getCantPreVenta() {
         return cantPreVenta;
     }
 
-    public void setCantPreVenta(long cantPreVenta) {
+    public void setCantPreVenta(Long cantPreVenta) {
         this.cantPreVenta = cantPreVenta;
     }
 

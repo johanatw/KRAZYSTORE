@@ -155,13 +155,15 @@ const getEstado = (estado) => {
   
   switch (estado) {
        case 'N':
-           return 'En proceso';
+           return 'Nuevo';
 
        case 'P':
            return 'Recepción Parcial';
 
        case 'R':
            return 'Recepción Completa';
+        case 'A':
+           return 'Con Anticipo';
 
        default:
            return null;
@@ -243,7 +245,7 @@ const nuevoPedido = () =>{
         </Column>   
         <Column field="estado"  header="Estado" aria-sort="ascending" sortable>  
           <template #body="slotProps">
-                <Tag :style="getSeverity(slotProps.data.estado)" style=" font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ getEstado(slotProps.data.estado)}}</Tag>
+                <Tag :style="getSeverity(slotProps.data.estadoPedido)" style=" font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ getEstado(slotProps.data.estadoPedido)}}</Tag>
               </template>         
         </Column>
         

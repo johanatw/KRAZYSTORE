@@ -90,19 +90,50 @@ const formatearNumero = (valor) =>{
 const getSeverity = (estado) => {
   
   
-   switch (estado) {
-        case 'Pagado':
-            return 'background-color: rgb(202, 241, 216); color: rgb(24, 138, 66);';
+  switch (estado) {
+       case 'C':
+           return 'background-color: rgb(202, 241, 216); color: rgb(24, 138, 66);';
 
-        case 'Parcial':
-            return 'background-color: rgb(254, 221, 199); color: rgb(174, 81, 15);';
+       case 'R':
+           return 'background-color: rgb(254, 221, 199); color: rgb(174, 81, 15);';
 
-        case 'Pendiente':
-            return 'background-color: rgb(215, 227, 552); color: rgb(50, 111, 252);';
+       case 'P':
+           return 'background-color: rgb(215, 227, 552); color: rgb(50, 111, 252);';
 
-        default:
-            return null;
-    }
+       default:
+           return null;
+   }
+};
+
+const getEstado = (estado) => {
+  
+  
+  switch (estado) {
+       case 'C':
+           return 'Pagado';
+
+       case 'R':
+           return 'Parcial';
+
+       case 'P':
+           return 'Pendiente';
+      case 'A':
+           return 'Con Anticipo';
+        case 'N':
+           return 'Nuevo';
+
+       default:
+           return null;
+   }
+};
+
+const tienePagosAsociados = (estado) => {
+  
+  if (estado == 'N') {
+    return false;
+  } else {
+    return true;
+  }
 };
 
 const getDetallePedido = (id) => {
@@ -275,31 +306,14 @@ const deletePedido = (id) =>{
        }
 
 }*/
-async function puedeEliminar(id) {
-  let c = (await CajaServices.validarEliminacionPedido(id)).data;
-   console.log(c);
-   if (c > 0 ) {
-    return false;
-   } else {
-    return true;
-   }
-  
-}
 
 async function deletePedido(id) {
- 
-  let p = await puedeEliminar(id);
-  console.log(p);
-       if(p == true){
-          const cantidad= 1;
-          const index = pedidos.value.findIndex((loopVariable) => loopVariable.id === id);
-          PedidoServices.deletePedido(id).then((response)=>{
-            pedidos.value.splice(index,cantidad);
-            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 5000 });
-        })
-       }else{
-        messageError("Este pedido tiene pagos o facturas asociadas.");
-       }
+    const cantidad= 1;
+    const index = pedidos.value.findIndex((loopVariable) => loopVariable.id === id);
+    PedidoServices.deletePedido(id).then((response)=>{
+      pedidos.value.splice(index,cantidad);
+      toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 5000 });
+  })
 }
 
 
@@ -469,16 +483,11 @@ const reload = () =>{
             </Column>
             <Column  field="estadoPedido" header="Estado Pedido" aria-sort="ascending" sortable >
               <template #body="slotProps">
-                <Tag style="background-color: rgb(215, 227, 552); color: rgb(50, 111, 252);font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;">{{ slotProps.data.estadoPedido}}</Tag>
+                <Tag style="background-color: rgb(215, 227, 552); color: rgb(50, 111, 252);font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;">{{ getEstado(slotProps.data.estadoPedido)}}</Tag>
               </template>
               
             </Column>
-            <Column  field="estadoPago" header="Estado Pago" aria-sort="ascending" sortable >
-              <template #body="slotProps">
-                <Tag :style="getSeverity(slotProps.data.estadoPago)" style=" font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ slotProps.data.estadoPago}}</Tag>
-              </template>
-            </Column>
-            
+           
           <Column field="total"  header="Total" aria-sort="ascending" sortable>
             <template #body="slotProps">
             {{ formatearNumero(slotProps.data.total) }}   
@@ -498,7 +507,7 @@ const reload = () =>{
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
                 <Button icon="pi pi-search" text rounded aria-label="Search" @click="verPedido(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
-                <Button icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button icon="pi pi-times" severity="danger" :disabled="!tienePagosAsociados(slotProps.data.estadoPago)" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
             
                 <Button  icon="pi pi-receipt" severity="info" text rounded aria-label="Cancel" @click="getDetallePedido(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                 </template>

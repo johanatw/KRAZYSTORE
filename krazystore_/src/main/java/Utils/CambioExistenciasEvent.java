@@ -13,9 +13,9 @@ import java.util.List;
  */
 public abstract class CambioExistenciasEvent {
     private List<ProductoExistenciasDTO> productosActualizar;
-    private final TipoEventoExistencias tipoEvento;
+    private final TipoEvento tipoEvento;
 
-    public CambioExistenciasEvent(List<ProductoExistenciasDTO> productosActualizar, TipoEventoExistencias tipoEvento) {
+    public CambioExistenciasEvent(List<ProductoExistenciasDTO> productosActualizar, TipoEvento tipoEvento) {
         this.productosActualizar = productosActualizar;
         this.tipoEvento = tipoEvento;
     }
@@ -28,7 +28,7 @@ public abstract class CambioExistenciasEvent {
         this.productosActualizar = productosActualizar;
     }
 
-    public TipoEventoExistencias getTipoEvento() {
+    public TipoEvento getTipoEvento() {
         return tipoEvento;
     }
 

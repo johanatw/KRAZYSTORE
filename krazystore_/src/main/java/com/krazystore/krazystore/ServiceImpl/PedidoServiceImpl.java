@@ -4,8 +4,10 @@
  */
 package com.krazystore.krazystore.ServiceImpl;
 
+import Utils.Estado;
+import Utils.PedidoEvent;
 import Utils.ProductosReservadosEvent;
-import Utils.TipoEventoExistencias;
+import Utils.TipoEvento;
 import com.krazystore.krazystore.DTO.Pedido;
 import com.krazystore.krazystore.DTO.PedidoDTO;
 import com.krazystore.krazystore.DTO.PersonaCreationDTO;
@@ -17,8 +19,6 @@ import com.krazystore.krazystore.Entity.PersonaEntity;
 import com.krazystore.krazystore.Repository.PedidoRepository;
 import com.krazystore.krazystore.Service.AnticipoService;
 import com.krazystore.krazystore.Service.DetallePedidoService;
-import com.krazystore.krazystore.Service.MovimientoService;
-import com.krazystore.krazystore.Service.PagoService;
 import com.krazystore.krazystore.Service.PedidoService;
 import com.krazystore.krazystore.Service.PersonaService;
 import java.util.ArrayList;
@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -66,8 +67,7 @@ public class PedidoServiceImpl implements PedidoService {
     @Transactional
     @Override
     public PedidoEntity savePedido(PedidoEntity pedidoEntity, List<DetallePedidoEntity> detalle) {
-        EstadoEntity estadoPago = new EstadoEntity((long)1,"Pago pendiente","P");
-        EstadoEntity estadoPedido = new EstadoEntity((long)3,"Nuevo","E");
+        char estadoPedido = Estado.NUEVO.getCodigo();
         PersonaCreationDTO personaDTO = new PersonaCreationDTO();
         personaDTO.setPersonaEntity(pedidoEntity.getCliente());
         personaDTO.setDireccion(pedidoEntity.getDireccionEnvio());
@@ -77,7 +77,6 @@ public class PedidoServiceImpl implements PedidoService {
         }
         
         pedidoEntity.setFecha(new Date());
-        pedidoEntity.setEstadoPago(estadoPago);
         pedidoEntity.setEstadoPedido(estadoPedido);
         
         PedidoEntity nuevoPedido = pedidorepository.save(pedidoEntity);
@@ -103,7 +102,6 @@ public class PedidoServiceImpl implements PedidoService {
         updatedPedido.setModoEntrega(pedidoEntity.getModoEntrega());
         updatedPedido.setFormaPago(pedidoEntity.getFormaPago());
         updatedPedido.setDireccionEnvio(pedidoEntity.getDireccionEnvio());
-        updatedPedido.setEstadoPago(pedidoEntity.getEstadoPago());
         
         PersonaCreationDTO personaDTO = new PersonaCreationDTO();
         personaDTO.setPersonaEntity(pedidoEntity.getCliente());
@@ -120,46 +118,63 @@ public class PedidoServiceImpl implements PedidoService {
         actualizarExistencias(productosActualizarExistencias);
         return pedido;
     }
-   @Override  
-    public void updateEstadoPagoPedido(PedidoEntity pedido, EstadoEntity estadoPago) {
-        PedidoEntity updatedPedido = pedidorepository.findById(pedido.getId()).get();
+    
+    
+   @EventListener
+    public void updateEstadoPedido(PedidoEvent evento) {
+        PedidoEntity pedido = pedidorepository.findById(evento.getPedidoId())
+                .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado"));;
+
+        System.out.println("UPDATEESTADOPEDIDO");
+        switch (evento.getTipoEvento()) {
+            case ANTICIPO_CREADO:
+                
+                    pedido.setEstadoPedido(Estado.CONANTICIPO.getCodigo());
+                
+                break;
+
+            case ANTICIPO_ELIMINADO:
+                if (!hasFacturacion(pedido.getId()) && !hasAnticipos(pedido.getId())) {
+                    pedido.setEstadoPedido(Estado.NUEVO.getCodigo());
+                }
+                
+                break;
+
+            default:
+                throw new IllegalArgumentException("Evento no reconocido: " + evento.getTipoEvento());
+        }
         
-        
-        updatedPedido.setEstadoPago(estadoPago);
-        
-        pedidorepository.save(updatedPedido);
+        pedidorepository.save(pedido);
         
     }
 
     @Override
-    public int deletePedido(Long id) {
-        int estadoPedido = verificarPedidoEstado(id);
-        if(estadoPedido > 0){
-            return 1;
-        }else{
+    public void deletePedido(Long id) {       
+        if(puedeEliminarsePedido(id)){
             detallePedidoService.deleteByPedido(id);
+            pedidorepository.deleteById(id);
         }
-        pedidorepository.deleteById(id);
-        return 0;
-    }
-
-    @Override
-    public int verificarPedidoEstado(Long id) {
-        PedidoEntity p = new PedidoEntity();
-        p.setId(id);
-        boolean tieneAnticipos = pedidorepository.existenAnticiposAsociados(id);
-
-        if(tieneAnticipos){
-            return 1;
-        }
-        
-        return 0;
     }
     
     public void actualizarExistencias(List<ProductoExistenciasDTO> productosActualizarExistencias) {
         // Publicar el evento
-        ProductosReservadosEvent evento = new ProductosReservadosEvent(productosActualizarExistencias, TipoEventoExistencias.ACTUALIZAR_RESERVAS);
+        ProductosReservadosEvent evento = new ProductosReservadosEvent(productosActualizarExistencias, TipoEvento.ACTUALIZAR_RESERVAS);
         eventPublisher.publishEvent(evento);
+    }
+
+    public boolean puedeEliminarsePedido(Long id){
+        PedidoEntity pedido = pedidorepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido no existe"));
+                
+        return pedido.getEstadoPedido() == Estado.NUEVO.getCodigo();
+    }
+    
+    private boolean hasFacturacion(Long id) {
+        return !pedidorepository.getFacturas(id).isEmpty();
+    }
+
+    private boolean hasAnticipos(Long id) {
+        return !pedidorepository.getAnticipos(id).isEmpty();
     }
     
 }

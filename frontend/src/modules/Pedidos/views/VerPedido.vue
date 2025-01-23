@@ -46,13 +46,13 @@ const infoEntrega = ref([{
 
 
 onMounted(() => {
-    CajaServices.obtenerMovimientosByPedido(router.currentRoute.value.params.id).then((data) => {
+    /*CajaServices.obtenerMovimientosByPedido(router.currentRoute.value.params.id).then((data) => {
 
         movimientos.value = data.data;
         console.log("movimiento");
         console.log(movimientos.value.length);
 
-});
+    });*/
     cardCliente.value.editable = false;
     cardEntrega.value.editable = false;
     console.log("onmountedVer");
@@ -85,14 +85,34 @@ const getSeverity = (estado) => {
   
   
   switch (estado) {
-       case 'Pagado':
+       case 'C':
            return 'background-color: rgb(202, 241, 216); color: rgb(24, 138, 66);';
 
-       case 'Parcial':
+       case 'R':
            return 'background-color: rgb(254, 221, 199); color: rgb(174, 81, 15);';
 
-       case 'Pendiente':
+       case 'P':
            return 'background-color: rgb(215, 227, 552); color: rgb(50, 111, 252);';
+
+       default:
+           return null;
+   }
+};
+
+const getEstado = (estado) => {
+  
+  
+  switch (estado) {
+       case 'C':
+           return 'Pagado';
+
+       case 'R':
+           return 'Parcial';
+
+       case 'P':
+           return 'Pendiente';
+        case 'N':
+           return 'Nuevo';
 
        default:
            return null;
@@ -198,14 +218,14 @@ const getEntrega = (formaEntrega, envio) =>{
                                 <div style="align-content: center; display: flex; flex-direction: row; ">
                                     Estado del pedido: &nbsp; 
                                     <div v-if="estadoPedido">
-                                        <Tag  style="background-color: rgb(215, 227, 552); color: rgb(50, 111, 252); font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ estadoPedido.descripcion}}</Tag>
+                                        <Tag  style="background-color: rgb(215, 227, 552); color: rgb(50, 111, 252); font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ getEstado(estadoPedido) }}</Tag>
                                         
                                     </div> 
                                 </div>
                                 <div style=" display: flex; flex-direction: row; ">
                                     Estado de pago: &nbsp;
                                     <div v-if="estadoPago">
-                                        <Tag :style="getSeverity(estadoPago.descripcion)" style=" font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ estadoPago.descripcion}}</Tag>
+                                        <Tag :style="getSeverity(estadoPago)" style=" font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ getEstado(estadoPago) }}</Tag>
                                     </div>
                                 </div>
                             </div>

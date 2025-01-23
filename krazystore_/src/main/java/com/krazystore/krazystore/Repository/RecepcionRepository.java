@@ -34,7 +34,7 @@ public interface RecepcionRepository extends JpaRepository<RecepcionEntity, Long
         + "FROM RecepcionEntity r WHERE r.id = ?1 ")
         Optional<RecepcionDTO> findRecepcionWithDetails(Long idRecepcion);
         
-    @Query("SELECT new com.krazystore.krazystore.DTO.RecepcionDTO(r.id, r.fecha, p.id, p.proveedor ) "
+    @Query("SELECT DISTINCT new com.krazystore.krazystore.DTO.RecepcionDTO(r.id, r.fecha, p.id, p.proveedor ) "
         + "FROM RecepcionEntity r "
         + "JOIN DetalleRecepcion d ON d.recepcion = r "
         + "JOIN d.detallePedido dp "
@@ -48,11 +48,11 @@ public interface RecepcionRepository extends JpaRepository<RecepcionEntity, Long
             + "WHERE d.recepcion.id = ?1")
     List<DetalleRecepcionDTO> findDetallesByRecepcionId(Long idRecepcion);
     
-    @Query("SELECT new com.krazystore.krazystore.DTO.RecepcionDTO(r.id, r.fecha, p.id, r.estado, p.proveedor ) "
+    @Query("SELECT DISTINCT new com.krazystore.krazystore.DTO.RecepcionDTO(r.id, r.fecha, p.id, r.estado, p.proveedor ) "
         + "FROM RecepcionEntity r "
         + "JOIN DetalleRecepcion d ON d.recepcion = r "
-        + "JOIN d.detallePedido dp "
-        + "JOIN dp.pedidoCompra p ")
+        + "JOIN PedidoCompraEntity p "
+        + "ON d.detallePedido.pedidoCompra = p ")
     List<RecepcionDTO> findAllRecepciones();
     
     

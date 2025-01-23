@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.Service;
 
+import Utils.TipoPedido;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.PagoEntity;
 import com.krazystore.krazystore.Entity.PedidoEntity;
@@ -27,8 +28,9 @@ public interface AnticipoService {
     List<AnticipoEntity> updateAnticipos(List<AnticipoEntity> anticipos);
     void getAnticipoPdf(HttpServletResponse response, Long idAnticipo);
     int deleteAnticipo(Long id);
-    List<AnticipoEntity> findByIdPedido(Long id);
+    List<AnticipoEntity> findByIdPedido(Long id, TipoPedido tipoPedido);
     boolean existsByPedido(PedidoEntity p);
     int verificarAnticipoEstado(Long id);
     void deleteAnticipoReembolsos(Long id);
+    AnticipoEntity actualizarSaldoAnticipo(Long idAnticipo, int montoReembolsado);
 }

@@ -13,45 +13,27 @@ import com.krazystore.krazystore.Entity.ProductoEntity;
  */
 public class DetalleInventarioDTO {
     private Long id;
-    private ProductoEntity producto;
-    private int cantStock;
+    private Long idProducto;
+    private String producto;
+    private CategoriaEntity categoria;
+    private int stockActual;
+    private int stockInicialInventario;
     private int cantContada;
     private int diferencia;
 
-    public DetalleInventarioDTO(Long id, Long idProducto, String producto, Long idCategoria, String categoria, int cantStock, int cantContada, int diferencia) {
+    public DetalleInventarioDTO() {
+    }
+
+    public DetalleInventarioDTO(Long id, Long idProducto, String producto, CategoriaEntity categoria, 
+            int stockActual, int stockInicialInventario, int cantContada, int diferencia) {
         this.id = id;
-        this.producto = new ProductoEntity();
-        this.producto.setId(idProducto);
-        this.producto.setNombre(producto);
-        this.producto.setCategoria(new CategoriaEntity(idCategoria, categoria));
-        this.cantStock = cantStock;
+        this.idProducto = idProducto;
+        this.producto = producto;
+        this.categoria = categoria;
+        this.stockActual = stockActual;
+        this.stockInicialInventario = stockInicialInventario;
         this.cantContada = cantContada;
         this.diferencia = diferencia;
-    }
-
-    public DetalleInventarioDTO(Long idProducto, String producto, Long idCategoria, String categoria, int cantStock, int cantContada) {
-        this.producto = new ProductoEntity();
-        this.producto.setId(idProducto);
-        this.producto.setNombre(producto);
-        this.producto.setCategoria(new CategoriaEntity(idCategoria, categoria));
-        this.cantStock = cantStock;
-        this.cantContada = cantContada;
-        this.diferencia = this.cantContada - this.cantStock;
-    }
-    
-    public DetalleInventarioDTO(Long id, Long idProducto, String producto, Long idCategoria, String categoria, int cantStock, int cantContada) {
-        this.id = id;
-        this.producto = new ProductoEntity();
-        this.producto.setId(idProducto);
-        this.producto.setNombre(producto);
-        this.producto.setCategoria(new CategoriaEntity(idCategoria, categoria));
-        this.cantStock = cantStock;
-        this.cantContada = cantContada;
-        this.diferencia = this.cantContada - this.cantStock;
-    }
-    
-
-    public DetalleInventarioDTO() {
     }
 
     public Long getId() {
@@ -62,20 +44,44 @@ public class DetalleInventarioDTO {
         this.id = id;
     }
 
-    public ProductoEntity getProducto() {
+    public Long getIdProducto() {
+        return idProducto;
+    }
+
+    public void setIdProducto(Long idProducto) {
+        this.idProducto = idProducto;
+    }
+
+    public String getProducto() {
         return producto;
     }
 
-    public void setProducto(ProductoEntity producto) {
+    public void setProducto(String producto) {
         this.producto = producto;
     }
 
-    public int getCantStock() {
-        return cantStock;
+    public CategoriaEntity getCategoria() {
+        return categoria;
     }
 
-    public void setCantStock(int cantStock) {
-        this.cantStock = cantStock;
+    public void setCategoria(CategoriaEntity categoria) {
+        this.categoria = categoria;
+    }
+
+    public int getStockActual() {
+        return stockActual;
+    }
+
+    public void setStockActual(int stockActual) {
+        this.stockActual = stockActual;
+    }
+
+    public int getStockInicialInventario() {
+        return stockInicialInventario;
+    }
+
+    public void setStockInicialInventario(int stockInicialInventario) {
+        this.stockInicialInventario = stockInicialInventario;
     }
 
     public int getCantContada() {
@@ -93,8 +99,6 @@ public class DetalleInventarioDTO {
     public void setDiferencia(int diferencia) {
         this.diferencia = diferencia;
     }
-    
-    
-    
-    
+
+
 }

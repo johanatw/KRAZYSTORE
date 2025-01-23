@@ -1,22 +1,12 @@
 import axios from 'axios';
-const MOVIMIENTO_API_BASE_URL = "http://localhost:7070/api/movimientos"
+
 const CAJA_API_BASE_URL = "http://localhost:7070/api/cajas"
 
 export const CajaServices = {
-  obtenerMovimientos() {
+obtenerMovimientosByPedido(id) {
     try {
         console.log("ciudadservice");
-      return axios.get(MOVIMIENTO_API_BASE_URL);
-      
-    } catch (error) {
-      console.log("hola");
-      console.log(error.name);
-    }
-    
-  },obtenerMovimientosByPedido(id) {
-    try {
-        console.log("ciudadservice");
-      return axios.get(MOVIMIENTO_API_BASE_URL+"/prueba/"+id);
+      //return axios.get(MOVIMIENTO_API_BASE_URL+"/prueba/"+id);
       
     } catch (error) {
       console.log("hola");
@@ -26,7 +16,7 @@ export const CajaServices = {
   },obtenerMovimientosByCaja(id) {
     try {
         console.log("ciudadservice");
-      return axios.get(MOVIMIENTO_API_BASE_URL+"/caja/"+id);
+      return axios.get(CAJA_API_BASE_URL+"/caja/"+id);
       
     } catch (error) {
       console.log("hola");
@@ -36,35 +26,33 @@ export const CajaServices = {
   },
   deleteAnticipo(id){
   
-    return axios.delete(MOVIMIENTO_API_BASE_URL+"/anticipo/"+id);
+    return axios.delete(CAJA_API_BASE_URL+"/anticipo/"+id);
   },
-  deleteAnticipoReembolsos(id){
-    
-    return axios.delete(MOVIMIENTO_API_BASE_URL+"/reembolsos/anticipo/"+id);
+  
+  deleteReembolso(id){
+  
+    return axios.delete(CAJA_API_BASE_URL+"/reembolso/"+id);
   },
-  saveAnticipo(anticipoCreationDTO) {
+  deleteMovimiento(id){
+  
+    return axios.delete(CAJA_API_BASE_URL+"/"+id);
+  },
+  
+  savePagosMovimiento(movimientoCreationDTO) {
     try {
-        
-        
-      return axios.post(MOVIMIENTO_API_BASE_URL+"/anticipo",anticipoCreationDTO);
+      console.log("movimiento id");
+      console.log(movimientoCreationDTO);
+      return axios.post(CAJA_API_BASE_URL+'/pagar_factura',movimientoCreationDTO);
       
     } catch (error) {
       console.log(error.name);
     }
     
   },
-  deleteReembolso(id){
-  
-    return axios.delete(MOVIMIENTO_API_BASE_URL+"/reembolso/"+id);
-  },
-  deleteMovimiento(id){
-  
-    return axios.delete(MOVIMIENTO_API_BASE_URL+"/"+id);
-  },
   saveReembolso(reembolso) {
     try {
         console.log("pedido", reembolso);
-      return axios.post(MOVIMIENTO_API_BASE_URL+"/reembolso", reembolso);
+      return axios.post(CAJA_API_BASE_URL+"/reembolso", reembolso);
       
     } catch (error) {
       console.log(error.name);
@@ -74,21 +62,16 @@ export const CajaServices = {
   
   saveMovimiento(movimientoCreationDTO) {
     try {
-        
-        
-      return axios.post(MOVIMIENTO_API_BASE_URL,movimientoCreationDTO);
+      return axios.post(CAJA_API_BASE_URL+"/movimiento",movimientoCreationDTO);
       
     } catch (error) {
       console.log(error.name);
     }
     
   },
-  
-  savePagosMovimiento(movimientoCreationDTO) {
+  saveAnticipo(anticipoCreationDTO) {
     try {
-        
-        
-      return axios.post(MOVIMIENTO_API_BASE_URL+'/pagar',movimientoCreationDTO);
+      return axios.post(CAJA_API_BASE_URL+"/anticipo",anticipoCreationDTO);
       
     } catch (error) {
       console.log(error.name);
@@ -143,36 +126,46 @@ export const CajaServices = {
     }
     
   },
-  obtenerPagosPedido(id) {
-    try {
-        
-      return axios.get(MOVIMIENTO_API_BASE_URL+"/pagos/"+id);
-      
-    } catch (error) {
-      console.log("hola");
-      console.log(error.name);
-    }
-    
-  },
   
-  validarEliminacionPedido(id) {
-    try {
-        
-      return axios.get(MOVIMIENTO_API_BASE_URL+"/validar/"+id);
-      
-    } catch (error) {
-      console.log("hola");
-      console.log(error.name);
-    }
-    
-  },
+  
   obtenerFacturasPendientes() {
     try {
         
-      return axios.get(MOVIMIENTO_API_BASE_URL+"/pendientes");
+      return axios.get(CAJA_API_BASE_URL+"/pendientes");
       
     } catch (error) {
       console.log("hola");
+      console.log(error.name);
+    }
+    
+  },
+  obtenerPagosPedido(id) {
+    try {
+        
+      return axios.get(CAJA_API_BASE_URL+"/estado_pagos_pedido_venta/"+id);
+      
+    } catch (error) {
+      console.log("hola");
+      console.log(error.name);
+    }
+    
+  },
+  obtenerPagosPedidoCompra(id) {
+    try {
+        
+      return axios.get(CAJA_API_BASE_URL+"/estado_pagos_pedido_compra/"+id);
+      
+    } catch (error) {
+      console.log("hola");
+      console.log(error.name);
+    }
+    
+  },
+  saveVenta(ventaCreationDTO) {
+    try {
+      return axios.post(CAJA_API_BASE_URL+"/venta", ventaCreationDTO);
+      
+    } catch (error) {
       console.log(error.name);
     }
     

@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.Controller;
 
+import Utils.TipoPedido;
 import com.krazystore.krazystore.DTO.AnticipoCreationDTO;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.PagoEntity;
@@ -50,9 +51,14 @@ public class AnticipoController {
         return anticipoService.findById(id);
     }
     
-    @GetMapping("/pedido/{id}")
-    public List<AnticipoEntity> findByIdPedido(@PathVariable("id") Long id) {
-        return anticipoService.findByIdPedido(id);
+    @GetMapping("/pedido_venta/{id}")
+    public List<AnticipoEntity> findByIdPedidoVenta(@PathVariable("id") Long id) {
+        return anticipoService.findByIdPedido(id, TipoPedido.PEDIDOVENTA);
+    }
+    
+    @GetMapping("/pedido_compra/{id}")
+    public List<AnticipoEntity> findByIdPedidoCompra(@PathVariable("id") Long id) {
+        return anticipoService.findByIdPedido(id, TipoPedido.PEDIDOCOMPRA);
     }
     
     @GetMapping("/verificar/{id}")

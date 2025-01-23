@@ -10,7 +10,7 @@ import Utils.PedidoFacturadoEvent;
 import Utils.ProductosFacturadosEvent;
 import Utils.ProductosReservadosEvent;
 import static Utils.TipoAjusteExistencia.DISMINUIR;
-import Utils.TipoEventoExistencias;
+import Utils.TipoEvento;
 import com.krazystore.krazystore.DTO.ProductoDTO;
 import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
 import com.krazystore.krazystore.Entity.ProductoEntity;
@@ -109,7 +109,7 @@ public class ProductoServiceImpl implements ProductoService{
         actualizarExistencias(event.getProductosActualizar(), event.getTipoEvento());
     }
     
-    private void actualizarExistencias(List<ProductoExistenciasDTO> productos, TipoEventoExistencias tipoEvento) {
+    private void actualizarExistencias(List<ProductoExistenciasDTO> productos, TipoEvento tipoEvento) {
         List<ProductoEntity> productosActualizar = new ArrayList<>();
 
         productos.forEach(d -> {
@@ -118,31 +118,31 @@ public class ProductoServiceImpl implements ProductoService{
 
             switch (d.getAccion()) {
                 case INCREMENTAR:                  
-                    if (tipoEvento == TipoEventoExistencias.FACTURACION_PEDIDOS) {
+                    if (tipoEvento == TipoEvento.FACTURACION_PEDIDOS) {
                         producto.setCantStock(producto.getCantStock() - d.getCantidad());
                         producto.setCantReservada(producto.getCantReservada() - d.getCantidad());
-                    } else if (tipoEvento == TipoEventoExistencias.FACTURACION_PRODUCTOS) {
+                    } else if (tipoEvento == TipoEvento.FACTURACION_PRODUCTOS) {
                         producto.setCantDisponible(producto.getCantDisponible() - d.getCantidad());
                         producto.setCantStock(producto.getCantStock() - d.getCantidad());
-                    } else if (tipoEvento == TipoEventoExistencias.ACTUALIZAR_RESERVAS) {
+                    } else if (tipoEvento == TipoEvento.ACTUALIZAR_RESERVAS) {
                         producto.setCantReservada(producto.getCantReservada() + d.getCantidad());
                         producto.setCantDisponible(producto.getCantDisponible() - d.getCantidad());
-                    } else if (tipoEvento == TipoEventoExistencias.RECEPCIONAR_PRODUCTOS) {
+                    } else if (tipoEvento == TipoEvento.RECEPCIONAR_PRODUCTOS) {
                         producto.setCantStock(producto.getCantStock() + d.getCantidad());
                         producto.setCantDisponible(producto.getCantDisponible() + d.getCantidad());
-                    } else if (tipoEvento == TipoEventoExistencias.AJUSTAR_INVENTARIO) {
+                    } else if (tipoEvento == TipoEvento.AJUSTAR_INVENTARIO) {
                         producto.setCantStock(producto.getCantStock() + d.getCantidad());
                         producto.setCantDisponible(producto.getCantDisponible() + d.getCantidad());
                     }
                     break;
                 case DISMINUIR:
-                    if (tipoEvento == TipoEventoExistencias.ACTUALIZAR_RESERVAS) {
+                    if (tipoEvento == TipoEvento.ACTUALIZAR_RESERVAS) {
                         producto.setCantReservada(producto.getCantReservada() - d.getCantidad());
                         producto.setCantDisponible(producto.getCantDisponible() + d.getCantidad());
-                    } else if (tipoEvento == TipoEventoExistencias.FACTURACION_PRODUCTOS) {
+                    } else if (tipoEvento == TipoEvento.FACTURACION_PRODUCTOS) {
                         producto.setCantDisponible(producto.getCantDisponible() + d.getCantidad());
                         producto.setCantStock(producto.getCantStock() + d.getCantidad());
-                    } else if (tipoEvento == TipoEventoExistencias.FACTURACION_PEDIDOS) {
+                    } else if (tipoEvento == TipoEvento.FACTURACION_PEDIDOS) {
                         producto.setCantStock(producto.getCantStock() + d.getCantidad());
                         producto.setCantReservada(producto.getCantReservada() + d.getCantidad());
                     }

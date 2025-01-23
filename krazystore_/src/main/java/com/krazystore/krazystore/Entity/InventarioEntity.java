@@ -11,9 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.util.Date;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+
 
 /**
  *
@@ -21,9 +19,7 @@ import lombok.NoArgsConstructor;
  */
 @Entity
 @Table(name = "inventarios")
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
+
 public class InventarioEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,6 +29,16 @@ public class InventarioEntity {
     private char estado;
     @Column
     private Date fecha;
+
+    public InventarioEntity() {
+        
+    }
+
+    public InventarioEntity(Long id, char estado, Date fecha) {
+        this.id = id;
+        this.estado = estado;
+        this.fecha = fecha;
+    }
 
     public Long getId() {
         return id;
