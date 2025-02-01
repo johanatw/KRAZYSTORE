@@ -180,15 +180,6 @@ const deletePedido = (id) =>{
     });
 }
 
-const formatearNumero = (valor) =>{
-    if(typeof(valor) == "number"){
-        return valor.toLocaleString("de-DE");
-    }
-
-    let fecha = new Date(valor);
-    let fechaFormateada = fecha.getDate() + '/' + (fecha.getMonth()+1) + '/' +fecha.getFullYear()+' '+ fecha.getHours()+':'+fecha.getMinutes()+':'+fecha.getSeconds();
-    return fechaFormateada;
-}
 
 const nuevoPedido = () =>{
     router.push({name: 'nueva_compra'});
@@ -208,20 +199,7 @@ const nuevoPedido = () =>{
             <h3 class="font-bold">Existencias</h3>
         </div>
       </template>
-         
-      <template #icons>
-        <div class="flex align-items-center">
-          <Button  icon="pi pi-plus " @click="nuevoPedido" style=" width: 3rem !important; height: 2.9rem;" />
-        <span class="p-input-icon-left" style="margin-left: 1%;">
-          <i class="pi pi-search" style="top: 35%;"/>
-          <InputText style="padding: 12px !important; padding-left: 40px !important;" class="buscador p-fluid" v-model="filters['global'].value" placeholder="Buscar..."  />
-        </span>
-
-        </div>
-        
-    
-      </template>
-      
+            
   
       <div >
         

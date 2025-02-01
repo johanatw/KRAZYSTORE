@@ -35,6 +35,8 @@ public interface MovimientoService {
     MovimientoEntity saveMovimiento(VentaEntity ventaEntity);
     MovimientoEntity saveMovimiento(CompraEntity compraEntity);
     
+    MovimientoEntity updateMovimiento(CompraEntity compra);
+            
     MovimientoEntity crearMovimiento(AnticipoEntity anticipo, CajaEntity caja);
     MovimientoEntity crearMovimiento(ReembolsoEntity reembolso, CajaEntity caja);
     MovimientoEntity crearMovimiento(VentaEntity venta);
@@ -49,4 +51,5 @@ public interface MovimientoService {
     void deleteReembolso(Long id);
     void deleteMovimiento(Long id);
     void deleteVenta(Long idVenta);
+    void deleteCompra(Long id);
 }

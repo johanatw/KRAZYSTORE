@@ -355,6 +355,14 @@ const eliminar = (detalle) => {
     let fechaAnticipo = new Date();
     let ant = {total: total.value, fecha: fechaAnticipo, estado: 'N', proveedor: selectedCliente.value};
 
+    console.log(detalleFacturar.value);
+    
+    detalleFacturar.value.forEach(e => {
+        e.idProducto = e.producto.id;
+        e.producto = e.producto.nombre;
+    });
+
+    console.log(detalleFacturar.value);
 
     let anticipoCreationDTO = {pedido: ant, detalle: detalleFacturar.value};
     PedidoCompraServices.PedidoCompraServices.registrarPedido(anticipoCreationDTO ).then((data)=> {

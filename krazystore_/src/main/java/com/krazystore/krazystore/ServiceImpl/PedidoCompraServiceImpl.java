@@ -7,10 +7,12 @@ package com.krazystore.krazystore.ServiceImpl;
 import Utils.Estado;
 import Utils.PedidoCompraEvent;
 import Utils.ProductosPedidoRecepcionadosEvent;
+import com.krazystore.krazystore.DTO.DetallePedidoCompraDTO;
 import com.krazystore.krazystore.DTO.PedidoCompraCreationDTO;
 import com.krazystore.krazystore.Entity.DetallePedidoCompra;
 import com.krazystore.krazystore.Entity.DetalleRecepcion;
 import com.krazystore.krazystore.Entity.PedidoCompraEntity;
+import com.krazystore.krazystore.Mapper.DetallePedidoCompraMapper;
 import com.krazystore.krazystore.Repository.PedidoCompraRepository;
 import com.krazystore.krazystore.Service.DetallePedidoCompraService;
 import com.krazystore.krazystore.Service.PedidoCompraService;
@@ -18,6 +20,7 @@ import com.krazystore.krazystore.Service.RecepcionService;
 import com.krazystore.krazystore.exception.BadRequestException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -41,6 +44,9 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
     
     @Autowired
     private RecepcionService recepcionService;
+    
+    @Autowired
+    private DetallePedidoCompraMapper detallePedidoMapper;
 
     @Override
     public List<PedidoCompraEntity> findAll() {
@@ -48,8 +54,16 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
     }
 
     @Override
-    public Optional<PedidoCompraEntity> findById(Long id) {
-        return pedidoCompraRepository.findById(id);
+    public PedidoCompraCreationDTO findById(Long id) {
+       
+        PedidoCompraCreationDTO pedidoDTO = new PedidoCompraCreationDTO();
+        Optional<PedidoCompraEntity> pedido = pedidoCompraRepository.findById(id);
+        if (pedido.isPresent()) {
+            List<DetallePedidoCompraDTO> detalles = detallePedidoService.findDTOByIdPedido(id);
+            pedidoDTO.setDetalle(detalles);
+            pedidoDTO.setPedido(pedido.get());
+        }
+        return pedidoDTO;
     }
 
     @Transactional
@@ -64,7 +78,15 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
         PedidoCompraEntity nuevoPedido;
         nuevoPedido = pedidoCompraRepository.save(pedido.getPedido());
         
-        detallePedidoService.saveDetalle(pedido.getDetalle(), nuevoPedido.getId());
+        List<DetallePedidoCompra> detalle = pedido.getDetalle()
+                .stream()
+                .map(detallePedidoMapper)
+                .collect(Collectors.toList());
+        
+
+        detalle.forEach(det -> det.setPedidoCompra(nuevoPedido) );
+        
+        detallePedidoService.saveDetalle(detalle, nuevoPedido.getId());
         
         return nuevoPedido;
     }
@@ -80,7 +102,16 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
         updatedPedido.setTotal(pedido.getTotal());
         
         pedidoCompraRepository.save(updatedPedido);
-        detallePedidoService.updateDetalle(pedidoDTO.getDetalle(), id);
+        
+        List<DetallePedidoCompra> detalle = pedidoDTO.getDetalle()
+                .stream()
+                .map(detallePedidoMapper)
+                .collect(Collectors.toList());
+        
+
+        detalle.forEach(det -> det.setPedidoCompra(updatedPedido) );
+        
+        detallePedidoService.updateDetalle(detalle, id);
         
         return updatedPedido;
         
@@ -93,7 +124,7 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
         pedidoCompraRepository.deleteById(id);
     }
     
-    @Transactional
+    /*@Transactional
     @Override
     public void actualizarCantidadesRecepcionadas(Long idPedido) throws Exception{
         PedidoCompraEntity pedido = pedidoCompraRepository.findById(idPedido)
@@ -104,6 +135,8 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
         detalle.forEach(d -> {
             Integer totalRecepcionado = recepcionService.getTotalRecepcionadoPorProducto(idPedido, d.getProducto().getId());
             d.setCantRecepcionada(totalRecepcionado);
+            System.out.println("DETALLECANRECEPCIONADA");
+            System.out.println(d.getCantRecepcionada());
         });
         
         
@@ -130,22 +163,17 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
         
         pedidoCompraRepository.save(pedido);
       
-    }
+    }*/
     
     public Character getEstadoRecepcionPedido(Long id) {
-        int cantDetalleTotalRecepcionado = 0;
-        
-        List<DetallePedidoCompra> detalle = detallePedidoService.findByIdPedido(id);
-        
-        for (int i = 0; i < detalle.size(); i++) {
-            if(detalle.get(i).getCantidad() == detalle.get(i).getCantRecepcionada()){
-                cantDetalleTotalRecepcionado++;
-            }
-          }
+        long cantProductosRecepcionados;
+        long cantProductosPedidos;
+        cantProductosPedidos = detallePedidoService.getCantProductosPedidos(id);
+        cantProductosRecepcionados = detallePedidoService.getCantProductosRecepcionados(id);
       
-        if (cantDetalleTotalRecepcionado == 0){
+        if (cantProductosRecepcionados == 0){
             return null;
-        }else if(cantDetalleTotalRecepcionado == detalle.size()){
+        }else if(cantProductosRecepcionados == cantProductosPedidos){
             return Estado.RECEPCINADO.getCodigo();
         }else{
             return Estado.PARCIALMENTERECEPCINADO.getCodigo();
@@ -156,9 +184,25 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
     @EventListener
     public void updateEstadoPedido(PedidoCompraEvent evento) {
         PedidoCompraEntity pedido = pedidoCompraRepository.findById(evento.getPedidoId())
-                .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado"));;
+                .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado"));
 
-        switch (evento.getTipoEvento()) {
+        System.out.println("UPDATEESTADO");
+        boolean hasAnticipos = hasAnticipos(pedido.getId());
+        Character estadoRecepcion = getEstadoRecepcionPedido(pedido.getId());
+        System.out.println(hasAnticipos);
+        System.out.println(estadoRecepcion);
+        if(!hasAnticipos && estadoRecepcion == null){
+            System.out.println("IF");
+            
+            pedido.setEstadoPedido(Estado.NUEVO.getCodigo());
+        }else if(hasAnticipos && estadoRecepcion == null){
+            System.out.println("ELSE1");
+            pedido.setEstadoPedido(Estado.CONANTICIPO.getCodigo());
+        }else if(estadoRecepcion != null){
+            System.out.println("ELSE2");
+            pedido.setEstadoPedido(estadoRecepcion);
+        }
+        /*switch (evento.getTipoEvento()) {
             case ANTICIPO_CREADO:
                     pedido.setEstadoPedido(Estado.CONANTICIPO.getCodigo());
 
@@ -170,21 +214,31 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
                 }
                 
                 break;
+            case PEDIDO_RECEPCIONADO:
+                    pedido.setEstadoPedido(getEstadoRecepcionPedido(pedido.getId()));
+                break;
+            case RECEPCION_ELIMINADO:
+                Character estadoRecepcion = getEstadoRecepcionPedido(pedido.getId());
+                if ( estadoRecepcion  == null && !hasAnticipos(pedido.getId())) {
+                    pedido.setEstadoPedido(Estado.NUEVO.getCodigo());
+                }
+                    pedido.setEstadoPedido(getEstadoRecepcionPedido(pedido.getId()));
+                break;
 
             default:
                 throw new IllegalArgumentException("Evento no reconocido: " + evento.getTipoEvento());
-        }
+        }*/
         
         pedidoCompraRepository.save(pedido);
         
     }
     
-    @EventListener
+    /*@EventListener
     public void handleRecepcion(ProductosPedidoRecepcionadosEvent event)throws Exception {
         Long pedidoId = event.getPedidocompraId();
         
         actualizarCantidadesRecepcionadas(pedidoId);
-    }
+    }*/
     
 
     private boolean hasAnticipos(Long id) {

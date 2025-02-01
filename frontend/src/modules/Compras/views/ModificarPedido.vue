@@ -88,23 +88,17 @@ const total = ref(0);
 
 onMounted(() => {
     PedidoCompraServices.getPedido(router.currentRoute.value.params.id).then((data) => {
-        pedido.value = data.data;
-        if (data.data.proveedor != null) {
-            proveedor.value = data.data.proveedor;
-            selectedCliente.value = data.data.proveedor;
+        console.log(data.data)
+        pedido.value = data.data.pedido;
+        detalleFacturar.value = data.data.detalle;
+        if (pedido.value.proveedor != null) {
+            proveedor.value = pedido.value.proveedor;
+            selectedCliente.value = proveedor.value;
         }
        total.value = pedido.value.total;
        
         mostrarCliente();
    });
-
-   PedidoCompraServices.getDetallePedido(router.currentRoute.value.params.id).then((response)=>{
-        console.log(response.data)
-        if (response.data.length > 0) {
-            detalleFacturar.value = response.data;
-        }
-        
-    });
 
     ProductoServices.obtenerProductos().then((data) => {
      productos.value = data.data
@@ -522,7 +516,7 @@ const eliminar = (detalle) => {
                                 <div class="card" style="width: 100%;">
     <div class="flex card-container" style="width: 100%;">
         <DataTable class="tablaCarrito" ref="dt" :value="detalleFacturar" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
-         <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
+         <Column  class="col" field="producto" header="Nombre" aria-sort="none" ></Column>
          <Column class="col" field="producto.costo"  header="Precio" aria-sort="none" >
             <template #body="slotProps">
             <div class="flex-auto p-fluid" >

@@ -161,6 +161,13 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
     
     @Query(
     "SELECT m FROM MovimientoEntity m "
+           + "LEFT JOIN FETCH m.compra c "
+            + "WHERE c.id = ?1 "
+           )
+    public MovimientoEntity findByIdCompra(Long id);
+    
+    @Query(
+    "SELECT m FROM MovimientoEntity m "
            + "LEFT JOIN FETCH m.reembolso r "
             + "WHERE r.id = ?1 "
            )

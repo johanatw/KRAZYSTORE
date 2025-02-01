@@ -35,18 +35,6 @@ public class RecepcionEntity {
     private Date fecha;
     @Column
     private char estado;
-    @ManyToOne
-    @JoinColumn(name="id_pedido_compra")
-    private PedidoCompraEntity pedidoCompra;
-
-    public PedidoCompraEntity getPedidoCompra() {
-        return pedidoCompra;
-    }
-
-    public void setPedidoCompra(PedidoCompraEntity pedidoCompra) {
-        this.pedidoCompra = pedidoCompra;
-    }
-
     
     public Long getId() {
         return id;

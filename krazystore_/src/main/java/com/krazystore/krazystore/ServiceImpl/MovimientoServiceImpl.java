@@ -24,7 +24,6 @@ import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.CajaEntity;
 import com.krazystore.krazystore.Entity.CompraEntity;
 import com.krazystore.krazystore.Entity.ConceptoEntity;
-import com.krazystore.krazystore.Entity.EstadoEntity;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
 import com.krazystore.krazystore.Entity.PagoEntity;
 import com.krazystore.krazystore.Entity.ReembolsoEntity;
@@ -196,6 +195,16 @@ public class MovimientoServiceImpl implements MovimientoService {
     }
     
     @Override
+    public MovimientoEntity updateMovimiento(CompraEntity compra) {
+        MovimientoEntity movimiento = movimientoRepository.findByIdCompra(compra.getId());
+        movimiento.setMonto(compra.getTotal());
+        movimiento.setNroDocumento(compra.getNroFactura());
+        MovimientoEntity updatedMovimiento = movimientoRepository.save(movimiento);
+        
+        return updatedMovimiento;
+    }
+    
+    @Override
     public MovimientoEntity crearMovimiento(CompraEntity compraEntity) {
         MovimientoEntity nuevoMovimiento = new MovimientoEntity();
         
@@ -329,6 +338,23 @@ public class MovimientoServiceImpl implements MovimientoService {
         
     }
     
+    @Override
+    public void deleteCompra(Long id) {
+
+        //Se obtiene el movimiento de caja correspondiente a la venta
+        MovimientoEntity movimiento = movimientoRepository.findByIdCompra(id);
+       
+        List<PagoEntity> pagos = pagoService.findByIdMovimiento(movimiento.getId());
+
+        if(!pagos.isEmpty()){
+            throw new RuntimeException("Debe eliminar los pagos para eliminar el movimiento");
+        }
+
+         // Se elimina el movimiento      
+        movimientoRepository.deleteById(movimiento.getId());
+        
+    }
+    
 
     @Transactional
     public void actualizarEstadoPedido(Long idPedido, char tipoPedido, TipoEvento tipoEvento) {       
@@ -337,9 +363,8 @@ public class MovimientoServiceImpl implements MovimientoService {
         }
         System.out.println("ACTUALIZARESTADOPEDIDO");
         if(tipoPedido == TipoPedido.PEDIDOCOMPRA.getCodigo() ){
-            /*System.out.println("UIF");
             PedidoCompraEvent evento = new PedidoCompraEvent(idPedido, tipoEvento);
-            eventPublisher.publishEvent(evento);*/
+            eventPublisher.publishEvent(evento);
         }else{
             System.out.println("ELSE");
             PedidoEvent evento = new PedidoEvent(idPedido, tipoEvento);

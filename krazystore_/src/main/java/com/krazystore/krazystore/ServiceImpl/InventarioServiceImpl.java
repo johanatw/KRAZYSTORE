@@ -175,5 +175,15 @@ public class InventarioServiceImpl implements InventarioService {
                 .map(detalleDTOMapper)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public InventarioEntity finalizarInventario(Long id) {
+        InventarioEntity inventario = inventarioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Inventario no encontrado"));
+        
+        inventario.setEstado(Estado.FINALIZADO.getCodigo());
+        
+        return inventarioRepository.save(inventario);
+    }
     
 }

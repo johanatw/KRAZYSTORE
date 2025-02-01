@@ -25,7 +25,7 @@ import Listbox from 'primevue/listbox';
 import SplitButton from 'primevue/splitbutton';
 
 const pedidos = ref();
-
+import { formatearNumero, formatearFecha, getEstadoPedidoCompra } from '@/utils/utils'; 
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 
@@ -40,7 +40,7 @@ const cajaAbierta = ref({});
 const confirm2 = (id) => {
    
     confirm.require({
-        message: 'Eliminar el reembolso #'+ id + '?',
+        message: 'Eliminar el pedido #'+ id + '?',
         header: 'Confirmacion',
         icon: 'pi pi-info-circle',
         rejectLabel: 'Cancelar',
@@ -48,7 +48,7 @@ const confirm2 = (id) => {
         rejectClass: 'p-button-secondary p-button-outlined',
         acceptClass: 'p-button-danger',
         accept: () => {
-            deleteReembolso(id);
+            deletePedido(id);
             
         },
         
@@ -121,14 +121,11 @@ const verPedidoCompra = (id) => {
 const deletePedido = (id) =>{
     const cantidad= 1;
     const index = pedidos.value.findIndex((loopVariable) => loopVariable.id === id);
-    
-    
-    PedidoServices.deleteDetallesPedido(id).then((response)=>{
-        console.log(response);
-        PedidoServices.deletePedido(id).then((response)=>{
-            pedidos.value.splice(index,cantidad);
-            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 3000 });
-        })
+    console.log("Deletepedddo");
+    PedidoCompraServices.deletePedido(id).then((response)=>{
+        pedidos.value.splice(index,cantidad);
+        toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 3000 });
+        
     });
 }
 
@@ -150,29 +147,8 @@ const getSeverity = (estado) => {
    }
 };
 
-const getEstado = (estado) => {
-  
-  
-  switch (estado) {
-       case 'N':
-           return 'Nuevo';
-
-       case 'P':
-           return 'Recepción Parcial';
-
-       case 'R':
-           return 'Recepción Completa';
-        case 'A':
-           return 'Con Anticipo';
-
-       default:
-           return null;
-   }
-};
-
 const isRecepcionCompleta = (estado) => {
-  
-  
+  console.log(estado);
   switch (estado) {
        case 'R':
            return true;
@@ -181,15 +157,14 @@ const isRecepcionCompleta = (estado) => {
    }
 };
 
-const formatearNumero = (valor) =>{
-    if(typeof(valor) == "number"){
-        return valor.toLocaleString("de-DE");
-    }
-
-    let fecha = new Date(valor);
-    let fechaFormateada = fecha.getDate() + '/' + (fecha.getMonth()+1) + '/' +fecha.getFullYear()+' '+ fecha.getHours()+':'+fecha.getMinutes()+':'+fecha.getSeconds();
-    return fechaFormateada;
-}
+const isNuevo = (estado) => {
+  switch (estado) {
+       case 'N':
+           return true;
+       default:
+           return false;
+   }
+};
 
 const nuevoPedido = () =>{
     router.push({name: 'nuevo_pedido_compra'});
@@ -233,7 +208,7 @@ const nuevoPedido = () =>{
           <Column field="id" sortable header="N°" aria-sort="ascending" ></Column>
           <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
             <template #body="slotProps">
-                {{ formatearNumero(slotProps.data.fecha) }}
+                {{ formatearFecha(slotProps.data.fecha) }}
             </template>
         </Column>
           <Column field="proveedor.descripcion"  header="Proveedor" aria-sort="ascending" sortable>           
@@ -245,16 +220,16 @@ const nuevoPedido = () =>{
         </Column>   
         <Column field="estado"  header="Estado" aria-sort="ascending" sortable>  
           <template #body="slotProps">
-                <Tag :style="getSeverity(slotProps.data.estadoPedido)" style=" font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ getEstado(slotProps.data.estadoPedido)}}</Tag>
+                <Tag :style="getSeverity(slotProps.data.estadoPedido)" style=" font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ getEstadoPedidoCompra(slotProps.data.estadoPedido)}}</Tag>
               </template>         
         </Column>
         
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
                 <Button icon="pi pi-search" text rounded aria-label="Search" @click="verPedidoCompra(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
-                <Button :disabled="isRecepcionCompleta(slotProps.data.estado)" icon="pi pi-truck" severity="success" text rounded aria-label="Search" @click="recepcionarPedidoCompra(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
+                <Button :disabled="isRecepcionCompleta(slotProps.data.estadoPedido)" icon="pi pi-truck" severity="success" text rounded aria-label="Search" @click="recepcionarPedidoCompra(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
                 
-                <Button  icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button :disabled="!isNuevo(slotProps.data.estadoPedido)" icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                 
                 </template>
           </Column>

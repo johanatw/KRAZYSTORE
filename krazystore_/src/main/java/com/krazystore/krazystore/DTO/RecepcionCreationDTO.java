@@ -19,24 +19,24 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class RecepcionCreationDTO {
-    private RecepcionEntity recepcion;
-    private List<DetalleRecepcion> detalle;
+    private RecepcionDTO recepcion;
+    private List<DetalleRecepcionDTO> detalle;
 
-    public RecepcionEntity getRecepcion() {
+    public RecepcionDTO getRecepcion() {
         return recepcion;
     }
 
-    public void setRecepcion(RecepcionEntity recepcion) {
+    public void setRecepcion(RecepcionDTO recepcion) {
         this.recepcion = recepcion;
     }
 
-    public List<DetalleRecepcion> getDetalle() {
+    public List<DetalleRecepcionDTO> getDetalle() {
         return detalle;
     }
 
-    public void setDetalle(List<DetalleRecepcion> detalle) {
+    public void setDetalle(List<DetalleRecepcionDTO> detalle) {
         this.detalle = detalle;
     }
-    
+
     
 }

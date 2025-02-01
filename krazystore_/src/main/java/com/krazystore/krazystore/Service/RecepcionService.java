@@ -16,7 +16,7 @@ import java.util.Optional;
  */
 public interface RecepcionService {
     List<RecepcionDTO> findAll();
-    Optional<RecepcionDTO> findById(Long id);
+    RecepcionCreationDTO findById(Long id);
     RecepcionEntity saveRecepcion (RecepcionCreationDTO recepcion);
     RecepcionEntity updateRecepcion(RecepcionCreationDTO recepcion, Long id);
     void deleteRecepcion(Long id);

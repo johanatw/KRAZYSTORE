@@ -56,9 +56,9 @@ public class AnticipoController {
         return anticipoService.findByIdPedido(id, TipoPedido.PEDIDOVENTA);
     }
     
-    @GetMapping("/pedido_compra/{id}")
-    public List<AnticipoEntity> findByIdPedidoCompra(@PathVariable("id") Long id) {
-        return anticipoService.findByIdPedido(id, TipoPedido.PEDIDOCOMPRA);
+    @GetMapping("/recepcion/{id}")
+    public List<AnticipoEntity> findByIdRecepcion(@PathVariable("id") Long id) {
+        return anticipoService.findByIdRecepcion(id);
     }
     
     @GetMapping("/verificar/{id}")

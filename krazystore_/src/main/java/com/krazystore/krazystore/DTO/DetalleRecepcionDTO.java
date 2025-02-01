@@ -13,29 +13,66 @@ import com.krazystore.krazystore.Entity.ProductoEntity;
 
 public class DetalleRecepcionDTO {
     private Long id;
-    private ProductoEntity producto;
+    private Long idRecepcion;
+    private Long idDetallePedido;
+    private Long idProducto;
+    private String producto;
     private int costo;
     private int cantSolicitado;
+    private int cantAceptada;
+    private int cantRechazada;
+    private int cantTotalRecepcionado;
     private int cantRecepcionado;
 
-    public DetalleRecepcionDTO(Long id, int costo, int cantSolicitado, int cantRecepcionado) {
+    public DetalleRecepcionDTO() {
+    }
+
+    public DetalleRecepcionDTO(Long id, Long idRecepcion, Long idDetallePedido, Long idProducto, 
+            String producto, int costo, int cantSolicitado, int cantAceptada, int cantRechazada, int cantRecepcionado, Long cantTotalRecepcionado) {
         this.id = id;
+        this.idRecepcion = idRecepcion;
+        this.idDetallePedido = idDetallePedido;
+        this.idProducto = idProducto;
+        this.producto = producto;
         this.costo = costo;
         this.cantSolicitado = cantSolicitado;
+        this.cantAceptada = cantAceptada;
+        this.cantRechazada = cantRechazada;
+        this.cantTotalRecepcionado = (int)(long)cantTotalRecepcionado;
         this.cantRecepcionado = cantRecepcionado;
     }
 
-    public DetalleRecepcionDTO(Long id, Long idProducto, String producto, int costo, int cantSolicitado, int cantRecepcionado) {
-        this.id = id;
-        this.producto = new ProductoEntity();
-        this.producto.setId(idProducto);
-        this.producto.setNombre(producto);
-        this.costo = costo;
-        this.cantSolicitado = cantSolicitado;
-        this.cantRecepcionado = cantRecepcionado;
+    public int getCosto() {
+        return costo;
     }
-    
-    
+
+    public void setCosto(int costo) {
+        this.costo = costo;
+    }  
+
+    public Long getIdRecepcion() {
+        return idRecepcion;
+    }
+
+    public void setIdRecepcion(Long idRecepcion) {
+        this.idRecepcion = idRecepcion;
+    }
+
+    public int getCantAceptada() {
+        return cantAceptada;
+    }
+
+    public void setCantAceptada(int cantAceptada) {
+        this.cantAceptada = cantAceptada;
+    }
+
+    public int getCantRechazada() {
+        return cantRechazada;
+    }
+
+    public void setCantRechazada(int cantRechazada) {
+        this.cantRechazada = cantRechazada;
+    }
 
     
 
@@ -47,22 +84,28 @@ public class DetalleRecepcionDTO {
         this.id = id;
     }
 
-    public ProductoEntity getProducto() {
+    public Long getIdDetallePedido() {
+        return idDetallePedido;
+    }
+
+    public void setIdDetallePedido(Long idDetallePedido) {
+        this.idDetallePedido = idDetallePedido;
+    }
+
+    public Long getIdProducto() {
+        return idProducto;
+    }
+
+    public void setIdProducto(Long idProducto) {
+        this.idProducto = idProducto;
+    }
+
+    public String getProducto() {
         return producto;
     }
 
-    public void setProducto(ProductoEntity producto) {
+    public void setProducto(String producto) {
         this.producto = producto;
-    }
-
-    
-
-    public int getCosto() {
-        return costo;
-    }
-
-    public void setCosto(int costo) {
-        this.costo = costo;
     }
 
     public int getCantSolicitado() {
@@ -80,6 +123,16 @@ public class DetalleRecepcionDTO {
     public void setCantRecepcionado(int cantRecepcionado) {
         this.cantRecepcionado = cantRecepcionado;
     }
+
+    public int getCantTotalRecepcionado() {
+        return cantTotalRecepcionado;
+    }
+
+    public void setCantTotalRecepcionado(int cantTotalRecepcionado) {
+        this.cantTotalRecepcionado = cantTotalRecepcionado;
+    }
+
+    
 
     
 }

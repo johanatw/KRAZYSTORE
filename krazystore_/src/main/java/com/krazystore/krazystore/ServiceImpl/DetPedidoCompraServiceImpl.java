@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.ServiceImpl;
 
+import com.krazystore.krazystore.DTO.DetallePedidoCompraDTO;
 import com.krazystore.krazystore.DTO.DetallePedidoRecepcionDTO;
 import com.krazystore.krazystore.Entity.DetallePedidoCompra;
 import com.krazystore.krazystore.Entity.DetalleRecepcion;
@@ -32,15 +33,25 @@ public class DetPedidoCompraServiceImpl implements DetallePedidoCompraService {
     }
     
     
-    /*
+    
     @Override
-    public List<DetallePedidoCompra> findByIdPedido(Long id) {
-        return detalleRepository.findByIdPedido(id);
-    }*/
+    public List<DetallePedidoCompraDTO> findDTOByIdPedido(Long id) {
+        return detalleRepository.findDetallesByIdPedido(id);
+    }
     
     @Override
     public List<DetallePedidoCompra> findByIdPedido(Long id) {
         return detalleRepository.findByIdPedido(id);
+    }
+    
+    @Override
+    public Long getCantProductosPedidos(Long id) {
+        return detalleRepository.getCantProductosPedidos(id);
+    }
+    
+    @Override
+    public Long getCantProductosRecepcionados(Long id) {
+        return detalleRepository.getCantProductosRecepcionados(id);
     }
 
     @Transactional
@@ -49,11 +60,6 @@ public class DetPedidoCompraServiceImpl implements DetallePedidoCompraService {
         if(detalle.isEmpty()){
             throw new BadRequestException("Falta Detalle " );
         }
-        detalle.forEach(d -> {
-            PedidoCompraEntity pedido = new PedidoCompraEntity();
-            pedido.setId(idPedido);
-            d.setPedidoCompra(pedido);
-        });
         
         return detalleRepository.saveAll(detalle);
     }
@@ -85,73 +91,6 @@ public class DetPedidoCompraServiceImpl implements DetallePedidoCompraService {
     @Override
     public void deleteDetalle(Long idPedido) {
         detalleRepository.deleteAllByIdPedido(idPedido);
-    }
-    
-    @Transactional
-    @Override
-    public List<DetallePedidoCompra> actualizarCantidadesRecepcionadas(List<DetalleRecepcion> detalleRecepcion,Long idPedido) {
-        List<DetallePedidoCompra> detallesPedido = detalleRepository.findByIdPedido(idPedido);
-        
-        
-        detalleRecepcion.forEach(rec -> {
-            
-            Optional<DetallePedidoCompra> detallePedido = detallesPedido.stream().filter(ped -> Objects.equals(ped.getId(), rec.getDetallePedido().getId())).findAny();
-            
-            if(detallePedido.isPresent() ){
-                detallePedido.get().setCantRecepcionada(detallePedido.get().getCantRecepcionada() + rec.getCantRecepcionada());
-            }
-
-        });
-        
-        return detalleRepository.saveAll(detallesPedido);
-      
-        
-    }
-    
-    @Transactional
-    @Override
-    public List<DetallePedidoCompra> modificarCantidadesRecepcionadas(List<DetalleRecepcion> nuevoDetalleRecepcion,List<DetalleRecepcion> anteriorDetalleRecepcion,Long idPedido) {
-        List<DetallePedidoCompra> detallesPedido = detalleRepository.findByIdPedido(idPedido);
-        
-        System.out.println("anterior Detalle");
-        anteriorDetalleRecepcion.forEach(rec -> {
-            
-            Optional<DetallePedidoCompra> detallePedido = detallesPedido.stream().filter(ped -> Objects.equals(ped.getId(), rec.getDetallePedido().getId())).findAny();
-            System.out.println("antes cantRecepcionada");
-            System.out.println(detallePedido.get().getCantRecepcionada());
-            if(detallePedido.isPresent() ){
-                detallePedido.get().setCantRecepcionada(detallePedido.get().getCantRecepcionada() - rec.getCantRecepcionada());
-            }
-            System.out.println("despues cantRecepcionada");
-            System.out.println(detallePedido.get().getCantRecepcionada());
-            // Asegurar que no sea negativa
-            if (detallePedido.get().getCantRecepcionada() < 0) {
-                throw new IllegalArgumentException("La cantidad recepcionada no puede ser negativa para el producto: " + detallePedido.get().getProducto().getNombre());
-            }
-
-        });
-        
-        System.out.println("nuevo Detalle");
-        nuevoDetalleRecepcion.forEach(rec -> {
-            
-            Optional<DetallePedidoCompra> detallePedido = detallesPedido.stream().filter(ped -> Objects.equals(ped.getId(), rec.getDetallePedido().getId())).findAny();
-            System.out.println("antes cantRecepcionada");
-            System.out.println(detallePedido.get().getCantRecepcionada());
-            if(detallePedido.isPresent() ){
-                detallePedido.get().setCantRecepcionada(detallePedido.get().getCantRecepcionada() + rec.getCantRecepcionada());
-            }
-            System.out.println("despues cantRecepcionada");
-            System.out.println(detallePedido.get().getCantRecepcionada());
-            // Validar que no exceda la cantidad pedida
-            if (detallePedido.get().getCantRecepcionada() > detallePedido.get().getCantidad()) {
-                throw new IllegalArgumentException("La cantidad recepcionada excede la cantidad pedida para el producto: " + detallePedido.get().getProducto().getNombre());
-            }
-
-        });
-        
-        return detalleRepository.saveAll(detallesPedido);
-      
-        
     }
     
     private void procesarEliminaciones(List<DetallePedidoCompra> detallesAnteriores, List<DetallePedidoCompra> nuevosDetalles) throws Exception {
@@ -222,7 +161,6 @@ public class DetPedidoCompraServiceImpl implements DetallePedidoCompraService {
                     
                     
                     actual.get().setId(anterior.getId());
-                    actual.get().setPedidoCompra(anterior.getPedidoCompra());
                     
                     elementos.add(actual.get());
                 }
@@ -234,7 +172,6 @@ public class DetPedidoCompraServiceImpl implements DetallePedidoCompraService {
     }
     
     public List<DetallePedidoCompra> getElementosRegistrar (List<DetallePedidoCompra> anteriorDetalle, List<DetallePedidoCompra> actualDetalle) {
-        PedidoCompraEntity pedido = anteriorDetalle.get(0).getPedidoCompra();
         List<DetallePedidoCompra> elementos = new ArrayList<>();
                            
         // Recorre detalle anterior
@@ -244,9 +181,7 @@ public class DetPedidoCompraServiceImpl implements DetallePedidoCompraService {
                     .anyMatch(anterior -> Objects.equals(actual.getProducto().getId(), anterior.getProducto().getId()));
 
             // Si no existe en el detalle anterior, se intenta registrar
-            if (!existe) {
-                actual.setPedidoCompra(pedido);
-              
+            if (!existe) {            
                 elementos.add(actual);
             }
         });

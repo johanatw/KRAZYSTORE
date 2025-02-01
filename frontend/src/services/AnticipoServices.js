@@ -88,11 +88,11 @@ getCantidadPagado(idPedido, idProducto) {
     }
     
 },
-getAnticiposByIdPedidoCompra(idPedido) {
-  //console.log("detalle", pedido);
+getAnticiposByIdRecepcion(id) {
+  console.log("recepcion", id);
   try {
     console.log("7");
-  return axios.get(ANTICIPO_API_BASE_URL+'/pedido_compra/'+idPedido);
+  return axios.get(ANTICIPO_API_BASE_URL+'/recepcion/'+id);
   
   } catch (error) {
     console.log("8");

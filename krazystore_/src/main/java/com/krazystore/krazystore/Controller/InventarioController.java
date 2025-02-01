@@ -65,6 +65,11 @@ public class InventarioController {
         return inventarioService.updateInventario(inventario, id);
     }
     
+    @PutMapping("/finalizar/{id}")
+    public InventarioEntity finalizarInventario(@PathVariable long id)throws Exception {
+        return inventarioService.finalizarInventario(id);
+    }
+    
     @PutMapping("/ajustar/{id}")
     public InventarioEntity ajustarInventario(@PathVariable long id)throws Exception {
         return inventarioService.ajustarInventario(id);

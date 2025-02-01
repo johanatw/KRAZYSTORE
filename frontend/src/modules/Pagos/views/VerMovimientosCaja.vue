@@ -156,7 +156,7 @@
         
                                 <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
                                     <template #body="slotProps">
-                                        {{ formatearNumero(slotProps.data.fecha) }}
+                                        {{ formatearFecha(slotProps.data.fecha) }}
                                     </template>
                                 </Column>
                                 <Column field="concepto"  header="Concepto" aria-sort="ascending" sortable></Column>
@@ -193,7 +193,7 @@
                             currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros" >
                                 <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
                                     <template #body="slotProps">
-                                        {{ formatearNumero(slotProps.data.fecha) }}
+                                        {{ formatearFecha(slotProps.data.fecha) }}
                                     </template>
                                 </Column>
                                 <Column field="concepto.descripcion"  header="Concepto" aria-sort="ascending" sortable></Column>
@@ -238,7 +238,7 @@ import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-import {formatearNumero, existeCajaAbierta} from '@/utils/utils';
+import {formatearNumero, existeCajaAbierta, formatearFecha} from '@/utils/utils';
 import {CajaServices} from '@/services/CajaServices';
 import router from '@/router';
 import ConfirmDialog from 'primevue/confirmdialog';
@@ -248,7 +248,6 @@ import { useConfirm } from "primevue/useconfirm";
 import { computed } from 'vue';
 import { watch } from 'vue';
 import Message from 'primevue/message';
-
 import Checkbox from 'primevue/checkbox';
 
 
@@ -475,8 +474,8 @@ const registrarPago = (movimiento) => {
         getAnticiposByIdPedidoVenta(movimiento.venta.pedido.id);
     } 
 
-    if(movimiento.compra != null && movimiento.compra.recepcion.pedidoCompra != null ){
-        getAnticiposByIdPedidoCompra(movimiento.compra.recepcion.pedidoCompra.id);
+    if(movimiento.compra != null && movimiento.compra.recepcion != null ){
+        getAnticiposByIdRecepcion(movimiento.compra.recepcion.id);
     }
 };
 
@@ -492,11 +491,11 @@ AnticipoServices.getAnticiposByIdPedidoVenta(idPedido).then((data) => {
 });
 };
 
-const getAnticiposByIdPedidoCompra = (idPedido) => {
+const getAnticiposByIdRecepcion = (id) => {
 console.log("getCompra");
-AnticipoServices.getAnticiposByIdPedidoCompra(idPedido).then((data) => {
+AnticipoServices.getAnticiposByIdRecepcion(id).then((data) => {
     anticipos.value = data.data;
-    console.log(formasPago.value);
+    console.log(anticipos.value);
     if (anticipos.value.length > 0) {
         anticiposAsociados.value = true;
     }   

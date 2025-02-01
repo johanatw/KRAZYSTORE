@@ -24,4 +24,5 @@ public interface InventarioService {
     List<DetalleInventarioDTO> getDetallesInventarioIniciales();
     InventarioCreationDTO obtenerDetallesCompletos(Long id);
     InventarioEntity ajustarInventario(Long id);
+    InventarioEntity finalizarInventario(Long id);
 }

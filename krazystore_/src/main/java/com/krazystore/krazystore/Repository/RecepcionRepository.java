@@ -34,7 +34,7 @@ public interface RecepcionRepository extends JpaRepository<RecepcionEntity, Long
         + "FROM RecepcionEntity r WHERE r.id = ?1 ")
         Optional<RecepcionDTO> findRecepcionWithDetails(Long idRecepcion);
         
-    @Query("SELECT DISTINCT new com.krazystore.krazystore.DTO.RecepcionDTO(r.id, r.fecha, p.id, p.proveedor ) "
+    @Query("SELECT DISTINCT new com.krazystore.krazystore.DTO.RecepcionDTO(r.id, r.fecha, p.id, r.estado, p.proveedor ) "
         + "FROM RecepcionEntity r "
         + "JOIN DetalleRecepcion d ON d.recepcion = r "
         + "JOIN d.detallePedido dp "
@@ -42,10 +42,15 @@ public interface RecepcionRepository extends JpaRepository<RecepcionEntity, Long
         + "WHERE r.id = ?1")
     Optional<RecepcionDTO> findRecepcion(Long idRecepcion);
 
-    @Query("SELECT new com.krazystore.krazystore.DTO.DetalleRecepcionDTO(d.id, dp.producto.id, dp.producto.nombre, dp.costoCompra, dp.cantidad, d.cantRecepcionada) "
-            + "FROM DetalleRecepcion d "
-            + "JOIN d.detallePedido dp "
-            + "WHERE d.recepcion.id = ?1")
+    @Query("SELECT new com.krazystore.krazystore.DTO.DetalleRecepcionDTO(d.id, d.recepcion.id, dp.id, dp.producto.id, "
+        + "dp.producto.nombre, dp.costoCompra, dp.cantidad, d.cantAceptada, d.cantRechazada, d.cantRecepcionada, "
+        + "(SELECT COALESCE(SUM(r.cantRecepcionada), 0) "
+        + " FROM DetalleRecepcion r "
+        + " JOIN r.detallePedido dt "
+        + " WHERE dt.id = dp.id) ) "
+        + "FROM DetalleRecepcion d "
+        + "JOIN d.detallePedido dp "
+        + "WHERE d.recepcion.id = ?1")
     List<DetalleRecepcionDTO> findDetallesByRecepcionId(Long idRecepcion);
     
     @Query("SELECT DISTINCT new com.krazystore.krazystore.DTO.RecepcionDTO(r.id, r.fecha, p.id, r.estado, p.proveedor ) "
@@ -55,5 +60,11 @@ public interface RecepcionRepository extends JpaRepository<RecepcionEntity, Long
         + "ON d.detallePedido.pedidoCompra = p ")
     List<RecepcionDTO> findAllRecepciones();
     
-    
+    @Query("SELECT p.id "
+        + "FROM PedidoCompraEntity p "
+        + "LEFT JOIN DetallePedidoCompra d ON d.pedidoCompra = p "
+        + "LEFT JOIN DetalleRecepcion t ON t.detallePedido = d "
+        + "LEFT JOIN RecepcionEntity r ON t.recepcion = r "
+        + "WHERE r.id = ?1")
+    Long getIdPedidoCompraByIdRecepcion(Long idRecepcion);
 }

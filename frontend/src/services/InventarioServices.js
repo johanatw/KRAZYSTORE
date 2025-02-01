@@ -55,5 +55,10 @@ export const InventarioServices = {
     return axios.put(INVENTARIO_API_BASE_URL + "/ajustar/" + id);
   },
 
+  finalizarInventario(id){
+    
+    return axios.put(INVENTARIO_API_BASE_URL + "/finalizar/" + id);
+  },
+
 };
 export default { InventarioServices: InventarioServices };

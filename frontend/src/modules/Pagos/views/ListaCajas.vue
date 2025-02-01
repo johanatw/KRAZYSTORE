@@ -21,7 +21,7 @@ import { useConfirm } from "primevue/useconfirm";
 import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
 import InputGroup from 'primevue/inputgroup';
-import {formatearNumero, existeCajaAbierta} from '@/utils/utils';
+import {formatearNumero, existeCajaAbierta, formatearFecha, getEstadoCaja} from '@/utils/utils';
 
 const cajas= ref([]);
 
@@ -93,30 +93,27 @@ const verCaja = (caja) =>{
       
             <div >
                 <DataTable  :value="cajas " scrollHeight="400px"  
-                :paginator="true" :rows="7" :filters="filters"
+                :paginator="true" :rows="7" 
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 
                 currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros" >
                     <Column field="id" sortable header="N°" aria-sort="ascending" ></Column>
                     <Column field="fecha" sortable header="Apertura" aria-sort="ascending" >
                         <template #body="slotProps">
-                            {{ formatearNumero(slotProps.data.fecha) }}
+                            {{ formatearFecha(slotProps.data.fecha) }}
                         </template>
                     </Column>
                     <Column field="fechaCierre" sortable header="Cierre" aria-sort="ascending" >
                         <template #body="slotProps">
                             <div v-if="slotProps.data.fechaCierre != null">
-                                {{ formatearNumero(slotProps.data.fechaCierre) }}
+                                {{ formatearFecha(slotProps.data.fechaCierre) }}
                             </div>
                         </template>
                     </Column>
                     <Column  field="estado" header="Estado" aria-sort="ascending" sortable >
                         
                         <template #body="slotProps">
-                            <div v-if="slotProps.data.estado == 'A'">
-                                Activo
-                            </div>
-                            <div v-else>
-                                Cerrado
+                            <div>
+                                {{ getEstadoCaja(slotProps.data.estado) }}
                             </div>
                         </template>
                     </Column>

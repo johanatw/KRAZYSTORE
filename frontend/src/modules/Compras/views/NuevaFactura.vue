@@ -93,9 +93,9 @@ const recepcion = ref();
 
 onMounted(() => {
     RecepcionServices.getRecepcion(router.currentRoute.value.params.id).then((data) => {
-        recepcion.value = data.data;
+        recepcion.value = data.data.recepcion;
         detalle.value = data.data.detalle;  
-        selectedCliente.value = data.data.proveedor;
+        selectedCliente.value = data.data.recepcion.proveedor;
         mostrarCliente(); 
         console.log(data.data);
         detalle.value.forEach(element => {
@@ -103,7 +103,7 @@ onMounted(() => {
             let e = {};
             e.cantidad = element.cantRecepcionado;
             e.costoCompra = element.costo;
-            e.producto = element.producto;
+            e.producto = {id: element.idProducto, nombre: element.producto};
             e.subTotal = e.cantidad * e.costoCompra;
             
             detalleFacturar.value.push(e);
@@ -594,11 +594,7 @@ const eliminar = (detalle) => {
                   </div>
             </template>
          </Column>
-         <Column class="col" :exportable="false" style="min-width:1rem">
-           <template #body="slotProps">
-             <Button icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="eliminar(slotProps.data)" />
-           </template>
-         </Column>
+
      </DataTable>
    </div>
  </div>

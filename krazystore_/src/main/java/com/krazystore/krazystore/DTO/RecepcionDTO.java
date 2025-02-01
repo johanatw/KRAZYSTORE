@@ -17,14 +17,9 @@ public class RecepcionDTO {
     private Date fecha;
     private Long idPedido;
     private char estado;
-    private List<DetalleRecepcionDTO> detalle;
     private ProveedorEntity proveedor;
 
-    public RecepcionDTO(Long id, Date fecha, Long idPedido, List<DetalleRecepcionDTO> detalle) {
-        this.id = id;
-        this.fecha = fecha;
-        this.idPedido = idPedido;
-        this.detalle = detalle;
+    public RecepcionDTO() {
     }
 
     public RecepcionDTO(Long id, Date fecha, Long idPedido) {
@@ -95,15 +90,7 @@ public class RecepcionDTO {
     public void setIdPedido(Long idPedido) {
         this.idPedido = idPedido;
     }
-
-    public List<DetalleRecepcionDTO> getDetalle() {
-        return detalle;
-    }
-
-    public void setDetalle(List<DetalleRecepcionDTO> detalle) {
-        this.detalle = detalle;
-    }
-    
+   
     
     
 }

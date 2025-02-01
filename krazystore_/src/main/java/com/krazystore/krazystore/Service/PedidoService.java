@@ -6,7 +6,6 @@ package com.krazystore.krazystore.Service;
 
 import com.krazystore.krazystore.DTO.PedidoDTO;
 import com.krazystore.krazystore.Entity.DetallePedidoEntity;
-import com.krazystore.krazystore.Entity.EstadoEntity;
 import com.krazystore.krazystore.Entity.PedidoEntity;
 import java.util.List;
 import java.util.Optional;

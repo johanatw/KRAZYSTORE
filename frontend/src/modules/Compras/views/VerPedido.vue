@@ -90,14 +90,11 @@ const proveedor = ref({});
 
 onMounted(() => {
     PedidoCompraServices.getPedido(router.currentRoute.value.params.id).then((data) => {
-        pedido.value = data.data;
-       proveedor.value = data.data.proveedor;
+        pedido.value = data.data.pedido;
+        detalle.value = data.data.detalle;
+       proveedor.value = pedido.value.proveedor;
        mostrarCliente(proveedor.value);
    });
-
-   PedidoCompraServices.getDetallePedido(router.currentRoute.value.params.id).then((response)=>{
-        detalle.value = response.data;
-    });
 
 });
 
@@ -203,7 +200,7 @@ const modificarPedido = (id) => {
                                 <div class="card" style="width: 100%;">
     <div class="flex card-container" style="width: 100%;">
         <DataTable class="tablaCarrito" ref="dt" :value="detalle" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
-         <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
+         <Column  class="col" field="producto" header="Nombre" aria-sort="none" ></Column>
          <Column class="col" field="costoCompra"  header="Precio" aria-sort="none" >
             <template #body="slotProps">
             <div class="flex-auto p-fluid" >

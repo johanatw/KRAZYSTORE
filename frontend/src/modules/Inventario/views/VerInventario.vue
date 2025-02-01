@@ -145,9 +145,9 @@ const finalizarInventario = () =>{
     inventario.value.estado = 'F';
     let anticipoCreationDTO = {inventario: inventario.value, detalle: detalleInventario.value};
 
-    InventarioServices.modificarInventario(inventario.value.id, anticipoCreationDTO).then((data)=> {
+    InventarioServices.finalizarInventario(inventario.value.id).then((data)=> {
         let id = data.data.id;
-       // verInventario(data.data.id);
+        inventario.value = data.data;
     } );
 }
 

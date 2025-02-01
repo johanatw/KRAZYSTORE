@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PedidoCompraCreationDTO {
     private PedidoCompraEntity pedido;
-    private List<DetallePedidoCompra> detalle;
+    private List<DetallePedidoCompraDTO> detalle;
 
     public PedidoCompraEntity getPedido() {
         return pedido;
@@ -30,13 +30,15 @@ public class PedidoCompraCreationDTO {
         this.pedido = pedido;
     }
 
-    public List<DetallePedidoCompra> getDetalle() {
+    public List<DetallePedidoCompraDTO> getDetalle() {
         return detalle;
     }
 
-    public void setDetalle(List<DetallePedidoCompra> detalle) {
+    public void setDetalle(List<DetallePedidoCompraDTO> detalle) {
         this.detalle = detalle;
     }
+
+    
     
     
 }

@@ -33,6 +33,9 @@ export const CompraServices = {
     
     return axios.put(COMPRA_API_BASE_URL + "/" + id, pedido);
   },
+  deleteCompra(id){
+    return axios.delete(COMPRA_API_BASE_URL+"/"+id);
+  },
 
 };
 export default { CompraServices: CompraServices };

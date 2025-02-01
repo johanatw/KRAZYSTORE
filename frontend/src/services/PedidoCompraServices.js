@@ -34,6 +34,9 @@ export const PedidoCompraServices = {
     console.log("modificarpedidoid",id,"detalles", pedido);
     return axios.put(PEDIDO_COMPRA_API_BASE_URL + "/" + id, pedido);
   },
+  deletePedido(id){
+    return axios.delete(PEDIDO_COMPRA_API_BASE_URL+"/"+id);
+  },
 
 
 };

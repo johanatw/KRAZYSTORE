@@ -27,7 +27,7 @@ const pedidos = ref();
 
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
-
+import { formatearNumero, formatearFecha, getEstadoFacturaVenta } from '@/utils/utils'; 
 
 const opciones = ref([{id: 1, descripcion: 'Facturar productos disponibles en stock.'},
                     {id: 2, descripcion: 'Registrar anticipo para productos no disponibles en stock.'}]);
@@ -174,35 +174,10 @@ const deletePedido = (id) =>{
     });
 }
 
-const formatearNumero = (valor) =>{
-    if(typeof(valor) == "number"){
-        return valor.toLocaleString("de-DE");
-    }
-
-    let fecha = new Date(valor);
-    let fechaFormateada = fecha.getDate() + '/' + (fecha.getMonth()+1) + '/' +fecha.getFullYear()+' '+ fecha.getHours()+':'+fecha.getMinutes()+':'+fecha.getSeconds();
-    return fechaFormateada;
-}
-
 const nuevoPedido = () =>{
     router.push({name: 'nuevo_pedido'});
 }
 
-const getEstado = (estado) => {
-  
-  
-  switch (estado) {
-       case 'C':
-           return 'Pagado';
-       case 'P':
-           return 'Pendiente de pago';
-      case 'A':
-           return 'Anulado';
-
-       default:
-           return null;
-   }
-};
 
 </script>
 
@@ -235,7 +210,7 @@ const getEstado = (estado) => {
           
           <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
             <template #body="slotProps">
-                {{ formatearNumero(slotProps.data.fecha) }}
+                {{ formatearFecha(slotProps.data.fecha) }}
             </template>
         </Column>
           <Column field="cliente.nombre"  header="Cliente" aria-sort="ascending" sortable>  
@@ -257,7 +232,7 @@ const getEstado = (estado) => {
         <Column  header="Estado" aria-sort="ascending" sortable> 
             <template #body="slotProps">
                 <div style="color: rgb(34, 177, 76);">
-                    {{ getEstado(slotProps.data.estado)}}
+                    {{ getEstadoFacturaVenta(slotProps.data.estado)}}
                 </div>
             </template>           
         </Column>

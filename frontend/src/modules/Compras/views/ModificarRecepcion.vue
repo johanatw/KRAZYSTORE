@@ -93,17 +93,15 @@ const proveedor = ref({});
 
 onMounted(() => {
     RecepcionServices.getRecepcion(router.currentRoute.value.params.id).then((data) => {
-        console.log(data.data);
-        pedido.value = data.data;
-   });
-
-   RecepcionServices.getDetalleRecepcion(router.currentRoute.value.params.id).then((response)=>{
-    console.log(response.data);
-        detalle.value = response.data;   
+        
+        pedido.value = data.data.recepcion;
+        detalle.value = data.data.detalle;
+        console.log(pedido.value);
+        console.log(detalle.value);
         detalle.value.forEach(element => {
-            element.cantPendiente = element.detallePedido.cantidad - element.detallePedido.cantRecepcionada + element.cantRecepcionada;
-        });    
-    });
+            element.cantPendiente = element.cantSolicitado - element.cantTotalRecepcionado + element.cantRecepcionado;
+        });
+   });
 
 });
 
@@ -137,7 +135,7 @@ const modificarPedido = (id) => {
         console.log("saveanticipothen");
         console.log("data");
         let id = data.data.id;
-        //verPedidoCompra(id);
+        verRecepcion(id);
         //closeDialog();
         //emit('anticipoGuardado', data.data.id);
         
@@ -165,7 +163,7 @@ const modificarPedido = (id) => {
                 <div class="card flex" style="justify-content: end;">   
                     <div class="card flex" style="justify-content: end;">  
                         <Button  label="Cancelar"  style="margin-right: 1%;" @click="verRecepcion(pedido.id)" />
-                        <Button  label="Modificar" @click="modificarPedido(pedido.id)" />
+                        <Button  label="Guardar" @click="modificarPedido(pedido.id)" />
                     </div>  
                 </div>
             </template>
@@ -200,9 +198,9 @@ const modificarPedido = (id) => {
                                 <div class="card" style="width: 100%;">
     <div class="flex card-container" style="width: 100%;">
         <DataTable class="tablaCarrito" ref="dt" :value="detalle" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
-         <Column  class="col" field="detallePedido.producto.nombre" header="Nombre" aria-sort="none" ></Column>
+         <Column  class="col" field="producto" header="Nombre" aria-sort="none" ></Column>
          
-        <Column  class="col" field="detallePedido.cantidad" header="Uds." aria-sort="none">
+        <Column  class="col" field="cantSolicitado" header="Uds." aria-sort="none">
          </Column>
          <Column  class="col" field="cantidad" header="Cantidad Pendiente" aria-sort="none">
             <template #body="slotProps">
@@ -211,11 +209,11 @@ const modificarPedido = (id) => {
                 </div>  
             </template>
          </Column>
-         <Column  class="col" field="cantRecepcionada" header="Cantidad Recibida" aria-sort="none">
+         <Column  class="col" field="cantRecepcionado" header="Cantidad Recibida" aria-sort="none">
             
             <template #body="slotProps">
                 <div  class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                  <InputNumber class="inpCant" v-model="slotProps.data.cantRecepcionada" :min="0" :max="slotProps.data.cantPendiente" inputId="minmax-buttons" mode="decimal" showButtons />
+                  <InputNumber class="inpCant" v-model="slotProps.data.cantRecepcionado" :min="0" :max="slotProps.data.cantPendiente" inputId="minmax-buttons" mode="decimal" showButtons />
               </div>  
               
             </template>

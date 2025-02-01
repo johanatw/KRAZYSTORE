@@ -41,12 +41,13 @@ public class RecepcionController {
     }
 
     @GetMapping("/{id}")
-    public Optional<RecepcionDTO> findById(@PathVariable("id") Long id) {
+    public RecepcionCreationDTO findById(@PathVariable("id") Long id) {
         return recepcionService.findById(id);
     }
 
     @PostMapping
     public RecepcionEntity saveRecepcion(@RequestBody RecepcionCreationDTO recepcion) {
+        System.out.println("savecontroller");
         return recepcionService.saveRecepcion(recepcion);
     }
 

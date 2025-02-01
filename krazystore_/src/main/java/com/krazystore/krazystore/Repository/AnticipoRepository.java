@@ -64,4 +64,12 @@ public interface AnticipoRepository extends JpaRepository<AnticipoEntity,Long>{
   value = "SELECT r.id FROM reembolsos r WHERE r.id_anticipo = ?1 ", 
   nativeQuery = true)
     public List<Long> getReembolsosByIdAnticipo(Long id);
+    
+    @Query("SELECT a FROM AnticipoEntity a " +
+       "JOIN PedidoCompraEntity pc ON a.idPedido = pc.id " +
+       "JOIN DetallePedidoCompra dpc ON pc = dpc.pedidoCompra " +
+       "JOIN DetalleRecepcion dr ON dpc = dr.detallePedido " +
+       "JOIN RecepcionEntity r ON dr.recepcion = r " +
+       "WHERE r.id = ?1 AND a.tipoPedido = 'C'")
+    public List<AnticipoEntity> findByIdRecepcion(Long id);
 }

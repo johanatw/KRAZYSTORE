@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.ServiceImpl;
 
+import Utils.Estado;
 import Utils.FacturaCompraPagadoEvent;
 import Utils.NuevaFacturaCompraEvent;
 import Utils.PagoRegistradoEvent;
@@ -16,6 +17,7 @@ import com.krazystore.krazystore.Entity.CompraEntity;
 import com.krazystore.krazystore.Repository.CompraRepository;
 import com.krazystore.krazystore.Service.CompraService;
 import com.krazystore.krazystore.Service.DetalleCompraService;
+import com.krazystore.krazystore.Service.MovimientoService;
 import com.krazystore.krazystore.exception.BadRequestException;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +43,8 @@ public class CompraServiceImpl implements CompraService {
         this.eventPublisher = eventPublisher;
     }
     
-    
+    @Autowired
+    private MovimientoService movimientoService;
     
     @Autowired
     private DetalleCompraService detalleService;
@@ -62,6 +65,8 @@ public class CompraServiceImpl implements CompraService {
         if(compraDTO.getCompra().getProveedor()== null){
             throw new BadRequestException("Falta proveedor " );
         }
+        
+        compraDTO.getCompra().setEstado(Estado.PENDIENTEDEFACTURA.getCodigo());
         CompraEntity nuevaCompra;
         nuevaCompra = compraRepository.save(compraDTO.getCompra());
         List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.saveDetCompra(compraDTO.getDetalle(), nuevaCompra.getId());
@@ -83,24 +88,24 @@ public class CompraServiceImpl implements CompraService {
         CompraEntity compra = compraDTO.getCompra();
         CompraEntity updatedCompra = compraRepository.findById(id).get();
         //No puede modificar una factura si ya esta pagado
-        if(PAGADO == updatedCompra.getEstado()){
+        if(Estado.PAGADO.getCodigo() == updatedCompra.getEstado()){
             throw new BadRequestException("No se puede modificar " );
         }
         
         updatedCompra.setFecha(compra.getFecha());
         updatedCompra.setNroFactura(compra.getNroFactura());
+        System.out.println("updateCompra");
         
-        //Si esta asociado a una recepcion no se puede modificar detalle
-        if(updatedCompra.getRecepcion() == null){
+
+            System.out.println("updateCompraIF");
             updatedCompra.setProveedor(compra.getProveedor());
             updatedCompra.setTotal(compra.getTotal());
             compraRepository.save(updatedCompra);
             List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.updateDetCompra(compraDTO.getDetalle(), id);
             actualizarExistencias(productosActualizarExistencias);
-        }else{
-            compraRepository.save(updatedCompra);
-        }
-        
+            
+            
+        notificarFacturaCompraModificada(updatedCompra);
         return updatedCompra;
     }
 
@@ -109,10 +114,11 @@ public class CompraServiceImpl implements CompraService {
     public void deleteCompra(Long id) {
         CompraEntity compra = compraRepository.findById(id).get();
         //No puede eliminar una factura si ya esta pagado
-        if(PAGADO == compra.getEstado()){
+        if(Estado.PAGADO.getCodigo() == compra.getEstado()){
             throw new BadRequestException("No se puede Eliminar " );
         }
         
+        movimientoService.deleteCompra(id);
         detalleService.deleteDetCompra(id);
         compraRepository.deleteById(id);
     }
@@ -147,6 +153,12 @@ public class CompraServiceImpl implements CompraService {
     public void notificarFacturaCompraPendiente(CompraEntity nuevaCompra) {
         // Publicar el evento
         NuevaFacturaCompraEvent evento = new NuevaFacturaCompraEvent(TipoEvento.NUEVA_COMPRA, nuevaCompra );
+        eventPublisher.publishEvent(evento);
+    }
+    
+    public void notificarFacturaCompraModificada(CompraEntity compra) {
+        // Publicar el evento
+        NuevaFacturaCompraEvent evento = new NuevaFacturaCompraEvent(TipoEvento.FACTURA_MODIFICADA, compra );
         eventPublisher.publishEvent(evento);
     }
     

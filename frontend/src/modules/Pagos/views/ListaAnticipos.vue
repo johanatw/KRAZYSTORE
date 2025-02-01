@@ -131,9 +131,9 @@ const registrarAnticipo = () =>{
 const registradoEnCajaActualAbierta = (fechaRegistro) =>{
     console.log("registradoEnCajaActualAbierta");
     if (cajaAbierta.value != null && fechaRegistro >= cajaAbierta.value.fecha) {
-        return false;
-    } else {
         return true;
+    } else {
+        return false;
     }
 };
 
@@ -387,13 +387,13 @@ const verificarEstadoAnticipo = (id) =>{
    
 }
 
-const puedeEliminarAnticipo = (anticipo) =>{
+const isAnticipoUtilizado = (utilizado) =>{
 
-    if (anticipos.utilizado > 0) {
-        return false;
-    } else {
+    if (utilizado > 0) {
         return true;
-      }
+    } 
+
+    return false;
     
    
 }
@@ -734,7 +734,7 @@ const getFormasPago= () => {
                     <Column :exportable="false" style="min-width:8rem">
                         <template #body="slotProps">
                             <Button icon="pi pi-sync" severity="success" text rounded aria-label="Cancel" @click="showDialogReembolso(slotProps.data)"  style="height: 2rem !important; width: 2rem !important;" />
-                            <Button :disabled="registradoEnCajaActualAbierta(slotProps.data.fecha) && !puedeEliminarAnticipo(slotProps.data) "  icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                            <Button :disabled="!registradoEnCajaActualAbierta(slotProps.data.fecha) || isAnticipoUtilizado(slotProps.data.utilizado) "  icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                             
                         </template>
                     </Column>

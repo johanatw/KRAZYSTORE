@@ -21,7 +21,7 @@ import ConfirmDialog from 'primevue/confirmdialog';
 import RadioButton from 'primevue/radiobutton';
 const visible = ref(false);
 import Listbox from 'primevue/listbox';
-
+import { formatearNumero, formatearFecha, getEstadoRecepcion } from '@/utils/utils'; 
 
 import SplitButton from 'primevue/splitbutton';
 
@@ -41,7 +41,7 @@ const cajaAbierta = ref({});
 const confirm2 = (id) => {
    
     confirm.require({
-        message: 'Eliminar el reembolso #'+ id + '?',
+        message: 'Eliminar recepcion #'+ id + '?',
         header: 'Confirmacion',
         icon: 'pi pi-info-circle',
         rejectLabel: 'Cancelar',
@@ -49,7 +49,7 @@ const confirm2 = (id) => {
         rejectClass: 'p-button-secondary p-button-outlined',
         acceptClass: 'p-button-danger',
         accept: () => {
-            deleteReembolso(id);
+            deleteRecepcion(id);
             
         },
         
@@ -71,16 +71,14 @@ const getCajaAbierta= () => {
     });
 };
 
-const deleteReembolso = (id) =>{
+const deleteRecepcion = (id) =>{
     const cantidad= 1;
-    const index = reembolsos.value.findIndex((loopVariable) => loopVariable.id === id);
-    CajaServices.deleteReembolso(id).then((response)=>{
+    const index = pedidos.value.findIndex((loopVariable) => loopVariable.id === id);
+    RecepcionServices.deleteRecepcion(id).then((response)=>{
       console.log("response");
       console.log(response.data);
-      
-        reembolsos.value.splice(index,cantidad);
+        pedidos.value.splice(index,cantidad);
             toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 5000 });
-      
             
         })
 
@@ -114,23 +112,7 @@ const getSeverity = (estado) => {
    }
 };
 
-const getEstado = (estado) => {
-  
-  
-  switch (estado) {
-       case 'N':
-           return 'Pendiente de Factura';
-
-       case 'F':
-           return 'Facturada';
-
-       default:
-           return null;
-   }
-};
-
 const isFacturada = (estado) => {
-  
   
   switch (estado) {
        case 'F':
@@ -181,16 +163,6 @@ const deletePedido = (id) =>{
     });
 }
 
-const formatearNumero = (valor) =>{
-    if(typeof(valor) == "number"){
-        return valor.toLocaleString("de-DE");
-    }
-
-    let fecha = new Date(valor);
-    let fechaFormateada = fecha.getDate() + '/' + (fecha.getMonth()+1) + '/' +fecha.getFullYear()+' '+ fecha.getHours()+':'+fecha.getMinutes()+':'+fecha.getSeconds();
-    return fechaFormateada;
-}
-
 const nuevoPedido = () =>{
     router.push({name: 'nuevo_pedido_compra'});
 }
@@ -234,13 +206,17 @@ const nuevoPedido = () =>{
           
           <Column field="idPedido"  header="Id Pedido" aria-sort="ascending" sortable>           
         </Column>
-        <Column field="fecha" sortable header="Fecha" aria-sort="ascending" ></Column>
+        <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
+          <template #body="slotProps">
+                {{ formatearFecha(slotProps.data.fecha) }}
+            </template>
+        </Column>
           <Column field="proveedor.descripcion"  header="Proveedor" aria-sort="ascending" sortable> 
 
         </Column>   
         <Column field="estado"  header="Estado" aria-sort="ascending" sortable> 
           <template #body="slotProps">
-                <Tag :style="getSeverity(slotProps.data.estado)" style=" font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ getEstado(slotProps.data.estado)}}</Tag>
+                <Tag :style="getSeverity(slotProps.data.estado)" style=" font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ getEstadoRecepcion(slotProps.data.estado)}}</Tag>
               </template> 
 </Column> 
           <Column :exportable="false" style="min-width:8rem">
@@ -248,7 +224,7 @@ const nuevoPedido = () =>{
                 <Button icon="pi pi-search" text rounded aria-label="Search" @click="verRecepcion(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
                 <Button :disabled="isFacturada(slotProps.data.estado)" icon="pi pi-receipt" severity="info" text rounded aria-label="Search" @click="nuevaFactura(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
                 
-                <Button  icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button :disabled="isFacturada(slotProps.data.estado)" icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                 
                 </template>
           </Column>

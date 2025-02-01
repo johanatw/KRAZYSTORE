@@ -679,9 +679,6 @@ table3.addCell(new PdfPCell(new Phrase("sueño",fontH1))).setBorder(0);
         
         return anticipoRepository.getReembolsosByIdAnticipo(id);
    
-       
-       
-        
     }
     
  
@@ -689,6 +686,11 @@ table3.addCell(new PdfPCell(new Phrase("sueño",fontH1))).setBorder(0);
     @Override
     public AnticipoEntity updateAnticipo(AnticipoEntity asnticipoEntity) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public List<AnticipoEntity> findByIdRecepcion(Long id) {
+        return anticipoRepository.findByIdRecepcion(id);
     }
     
     

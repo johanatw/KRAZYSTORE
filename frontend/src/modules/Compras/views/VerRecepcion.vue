@@ -94,16 +94,13 @@ const proveedor = ref({});
 onMounted(() => {
     RecepcionServices.getRecepcion(router.currentRoute.value.params.id).then((data) => {
         console.log(data.data);
-        pedido.value = data.data;
-   });
+        pedido.value = data.data.recepcion;
+        detalle.value = data.data.detalle;
 
-   RecepcionServices.getDetalleRecepcion(router.currentRoute.value.params.id).then((response)=>{
-    console.log(response.data);
-        detalle.value = response.data;   
         detalle.value.forEach(element => {
-            element.cantPendiente = element.detallePedido.cantidad - element.detallePedido.cantRecepcionada;
-        });    
-    });
+            element.cantPendiente = element.cantSolicitado - element.cantTotalRecepcionado;
+        });  
+   });
 
 });
 
@@ -202,9 +199,9 @@ const modificarPedido = (id) => {
                                 <div class="card" style="width: 100%;">
     <div class="flex card-container" style="width: 100%;">
         <DataTable class="tablaCarrito" ref="dt" :value="detalle" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
-         <Column  class="col" field="detallePedido.producto.nombre" header="Nombre" aria-sort="none" ></Column>
+         <Column  class="col" field="producto" header="Nombre" aria-sort="none" ></Column>
          
-        <Column  class="col" field="detallePedido.cantidad" header="Uds." aria-sort="none">
+        <Column  class="col" field="cantSolicitado" header="Cantidad Pedida" aria-sort="none">
          </Column>
          <Column  class="col" field="cantidad" header="Cantidad Pendiente" aria-sort="none">
             <template #body="slotProps">
@@ -213,11 +210,11 @@ const modificarPedido = (id) => {
                 </div>  
             </template>
          </Column>
-         <Column  class="col" field="cantRecepcionada" header="Cantidad Recibida" aria-sort="none">
+         <Column  class="col" field="cantRecepcionado" header="Cantidad Recibida" aria-sort="none">
             
             <template #body="slotProps">
                 <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                {{ slotProps.data.cantRecepcionada }}  
+                {{ slotProps.data.cantRecepcionado }}  
                 </div>  
             </template>
          </Column>

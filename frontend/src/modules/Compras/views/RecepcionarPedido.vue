@@ -93,27 +93,25 @@ const proveedor = ref({});
 
 onMounted(() => {
     PedidoCompraServices.getPedido(router.currentRoute.value.params.id).then((data) => {
-        pedido.value = data.data;
-       proveedor.value = data.data.proveedor;
+        pedido.value = data.data.pedido;
+        detalle.value = data.data.detalle;
+        console.log(data.data);
+       proveedor.value = pedido.value.proveedor;
        mostrarCliente(proveedor.value);
-   });
 
-   PedidoCompraServices.getDetallePedido(router.currentRoute.value.params.id).then((response)=>{
-    console.log(response.data);
-        detalle.value = response.data;   
-        
-        detalle.value.forEach(element => {
+       detalle.value.forEach(element => {
             let d = {};
+            d.idProducto = element.idProducto;
             d.producto = element.producto;
-            d.cantidad = element.cantidad;
-            d.cantRecepcionada = 0;
+            d.cantSolicitado = element.cantidad;
+            d.cantRecepcionado = 0;
             d.cantRechazada = 0;
             d.cantPendiente = element.cantidad - element.cantRecepcionada;
-            d.detallePedido = element;
+            d.idDetallePedido = element.id;
 
             detalleRecepcion.value.push(d);
         });
-    });
+   });
 
 });
 
@@ -138,8 +136,9 @@ const modificarPedido = (id) => {
 
 
     let fechaAnticipo = new Date();
-    let ant = {pedidoCompra: pedido.value, estado: 'N', fecha: fechaRecepcion.value};
-
+    let ant = {idPedido: pedido.value.id, fecha: fechaRecepcion.value};
+    
+    console.log(ant);
     console.log(detalleRecepcion.value);
 
     let anticipoCreationDTO = {recepcion: ant, detalle: detalleRecepcion.value};
@@ -232,9 +231,9 @@ const modificarPedido = (id) => {
                                 <div class="card" style="width: 100%;">
     <div class="flex card-container" style="width: 100%;">
         <DataTable class="tablaCarrito" ref="dt" :value="detalleRecepcion" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
-         <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
+         <Column  class="col" field="producto" header="Nombre" aria-sort="none" ></Column>
          
-        <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
+        <Column  class="col" field="cantSolicitado" header="Uds." aria-sort="none">
          </Column>
          <Column  class="col" field="cantidad" header="Cantidad Pendiente" aria-sort="none">
             <template #body="slotProps">
@@ -243,11 +242,11 @@ const modificarPedido = (id) => {
                 </div>  
             </template>
          </Column>
-         <Column  class="col" field="cantRecepcionada" header="Cantidad Recibida" aria-sort="none">
+         <Column  class="col" field="cantRecepcionado" header="Cantidad Recibida" aria-sort="none">
             
             <template #body="slotProps">
                 <div v-if="slotProps.data.cantPendiente>0" class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                  <InputNumber class="inpCant" v-model="slotProps.data.cantRecepcionada" :min="0" :max="slotProps.data.cantPendiente" inputId="minmax-buttons" mode="decimal" showButtons />
+                  <InputNumber class="inpCant" v-model="slotProps.data.cantRecepcionado" :min="0" :max="slotProps.data.cantPendiente" inputId="minmax-buttons" mode="decimal" showButtons />
               </div>  
               <div v-else class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
                   {{slotProps.data.cantRecibida}}

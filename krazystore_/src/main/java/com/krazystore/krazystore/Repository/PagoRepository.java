@@ -26,14 +26,14 @@ public interface PagoRepository extends JpaRepository<PagoEntity,Long> {
     @Transactional
     @Modifying
     @Query(
-  value = "DELETE FROM pagos p USING movimientos m WHERE p.id_movimiento IN ?1 ", 
+  value = "DELETE FROM detalle_pagos p USING movimientos m WHERE p.id_movimiento IN ?1 ", 
   nativeQuery = true)
     void deletePagosByMovimientos(List<Long> ids);
     
     @Transactional
     @Modifying
     @Query(
-  value = "DELETE FROM pagos p USING movimientos m WHERE p.id_movimiento = m.id AND m.id = ?1 ", 
+  value = "DELETE FROM detalle_pagos p USING movimientos m WHERE p.id_movimiento = m.id AND m.id = ?1 ", 
   nativeQuery = true)
     void deletePagosByMovimiento(Long id);
     /*

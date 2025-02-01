@@ -40,7 +40,7 @@ public class PedidoCompraController {
     }
 
     @GetMapping("/{id}")
-    public Optional<PedidoCompraEntity> findById(@PathVariable("id") Long id) {
+    public PedidoCompraCreationDTO findById(@PathVariable("id") Long id) {
         return pedidoCompraService.findById(id);
     }
 

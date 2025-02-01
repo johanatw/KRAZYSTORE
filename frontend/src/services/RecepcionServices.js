@@ -33,6 +33,9 @@ export const RecepcionServices = {
     
     return axios.put(RECEPCION_API_BASE_URL+ "/" + id, pedido);
   },
+  deleteRecepcion(id){
+    return axios.delete(RECEPCION_API_BASE_URL+"/"+id);
+  },
 
 };
 export default { RecepcionServices: RecepcionServices };

@@ -216,7 +216,7 @@ public class DetCompraServiceImpl implements DetalleCompraService {
             Optional<DetalleCompra> actual = actualDetalle.stream().filter(act -> Objects.equals(act.getProducto().getId(), anterior.getProducto().getId())).findAny();
             // Si encuentra, y hay diferencia se intenta modificar
             if(actual.isPresent() ){
-                if(actual.get().getCantidad() != anterior.getCantidad()){
+                if(actual.get().getCantidad() != anterior.getCantidad() || actual.get().getCostoCompra()!= anterior.getCostoCompra()  ){
                     // Lanza excepción si el producto ya fue facturado
                     /*if(anterior.getCantRecepcionada() > actual.get().getCantidad()){
                         throw new BadRequestException("No es posible modificar la cantidad del Producto: "+ anterior.getProducto().getNombre());

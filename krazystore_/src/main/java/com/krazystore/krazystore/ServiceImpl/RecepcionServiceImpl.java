@@ -3,6 +3,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.krazystore.krazystore.ServiceImpl;
+import Utils.Estado;
+import Utils.PedidoCompraEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import Utils.ProductosPedidoRecepcionadosEvent;
 import Utils.ProductosRecepcionadosEvent;
@@ -14,6 +16,8 @@ import com.krazystore.krazystore.DTO.RecepcionCreationDTO;
 import com.krazystore.krazystore.DTO.RecepcionDTO;
 import com.krazystore.krazystore.Entity.DetalleRecepcion;
 import com.krazystore.krazystore.Entity.RecepcionEntity;
+import com.krazystore.krazystore.Mapper.DetalleRecepcionMapper;
+import com.krazystore.krazystore.Mapper.RecepcionMapper;
 import com.krazystore.krazystore.Repository.RecepcionRepository;
 import com.krazystore.krazystore.Service.DetalleRecepcionService;
 import com.krazystore.krazystore.Service.PedidoCompraService;
@@ -22,6 +26,7 @@ import com.krazystore.krazystore.exception.BadRequestException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -46,7 +51,11 @@ public class RecepcionServiceImpl implements RecepcionService {
     @Autowired
     private DetalleRecepcionService detalleService;
     
+   @Autowired
+    private RecepcionMapper recepcionMapper;
    
+   @Autowired
+    private DetalleRecepcionMapper detalleRecepcionMapper;
     
     @Override
     public List<RecepcionDTO> findAll() { 
@@ -54,29 +63,39 @@ public class RecepcionServiceImpl implements RecepcionService {
     }
 
     @Override
-    public Optional<RecepcionDTO> findById(Long id) {
+    public RecepcionCreationDTO findById(Long id) {
         //return recepcionRepository.findById(id);
+        RecepcionCreationDTO recepcionDTO = new RecepcionCreationDTO();
         Optional<RecepcionDTO> recepcion = recepcionRepository.findRecepcion(id);
         if (recepcion.isPresent()) {
             List<DetalleRecepcionDTO> detalles = recepcionRepository.findDetallesByRecepcionId(id);
-            recepcion.get().setDetalle(detalles);
+            recepcionDTO.setDetalle(detalles);
+            recepcionDTO.setRecepcion(recepcion.get());
         }
-        return recepcion;
+        return recepcionDTO;
     }
     
     @Transactional
     @Override
     public RecepcionEntity saveRecepcion(RecepcionCreationDTO recepcionDTO) {
-        List<DetalleRecepcion> detalle = new ArrayList<>();
+        System.out.println("saveREcepcion");
         RecepcionEntity recepcion;
-        recepcion = recepcionDTO.getRecepcion();
-        
+        recepcion = recepcionMapper.apply(recepcionDTO.getRecepcion());
+        recepcion.setEstado(Estado.PENDIENTEDEFACTURA.getCodigo());
         RecepcionEntity nuevaRecepcion = recepcionRepository.save(recepcion);
-        List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.saveDetRecepcion(recepcionDTO.getDetalle(), nuevaRecepcion.getId());
+     
+        List<DetalleRecepcion> detalle = recepcionDTO.getDetalle()
+                .stream()
+                .map(detalleRecepcionMapper)
+                .collect(Collectors.toList());
         
-        actualizarRecepcionPedidoCompra(recepcionDTO.getDetalle().get(0).getDetallePedido().getPedidoCompra().getId());
+
+        detalle.forEach(det -> det.setRecepcion(nuevaRecepcion));
+            
+        List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.saveDetRecepcion(detalle, nuevaRecepcion.getId());
+        
+        actualizarRecepcionPedidoCompra(recepcionDTO.getRecepcion().getIdPedido());
         actualizarExistencias(productosActualizarExistencias);
-        //pedidoService.actualizarCantidadesRecepcionadas(detalle);
         
         return nuevaRecepcion;
     }
@@ -85,29 +104,27 @@ public class RecepcionServiceImpl implements RecepcionService {
     @Override
     public RecepcionEntity updateRecepcion(RecepcionCreationDTO recepcionDTO, Long id) {
         RecepcionEntity updatedRecepcion = recepcionRepository.findById(id).get();
-        List<DetalleRecepcion> detalleActual = new ArrayList<>();
-        List<DetalleRecepcion> detalleAnterior = new ArrayList<>();
         
         //Si ya se facturo no se puede modificar
-        if('F' == updatedRecepcion.getEstado()){
+        if(Estado.FACTURADO.getCodigo() == updatedRecepcion.getEstado()){
             throw new BadRequestException("No se puede modificar " );
         }
-        RecepcionEntity recepcion;
-        recepcion = recepcionDTO.getRecepcion();
         
-        updatedRecepcion.setFecha(recepcion.getFecha());
+        updatedRecepcion.setFecha(recepcionDTO.getRecepcion().getFecha());
         
-        recepcionRepository.save(updatedRecepcion);
-        //detalleService.updateDetRecepcion(recepcionDTO.getDetalle(), id);
+        List<DetalleRecepcion> detalle = recepcionDTO.getDetalle()
+                .stream()
+                .map(detalleRecepcionMapper)
+                .collect(Collectors.toList());
         
-        detalleAnterior = detalleService.findByIdRecepcion(updatedRecepcion.getId());
+        recepcionRepository.save(updatedRecepcion);      
         
+        detalle.forEach(det -> det.setRecepcion(updatedRecepcion));
         
-        List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.updateDetRecepcion(recepcionDTO.getDetalle(), updatedRecepcion.getId());
+        List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.updateDetRecepcion(detalle, id);
         
-        actualizarRecepcionPedidoCompra(detalleAnterior.get(0).getDetallePedido().getPedidoCompra().getId());
+        actualizarRecepcionPedidoCompra(recepcionDTO.getRecepcion().getIdPedido());
         actualizarExistencias(productosActualizarExistencias);
-       // pedidoService.modificarCantidadesRecepcionadas(detalleActual, detalleAnterior);
         
         return updatedRecepcion;
     }
@@ -117,11 +134,16 @@ public class RecepcionServiceImpl implements RecepcionService {
     public void deleteRecepcion(Long id) {
         RecepcionEntity recepcion = recepcionRepository.findById(id).get();
         //Si ya se facturo no se puede eliminar
-        if('F' == recepcion.getEstado()){
+        if(Estado.FACTURADO.getCodigo() == recepcion.getEstado()){
             throw new BadRequestException("No se puede eliminar " );
         }
+        Long idPedidoCompra = recepcionRepository.getIdPedidoCompraByIdRecepcion(id);
+        
         detalleService.deleteDetRecepcion(id);
         recepcionRepository.deleteById(id);
+        
+        actualizarRecepcionPedidoCompra(idPedidoCompra);
+        
     }
     
 
@@ -133,7 +155,7 @@ public class RecepcionServiceImpl implements RecepcionService {
     public void actualizarRecepcionPedidoCompra(Long idPedido) {
         
         // Publicar el evento
-        ProductosPedidoRecepcionadosEvent evento = new ProductosPedidoRecepcionadosEvent(idPedido, this);
+        PedidoCompraEvent evento = new PedidoCompraEvent(idPedido, null);
         eventPublisher.publishEvent(evento);
     }
     

@@ -29,6 +29,7 @@ public interface AnticipoService {
     void getAnticipoPdf(HttpServletResponse response, Long idAnticipo);
     int deleteAnticipo(Long id);
     List<AnticipoEntity> findByIdPedido(Long id, TipoPedido tipoPedido);
+    List<AnticipoEntity> findByIdRecepcion(Long id);
     boolean existsByPedido(PedidoEntity p);
     int verificarAnticipoEstado(Long id);
     void deleteAnticipoReembolsos(Long id);

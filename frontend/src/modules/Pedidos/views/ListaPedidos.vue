@@ -31,7 +31,7 @@ const pedidos = ref();
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import Toast from 'primevue/toast';
-
+import { formatearNumero, formatearFecha, getEstadoPedidoVenta } from '@/utils/utils'; 
 
 const opciones = ref([{id: 1, descripcion: 'Facturar productos disponibles en stock.'},
                     {id: 2, descripcion: 'Registrar anticipo para productos no disponibles en stock.'}]);
@@ -78,15 +78,7 @@ const messageAviso = (msg) => {
         },
     });
 };
-const formatearNumero = (valor) =>{
-    if(typeof(valor) == "number"){
-        return valor.toLocaleString("de-DE");
-    }
 
-    let fecha = new Date(valor);
-    let fechaFormateada = fecha.getDate() + '/' + (fecha.getMonth()+1) + '/' +fecha.getFullYear()+' '+ fecha.getHours()+':'+fecha.getMinutes()+':'+fecha.getSeconds();
-    return fechaFormateada;
-}
 const getSeverity = (estado) => {
   
   
@@ -105,35 +97,14 @@ const getSeverity = (estado) => {
    }
 };
 
-const getEstado = (estado) => {
-  
-  
+
+const isNuevo = (estado) => {
   switch (estado) {
-       case 'C':
-           return 'Pagado';
-
-       case 'R':
-           return 'Parcial';
-
-       case 'P':
-           return 'Pendiente';
-      case 'A':
-           return 'Con Anticipo';
-        case 'N':
-           return 'Nuevo';
-
+       case 'N':
+           return true;
        default:
-           return null;
+           return false;
    }
-};
-
-const tienePagosAsociados = (estado) => {
-  
-  if (estado == 'N') {
-    return false;
-  } else {
-    return true;
-  }
 };
 
 const getDetallePedido = (id) => {
@@ -221,7 +192,7 @@ const showTemplate = () => {
 onMounted(() => {
  
   getPedidos();
- 
+
     
 });
 
@@ -471,7 +442,7 @@ const reload = () =>{
           <Column field="id" sortable header="N°" aria-sort="ascending" ></Column>
           <Column field="fecha"  header="Fecha" aria-sort="ascending" sortable> 
             <template #body="slotProps">
-            {{ formatearNumero(slotProps.data.fecha) }}   
+            {{ formatearFecha(slotProps.data.fecha) }}   
           </template>        
         </Column>
           <Column field="cliente" header="Cliente" aria-sort="ascending" sortable>
@@ -483,14 +454,14 @@ const reload = () =>{
             </Column>
             <Column  field="estadoPedido" header="Estado Pedido" aria-sort="ascending" sortable >
               <template #body="slotProps">
-                <Tag style="background-color: rgb(215, 227, 552); color: rgb(50, 111, 252);font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;">{{ getEstado(slotProps.data.estadoPedido)}}</Tag>
+                <Tag style="background-color: rgb(215, 227, 552); color: rgb(50, 111, 252);font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;">{{ getEstadoPedidoVenta(slotProps.data.estadoPedido)}}</Tag>
               </template>
               
             </Column>
            
           <Column field="total"  header="Total" aria-sort="ascending" sortable>
             <template #body="slotProps">
-            {{ formatearNumero(slotProps.data.total) }}   
+            {{  formatearNumero(slotProps.data.total) }}   
           </template>
           </Column>
           <Column  class="col"  aria-sort="none">
@@ -507,7 +478,7 @@ const reload = () =>{
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
                 <Button icon="pi pi-search" text rounded aria-label="Search" @click="verPedido(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
-                <Button icon="pi pi-times" severity="danger" :disabled="!tienePagosAsociados(slotProps.data.estadoPago)" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button icon="pi pi-times" severity="danger" :disabled="!isNuevo(slotProps.data.estadoPedido)" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
             
                 <Button  icon="pi pi-receipt" severity="info" text rounded aria-label="Cancel" @click="getDetallePedido(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                 </template>

@@ -91,9 +91,9 @@ const deleteReembolso = (id) =>{
 const registradoEnCajaActualAbierta = (fechaRegistro) =>{
     console.log("registradoEnCajaActualAbierta");
     if (cajaAbierta.value != null && fechaRegistro >= cajaAbierta.value.fecha) {
-        return false;
-    } else {
         return true;
+    } else {
+        return false;
     }
 };
 
@@ -233,7 +233,7 @@ const nuevoPedido = () =>{
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
                 
-                <Button :disabled="registradoEnCajaActualAbierta(slotProps.data.fecha)"  icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button :disabled="!registradoEnCajaActualAbierta(slotProps.data.fecha)"  icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                 
                 </template>
           </Column>

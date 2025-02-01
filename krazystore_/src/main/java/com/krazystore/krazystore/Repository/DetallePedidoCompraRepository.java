@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.Repository;
 
+import com.krazystore.krazystore.DTO.DetallePedidoCompraDTO;
 import com.krazystore.krazystore.DTO.DetallePedidoRecepcionDTO;
 import com.krazystore.krazystore.Entity.DetallePedidoCompra;
 import java.util.List;
@@ -24,6 +25,15 @@ public interface DetallePedidoCompraRepository extends JpaRepository<DetallePedi
   nativeQuery = true)
     List<DetallePedidoCompra> findByIdPedido(Long idPedido);
     
+    @Query("SELECT new com.krazystore.krazystore.DTO.DetallePedidoCompraDTO(d.id, d.producto.id, d.producto.nombre, d.pedidoCompra.id, "
+        + "d.cantidad, d.subTotal, d.costoCompra, "
+        + "(SELECT COALESCE(SUM(r.cantRecepcionada), 0) "
+        + " FROM DetalleRecepcion r "
+        + " JOIN r.detallePedido dt "
+        + " WHERE dt.id = d.id) ) "
+        + "FROM DetallePedidoCompra d "
+        + "WHERE d.pedidoCompra.id = ?1")
+    List<DetallePedidoCompraDTO> findDetallesByIdPedido(Long idPedido);
     
     @Transactional
      @Modifying
@@ -31,6 +41,23 @@ public interface DetallePedidoCompraRepository extends JpaRepository<DetallePedi
   value = "DELETE FROM detalle_pedido_compra u WHERE u.id_pedido_compra = ?1 ", 
   nativeQuery = true)
     void deleteAllByIdPedido(Long idPedido);
+    
+    @Query(
+    "SELECT SUM(COALESCE(d.cantidad, 0)) "
+            + "FROM DetallePedidoCompra d "
+            + "LEFT JOIN PedidoCompraEntity t ON d.pedidoCompra = t "
+            + "WHERE t.id = ?1 " 
+           )
+    Long getCantProductosPedidos(Long id);
+    
+    @Query(
+    "SELECT SUM(COALESCE(d.cantRecepcionada, 0)) "
+            + "FROM PedidoCompraEntity p "
+            + "LEFT JOIN DetallePedidoCompra t ON t.pedidoCompra = p "
+            + "LEFT JOIN DetalleRecepcion d ON d.detallePedido = t "
+            + "WHERE p.id = ?1 " 
+           )
+    Long getCantProductosRecepcionados(Long idPedido);
     
     /*@Query(
     "SELECT new com.krazystore.krazystore.DTO.DetallePedidoRecepcionDTO(d.id, d.producto, d.pedidoCompra, d.cantidad, "

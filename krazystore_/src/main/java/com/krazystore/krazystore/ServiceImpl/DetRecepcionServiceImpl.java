@@ -52,14 +52,11 @@ public class DetRecepcionServiceImpl implements DetalleRecepcionService {
         List<ProductoExistenciasDTO> productosActualizarExistencias = new ArrayList<>();
         detalle.forEach(d -> {
             
-            RecepcionEntity recepcion = new RecepcionEntity();
-            recepcion.setId(idRecepcion);
-            d.setRecepcion(recepcion);
             if(d.getCantRecepcionada() > 0){
                 detalleGuardar.add(d);
                 
                 ProductoExistenciasDTO productoActualizar = new ProductoExistenciasDTO(
-                    d.getDetallePedido().getProducto().getId(),
+                   d.getDetallePedido().getProducto().getId(),
                     d.getCantRecepcionada(),
                     TipoAjusteExistencia.INCREMENTAR
                 );
@@ -137,7 +134,6 @@ public class DetRecepcionServiceImpl implements DetalleRecepcionService {
                 if(actual.get().getCantRecepcionada() > 0){
                     
                     actual.get().setId(anterior.getId());
-                    actual.get().setRecepcion(anterior.getRecepcion());
                     
                     elementos.add(actual.get());
                 }
