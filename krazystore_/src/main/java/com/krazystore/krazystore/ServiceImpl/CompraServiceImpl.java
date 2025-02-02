@@ -117,7 +117,9 @@ public class CompraServiceImpl implements CompraService {
         if(Estado.PAGADO.getCodigo() == compra.getEstado()){
             throw new BadRequestException("No se puede Eliminar " );
         }
-        
+        if(compra.getRecepcion() != null){
+            actualizarEstadoRecepcion(compra.getRecepcion().getId(), Estado.PENDIENTEDEFACTURA.getCodigo());
+        }
         movimientoService.deleteCompra(id);
         detalleService.deleteDetCompra(id);
         compraRepository.deleteById(id);
@@ -134,7 +136,6 @@ public class CompraServiceImpl implements CompraService {
         compra.setEstado(estado);
         compraRepository.save(compra);
 
-        System.out.println("Estado de la factura actualizado a 'Pagado'");
     }
     
     public void actualizarEstadoRecepcion(Long idRecepcion, char estado) {

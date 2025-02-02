@@ -94,6 +94,7 @@ const fechaCompra = ref(new Date());
 onMounted(() => {
     CompraServices.getCompra(router.currentRoute.value.params.id).then((data) => {
         compra.value = data.data;
+        console.log(compra.value);
         if (data.data.proveedor != null) {
             proveedor.value = data.data.proveedor;
             selectedCliente.value = data.data.proveedor;
@@ -127,6 +128,15 @@ onMounted(() => {
 const filters = ref({
  'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
 });
+
+const isFromRecepcion = () => {
+    if (compra.value.recepcion == null) {
+        console.log("if");
+       return false;
+   }
+   return true;
+
+  }
 
 //Cliente
 const search = (event) => {
@@ -438,7 +448,7 @@ const eliminar = (detalle) => {
     <Panel style=" position: relative; width: 80%;" >
         <template #header>
                 <div class="flex align-items-center gap-2">
-                    <h3 class="font-bold">Nueva Compra</h3>
+                    <h3 class="font-bold">Modificar Compra</h3>
                 </div>
             </template>
             <template #icons>
@@ -536,7 +546,7 @@ const eliminar = (detalle) => {
                 <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
                     Productos
                 </div>
-                <div >
+                <div v-if="!isFromRecepcion()">
                     <Button label="+ Producto" link @click="visible = true" />
                     </div>
 
@@ -561,9 +571,13 @@ const eliminar = (detalle) => {
          
         <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
             <template #body="slotProps">
-                <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
+                <div v-if="!isFromRecepcion()" class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
                   <InputNumber class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="1"  @update:modelValue="sendSubTotal" />
-              </div>  
+              </div> 
+              <div v-else class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
+                  {{slotProps.data.cantidad}}
+              </div>
+
             </template>
              
          </Column>
@@ -575,7 +589,7 @@ const eliminar = (detalle) => {
                   </div>
             </template>
          </Column>
-         <Column class="col" :exportable="false" style="min-width:1rem">
+         <Column v-if="!isFromRecepcion()" class="col" :exportable="false" style="min-width:1rem">
            <template #body="slotProps">
              <Button icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="eliminar(slotProps.data)" />
            </template>

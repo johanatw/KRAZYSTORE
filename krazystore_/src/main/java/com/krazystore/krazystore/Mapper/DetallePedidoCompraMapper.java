@@ -21,14 +21,12 @@ public class DetallePedidoCompraMapper implements Function<DetallePedidoCompraDT
     @Override
     public DetallePedidoCompra apply(DetallePedidoCompraDTO t) {
         ProductoEntity producto = new ProductoEntity();
-        producto.setId(t.getIdProducto());
+        producto.setId(t.getProducto().getId());
         
-        PedidoCompraEntity pedido = new PedidoCompraEntity();
-        pedido.setId(t.getIdPedidoCompra());
         return new DetallePedidoCompra(
                 t.getId(),
                 producto,
-                pedido,
+                t.getPedidoCompra(),
                 t.getCantidad(),
                 t.getCantRecepcionada(),
                 t.getSubTotal(),

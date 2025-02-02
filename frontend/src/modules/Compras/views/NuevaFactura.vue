@@ -102,8 +102,8 @@ onMounted(() => {
             console.log(element);
             let e = {};
             e.cantidad = element.cantRecepcionado;
-            e.costoCompra = element.costo;
-            e.producto = {id: element.idProducto, nombre: element.producto};
+            e.costoCompra = element.detallePedido.costoCompra;
+            e.producto = element.detallePedido.producto;
             e.subTotal = e.cantidad * e.costoCompra;
             
             detalleFacturar.value.push(e);

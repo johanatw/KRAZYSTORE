@@ -20,13 +20,13 @@ import org.springframework.stereotype.Service;
 public class DetalleRecepcionMapper implements Function<DetalleRecepcionDTO, DetalleRecepcion>{
     @Override
     public DetalleRecepcion apply(DetalleRecepcionDTO detalleDTO) {
-        RecepcionEntity recepcion = new RecepcionEntity();
-        recepcion.setId(detalleDTO.getIdRecepcion());
+        RecepcionEntity recepcion = new RecepcionEntity(detalleDTO.getIdRecepcion());
+    
         ProductoEntity producto = new ProductoEntity();
-        producto.setId(detalleDTO.getIdProducto());
-        DetallePedidoCompra detallePedido = new DetallePedidoCompra();
-        detallePedido.setId(detalleDTO.getIdDetallePedido());
-        detallePedido.setProducto(producto);
+        producto.setId(detalleDTO.getDetallePedido().getProducto().getId());
+        
+        DetallePedidoCompra detallePedido = new DetallePedidoCompra(detalleDTO.getDetallePedido().getId(), producto);
+
         return new DetalleRecepcion(
                 detalleDTO.getId(),
                 detalleDTO.getCantRecepcionado(),

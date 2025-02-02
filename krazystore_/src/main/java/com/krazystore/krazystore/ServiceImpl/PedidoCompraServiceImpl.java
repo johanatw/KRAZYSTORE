@@ -186,11 +186,9 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
         PedidoCompraEntity pedido = pedidoCompraRepository.findById(evento.getPedidoId())
                 .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado"));
 
-        System.out.println("UPDATEESTADO");
         boolean hasAnticipos = hasAnticipos(pedido.getId());
         Character estadoRecepcion = getEstadoRecepcionPedido(pedido.getId());
-        System.out.println(hasAnticipos);
-        System.out.println(estadoRecepcion);
+
         if(!hasAnticipos && estadoRecepcion == null){
             System.out.println("IF");
             

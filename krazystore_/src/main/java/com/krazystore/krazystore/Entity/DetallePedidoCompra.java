@@ -45,6 +45,14 @@ public class DetallePedidoCompra {
     @Column(name="costo_compra")
     private int costoCompra;
 
+    public DetallePedidoCompra(Long id, ProductoEntity producto) {
+        this.id = id;
+        this.producto = producto;
+    }
+
+    
+
+    
     public Long getId() {
         return id;
     }

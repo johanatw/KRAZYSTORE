@@ -99,7 +99,7 @@ onMounted(() => {
         console.log(pedido.value);
         console.log(detalle.value);
         detalle.value.forEach(element => {
-            element.cantPendiente = element.cantSolicitado - element.cantTotalRecepcionado + element.cantRecepcionado;
+            element.cantPendiente = element.detallePedido.cantidad - element.detallePedido.cantRecepcionada + element.cantRecepcionado;
         });
    });
 
@@ -198,9 +198,9 @@ const modificarPedido = (id) => {
                                 <div class="card" style="width: 100%;">
     <div class="flex card-container" style="width: 100%;">
         <DataTable class="tablaCarrito" ref="dt" :value="detalle" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
-         <Column  class="col" field="producto" header="Nombre" aria-sort="none" ></Column>
+         <Column  class="col" field="detallePedido.producto.nombre" header="Nombre" aria-sort="none" ></Column>
          
-        <Column  class="col" field="cantSolicitado" header="Uds." aria-sort="none">
+        <Column  class="col" field="detallePedido.cantidad" header="Uds." aria-sort="none">
          </Column>
          <Column  class="col" field="cantidad" header="Cantidad Pendiente" aria-sort="none">
             <template #body="slotProps">

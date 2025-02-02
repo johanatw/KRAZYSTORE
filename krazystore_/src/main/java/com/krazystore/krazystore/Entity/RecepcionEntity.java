@@ -35,7 +35,11 @@ public class RecepcionEntity {
     private Date fecha;
     @Column
     private char estado;
-    
+
+    public RecepcionEntity(Long id) {
+        this.id = id;
+    }
+        
     public Long getId() {
         return id;
     }

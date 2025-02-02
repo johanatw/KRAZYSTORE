@@ -124,6 +124,19 @@ const modificarPedido = (id) => {
   
   }
 
+  const puedeModificar = () => {
+    return !isPagado(pedido.value.estado);
+  }
+
+  const isPagado = (estado) => {
+  
+  switch (estado) {
+       case 'C':
+           return true;
+       default:
+           return false;
+   }
+};
 
 </script>
 <template>
@@ -140,7 +153,7 @@ const modificarPedido = (id) => {
                 <div class="card flex" style="justify-content: end;">   
                     <div class="card flex" style="justify-content: end;">  
                         <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaFacturasVenta()" />
-                        <Button  label="Modificar" @click="modificarPedido(pedido.id)" />
+                        <Button v-if="puedeModificar()" label="Modificar" @click="modificarPedido(pedido.id)" />
                     </div>  
                 </div>
             </template>

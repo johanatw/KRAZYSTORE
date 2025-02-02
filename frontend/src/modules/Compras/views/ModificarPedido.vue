@@ -376,7 +376,25 @@ const eliminar = (detalle) => {
 }
 }
 
+const isRecepcionado = (detalle) => {
+    if (detalle.cantRecepcionada > 0) {
+       return true;
+   }
+   return false;
 
+  }
+
+  const isPedidoRecepcionado = () => {
+  
+  switch (pedido.value.estadoPedido) {
+       case 'R':
+           return true;
+        case 'M':
+           return true;
+       default:
+           return false;
+   }
+};
 </script>
 <template>
     
@@ -460,10 +478,10 @@ const eliminar = (detalle) => {
                 <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
                     Proveedor
                 </div>    
-                <div v-if="clienteSeleccionado">
+                <div v-if="clienteSeleccionado && !isPedidoRecepcionado() ">
                     <Button class="pi pi-times" link @click="eliminarClienteSelected"/>
                 </div>   
-                <div v-else>
+                <div v-else-if="!clienteSeleccionado">
                     <Button class="pi pi-plus" link @click="registrarCliente"/>
                 </div>             
             
@@ -516,7 +534,7 @@ const eliminar = (detalle) => {
                                 <div class="card" style="width: 100%;">
     <div class="flex card-container" style="width: 100%;">
         <DataTable class="tablaCarrito" ref="dt" :value="detalleFacturar" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
-         <Column  class="col" field="producto" header="Nombre" aria-sort="none" ></Column>
+         <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
          <Column class="col" field="producto.costo"  header="Precio" aria-sort="none" >
             <template #body="slotProps">
             <div class="flex-auto p-fluid" >
@@ -528,7 +546,7 @@ const eliminar = (detalle) => {
         <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
             <template #body="slotProps">
                 <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                  <InputNumber class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="1"  @update:modelValue="sendSubTotal" />
+                  <InputNumber class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="slotProps.data.cantRecepcionada"  @update:modelValue="sendSubTotal" />
               </div>  
             </template>
              
@@ -541,9 +559,9 @@ const eliminar = (detalle) => {
                   </div>
             </template>
          </Column>
-         <Column class="col" :exportable="false" style="min-width:1rem">
+         <Column  class="col" :exportable="false" style="min-width:1rem">
            <template #body="slotProps">
-             <Button icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="eliminar(slotProps.data)" />
+             <Button v-if="!isRecepcionado(slotProps.data)" icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="eliminar(slotProps.data)" />
            </template>
          </Column>
      </DataTable>

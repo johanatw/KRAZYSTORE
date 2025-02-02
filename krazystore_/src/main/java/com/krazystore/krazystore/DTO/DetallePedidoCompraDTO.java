@@ -4,15 +4,16 @@
  */
 package com.krazystore.krazystore.DTO;
 
+import com.krazystore.krazystore.Entity.PedidoCompraEntity;
+
 /**
  *
  * @author HP
  */
 public class DetallePedidoCompraDTO {
     private Long id;
-    private Long idProducto;
-    private String producto;
-    private Long idPedidoCompra;
+    private ProductoDTO producto;
+    private PedidoCompraEntity pedidoCompra;
     private int cantidad;
     private int cantRecepcionada;
     private int subTotal;
@@ -22,16 +23,26 @@ public class DetallePedidoCompraDTO {
     }
 
     public DetallePedidoCompraDTO(Long id, Long idProducto, String producto, 
-            Long idPedidoCompra, int cantidad, int subTotal, int costoCompra, Long cantRecepcionada) {
+            PedidoCompraEntity pedidoCompra, int cantidad, int subTotal, int costoCompra, Long cantRecepcionada) {
         this.id = id;
-        this.idProducto = idProducto;
-        this.producto = producto;
-        this.idPedidoCompra = idPedidoCompra;
+        this.producto = new ProductoDTO(idProducto, producto);
+        this.pedidoCompra = pedidoCompra;
         this.cantidad = cantidad;
         this.cantRecepcionada = (int)(long) cantRecepcionada;
         this.subTotal = subTotal;
         this.costoCompra = costoCompra;
     }
+
+    public DetallePedidoCompraDTO(Long id, Long idProducto, String producto, 
+            int cantidad, int costoCompra, Long cantRecepcionada) {
+        this.id = id;
+        this.producto = new ProductoDTO(idProducto, producto);
+        this.cantidad = cantidad;
+        this.cantRecepcionada = (int)(long)cantRecepcionada;
+        this.costoCompra = costoCompra;
+    }
+    
+    
 
     public Long getId() {
         return id;
@@ -41,29 +52,22 @@ public class DetallePedidoCompraDTO {
         this.id = id;
     }
 
-    public Long getIdProducto() {
-        return idProducto;
-    }
-
-    public void setIdProducto(Long idProducto) {
-        this.idProducto = idProducto;
-    }
-
-    public String getProducto() {
+    public ProductoDTO getProducto() {
         return producto;
     }
 
-    public void setProducto(String producto) {
+    public void setProducto(ProductoDTO producto) {
         this.producto = producto;
     }
 
-    public Long getIdPedidoCompra() {
-        return idPedidoCompra;
+    public PedidoCompraEntity getPedidoCompra() {
+        return pedidoCompra;
     }
 
-    public void setIdPedidoCompra(Long idPedidoCompra) {
-        this.idPedidoCompra = idPedidoCompra;
+    public void setPedidoCompra(PedidoCompraEntity pedidoCompra) {
+        this.pedidoCompra = pedidoCompra;
     }
+
 
     public int getCantidad() {
         return cantidad;

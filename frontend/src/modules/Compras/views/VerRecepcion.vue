@@ -98,7 +98,7 @@ onMounted(() => {
         detalle.value = data.data.detalle;
 
         detalle.value.forEach(element => {
-            element.cantPendiente = element.cantSolicitado - element.cantTotalRecepcionado;
+            element.cantPendiente = element.detallePedido.cantidad - element.detallePedido.cantRecepcionada;
         });  
    });
 
@@ -120,6 +120,15 @@ const mostrarCliente = (proveedor) =>{
     clienteSeleccionado.value = true;
 }
 
+const isFacturada = (estado) => {
+  
+  switch (estado) {
+       case 'F':
+           return true;
+       default:
+           return false;
+   }
+};
 
 const modificarRecepcion = (id) => {
     router.push({name: 'modificar_recepcion', params: {id}});
@@ -164,7 +173,7 @@ const modificarPedido = (id) => {
                 <div class="card flex" style="justify-content: end;">   
                     <div class="card flex" style="justify-content: end;">  
                         <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaFacturasVenta()" />
-                        <Button  label="Modificar" @click="modificarRecepcion(pedido.id)" />
+                        <Button v-if="!isFacturada(pedido.estado)" label="Modificar" @click="modificarRecepcion(pedido.id)" />
                     </div>  
                 </div>
             </template>
@@ -199,9 +208,9 @@ const modificarPedido = (id) => {
                                 <div class="card" style="width: 100%;">
     <div class="flex card-container" style="width: 100%;">
         <DataTable class="tablaCarrito" ref="dt" :value="detalle" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
-         <Column  class="col" field="producto" header="Nombre" aria-sort="none" ></Column>
+         <Column  class="col" field="detallePedido.producto.nombre" header="Nombre" aria-sort="none" ></Column>
          
-        <Column  class="col" field="cantSolicitado" header="Cantidad Pedida" aria-sort="none">
+        <Column  class="col" field="detallePedido.cantidad" header="Cantidad Pedida" aria-sort="none">
          </Column>
          <Column  class="col" field="cantidad" header="Cantidad Pendiente" aria-sort="none">
             <template #body="slotProps">

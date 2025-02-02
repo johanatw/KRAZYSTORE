@@ -11,6 +11,7 @@ import Utils.PagoRegistradoEvent;
 import Utils.PedidoCompraEvent;
 import Utils.PedidoEvent;
 import Utils.TipoEvento;
+import Utils.TipoFactura;
 import Utils.TipoPedido;
 import com.krazystore.krazystore.DTO.AnticipoCreationDTO;
 import com.krazystore.krazystore.DTO.EstadoPagoPedidoDTO;
@@ -232,8 +233,8 @@ public class MovimientoServiceImpl implements MovimientoService {
 
         pagoService.savePagos(nuevoMovimiento, movimientoDTO.getPago());
 
-        gestionarPagoVenta(nuevoMovimiento);
-        gestionarPagoCompra(nuevoMovimiento);
+        gestionarPagoVenta(nuevoMovimiento, Estado.PAGOCOMPLETO);
+        gestionarPagoCompra(nuevoMovimiento, Estado.PAGOCOMPLETO);
         
         return nuevoMovimiento;
     }
@@ -318,7 +319,30 @@ public class MovimientoServiceImpl implements MovimientoService {
     
     @Override
     public void deleteMovimiento(Long id) {
-        movimientoRepository.deleteById(id);
+        MovimientoEntity movimiento = movimientoRepository.findById(id).get();
+        if(movimiento.getVenta()!= null){
+            deletePagosFactura(movimiento, TipoFactura.FACTURAVENTA );
+        }else if(movimiento.getCompra()!= null){
+            deletePagosFactura(movimiento, TipoFactura.FACTURACOMPRA );
+        }else{
+            pagoService.deletePagosByMovimiento(id);
+            movimientoRepository.deleteById(id);
+        }
+    }
+    
+    public void deletePagosFactura(MovimientoEntity movimiento, TipoFactura tipoFactura ) {
+        
+        switch(tipoFactura){
+            case FACTURAVENTA -> gestionarPagoVenta(movimiento, Estado.PENDIENTEDEPAGO);
+            case FACTURACOMPRA -> gestionarPagoCompra(movimiento, Estado.PENDIENTEDEPAGO);
+            default -> throw new IllegalArgumentException("Tipo de factura desconocido: " + tipoFactura);
+        }
+        
+        movimiento.setEstado(Estado.PENDIENTEDEPAGO.getCodigo());
+        movimiento.setCaja(null);
+        movimientoRepository.save(movimiento);
+        pagoService.deletePagosByMovimiento(movimiento.getId());
+
     }
     
     @Override
@@ -378,18 +402,18 @@ public class MovimientoServiceImpl implements MovimientoService {
         movimiento.setEstado(Estado.PAGOCOMPLETO.getCodigo());
     }
 
-    private void gestionarPagoVenta(MovimientoEntity movimiento) {
+    private void gestionarPagoVenta(MovimientoEntity movimiento, Estado estado) {
 
         if (movimiento.getVenta() != null) {
-            cambiarEstadoPagoVenta(movimiento.getVenta().getId(), Estado.PAGOCOMPLETO.getCodigo());
+            cambiarEstadoPagoVenta(movimiento.getVenta().getId(), estado.getCodigo());
 
         }
     }
 
-    private void gestionarPagoCompra(MovimientoEntity movimiento) {
+    private void gestionarPagoCompra(MovimientoEntity movimiento, Estado estado) {
 
         if (movimiento.getCompra() != null) {
-            cambiarEstadoPagoCompra(movimiento.getCompra().getId(), Estado.PAGOCOMPLETO.getCodigo());
+            cambiarEstadoPagoCompra(movimiento.getCompra().getId(), estado.getCodigo());
         }
     }
     

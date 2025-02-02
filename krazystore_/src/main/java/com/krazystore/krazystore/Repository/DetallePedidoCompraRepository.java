@@ -25,7 +25,7 @@ public interface DetallePedidoCompraRepository extends JpaRepository<DetallePedi
   nativeQuery = true)
     List<DetallePedidoCompra> findByIdPedido(Long idPedido);
     
-    @Query("SELECT new com.krazystore.krazystore.DTO.DetallePedidoCompraDTO(d.id, d.producto.id, d.producto.nombre, d.pedidoCompra.id, "
+    @Query("SELECT new com.krazystore.krazystore.DTO.DetallePedidoCompraDTO(d.id, d.producto.id, d.producto.nombre, d.pedidoCompra, "
         + "d.cantidad, d.subTotal, d.costoCompra, "
         + "(SELECT COALESCE(SUM(r.cantRecepcionada), 0) "
         + " FROM DetalleRecepcion r "

@@ -26,8 +26,6 @@ public class ProductoDTO {
     public ProductoDTO() {
     }
 
-  
-
     public ProductoDTO(Long id, String nombre) {
         this.id = id;
         this.nombre = nombre;

@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.util.Date;
 
 /**
  *
@@ -28,8 +29,54 @@ public class PrecioVentaEntity {
     
     @ManyToOne
     @JoinColumn(name = "id_producto")
-    private ProductoEntity product;
+    private ProductoEntity producto;
 
     @Column(name = "precio")
     private Long precio;
+    @Column(name = "fecha")
+    private Date fecha;
+
+    public PrecioVentaEntity() {
+    }
+
+    public PrecioVentaEntity(Long id, ProductoEntity producto, Long precio, Date fecha) {
+        this.id = id;
+        this.producto = producto;
+        this.precio = precio;
+        this.fecha = fecha;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public ProductoEntity getProducto() {
+        return producto;
+    }
+
+    public void setProducto(ProductoEntity producto) {
+        this.producto = producto;
+    }
+
+    public Long getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(Long precio) {
+        this.precio = precio;
+    }
+
+    public Date getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(Date fecha) {
+        this.fecha = fecha;
+    }
+    
+    
 }

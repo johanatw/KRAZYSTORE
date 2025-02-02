@@ -14,14 +14,9 @@ import com.krazystore.krazystore.Entity.ProductoEntity;
 public class DetalleRecepcionDTO {
     private Long id;
     private Long idRecepcion;
-    private Long idDetallePedido;
-    private Long idProducto;
-    private String producto;
-    private int costo;
-    private int cantSolicitado;
+    private DetallePedidoCompraDTO detallePedido;
     private int cantAceptada;
     private int cantRechazada;
-    private int cantTotalRecepcionado;
     private int cantRecepcionado;
 
     public DetalleRecepcionDTO() {
@@ -31,25 +26,23 @@ public class DetalleRecepcionDTO {
             String producto, int costo, int cantSolicitado, int cantAceptada, int cantRechazada, int cantRecepcionado, Long cantTotalRecepcionado) {
         this.id = id;
         this.idRecepcion = idRecepcion;
-        this.idDetallePedido = idDetallePedido;
-        this.idProducto = idProducto;
-        this.producto = producto;
-        this.costo = costo;
-        this.cantSolicitado = cantSolicitado;
+        this.detallePedido = new DetallePedidoCompraDTO(idDetallePedido, idProducto, producto,
+        cantSolicitado, costo, cantTotalRecepcionado);
         this.cantAceptada = cantAceptada;
         this.cantRechazada = cantRechazada;
-        this.cantTotalRecepcionado = (int)(long)cantTotalRecepcionado;
         this.cantRecepcionado = cantRecepcionado;
+    } 
+
+    public DetallePedidoCompraDTO getDetallePedido() {
+        return detallePedido;
     }
 
-    public int getCosto() {
-        return costo;
+    public void setDetallePedido(DetallePedidoCompraDTO detallePedido) {
+        this.detallePedido = detallePedido;
     }
+    
 
-    public void setCosto(int costo) {
-        this.costo = costo;
-    }  
-
+    
     public Long getIdRecepcion() {
         return idRecepcion;
     }
@@ -74,46 +67,12 @@ public class DetalleRecepcionDTO {
         this.cantRechazada = cantRechazada;
     }
 
-    
-
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getIdDetallePedido() {
-        return idDetallePedido;
-    }
-
-    public void setIdDetallePedido(Long idDetallePedido) {
-        this.idDetallePedido = idDetallePedido;
-    }
-
-    public Long getIdProducto() {
-        return idProducto;
-    }
-
-    public void setIdProducto(Long idProducto) {
-        this.idProducto = idProducto;
-    }
-
-    public String getProducto() {
-        return producto;
-    }
-
-    public void setProducto(String producto) {
-        this.producto = producto;
-    }
-
-    public int getCantSolicitado() {
-        return cantSolicitado;
-    }
-
-    public void setCantSolicitado(int cantSolicitado) {
-        this.cantSolicitado = cantSolicitado;
     }
 
     public int getCantRecepcionado() {
@@ -124,15 +83,4 @@ public class DetalleRecepcionDTO {
         this.cantRecepcionado = cantRecepcionado;
     }
 
-    public int getCantTotalRecepcionado() {
-        return cantTotalRecepcionado;
-    }
-
-    public void setCantTotalRecepcionado(int cantTotalRecepcionado) {
-        this.cantTotalRecepcionado = cantTotalRecepcionado;
-    }
-
-    
-
-    
 }
