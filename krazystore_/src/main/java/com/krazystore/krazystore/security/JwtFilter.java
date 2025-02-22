@@ -30,12 +30,15 @@ public class JwtFilter extends OncePerRequestFilter{
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        try {
+       // try {
         String authorizationHeader = request.getHeader("Authorization");
             
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String token = authorizationHeader.substring(7);
             String username = jwtTokenUtil.getUsernameFromToken(token);
+            
+            System.out.println("USERNAME");
+            System.out.println(username);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UsernamePasswordAuthenticationToken authToken =
@@ -45,7 +48,7 @@ public class JwtFilter extends OncePerRequestFilter{
         }
 
         filterChain.doFilter(request, response);
-        } catch (ExpiredJwtException e) {
+        /*} catch (ExpiredJwtException e) {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // Cambia 403 a 401
         response.getWriter().write("Token expirado");
         response.getWriter().flush();
@@ -55,7 +58,7 @@ public class JwtFilter extends OncePerRequestFilter{
         response.getWriter().write("Acceso denegado");
         response.getWriter().flush();
         response.getWriter().close();
-    }
+    }*/
         
     }
     

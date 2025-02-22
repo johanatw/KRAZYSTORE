@@ -76,7 +76,13 @@ const items = ref([
                     router.push({name: 'pedidos'});
                 }
             },
-
+            {
+                label: 'Clientes',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'clientes'});
+                }
+            },
         ]
     },
     { 

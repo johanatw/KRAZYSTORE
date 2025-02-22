@@ -29,7 +29,7 @@ const productos = ref();
 const detalle = ref({});
 
 onMounted(() => {
-
+    getProductos();
 });
 /*
 async function existeCajaAbierta() {
@@ -43,12 +43,8 @@ async function existeCajaAbierta() {
    
 }*/
 
-const getProductos = () =>{
-    
-    ProductoServices.obtenerProductos().then((data) => {
-     return data.data;
-    
-    });
+async function getProductos(){
+    productos.value = (await ProductoServices.obtenerProductos()).data;
 }
 
 const filters = ref({
@@ -56,8 +52,8 @@ const filters = ref({
 });
 
 async function setDetalle(lista) {
-    console.log(lista);
-    productos.value = (await ProductoServices.obtenerProductos()).data;
+    getProductos();
+    
     lista.forEach(element => {
         let index = productos.value.findIndex((loopVariable) => loopVariable.id === element.producto.id);
         if (index>-1) {
