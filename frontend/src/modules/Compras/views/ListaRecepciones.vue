@@ -5,7 +5,7 @@ import InputText from 'primevue/inputtext';
 import Column from 'primevue/column';
 import { RecepcionServices } from '@/services/RecepcionServices';
 import Button from 'primevue/button';
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import {PedidoServices} from '@/services/PedidoServices';
 import { PedidoCompraServices } from '@/services/PedidoCompraServices';
 import { AnticipoServices } from '@/services/AnticipoServices';
@@ -22,6 +22,8 @@ import RadioButton from 'primevue/radiobutton';
 const visible = ref(false);
 import Listbox from 'primevue/listbox';
 import { formatearNumero, formatearFecha, getEstadoRecepcion } from '@/utils/utils'; 
+import InputGroup from 'primevue/inputgroup';
+import InputGroupAddon from 'primevue/inputgroupaddon';
 
 import SplitButton from 'primevue/splitbutton';
 
@@ -98,10 +100,11 @@ const getSeverity = (estado) => {
   
   
   switch (estado) {
-       case 'R':
+    
+       case 'N':
            return 'background-color: rgb(202, 241, 216); color: rgb(24, 138, 66);';
 
-       case 'N':
+       case 'P':
            return 'background-color: rgb(254, 221, 199); color: rgb(174, 81, 15);';
 
        case 'F':
@@ -184,14 +187,14 @@ const nuevoPedido = () =>{
          
       <template #icons>
         <div class="flex align-items-center">
-          <Button  icon="pi pi-plus " @click="nuevoPedido" style=" width: 3rem !important; height: 2.9rem;" />
-        <span class="p-input-icon-left" style="margin-left: 1%;">
-          <i class="pi pi-search" style="top: 35%;"/>
-          <InputText style="padding: 12px !important; padding-left: 40px !important;" class="buscador p-fluid" v-model="filters['global'].value" placeholder="Buscar..."  />
-        </span>
-
+          <Button  icon="pi pi-plus " @click="nuevoPedido" style="margin-right: 1% ;"  />
+          <InputGroup>
+            <InputText v-model="filters['global'].value" placeholder="Search..." />
+            <InputGroupAddon>
+              <i class="pi pi-search" />
+            </InputGroupAddon>
+        </InputGroup>
         </div>
-        
     
       </template>
       

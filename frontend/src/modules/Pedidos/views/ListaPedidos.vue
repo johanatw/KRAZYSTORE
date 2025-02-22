@@ -4,11 +4,11 @@ import DataTable from 'primevue/datatable';
 import InputText from 'primevue/inputtext';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import {PedidoServices} from '@/services/PedidoServices';
 import { CajaServices } from '@/services/CajaServices';
 import Panel from 'primevue/panel';
-
+import InputIcon from 'primevue/inputicon';
 import Tooltip from 'primevue/tooltip';
 
 
@@ -22,8 +22,9 @@ import ConfirmDialog from 'primevue/confirmdialog';
 import RadioButton from 'primevue/radiobutton';
 const visible = ref(false);
 import Listbox from 'primevue/listbox';
-
-
+import InputGroup from 'primevue/inputgroup';
+import InputGroupAddon from 'primevue/inputgroupaddon';
+import IconField from 'primevue/iconfield';
 import SplitButton from 'primevue/splitbutton';
 const visibleDeleteDialog = ref(false);
 const pedidos = ref();
@@ -190,25 +191,20 @@ const showTemplate = () => {
     });
 };
 onMounted(() => {
- 
   getPedidos();
 
     
 });
 
 
-
- async function getPedidos() {
-  
-
-   await PedidoServices.getPedidos().then((data) => {
-        pedidos.value = data.data;
-
-        console.log(pedidos.value);
-    });
-  
-}
-
+const getPedidos = async () => {
+    try {
+      const response = await PedidoServices.getPedidos();
+        pedidos.value = response.data;
+    } catch (error) {
+       
+    }
+};
 
 const filters = ref({
     'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
@@ -416,20 +412,22 @@ const reload = () =>{
         <div class="flex align-items-center gap-2">
             <h3 class="font-bold">Pedidos</h3>
         </div>
+        
       </template>
          
       <template #icons>
         <div class="flex align-items-center">
-          <Button  icon="pi pi-plus " @click="nuevoPedido" style=" width: 3rem !important; height: 2.9rem;" />
-        <span class="p-input-icon-left" style="margin-left: 1%;">
-          <i class="pi pi-search" style="top: 35%;"/>
-          <InputText style="padding: 12px !important; padding-left: 40px !important;" class="buscador p-fluid" v-model="filters['global'].value" placeholder="Buscar..."  />
-        </span>
-
+          <Button  icon="pi pi-plus " @click="nuevoPedido" style="margin-right: 1% ;"  />
+          <InputGroup>
+            <InputText v-model="filters['global'].value" placeholder="Search..." />
+            <InputGroupAddon>
+              <i class="pi pi-search" />
+            </InputGroupAddon>
+        </InputGroup>
         </div>
-        
     
       </template>
+      
       
   
       <div >

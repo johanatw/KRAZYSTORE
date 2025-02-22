@@ -7,8 +7,8 @@ import Card from 'primevue/card';
 import { ref, onMounted } from "vue";
 
 import Dialog from 'primevue/dialog';
-
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import Tag from 'primevue/tag';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { ProductoServices } from '@/services/ProductoServices';
 import DataTable from 'primevue/datatable';
 import InputText from 'primevue/inputtext';
@@ -29,18 +29,35 @@ const productos = ref();
 const detalle = ref({});
 
 onMounted(() => {
-ProductoServices.obtenerProductos().then((data) => {
-     productos.value = data.data
-     console.log("productosssss",productos.value);
+
+});
+/*
+async function existeCajaAbierta() {
+   let c = (await CajaServices.getCajaAbierta()).data;
+   console.log(c);
+   if (c == null ) {
+    return false;
+   } else {
+    return true;
+   }
+   
+}*/
+
+const getProductos = () =>{
+    
+    ProductoServices.obtenerProductos().then((data) => {
+     return data.data;
     
     });
-});
+}
 
 const filters = ref({
  'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
 });
 
-const setDetalle = (lista) =>{
+async function setDetalle(lista) {
+    console.log(lista);
+    productos.value = (await ProductoServices.obtenerProductos()).data;
     lista.forEach(element => {
         let index = productos.value.findIndex((loopVariable) => loopVariable.id === element.producto.id);
         if (index>-1) {
@@ -226,7 +243,7 @@ const eliminar = (detalle) => {
                 </div>  
             </template>  
          </Column> 
-         <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
+         <Column  class="col" field="producto.nombre" header="Nombres" aria-sort="none" ></Column>
          <Column class="col" field="producto.precio"  header="Precio" aria-sort="none" >
             <template #body="slotProps">
               <div>
@@ -236,9 +253,10 @@ const eliminar = (detalle) => {
         </Column>
          <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
             <template #body="slotProps">
-                <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                  <InputNumber v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="1" :max="slotProps.data.cantDisponible" @input="prueba(slotProps.data.producto,slotProps.data.cantDisponible,$event)"  @update:modelValue="sendSubTotal" />
+                <div  >
+                  <InputNumber fluid v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="1" :max="slotProps.data.cantDisponible" @input="prueba(slotProps.data.producto,slotProps.data.cantDisponible,$event)"  @update:modelValue="sendSubTotal" />
               </div>  
+              
             </template>
              
          </Column>
@@ -349,52 +367,5 @@ const eliminar = (detalle) => {
 </template>
 <style>
 
-.p-accordion-tab{
-    margin: 2%;
-    
-    
-}
-.p-icon{
-    color: pink;
-    margin-right: 1%;
-}
 
-.p-accordion-header-link{
-    height: 7vh !important;
-}
-.p-accordion-header-text{
-    color: black;
-}
-
-
-.p-card-title{
-    font-size:medium;
-}
-.p-card .p-card-body {
-    padding: 1rem;
-}
-.p-card .p-card-content {
-    padding: 0.5rem 0;
-}
-
-.principal{
-    display: flex;
-    border: solid palevioletred 2px;
-    justify-content: center;
-    border-radius: 1vh;
-    margin-left: 4%;
-    margin-right: 4%;
-    padding: 1%;
-}
-
-h3 {
-    display: flex;
-    font-size: 1.17em;
-    margin-block-start: 0px;
-    margin-block-end: 0px;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-    font-weight: bold;
-    justify-content: center;
-}
 </style>

@@ -111,7 +111,7 @@ public class ProductoServiceImpl implements ProductoService{
     
     private void actualizarExistencias(List<ProductoExistenciasDTO> productos, TipoEvento tipoEvento) {
         List<ProductoEntity> productosActualizar = new ArrayList<>();
-
+        System.out.println("ACTUALIZAR EXISTENCIA");
         productos.forEach(d -> {
             ProductoEntity producto = productorepository.findById(d.getIdProducto())
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
@@ -131,6 +131,8 @@ public class ProductoServiceImpl implements ProductoService{
                         producto.setCantStock(producto.getCantStock() + d.getCantidad());
                         producto.setCantDisponible(producto.getCantDisponible() + d.getCantidad());
                     } else if (tipoEvento == TipoEvento.AJUSTAR_INVENTARIO) {
+                        System.out.println("ajustar inventario");
+                        System.out.println(d.getCantidad());
                         producto.setCantStock(producto.getCantStock() + d.getCantidad());
                         producto.setCantDisponible(producto.getCantDisponible() + d.getCantidad());
                     }
@@ -145,6 +147,11 @@ public class ProductoServiceImpl implements ProductoService{
                     } else if (tipoEvento == TipoEvento.FACTURACION_PEDIDOS) {
                         producto.setCantStock(producto.getCantStock() + d.getCantidad());
                         producto.setCantReservada(producto.getCantReservada() + d.getCantidad());
+                    } else if (tipoEvento == TipoEvento.AJUSTAR_INVENTARIO) {
+                        System.out.println("ajustar inventario disminuir");
+                        System.out.println(d.getCantidad());
+                        producto.setCantStock(producto.getCantStock() - d.getCantidad());
+                        producto.setCantDisponible(producto.getCantDisponible() - d.getCantidad());
                     }
             }
 

@@ -234,7 +234,7 @@ import Dropdown from 'primevue/dropdown';
 import { FormasPagoServices } from '@/services/FormasPagoServices';
 import Panel from 'primevue/panel';
 import SearchCliente from '@/modules/Pedidos/components/SearchCliente.vue'
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import MiCard from '@/modules/Pedidos/components/MiCard.vue'
 import InputNumber from 'primevue/inputnumber';
 import ConfirmDialog from 'primevue/confirmdialog';

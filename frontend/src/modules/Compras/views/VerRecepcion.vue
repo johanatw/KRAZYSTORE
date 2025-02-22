@@ -18,12 +18,13 @@ import Calendar from "primevue/calendar";
 import { ref, onMounted } from "vue";
 import InputNumber from 'primevue/inputnumber';
 import InputGroup from 'primevue/inputgroup';
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+
 import Panel from 'primevue/panel';
 import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
 import { TipoDocServices } from "@/services/TipoDocServices";
 import {DepartamentoServices } from '@/services/DepartamentoServices';
+import { formatearFecha } from "@/utils/utils";
 const map = ref();
 const direccion = ref({});
 const selectedCliente = ref();
@@ -60,6 +61,7 @@ import {PedidoCompraServices} from "@/services/PedidoCompraServices";
 
 const confirm = useConfirm();
 const toast = useToast();
+const fecha = ref(new Date());
 
 const message = (m) => {
     let id = m.id;
@@ -96,7 +98,7 @@ onMounted(() => {
         console.log(data.data);
         pedido.value = data.data.recepcion;
         detalle.value = data.data.detalle;
-
+        fecha.value = new Date(pedido.value.fecha);
         detalle.value.forEach(element => {
             element.cantPendiente = element.detallePedido.cantidad - element.detallePedido.cantRecepcionada;
         });  
@@ -189,6 +191,23 @@ const modificarPedido = (id) => {
             </div>
         </div>
         <div class="grid " >
+            <div class="field col-12 md:col-6">
+                    <Card>
+                        <template #title>
+                            <div class="flex justify-content-between ">
+                                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                                    Información General
+                                </div>    
+                            </div>
+                        </template>
+                        <template #content>
+                            <div class="field" >
+                                Fecha: {{ formatearFecha(fecha)}}
+                            </div> 
+
+                        </template>
+                    </Card>
+                </div>
             
             <div class="col-12" >
                         <Card >

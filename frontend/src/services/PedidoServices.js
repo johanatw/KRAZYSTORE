@@ -1,92 +1,219 @@
 import axios from 'axios';
+import router from '@/router';
 const PEDIDO_API_BASE_URL = "http://localhost:7070/api/pedidos";
 const DETALLE_PEDIDO_API_BASE_URL = "http://localhost:7070/api/detalle_pedidos";
+const token = localStorage.getItem('token');
 
 export const PedidoServices = {
  getPedidos() {
-    try {
-        console.log("pedidoservice");
-      return axios.get(PEDIDO_API_BASE_URL);
-      
-    } catch (error) {
-      console.log(error.name);
-    }
+
+      return axios.get(PEDIDO_API_BASE_URL,{
+        headers: {
+          'Authorization': 'Bearer ' +  localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
   getPedido(id){
-    console.log(id);
-    return axios.get(PEDIDO_API_BASE_URL+"/"+id);
+ 
+    return axios.get(PEDIDO_API_BASE_URL+"/"+id,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
 
   },
 
   
 
  savePedido(pedido) {
-    try {
-        console.log("pedido", pedido);
-      return axios.post(PEDIDO_API_BASE_URL, pedido);
-      
-    } catch (error) {
-      console.log(error.name);
-    }
+
+      return axios.post(PEDIDO_API_BASE_URL, pedido,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
 
   registrarDetallePedido(detallePedido){
-    console.log("registrardetallepedido", detallePedido);
-    return axios.post(DETALLE_PEDIDO_API_BASE_URL, detallePedido);
+
+    return axios.post(DETALLE_PEDIDO_API_BASE_URL, detallePedido,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
 },
 
 registrarDetallesPedido(idPedido, detalles){
-  console.log("registrardetallepedido", detalles);
-  return axios.post(DETALLE_PEDIDO_API_BASE_URL+'/'+idPedido, detalles);
+
+  return axios.post(DETALLE_PEDIDO_API_BASE_URL+'/'+idPedido, detalles,{
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
+  }).catch(error => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");  // Eliminar el token expirado
+      router.push({name: 'home'});
+      return Promise.reject(error);
+  }
+  return Promise.reject(error);
+})
 },
  getDetalle(pedido) {
         
-        try {
-        return axios.get(DETALLE_PEDIDO_API_BASE_URL+'/detalles?idPedido='+pedido);
-        
-        } catch (error) {
-        console.log(error.name);
+
+        return axios.get(DETALLE_PEDIDO_API_BASE_URL+'/detalles?idPedido='+pedido,{
+          headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+          }
+        }).catch(error => {
+          if (error.response && error.response.status === 401) {
+            localStorage.removeItem("token");  // Eliminar el token expirado
+            router.push({name: 'home'});
+            return Promise.reject(error);
         }
+        return Promise.reject(error);
+      })
         
     },
     getDetallePedido(pedido) {
-      console.log("detalle", pedido);
-      try {
-      return axios.get(DETALLE_PEDIDO_API_BASE_URL+'/detalles?idPedido='+pedido);
-      
-      } catch (error) {
-      console.log(error.name);
+
+      return axios.get(DETALLE_PEDIDO_API_BASE_URL+'/detalles?idPedido='+pedido,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
       }
+      return Promise.reject(error);
+    })
       
   },
     deleteDetallesPedido(idPedido){
-      console.log("deletedetallespedido", idPedido);
-      return axios.delete(DETALLE_PEDIDO_API_BASE_URL+"/pedido/"+idPedido);
+
+      return axios.delete(DETALLE_PEDIDO_API_BASE_URL+"/pedido/"+idPedido,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
   },
 
   deleteDetallesByIds(ids){
-    console.log("deletedetallespedido", ids);
-    return axios.delete(DETALLE_PEDIDO_API_BASE_URL+"/items/"+ids);
+  
+    return axios.delete(DETALLE_PEDIDO_API_BASE_URL+"/items/"+ids,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
 },
 
 deletePedido(idPedido){
-    console.log("deletepedido",idPedido);
-    return axios.delete(PEDIDO_API_BASE_URL+"/"+idPedido);
+
+    return axios.delete(PEDIDO_API_BASE_URL+"/"+idPedido,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
 },
 
 modificarDetalle(id, detalles){
-  console.log("modificardetalleid",id,"detalles", detalles);
-  return axios.put(DETALLE_PEDIDO_API_BASE_URL + "/update/" + id, detalles);
+
+  return axios.put(DETALLE_PEDIDO_API_BASE_URL + "/update/" + id, detalles,{
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
+  }).catch(error => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");  // Eliminar el token expirado
+      router.push({name: 'home'});
+      return Promise.reject(error);
+  }
+  return Promise.reject(error);
+})
 },
 
 modificarDetalles(id, detalles){
-  return axios.put(DETALLE_PEDIDO_API_BASE_URL + "/update/" + id, detalles);
+
+  return axios.put(DETALLE_PEDIDO_API_BASE_URL + "/update/" + id, detalles,{
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
+  }).catch(error => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");  // Eliminar el token expirado
+      router.push({name: 'home'});
+      return Promise.reject(error);
+  }
+  return Promise.reject(error);
+})
 },
 modificarPedido(id, pedido){
-  console.log("modificarpedidoid",id,"detalles", pedido);
-  return axios.put(PEDIDO_API_BASE_URL + "/" + id, pedido);
+
+  return axios.put(PEDIDO_API_BASE_URL + "/" + id, pedido,{
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
+  }).catch(error => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");  // Eliminar el token expirado
+      router.push({name: 'home'});
+      return Promise.reject(error);
+  }
+  return Promise.reject(error);
+})
 },
 };
 export default { PedidoServices: PedidoServices };

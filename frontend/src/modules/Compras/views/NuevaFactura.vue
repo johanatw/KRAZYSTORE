@@ -21,12 +21,13 @@ import { ref, onMounted } from "vue";
 import { RecepcionServices } from "@/services/RecepcionServices";
 import InputNumber from 'primevue/inputnumber';
 import InputGroup from 'primevue/inputgroup';
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import Panel from 'primevue/panel';
 import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
 import { TipoDocServices } from "@/services/TipoDocServices";
 import {DepartamentoServices } from '@/services/DepartamentoServices';
+import DatePicker from 'primevue/datepicker';
 const map = ref();
 const direccion = ref({});
 const selectedCliente = ref();
@@ -430,24 +431,25 @@ const eliminar = (detalle) => {
 
     <!--Dialog Registrar Modificar Cliente-->
     <Dialog v-model:visible="clienteDialog" :closable="false" :style="{width: '450px'}" header="Cliente" :modal="true" class="p-fluid">
+        <div class="formgrid">
         <div class="field">
             <label for="name">Nombre</label>
-            <InputText id="name" v-model.trim="cliente.descripcion" required="true" autofocus :class="{'p-invalid': submitted && !cliente.descripcion}" />
+            <InputText fluid id="name" v-model.trim="cliente.descripcion" required="true" autofocus :class="{'p-invalid': submitted && !cliente.descripcion}" />
             <small class="p-error" v-if="submitted && !cliente.descripcion">Ingrese un Nombre</small>
         </div>
         <div class="field">
             <label for="description">RUC</label>
-            <InputText id="description" v-model="cliente.ruc" required="true"  />
+            <InputText fluid id="description" v-model="cliente.ruc" required="true"  />
         </div>
         <div class="field">
             <label for="description">Correo</label>
-            <InputText id="description" v-model="cliente.correo" required="true"  />
+            <InputText fluid id="description" v-model="cliente.correo" required="true"  />
         </div>
         <div class="field">
             <label for="description">Telefono</label>
-            <InputText id="description" v-model="cliente.telefono" required="true"  />
+            <InputText fluid id="description" v-model="cliente.telefono" required="true"  />
         </div>
-
+    </div>
         <template #footer>
             <Button label="Cancel" icon="pi pi-times" text @click="hideDialog"/>
             <Button label="Save" icon="pi pi-check" text @click="saveCliente" />
@@ -480,7 +482,28 @@ const eliminar = (detalle) => {
             </div>
         </div>
         <div class="grid " >
+            <div class="field col-12 md:col-6">
             
+            <Card >
+        <template #title>
+            <div class="flex justify-content-between ">
+                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                    Información General
+                </div>                
+            </div>
+            
+        </template>
+        <template #content>
+            <div class="field" >
+                
+                Fecha: <DatePicker dateFormat="dd/mm/yy" v-model="fechaCompra" showIcon iconDisplay="input" />
+            </div> 
+            <div class="field" >
+                N° Factura: <InputText type="text" v-model="nroFactura" />
+            </div> 
+        </template>
+    </Card>
+            </div> 
            <div class="field col-12 md:col-6">
             
             <Card >
@@ -490,10 +513,10 @@ const eliminar = (detalle) => {
                     Proveedor
                 </div>    
                 <div v-if="clienteSeleccionado">
-                    <Button class="pi pi-times" link @click="eliminarClienteSelected"/>
+                    <Button icon="pi pi-times" link @click="eliminarClienteSelected"/>
                 </div>   
                 <div v-else>
-                    <Button class="pi pi-plus" link @click="registrarCliente"/>
+                    <Button icon="pi pi-plus" link @click="registrarCliente"/>
                 </div>             
             
             </div>
@@ -522,30 +545,6 @@ const eliminar = (detalle) => {
             
         </template>
     </Card>
-            </div>  
-            <div class="field col-12 md:col-6">
-            
-            <Card >
-        <template #title>
-            <div class="flex justify-content-between ">
-                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
-                    Detalle Compra
-                </div>    
-         
-            
-            </div>
-            
-        </template>
-        <template #content>
-            <div class="field" >
-                
-                Fecha: <Calendar v-model="fechaCompra" />
-            </div> 
-            <div class="field" >
-                N° Factura: <InputText type="text" v-model="nroFactura" />
-            </div> 
-        </template>
-    </Card>
             </div> 
             
             <div class="col-12" >
@@ -555,9 +554,6 @@ const eliminar = (detalle) => {
                 <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
                     Productos
                 </div>
-                <div >
-                    <Button label="+ Producto" link @click="visible = true" />
-                    </div>
 
             </div>
             

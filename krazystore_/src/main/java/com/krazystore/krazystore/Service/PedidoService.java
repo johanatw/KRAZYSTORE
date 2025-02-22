@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.Service;
 
+import com.krazystore.krazystore.DTO.PedidoCreationDTO;
 import com.krazystore.krazystore.DTO.PedidoDTO;
 import com.krazystore.krazystore.Entity.DetallePedidoEntity;
 import com.krazystore.krazystore.Entity.PedidoEntity;
@@ -16,7 +17,7 @@ import java.util.Optional;
  */
 public interface PedidoService {
     List<PedidoDTO> findAll();
-    Optional<PedidoEntity> findById(Long id);
+    PedidoCreationDTO findById(Long id);
     PedidoEntity savePedido(PedidoEntity pedido, List<DetallePedidoEntity> detalle);
     PedidoEntity updatePedido(PedidoEntity pedidoEntity, List<DetallePedidoEntity> detalle, Long id) throws Exception;
     void deletePedido(Long id);

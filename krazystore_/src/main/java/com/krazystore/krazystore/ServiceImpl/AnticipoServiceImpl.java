@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.ServiceImpl;
 
+import Utils.TipoEvento;
 import Utils.TipoPedido;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 
@@ -121,12 +122,17 @@ public class AnticipoServiceImpl implements AnticipoService{
    
     @Transactional
     @Override
-    public AnticipoEntity actualizarSaldoAnticipo(Long idAnticipo, int montoReembolsado){
+    public AnticipoEntity actualizarSaldoAnticipo(Long idAnticipo, int montoReembolsado, TipoEvento evento){
         AnticipoEntity anticipo= anticipoRepository.findById(idAnticipo)
                 .orElseThrow(() -> new RuntimeException("Anticipo no encontrado"));
         
-        anticipo.setReembolsado(anticipo.getReembolsado() + montoReembolsado);
-        anticipo.setSaldo(anticipo.getSaldo() - montoReembolsado );
+        if(evento.equals(TipoEvento.REEMBOLSO_CREADO)){
+            anticipo.setReembolsado(anticipo.getReembolsado() + montoReembolsado);
+            anticipo.setSaldo(anticipo.getSaldo() - montoReembolsado );
+        }else{
+            anticipo.setReembolsado(anticipo.getReembolsado() - montoReembolsado);
+            anticipo.setSaldo(anticipo.getSaldo() + montoReembolsado );
+        }
         
         return anticipoRepository.save(anticipo);
     }

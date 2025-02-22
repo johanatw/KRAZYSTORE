@@ -4,12 +4,13 @@ import DataTable from 'primevue/datatable';
 import InputText from 'primevue/inputtext';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import {PedidoServices} from '@/services/PedidoServices';
 import { AnticipoServices } from '@/services/AnticipoServices';
 import {ReembolsoServices} from '@/services/ReembolsoServices'
 import { CompraServices } from '@/services/CompraServices';
 import {CajaServices} from '@/services/CajaServices'
+import { AuthServices } from '@/services/AuthServices';
 import Panel from 'primevue/panel';
 import router from '@/router';
 import Toast from 'primevue/toast';
@@ -19,7 +20,8 @@ import ConfirmDialog from 'primevue/confirmdialog';
 import RadioButton from 'primevue/radiobutton';
 const visible = ref(false);
 import Listbox from 'primevue/listbox';
-
+import InputGroup from 'primevue/inputgroup';
+import InputGroupAddon from 'primevue/inputgroupaddon';
 
 import SplitButton from 'primevue/splitbutton';
 
@@ -54,13 +56,22 @@ const confirm2 = (id) => {
     });
 };
 onMounted(() => {
+  if (AuthServices.isTokenExpired()) {
+    localStorage.clear();  // Elimina los datos del usuario
+    router.push('/'); // Redirige al login
+  }
+  
+    getCompras();
+    getCajaAbierta();
+    
+});
+
+const getCompras= () => {
   CompraServices.obtenerCompras().then((data) => {
         compras.value = data.data;
         console.log(compras.value);
     });
- getCajaAbierta();
-    
-});
+};
 
 const getCajaAbierta= () => {
     CajaServices.getCajaAbierta().then((data) => {
@@ -113,10 +124,10 @@ const getSeverity = (estado) => {
   
   
   switch (estado) {
-       case 'P':
+       case 'C':
            return 'background-color: rgb(202, 241, 216); color: rgb(24, 138, 66);';
 
-       case 'N':
+       case 'P':
            return 'background-color: rgb(254, 221, 199); color: rgb(174, 81, 15);';
 
        case 'F':
@@ -194,14 +205,14 @@ const nuevoPedido = () =>{
          
       <template #icons>
         <div class="flex align-items-center">
-          <Button  icon="pi pi-plus " @click="nuevoPedido" style=" width: 3rem !important; height: 2.9rem;" />
-        <span class="p-input-icon-left" style="margin-left: 1%;">
-          <i class="pi pi-search" style="top: 35%;"/>
-          <InputText style="padding: 12px !important; padding-left: 40px !important;" class="buscador p-fluid" v-model="filters['global'].value" placeholder="Buscar..."  />
-        </span>
-
+          <Button  icon="pi pi-plus " @click="nuevoPedido" style="margin-right: 1% ;"  />
+          <InputGroup>
+            <InputText v-model="filters['global'].value" placeholder="Search..." />
+            <InputGroupAddon>
+              <i class="pi pi-search" />
+            </InputGroupAddon>
+        </InputGroup>
         </div>
-        
     
       </template>
       
@@ -216,6 +227,11 @@ const nuevoPedido = () =>{
           <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
             <template #body="slotProps">
                 {{ formatearFecha(slotProps.data.fecha) }}
+            </template>
+        </Column>
+        <Column field="fecha" sortable header="N° Recepcion" aria-sort="ascending" >
+            <template #body="slotProps">
+                {{ slotProps.data.recepcion?.id }}
             </template>
         </Column>
           <Column field="proveedor.descripcion"  header="Proveedor" aria-sort="ascending" sortable>           

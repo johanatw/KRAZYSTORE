@@ -18,12 +18,13 @@ import Calendar from "primevue/calendar";
 import { ref, onMounted } from "vue";
 import InputNumber from 'primevue/inputnumber';
 import InputGroup from 'primevue/inputgroup';
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import Panel from 'primevue/panel';
 import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
 import { TipoDocServices } from "@/services/TipoDocServices";
 import {DepartamentoServices } from '@/services/DepartamentoServices';
+import DatePicker from "primevue/datepicker";
 const map = ref();
 const direccion = ref({});
 const selectedCliente = ref();
@@ -95,6 +96,7 @@ onMounted(() => {
     PedidoCompraServices.getPedido(router.currentRoute.value.params.id).then((data) => {
         pedido.value = data.data.pedido;
         detalle.value = data.data.detalle;
+        fechaRecepcion.value = pedido.value.fecha;
         console.log(data.data);
        proveedor.value = pedido.value.proveedor;
        mostrarCliente(proveedor.value);
@@ -190,27 +192,22 @@ const modificarPedido = (id) => {
         </div>
         <div class="grid " >
             <div class="field col-12 md:col-6">
-            
-            <Card >
-        <template #title>
-            <div class="flex justify-content-between ">
-                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
-                    Detalle Entrega
-                </div>    
-         
-            
-            </div>
-            
-        </template>
-        <template #content>
-            <div class="field" >
-                
-                Fecha: <Calendar v-model="fechaRecepcion" />
-            </div> 
+                    <Card>
+                        <template #title>
+                            <div class="flex justify-content-between ">
+                                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                                    Información General
+                                </div>    
+                            </div>
+                        </template>
+                        <template #content>
+                            <div class="field" >
+                                Fecha: <DatePicker dateFormat="dd/mm/yy" v-model="fechaRecepcion" showIcon iconDisplay="input" />
+                            </div> 
 
-        </template>
-    </Card>
-            </div> 
+                        </template>
+                    </Card>
+                </div> 
             
             <div class="col-12" >
                         <Card >
@@ -245,7 +242,7 @@ const modificarPedido = (id) => {
             
             <template #body="slotProps">
                 <div v-if="slotProps.data.cantPendiente>0" class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                  <InputNumber class="inpCant" v-model="slotProps.data.cantRecepcionado" :min="0" :max="slotProps.data.cantPendiente" inputId="minmax-buttons" mode="decimal" showButtons />
+                  <InputNumber fluid class="inpCant" v-model="slotProps.data.cantRecepcionado" :min="0" :max="slotProps.data.cantPendiente" inputId="minmax-buttons" mode="decimal" showButtons />
               </div>  
               <div v-else class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
                   {{slotProps.data.cantRecibida}}
@@ -255,7 +252,7 @@ const modificarPedido = (id) => {
          <Column  class="col" field="cantDañada" header="Cantidad Dañada" aria-sort="none">
             <template #body="slotProps">
                 <div v-if="slotProps.data.cantPendiente>0" class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                  <InputNumber class="inpCant" v-model="slotProps.data.cantRechazada" :min="0" :max="slotProps.data.cantRecepcionada" inputId="minmax-buttons" mode="decimal" showButtons />
+                  <InputNumber fluid class="inpCant" v-model="slotProps.data.cantRechazada" :min="0" :max="slotProps.data.cantRecepcionado" inputId="minmax-buttons" mode="decimal" showButtons />
               </div> 
               <div v-else class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
                   {{slotProps.data.cantDefectuosa}}

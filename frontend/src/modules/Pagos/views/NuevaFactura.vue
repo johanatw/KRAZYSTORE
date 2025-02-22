@@ -15,7 +15,7 @@ import { CiudadServices } from '@/services/CiudadServices';
 import { ref, onMounted } from "vue";
 import InputNumber from 'primevue/inputnumber';
 import InputGroup from 'primevue/inputgroup';
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { CajaServices } from "@/services/CajaServices";
 import Panel from 'primevue/panel';
 import {PersonaServices} from '@/services/PersonaServices';
@@ -485,61 +485,63 @@ const eliminar = (detalle) => {
 
     <!--Dialog Registrar Modificar Cliente-->
     <Dialog v-model:visible="clienteDialog" :closable="false" :style="{width: '450px'}" header="Cliente" :modal="true" class="p-fluid">
+        <div class="formgrid">
         <div class="field">
             <label for="name">Nombre</label>
-            <InputText id="name" v-model.trim="cliente.nombre" required="true" autofocus :class="{'p-invalid': submitted && !cliente.nombre}" />
+            <InputText fluid id="name" v-model.trim="cliente.nombre" required="true" autofocus :class="{'p-invalid': submitted && !cliente.nombre}" />
             <small class="p-error" v-if="submitted && !cliente.nombre">Ingrese un Nombre</small>
         </div>
         <div class="field">
             <label for="description">Apellido</label>
-            <InputText id="description" v-model="cliente.apellido" required="true"  />
+            <InputText fluid id="description" v-model="cliente.apellido" required="true"  />
         </div>
         <div class="field">
             <label for="inventoryStatus" class="mb-3">Tipo Documento</label>
-            <Dropdown id="inventoryStatus" v-model="cliente.tipoDoc" :options="documentos" optionLabel="descripcion" placeholder="Select a Status" />
+            <Dropdown fluid id="inventoryStatus" v-model="cliente.tipoDoc" :options="documentos" optionLabel="descripcion" placeholder="Select a Status" />
         </div>
         <div class="field">
             <label for="description">Nro Documento</label>
-            <InputText id="description" v-model="cliente.nroDoc" required="true"  />
+            <InputText fluid id="description" v-model="cliente.nroDoc" required="true"  />
         </div>
         <div class="field">
             <label for="description">Telefono</label>
-            <InputText id="description" v-model="cliente.telefono" required="true"  />
+            <InputText fluid id="description" v-model="cliente.telefono" required="true"  />
         </div>
         <div class="field">
             <label for="description">Calle Principal</label>
-            <InputText id="description" v-model="direccion.calle1" required="true" :class="{'p-invalid': submitted && !validarDireccionCliente(direccion) && !direccion.calle1}" />
+            <InputText fluid id="description" v-model="direccion.calle1" required="true" :class="{'p-invalid': submitted && !validarDireccionCliente(direccion) && !direccion.calle1}" />
             <small class="p-error" v-if="submitted && !validarDireccionCliente(direccion) && !direccion.calle1">Ingrese Calle Principal</small>
         </div>
         
         <div class="field">
             <label for="description">Calle 2</label>
-            <InputGroup>
+            <InputGroup fluid>
                 <Dropdown v-model="selectedOp" :options="opciones"  placeholder="Select a City" style="width: 0.1rem !important;" />
                 <InputText id="description" v-model="direccion.calle2" required="true"  />
             </InputGroup>
         </div>
         <div class="field" v-if="selectedOp=='Entre'">
             <label for="description">Calle 3</label>
-            <InputText id="description" v-model="direccion.calle3" required="true"  />
+            <InputText fluid id="description" v-model="direccion.calle3" required="true"  />
         </div>
         <div class="field">
             <label for="description">N° Casa</label>
-            <InputText id="description" v-model="direccion.nroCasa" required="true"  />
+            <InputText fluid id="description" v-model="direccion.nroCasa" required="true"  />
         </div>
         <div class="field " >
             <label for="nombreu">Departamento</label>
-            <Dropdown v-model="direccion.departamento" :options="departamentos" optionLabel="descripcion" placeholder="Seleccione un departamento" @change="getCiudades(direccion.departamento.id)"  />
+            <Dropdown fluid v-model="direccion.departamento" :options="departamentos" optionLabel="descripcion" placeholder="Seleccione un departamento" @change="getCiudades(direccion.departamento.id)"  />
         </div>
         <div class="field " >
             <label for="nombreu">Ciudad</label>
-            <Dropdown v-model="direccion.ciudad" :options="ciudades" optionLabel="descripcion" placeholder="Seleccione una ciudad" :class="{'p-invalid': submitted && !validarDireccionCliente(direccion) && !direccion.ciudad}"  />
+            <Dropdown fluid v-model="direccion.ciudad" :options="ciudades" optionLabel="descripcion" placeholder="Seleccione una ciudad" :class="{'p-invalid': submitted && !validarDireccionCliente(direccion) && !direccion.ciudad}"  />
             <small class="p-error" v-if="submitted && !validarDireccionCliente(direccion) && !direccion.ciudad">Ingrese Ciudad</small>
         </div>
         <div class="field">
             <label for="description">Ubicar en el mapa</label>
             <MapComponent @getUbicacion="getUbicacion" ref="map" :lat="direccion.lat" :lng="direccion.lng" />
         </div>
+    </div>
 
         <template #footer>
             <Button label="Cancel" icon="pi pi-times" text @click="hideDialog"/>

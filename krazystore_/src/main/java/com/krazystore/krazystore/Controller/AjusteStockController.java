@@ -59,7 +59,7 @@ public class AjusteStockController {
     }
     
     @PutMapping("/ajustar/{id}")
-    public AjusteStock ajustar(@PathVariable long id)throws Exception {
+    public AjusteStock ajustar(@PathVariable long id, @RequestBody AjusteCreationDTO ajuste)throws Exception {
         return ajusteService.ajustar(id);
     }
 

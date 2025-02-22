@@ -14,7 +14,28 @@
                 </div>
             </template>
             <div >
-                <div class="flex justify-content-between flex-wrap">
+                            <!--Detalle Ajuste -->
+                <div class="field col-12 md:col-6">
+                    <Card>
+                        <template #title>
+                            <div class="flex justify-content-between ">
+                                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                                    Información General
+                                </div>    
+                            </div>
+                        </template>
+                        <template #content>
+                            <div class="field" >
+                                Fecha: <DatePicker v-model="fecha" showIcon iconDisplay="input" />
+                            </div> 
+
+                        </template>
+                    </Card>
+                </div> 
+                <div class="field col-12 md:col-12">
+                    <Card>
+                        <template #content>
+                            <div class="flex justify-content-between flex-wrap">
                     <div >
                         <div class="flex align-items-center gap-2 mb-3">
                             <label for="categoria-filter">Filtrar por Categoría:</label>
@@ -40,8 +61,6 @@
                         <Button icon="pi pi-external-link" label="Export" @click="exportCSV()" />
                     </div>
                 </div>
-
-   
                 <DataTable v-model:filters="filters" :value="detalleInventario" paginator :rows="10" @filter="onFilter" dataKey="id" ref="dt" filterDisplay="row" :loading="loading"
                 >
                     <template #empty> No customers found. </template>
@@ -58,7 +77,7 @@
                     <Column  class="col" field="cantContada" header="Cantidad Contada" aria-sort="none">
                         <template #body="slotProps">
                             <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                                <InputNumber class="inpCant" v-model="slotProps.data.cantContada" inputId="minmax-buttons" mode="decimal" showButtons :min="0"  />
+                                <InputNumber fluid class="inpCant" v-model="slotProps.data.cantContada" inputId="minmax-buttons" mode="decimal" showButtons :min="0"  />
                             </div>  
                         </template>
                     </Column>
@@ -70,6 +89,14 @@
                         </template>
                     </Column>
                 </DataTable>
+
+                        </template>
+                    </Card>
+                </div>
+               
+
+   
+                
             </div>
         </Panel>
     </div>
@@ -77,24 +104,27 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { FilterMatchMode } from 'primevue/api';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { ProductoServices } from '@/services/ProductoServices';
 import Button from 'primevue/button';
 import DataTable from 'primevue/datatable';
 import InputText from 'primevue/inputtext';
 import InputNumber from 'primevue/inputnumber';
+import Card from 'primevue/card';
 import Panel from 'primevue/panel';
 import Column from 'primevue/column';
 import MultiSelect from 'primevue/multiselect';
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import {InventarioServices} from '@/services/InventarioServices';
+import DatePicker from 'primevue/datepicker';
 import router from '@/router';
 const detalleInventario = ref();
 const categorias = ref();
 const filters = ref({
     categoria: { value: null, matchMode: FilterMatchMode.IN },
 });
+const fecha = ref(new Date());
 
 const loading = ref(false);
 const dt = ref();

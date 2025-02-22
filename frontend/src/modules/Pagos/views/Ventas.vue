@@ -4,7 +4,7 @@ import DataTable from 'primevue/datatable';
 import InputText from 'primevue/inputtext';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import {PedidoServices} from '@/services/PedidoServices';
 import { AnticipoServices } from '@/services/AnticipoServices';
 import { VentaServices } from '@/services/VentaServices';
@@ -74,6 +74,24 @@ const getVentas = (id) =>{
     });
    
 }
+
+const getSeverity = (estado) => {
+  
+  
+  switch (estado) {
+       case 'C':
+           return 'background-color: rgb(202, 241, 216); color: rgb(24, 138, 66);';
+
+       case 'A':
+           return 'background-color: rgb(254, 221, 199); color: rgb(174, 81, 15);';
+
+       case 'P':
+           return 'background-color: rgb(215, 227, 552); color: rgb(50, 111, 252);';
+
+       default:
+           return null;
+   }
+};
 
 const deleteReembolso = (id) =>{
     const cantidad= 1;
@@ -229,13 +247,12 @@ const nuevoPedido = () =>{
                 {{ formatearNumero(slotProps.data.montoTotal) }}
             </template>
         </Column>
-        <Column  header="Estado" aria-sort="ascending" sortable> 
-            <template #body="slotProps">
-                <div style="color: rgb(34, 177, 76);">
-                    {{ getEstadoFacturaVenta(slotProps.data.estado)}}
-                </div>
-            </template>           
+        <Column field="estado"  header="Estado" aria-sort="ascending" sortable>    
+          <template #body="slotProps">
+                <Tag :style="getSeverity(slotProps.data.estado)" style=" font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ getEstadoFacturaVenta(slotProps.data.estado)}}</Tag>
+              </template>          
         </Column>
+
         <Column field="nroFactura"  header="N° de Factura" aria-sort="ascending" sortable>            
         </Column>
       

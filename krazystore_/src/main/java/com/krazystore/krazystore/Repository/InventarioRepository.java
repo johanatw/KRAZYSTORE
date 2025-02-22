@@ -32,7 +32,7 @@ public interface InventarioRepository extends JpaRepository<InventarioEntity, Lo
     List<DetalleInventarioDTO> findDetallesByIdInventario(Long idInventario);
     
     @Query("SELECT new com.krazystore.krazystore.DTO.InventarioDTO(i.id, i.estado, i.fecha ) "
-        + "FROM InventarioEntity i ")
+        + "FROM InventarioEntity i ORDER BY i.id DESC ")
     List<InventarioDTO> findAllInventarios();
     
     @Query("SELECT DISTINCT(c) "

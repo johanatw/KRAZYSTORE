@@ -57,7 +57,8 @@ public interface RecepcionRepository extends JpaRepository<RecepcionEntity, Long
         + "FROM RecepcionEntity r "
         + "JOIN DetalleRecepcion d ON d.recepcion = r "
         + "JOIN PedidoCompraEntity p "
-        + "ON d.detallePedido.pedidoCompra = p ")
+        + "ON d.detallePedido.pedidoCompra = p "
+        + "ORDER BY r.id DESC ")
     List<RecepcionDTO> findAllRecepciones();
     
     @Query("SELECT p.id "

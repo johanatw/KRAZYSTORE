@@ -9,6 +9,7 @@ import Utils.PedidoEvent;
 import Utils.ProductosReservadosEvent;
 import Utils.TipoEvento;
 import com.krazystore.krazystore.DTO.Pedido;
+import com.krazystore.krazystore.DTO.PedidoCreationDTO;
 import com.krazystore.krazystore.DTO.PedidoDTO;
 import com.krazystore.krazystore.DTO.PersonaCreationDTO;
 import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
@@ -59,8 +60,14 @@ public class PedidoServiceImpl implements PedidoService {
     }
 
     @Override
-    public Optional<PedidoEntity> findById(Long id) {
-        return pedidorepository.findById(id);
+    public PedidoCreationDTO findById(Long id) {
+        PedidoCreationDTO pedidoDTO = new PedidoCreationDTO();
+        PedidoEntity pedido = pedidorepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido no existe"));
+        List<DetallePedidoEntity> detalle = detallePedidoService.findByPedido(id);
+        pedidoDTO.setPedido(pedido);
+        pedidoDTO.setDetalle(detalle);
+        return pedidoDTO;
     }
 
     @Transactional
@@ -75,7 +82,6 @@ public class PedidoServiceImpl implements PedidoService {
             personaService.updatePersona(personaDTO, pedidoEntity.getCliente().getId());
         }
         
-        pedidoEntity.setFecha(new Date());
         pedidoEntity.setEstadoPedido(estadoPedido);
         
         PedidoEntity nuevoPedido = pedidorepository.save(pedidoEntity);
@@ -112,8 +118,7 @@ public class PedidoServiceImpl implements PedidoService {
 
         PedidoEntity pedido = pedidorepository.save(updatedPedido);
         List<ProductoExistenciasDTO> productosActualizarExistencias = detallePedidoService.updateDetallesPedido(detalle, id);
-        System.out.println("PEDIDO PRODUCTSO ACTUALIZAR");
-        System.out.println(productosActualizarExistencias.get(0).getIdProducto());
+        
         actualizarExistencias(productosActualizarExistencias);
         return pedido;
     }

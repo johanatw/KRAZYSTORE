@@ -15,6 +15,7 @@ import com.krazystore.krazystore.Entity.MovimientoEntity;
 import com.krazystore.krazystore.Entity.VentaEntity;
 import com.krazystore.krazystore.Service.CajaService;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -58,12 +59,12 @@ public class CajaController {
     }
     
     @PostMapping
-    public CajaEntity abrirCaja() {
+    public CajaEntity abrirCaja(@RequestBody CajaEntity caja) {
         return cajaService.abrirCaja();
     }
     
-    @PutMapping("/{id}")
-    public void updateCategoria(@PathVariable long id) {
+    @PutMapping("/cerrar/{id}")
+    public void cerrarCaja(@PathVariable("id") Long id, @RequestBody CajaEntity caja) {
         cajaService.cerrarCaja(id);
     }
     

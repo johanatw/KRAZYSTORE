@@ -1,72 +1,137 @@
 import axios from 'axios';
+import router from '@/router';
 const PERSONA_API_BASE_URL = "http://localhost:7070/personas"
+const token = localStorage.getItem('token');
 
 export const PersonaServices = {
   obtenerClientes() {
-    try {
-      console.log("personaservice");
-      return axios.get(PERSONA_API_BASE_URL);
-      
-    } catch (error) {
-      console.log(error.name);
-    }
+
+      return axios.get(PERSONA_API_BASE_URL,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
   getPersona(id){
-    console.log(id);
-    return axios.get(PERSONA_API_BASE_URL+"/"+id);
+
+    return axios.get(PERSONA_API_BASE_URL+"/"+id,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
 
   },
   obtenerPersona(ci) {
-    try {
-      console.log("obtenerservice");
-      console.log(ci);
-      return axios.get(PERSONA_API_BASE_URL+'/ci?ci='+ci);
-      
-    } catch (error) {
-      console.log(error.name);
-    }
+
+      return axios.get(PERSONA_API_BASE_URL+'/ci?ci='+ci,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
 
   obtenerPersona(valor, filtro) {
-    try {
-      return axios.get(PERSONA_API_BASE_URL+'/valor?value='+valor+'&filtro='+filtro);
-      
-    } catch (error) {
-      console.log(error.name);
-    }
+
+      return axios.get(PERSONA_API_BASE_URL+'/valor?value='+valor+'&filtro='+filtro,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
 
   registrarPersona(persona){
-     
-    return  axios.post(PERSONA_API_BASE_URL, persona);
-    
-      
-      
-    
+  
+    return  axios.post(PERSONA_API_BASE_URL, persona,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
 
-    
 },
 modificarPersona(id_persona, persona){
-  console.log("id",id_persona,"persona", persona);
-  return axios.put(PERSONA_API_BASE_URL + "/" + id_persona, persona);
+
+  return axios.put(PERSONA_API_BASE_URL + "/" + id_persona, persona,{
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
+  }).catch(error => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");  // Eliminar el token expirado
+      router.push({name: 'home'});
+      return Promise.reject(error);
+  }
+  return Promise.reject(error);
+})
 },
 
 
 eliminar(id_persona) {
-  return axios.delete(PERSONA_API_BASE_URL + "/" + id_persona);
+ 
+  return axios.delete(PERSONA_API_BASE_URL + "/" + id_persona,{
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
+  }).catch(error => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");  // Eliminar el token expirado
+      router.push({name: 'home'});
+      return Promise.reject(error);
+  }
+  return Promise.reject(error);
+})
 },
 getClientes() {
-  try {
-    console.log("personaservice");
-    return axios.get(PERSONA_API_BASE_URL+ "/clientes");
-    
-  } catch (error) {
-    console.log(error.name);
-  }
-  
+
+    return axios.get(PERSONA_API_BASE_URL+ "/clientes",{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
 }
 
 };

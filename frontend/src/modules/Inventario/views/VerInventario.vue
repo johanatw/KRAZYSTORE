@@ -10,13 +10,33 @@
      
             <template #icons>
                 <div  class="flex" style="justify-content: end;">  
-                    <Button v-show="inventario?.estado != 'F' " label="Finalizar"  style="margin-right: 1%;" @click="finalizarInventario()" />
-                    <Button v-show="inventario?.estado != 'F' " label="Modificar" @click="modificarInventario()" />
+                    <Button v-show="inventario?.estado == 'S' " label="Finalizar"  style="margin-right: 1%;" @click="finalizarInventario()" />
+                    <Button v-show="inventario?.estado == 'S' " label="Modificar" @click="modificarInventario()" />
                 </div>
             </template>
             
             <div>
-                <DataTable v-model:filters="filters" :value="detalleInventario" paginator :rows="10" 
+                <div class="field col-12 md:col-6">
+                    <Card>
+                        <template #title>
+                            <div class="flex justify-content-between ">
+                                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                                    Información General
+                                </div>    
+                            </div>
+                        </template>
+                        <template #content>
+                            <div class="field" >
+                                Fecha: {{ formatearFecha(fecha) }}
+                            </div> 
+
+                        </template>
+                    </Card>
+                </div> 
+                <div class="field col-12 md:col-12">
+                    <Card>
+                        <template #content>
+                            <DataTable v-model:filters="filters" :value="detalleInventario" paginator :rows="10" 
                 @filter="onFilter" dataKey="id" ref="dt" filterDisplay="row" :loading="loading">
                     <template #empty> No customers found. </template>
                     <template #loading> Loading customers data. Please wait. </template>
@@ -28,7 +48,14 @@
                             </div>
                         </template>
                     </Column>
-                    <Column field="stockActual" sortable header="Stock Existente" aria-sort="ascending" ></Column>
+                    <Column field="stockActual" sortable header="Stock Existente" aria-sort="ascending" >
+                        
+                        <template #body="{ data }">
+                            <div class="flex align-items-center gap-2">
+                                <span>{{ data.stockInicialInventario = data.stockActual }}</span>
+                            </div>
+                        </template>
+                    </Column>
                     <Column  class="col" field="cantContada" header="Cantidad Contada" aria-sort="none"></Column>
                     <Column  class="col" field="diferencia" header="Diferencia" aria-sort="none" >
                         <template #body="slotProps">
@@ -38,6 +65,12 @@
                         </template>
                     </Column>
                 </DataTable>
+
+                        </template>
+                    </Card>
+                </div> 
+                
+                
             </div>
         </Panel>
     </div>
@@ -46,7 +79,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { FilterMatchMode } from 'primevue/api';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { ProductoServices } from '@/services/ProductoServices';
 import Button from 'primevue/button';
 import DataTable from 'primevue/datatable';
@@ -56,10 +89,13 @@ import Panel from 'primevue/panel';
 import Column from 'primevue/column';
 import MultiSelect from 'primevue/multiselect';
 import jsPDF from "jspdf";
+import Card from 'primevue/card';
 import router from '@/router';
 import "jspdf-autotable";
 import {InventarioServices} from '@/services/InventarioServices';
-
+import DatePicker from 'primevue/datepicker';
+import { formatearFecha } from '@/utils/utils';
+const fecha = ref(new Date());
 const detalleInventario = ref();
 const inventario = ref({});
 const categorias = ref();
@@ -145,11 +181,13 @@ const finalizarInventario = () =>{
     inventario.value.estado = 'F';
     let anticipoCreationDTO = {inventario: inventario.value, detalle: detalleInventario.value};
 
-    InventarioServices.finalizarInventario(inventario.value.id).then((data)=> {
+    InventarioServices.finalizarInventario(inventario.value.id, anticipoCreationDTO).then((data)=> {
         let id = data.data.id;
         inventario.value = data.data;
     } );
 }
+
+
 
 const modificarInventario = (id) =>{
     router.push({name: 'modificar_inventario', params: {id}});

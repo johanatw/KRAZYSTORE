@@ -85,10 +85,10 @@
                             <div class="formgrid grid" v-for="(item, index) in pagos" :key="index" >
                                         
                                 <div class="field col-5 md:col-5 p-fluid" style="justify-content: start;  ">
-                                    <Dropdown style="padding: 0rem !important;" v-model="item.formaPago" :options="formasPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   />
+                                    <Select style="padding: 0rem !important;" v-model="item.formaPago" :options="formasPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   />
                                 </div>
                                 <div  class="field col-5 md:col-5 p-fluid" style=" justify-content: start; " >
-                                    <InputNumber :disabled=true name="input" style="padding: 0rem !important; height: 100%;" v-model="item.importe"  @input="actualizarImporte($event, index)"/>
+                                    <InputNumber :disabled=item.disabled name="input" style="padding: 0rem !important; height: 100%;" v-model="item.importe"  @input="actualizarImporte($event, index)"/>
                                     
                                 </div>
                                 <div v-if="index == 0" class=" field col-1 md:col-1 p-fluid" style=" justify-content: flex-end">
@@ -122,41 +122,47 @@
                 </div>
             </template>
         </Dialog>
-        
+      
         <!--Pantalla principal ver movimientos de caja-->
-        <Panel style=" position: relative; width: 80%;" >
+        <Panel style=" position: relative; width: 100%;" >
             <template #header>
                 <div class="flex align-items-center gap-2">
                     <h3 class="font-bold">Caja N° {{ caja.id }}</h3>
                 </div>
             </template>
 
+    
             <template #icons>
                 <div v-if="cajaAbierta" class="flex align-items-center">
-                    <Button  icon="pi pi-plus " @click="nuevoMovimiento" style=" width: 3rem !important; height: 2.2rem; margin-right: 1%; " />
+                <Button  icon="pi pi-plus " @click="nuevoMovimiento" style="margin-right: 1%; " />
+                <InputGroup>
                     <Button  label="Cerrar caja" @click="cerrarCaja()" />
+                </InputGroup>
                 </div>
+            
             </template>
 
-            <div class="contenedor" style="padding-left: 4%; padding-right: 4%;">
+            <div >
                 <div >
 
-                    <TabView>
-                        <!--Lista de movimientos de caja-->
-                        <TabPanel>
-                            <template #header>
-                                <div class="flex align-items-center gap-2">
-                                    <span class="font-bold white-space-nowrap">Movimientos</span>
-                                </div>
-                            </template>
-                            <DataTable  :value="movimientos" scrollHeight="400px"  
+                    <Tabs v-model:value="tabActive" >
+                    <TabList>
+                        <Tab value="0" >Movimientos</Tab>
+                        <Tab v-if="cajaAbierta" value="1">
+                            <span class="font-bold white-space-nowrap">Pendientes</span>
+                                    <Badge :value="pendientes.length"></Badge>
+                        </Tab>
+                    </TabList>
+                    <TabPanels>
+        <TabPanel value="0">
+            <DataTable  :value="movimientos" scrollHeight="400px"  
                             :paginator="true" :rows="7" 
                             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 
                             currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros" >
         
                                 <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
                                     <template #body="slotProps">
-                                        {{ formatearFecha(slotProps.data.fecha) }}
+                                        {{ formatearFechaHora(slotProps.data.fecha) }}
                                     </template>
                                 </Column>
                                 <Column field="concepto"  header="Concepto" aria-sort="ascending" sortable></Column>
@@ -176,18 +182,9 @@
                                 </Column>
                             </DataTable>
 
-                        </TabPanel>
-
-                        <!--Facturas pendientes de pago/cobro-->
-                        <TabPanel v-if="cajaAbierta" >
-                            <template #header>
-                                <div class="flex align-items-center gap-2">
-                                    <span class="font-bold white-space-nowrap">Pendientes</span>
-                                    <Badge :value="pendientes.length"></Badge>
-                                </div>
-                            </template>
-                            
-                            <DataTable  :value="pendientes" scrollHeight="400px"  
+        </TabPanel>
+        <TabPanel  value="1">
+            <DataTable  :value="pendientes" scrollHeight="400px"  
                             :paginator="true" :rows="7" 
                             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 
                             currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros" >
@@ -209,9 +206,10 @@
                                     </template>
                                 </Column>
                             </DataTable>
-                        </TabPanel>
+        </TabPanel>
+    </TabPanels>
+                </Tabs>
 
-                    </TabView>
                 </div>
             </div>
         </Panel>      
@@ -238,7 +236,7 @@ import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-import {formatearNumero, existeCajaAbierta, formatearFecha} from '@/utils/utils';
+import {formatearNumero, existeCajaAbierta, formatearFecha, formatearFechaHora} from '@/utils/utils';
 import {CajaServices} from '@/services/CajaServices';
 import router from '@/router';
 import ConfirmDialog from 'primevue/confirmdialog';
@@ -249,9 +247,17 @@ import { computed } from 'vue';
 import { watch } from 'vue';
 import Message from 'primevue/message';
 import Checkbox from 'primevue/checkbox';
+import Select from 'primevue/select';
+import InputGroup from 'primevue/inputgroup';
+import InputGroupAddon from 'primevue/inputgroupaddon';
+
+import Tabs from 'primevue/tabs';
+import TabList from 'primevue/tablist';
+import Tab from 'primevue/tab';
+import TabPanels from 'primevue/tabpanels';
 
 
-
+const tabActive = ref('0');
 const key = ref();
 const v = ref(0);
 const confirm = useConfirm();   
@@ -288,7 +294,7 @@ onMounted(() => {
     getMovimientos();
     getFacturasPendientes();
     inicializarCampos();
-    getFormasPago();
+  
 
 });
 
@@ -334,6 +340,7 @@ const inicializarCampos = () => {
     movimiento.value.concepto = {id: 4, descripcion: 'Otros', tipo: 'I'};
     movimiento.value.formaPago = {id: 2, descripcion: 'Efectivo'};
     disabledSubmit.value = true;
+    getFormasPago();
 };
 
 const cerrarCaja= () =>{
@@ -418,6 +425,7 @@ const deleteMovimiento = (id) =>{
       console.log("response");
       console.log(response.data);
       getMovimientos();
+      getFacturasPendientes();
         movimientos.value.splice(index,cantidad);
             toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 5000 });
         })
@@ -446,19 +454,18 @@ const confirm2 = (id) => {
 
 
 const habilitarInput = (index, item) => {
-    let inp = document.getElementsByName("input")[index].firstElementChild;
-   if (inp.disabled  ) {
-        inp.disabled = false;
+
+    if (item.disabled) {
+        item.disabled = false;
     }
-   
+
     if (item.importe < 1 && sumaTotal.value < total.value ) {
         item.importe = total.value - sumaTotal.value;
     }
 
-    actualizarSumaTotal();
-    
-    
+    actualizarSumaTotal();    
 };
+
 
 const registrarPago = (movimiento) => {
     console.log("registrar pago");
@@ -545,7 +552,7 @@ const puedeEliminarseEnCaja = (concepto) =>{
 }
 
 const addRow = () => {
-    pagos.value.push({formaPago:null , importe: 0});
+    pagos.value.push({formaPago:null , importe: 0, disabled: true});
 };
 
 const eliminarRow = (index) => {
@@ -564,6 +571,7 @@ const getFormasPago = () =>{
         console.log(formasPago.value);
         pago.value.formaPago = null;
         pago.value.importe = 0;
+        pago.value.disabled = true;
         pagos.value.push(pago.value);
 
     });

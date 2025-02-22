@@ -79,7 +79,7 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
     "SELECT new com.krazystore.krazystore.DTO.EstadoPagoPedidoDTO( " +
     "    p.id, p.total, " +
     "    SUM(CASE " +
-    "        WHEN c.descripcion = 'Anticipo' THEN COALESCE(m.monto, 0) " +
+    "        WHEN c.descripcion = 'Anticipo cliente' THEN COALESCE(m.monto, 0) " +
     "        ELSE 0 " +
     "    END) - " +
     "   SUM(CASE " +
@@ -101,7 +101,7 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
     "SELECT DISTINCT new com.krazystore.krazystore.DTO.EstadoPagoPedidoDTO( " +
     "    p.id, p.total, " +
     "    SUM(CASE " +
-    "        WHEN c.descripcion = 'Anticipo' THEN COALESCE(m.monto, 0) " +
+    "        WHEN c.descripcion = 'Anticipo proveedor' THEN COALESCE(m.monto, 0) " +
     "        ELSE 0 " +
     "    END) - " +
     "   SUM(CASE " +
@@ -205,6 +205,7 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
   value = """
           SELECT * FROM movimientos m 
           where m.estado = 'P' 
+          ORDER BY m.id DESC 
           """, 
   nativeQuery = true)
     List<MovimientoEntity> getFacturasPendientes();

@@ -18,12 +18,13 @@ import Calendar from "primevue/calendar";
 import { ref, onMounted } from "vue";
 import InputNumber from 'primevue/inputnumber';
 import InputGroup from 'primevue/inputgroup';
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import Panel from 'primevue/panel';
 import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
 import { TipoDocServices } from "@/services/TipoDocServices";
 import {DepartamentoServices } from '@/services/DepartamentoServices';
+import DatePicker from "primevue/datepicker";
 const map = ref();
 const direccion = ref({});
 const selectedCliente = ref();
@@ -95,6 +96,7 @@ onMounted(() => {
     RecepcionServices.getRecepcion(router.currentRoute.value.params.id).then((data) => {
         
         pedido.value = data.data.recepcion;
+        fechaRecepcion.value = new Date(pedido.value.fecha);
         detalle.value = data.data.detalle;
         console.log(pedido.value);
         console.log(detalle.value);
@@ -127,7 +129,7 @@ const modificarPedido = (id) => {
 
     let fechaAnticipo = new Date();
     
-
+    pedido.value.fecha = fechaRecepcion.value;
     console.log(detalle.value);
 
     let anticipoCreationDTO = {recepcion: pedido.value, detalle: detalle.value};
@@ -179,6 +181,23 @@ const modificarPedido = (id) => {
             </div>
         </div>
         <div class="grid " >
+            <div class="field col-12 md:col-6">
+                    <Card>
+                        <template #title>
+                            <div class="flex justify-content-between ">
+                                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                                    Información General
+                                </div>    
+                            </div>
+                        </template>
+                        <template #content>
+                            <div class="field" >
+                                Fecha: <DatePicker dateFormat="dd/mm/yy"  v-model="fechaRecepcion" showIcon iconDisplay="input" />
+                            </div> 
+
+                        </template>
+                    </Card>
+                </div> 
             
             <div class="col-12" >
                         <Card >
@@ -213,7 +232,7 @@ const modificarPedido = (id) => {
             
             <template #body="slotProps">
                 <div  class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                  <InputNumber class="inpCant" v-model="slotProps.data.cantRecepcionado" :min="0" :max="slotProps.data.cantPendiente" inputId="minmax-buttons" mode="decimal" showButtons />
+                  <InputNumber fluid class="inpCant" v-model="slotProps.data.cantRecepcionado" :min="0" :max="slotProps.data.cantPendiente" inputId="minmax-buttons" mode="decimal" showButtons />
               </div>  
               
             </template>
@@ -221,7 +240,7 @@ const modificarPedido = (id) => {
          <Column  class="col" field="cantDañada" header="Cantidad Dañada" aria-sort="none">
             <template #body="slotProps">
                 <div  class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                  <InputNumber class="inpCant" v-model="slotProps.data.cantRechazada" :min="0" :max="slotProps.data.cantRecepcionada" inputId="minmax-buttons" mode="decimal" showButtons />
+                  <InputNumber fluid class="inpCant" v-model="slotProps.data.cantRechazada" :min="0" :max="slotProps.data.cantRecepcionado" inputId="minmax-buttons" mode="decimal" showButtons />
               </div> 
        
             </template>

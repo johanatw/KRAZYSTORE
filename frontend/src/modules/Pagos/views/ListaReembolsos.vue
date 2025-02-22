@@ -4,7 +4,7 @@ import DataTable from 'primevue/datatable';
 import InputText from 'primevue/inputtext';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import {PedidoServices} from '@/services/PedidoServices';
 import { AnticipoServices } from '@/services/AnticipoServices';
 import {ReembolsoServices} from '@/services/ReembolsoServices'
@@ -15,10 +15,12 @@ import Toast from 'primevue/toast';
 import Tag from 'primevue/tag';
 import Dialog from 'primevue/dialog';
 import ConfirmDialog from 'primevue/confirmdialog';
+import InputGroup from 'primevue/inputgroup';
+import InputGroupAddon from 'primevue/inputgroupaddon';
 import RadioButton from 'primevue/radiobutton';
 const visible = ref(false);
 import Listbox from 'primevue/listbox';
-
+import {formatearFechaHora} from '@/utils/utils';
 
 import SplitButton from 'primevue/splitbutton';
 
@@ -181,14 +183,13 @@ const nuevoPedido = () =>{
          
       <template #icons>
         <div class="flex align-items-center">
-          
-        <span class="p-input-icon-left" style="margin-left: 1%;">
-          <i class="pi pi-search" style="top: 35%;"/>
-          <InputText style="padding: 12px !important; padding-left: 40px !important;" class="buscador p-fluid" v-model="filters['global'].value" placeholder="Buscar..."  />
-        </span>
-
-        </div>
-        
+                <InputGroup>
+                    <InputText v-model="filters['global'].value" placeholder="Search..." />
+                    <InputGroupAddon>
+                    <i class="pi pi-search" />
+                    </InputGroupAddon>
+                </InputGroup>
+                </div>
     
       </template>
       
@@ -202,7 +203,7 @@ const nuevoPedido = () =>{
           <Column field="id" sortable header="N°" aria-sort="ascending" ></Column>
           <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
             <template #body="slotProps">
-                {{ formatearNumero(slotProps.data.fecha) }}
+                {{ formatearFechaHora(slotProps.data.fecha) }}
             </template>
         </Column>
           <Column field="anticipo"  header="N° Anticipo" aria-sort="ascending" sortable>  

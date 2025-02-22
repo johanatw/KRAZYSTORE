@@ -16,12 +16,14 @@ import { CiudadServices } from '@/services/CiudadServices';
 import { ref, onMounted } from "vue";
 import InputNumber from 'primevue/inputnumber';
 import InputGroup from 'primevue/inputgroup';
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import Panel from 'primevue/panel';
 import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
 import { TipoDocServices } from "@/services/TipoDocServices";
 import {DepartamentoServices } from '@/services/DepartamentoServices';
+import DatePicker from 'primevue/datepicker';
+const fecha = ref(new Date());
 const map = ref();
 const direccion = ref({});
 const selectedCliente = ref();
@@ -90,6 +92,7 @@ onMounted(() => {
     PedidoCompraServices.getPedido(router.currentRoute.value.params.id).then((data) => {
         console.log(data.data)
         pedido.value = data.data.pedido;
+        fecha.value = new Date(data.data.pedido.fecha);
         detalleFacturar.value = data.data.detalle;
         if (pedido.value.proveedor != null) {
             proveedor.value = pedido.value.proveedor;
@@ -359,8 +362,8 @@ const eliminar = (detalle) => {
   const guardarFactura = () =>{
     if (!error.value){
 
-    let fechaAnticipo = new Date();
-    let ant = {total: total.value, fecha: pedido.value.fecha, estado: pedido.value.estado, proveedor: selectedCliente.value};
+  
+    let ant = {total: total.value, fecha: fecha.value, estado: pedido.value.estado, proveedor: selectedCliente.value};
 
 
     let anticipoCreationDTO = {pedido: ant, detalle: detalleFacturar.value};
@@ -419,24 +422,25 @@ const isRecepcionado = (detalle) => {
 
     <!--Dialog Registrar Modificar Cliente-->
     <Dialog v-model:visible="clienteDialog" :closable="false" :style="{width: '450px'}" header="Cliente" :modal="true" class="p-fluid">
+        <div class="formgrid">
         <div class="field">
             <label for="name">Nombre</label>
-            <InputText id="name" v-model.trim="cliente.descripcion" required="true" autofocus :class="{'p-invalid': submitted && !cliente.descripcion}" />
+            <InputText fluid id="name" v-model.trim="cliente.descripcion" required="true" autofocus :class="{'p-invalid': submitted && !cliente.descripcion}" />
             <small class="p-error" v-if="submitted && !cliente.descripcion">Ingrese un Nombre</small>
         </div>
         <div class="field">
             <label for="description">RUC</label>
-            <InputText id="description" v-model="cliente.ruc" required="true"  />
+            <InputText fluid id="description" v-model="cliente.ruc" required="true"  />
         </div>
         <div class="field">
             <label for="description">Correo</label>
-            <InputText id="description" v-model="cliente.correo" required="true"  />
+            <InputText fluid id="description" v-model="cliente.correo" required="true"  />
         </div>
         <div class="field">
             <label for="description">Telefono</label>
-            <InputText id="description" v-model="cliente.telefono" required="true"  />
+            <InputText fluid id="description" v-model="cliente.telefono" required="true"  />
         </div>
-
+    </div>
         <template #footer>
             <Button label="Cancel" icon="pi pi-times" text @click="hideDialog"/>
             <Button label="Save" icon="pi pi-check" text @click="saveCliente" />
@@ -469,6 +473,23 @@ const isRecepcionado = (detalle) => {
             </div>
         </div>
         <div class="grid " >
+            <div class="field col-12 md:col-6">
+                    <Card>
+                        <template #title>
+                            <div class="flex justify-content-between ">
+                                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                                    Información General
+                                </div>    
+                            </div>
+                        </template>
+                        <template #content>
+                            <div class="field" >
+                                Fecha: <DatePicker dateFormat="dd/mm/yy" v-model="fecha" showIcon iconDisplay="input" />
+                            </div> 
+
+                        </template>
+                    </Card>
+                </div> 
             
            <div class="field col-12 md:col-6">
             
@@ -538,7 +559,7 @@ const isRecepcionado = (detalle) => {
          <Column class="col" field="producto.costo"  header="Precio" aria-sort="none" >
             <template #body="slotProps">
             <div class="flex-auto p-fluid" >
-                  <InputNumber class="inpCant" v-model="slotProps.data.costoCompra" mode="decimal"   @update:modelValue="sendSubTotal" />
+                  <InputNumber fluid class="inpCant" v-model="slotProps.data.costoCompra" mode="decimal"   @update:modelValue="sendSubTotal" />
               </div> 
             </template>
         </Column>
@@ -546,7 +567,7 @@ const isRecepcionado = (detalle) => {
         <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
             <template #body="slotProps">
                 <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                  <InputNumber class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="slotProps.data.cantRecepcionada"  @update:modelValue="sendSubTotal" />
+                  <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="slotProps.data.cantRecepcionada"  @update:modelValue="sendSubTotal" />
               </div>  
             </template>
              

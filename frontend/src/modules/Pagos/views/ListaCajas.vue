@@ -4,7 +4,7 @@ import DataTable from 'primevue/datatable';
 import InputText from 'primevue/inputtext';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { AnticipoServices } from '@/services/AnticipoServices';
 import { CajaServices } from '@/services/CajaServices';
 import Panel from 'primevue/panel';
@@ -21,7 +21,7 @@ import { useConfirm } from "primevue/useconfirm";
 import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
 import InputGroup from 'primevue/inputgroup';
-import {formatearNumero, existeCajaAbierta, formatearFecha, getEstadoCaja} from '@/utils/utils';
+import {formatearNumero, existeCajaAbierta, formatearFecha, getEstadoCaja, formatearFechaHora} from '@/utils/utils';
 
 const cajas= ref([]);
 
@@ -99,13 +99,13 @@ const verCaja = (caja) =>{
                     <Column field="id" sortable header="N°" aria-sort="ascending" ></Column>
                     <Column field="fecha" sortable header="Apertura" aria-sort="ascending" >
                         <template #body="slotProps">
-                            {{ formatearFecha(slotProps.data.fecha) }}
+                            {{ formatearFechaHora(slotProps.data.fecha) }}
                         </template>
                     </Column>
                     <Column field="fechaCierre" sortable header="Cierre" aria-sort="ascending" >
                         <template #body="slotProps">
                             <div v-if="slotProps.data.fechaCierre != null">
-                                {{ formatearFecha(slotProps.data.fechaCierre) }}
+                                {{ formatearFechaHora(slotProps.data.fechaCierre) }}
                             </div>
                         </template>
                     </Column>

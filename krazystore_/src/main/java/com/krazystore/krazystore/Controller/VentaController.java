@@ -60,9 +60,8 @@ public class VentaController {
         return ventaService.updateVenta(venta, id);
     }
     
-    @PostMapping("/anular/{id}")
-    public int anularVenta(@PathVariable long id) {
-        System.out.println("llega anularVenta");
+    @PutMapping("/anular/{id}")
+    public int anularVenta(@PathVariable long id, @RequestBody VentaEntity venta) {
         return ventaService.anularFactura(id);
     }
 

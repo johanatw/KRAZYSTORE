@@ -1,43 +1,70 @@
 import axios from 'axios';
+import router from '@/router';
 const VENTA_API_BASE_URL = "http://localhost:7070/api/ventas"
+const token = localStorage.getItem('token');
 
 export const VentaServices = {
     saveVenta(anticipoCreationDTO) {
-        try {
-            console.log("anticipo", anticipoCreationDTO);
-            
-          return axios.post(VENTA_API_BASE_URL,anticipoCreationDTO);
-          
-        } catch (error) {
-          console.log(error.name);
-        }
+          return axios.post(VENTA_API_BASE_URL,anticipoCreationDTO,{
+            headers: {
+              'Authorization': 'Bearer ' + localStorage.getItem('token')
+            }
+          }).catch(error => {
+            if (error.response && error.response.status === 401) {
+              localStorage.removeItem("token");  // Eliminar el token expirado
+              router.push({name: 'home'});
+              return Promise.reject(error);
+          }
+          return Promise.reject(error);
+        })
         
       },
 
       getVentas() {
-        try {
-            //console.log("anticipo", anticipoCreationDTO);
-            
-          return axios.get(VENTA_API_BASE_URL);
-          
-        } catch (error) {
-          console.log(error.name);
-        }
+
+          return axios.get(VENTA_API_BASE_URL,{
+            headers: {
+              'Authorization': 'Bearer ' + localStorage.getItem('token')
+            }
+          }).catch(error => {
+            if (error.response && error.response.status === 401) {
+              localStorage.removeItem("token");  // Eliminar el token expirado
+              router.push({name: 'home'});
+              return Promise.reject(error);
+          }
+          return Promise.reject(error);
+        })
         
       },anularVenta(id) {
-        try {
-            
-            
-          return axios.post(VENTA_API_BASE_URL+'/anular/'+id);
-          
-        } catch (error) {
-          console.log(error.name);
-        }
+
+          return axios.put(VENTA_API_BASE_URL+'/anular/'+id,{},{
+            headers: {
+              'Authorization': 'Bearer ' + localStorage.getItem('token')
+            }
+          }).catch(error => {
+            if (error.response && error.response.status === 401) {
+              localStorage.removeItem("token");  // Eliminar el token expirado
+              router.push({name: 'home'});
+              return Promise.reject(error);
+          }
+          return Promise.reject(error);
+        })
         
       },
       getVenta(id){
-        console.log(id);
-        return axios.get(VENTA_API_BASE_URL+"/"+id);
+
+        return axios.get(VENTA_API_BASE_URL+"/"+id,{
+          headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+          }
+        }).catch(error => {
+          if (error.response && error.response.status === 401) {
+            localStorage.removeItem("token");  // Eliminar el token expirado
+            router.push({name: 'home'});
+            return Promise.reject(error);
+        }
+        return Promise.reject(error);
+      })
     
       },
 

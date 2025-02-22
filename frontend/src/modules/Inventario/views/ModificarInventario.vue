@@ -15,11 +15,31 @@
                 </div>
             </template>
             <div >
-                <div class="flex justify-content-between flex-wrap">
+                <div class="field col-12 md:col-6">
+                    <Card>
+                        <template #title>
+                            <div class="flex justify-content-between ">
+                                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                                    Información General
+                                </div>    
+                            </div>
+                        </template>
+                        <template #content>
+                            <div class="field" >
+                                Fecha: <DatePicker v-model="fecha" dateFormat="dd/mm/yy" showIcon iconDisplay="input" />
+                            </div> 
+
+                        </template>
+                    </Card>
+                </div> 
+                <div class="field col-12 md:col-12">
+                    <Card>
+                        <template #content>
+                            <div class="flex justify-content-between flex-wrap">
                     <div >
                         <div class="flex align-items-center gap-2 mb-3">
                             <label for="categoria-filter">Filtrar por Categoría:</label>
-                            <MultiSelect
+                            <MultiSelect fluid
                                 id="categoria-filter"
                                 v-model="filters.categoria.value"
                                 :options="categorias"
@@ -41,9 +61,8 @@
                         <Button icon="pi pi-external-link" label="Export" @click="exportCSV()" />
                     </div>
                 </div>
-
-                <DataTable v-model:filters="filters" :value="detalleInventario" paginator :rows="10"
-                @filter="onFilter" dataKey="id" ref="dt" filterDisplay="row" :loading="loading">
+                <DataTable v-model:filters="filters" :value="detalleInventario" paginator :rows="10" @filter="onFilter" dataKey="id" ref="dt" filterDisplay="row" :loading="loading"
+                >
                     <template #empty> No customers found. </template>
                     <template #loading> Loading customers data. Please wait. </template>
                     <Column field="producto" sortable header="Producto" aria-sort="ascending" ></Column>
@@ -57,19 +76,24 @@
                     <Column field="stockActual" sortable header="Stock Existente" aria-sort="ascending" ></Column>
                     <Column  class="col" field="cantContada" header="Cantidad Contada" aria-sort="none">
                         <template #body="slotProps">
-                            <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                                <InputNumber class="inpCant" v-model="slotProps.data.cantContada" inputId="minmax-buttons" mode="decimal" showButtons :min="0"  />
+                            <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
+                                <InputNumber fluid class="inpCant" v-model="slotProps.data.cantContada" inputId="minmax-buttons" mode="decimal" showButtons :min="0"  />
                             </div>  
                         </template>
                     </Column>
                     <Column  class="col" field="diferencia" header="Diferencia" aria-sort="none" >
                         <template #body="slotProps">
                             <div class="flex-auto p-fluid" style="max-width: 20dvh;">
-                                <label for="diferencia"> {{  slotProps.data.cantContada - slotProps.data.stockActual }}</label>
+                                <label for="diferencia"> {{  (slotProps.data.cantContada - slotProps.data.stockActual).toLocaleString("de-DE") }}</label>
                             </div>
                         </template>
                     </Column>
                 </DataTable>
+
+                        </template>
+                    </Card>
+                </div>
+
             </div>
         </Panel>
     </div>  
@@ -77,7 +101,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { FilterMatchMode } from 'primevue/api';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { ProductoServices } from '@/services/ProductoServices';
 import Button from 'primevue/button';
 import DataTable from 'primevue/datatable';
@@ -91,11 +115,14 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import {InventarioServices} from '@/services/InventarioServices';
 import { formatearNumero } from '@/utils/utils';
+import Card from 'primevue/card';
+import DatePicker from 'primevue/datepicker';
 
 const detalleInventario = ref();
 const inventario = ref();
 const categorias = ref();
 const filtros = ref();
+const fecha= ref();
 const filters = ref({
     categoria: { value: null, matchMode: FilterMatchMode.IN },
 });
@@ -145,7 +172,7 @@ onMounted(() => {
         detalleInventario.value = data.data.detalle;
         filtros.value = data.data.filtrosInventario;
         filters.value.categoria.value = filtros.value;
-        
+        fecha.value = new Date(data.data.inventario.fecha);
     });
 
     ProductoServices.obtenerCategorias().then((data) => {

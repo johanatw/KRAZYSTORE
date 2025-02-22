@@ -19,7 +19,7 @@ import { CiudadServices } from '@/services/CiudadServices';
 import { ref, onMounted } from "vue";
 import InputNumber from 'primevue/inputnumber';
 import InputGroup from 'primevue/inputgroup';
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+
 import Panel from 'primevue/panel';
 import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
@@ -66,8 +66,9 @@ const message = (m) => {
 
 onMounted(() => {
     AjusteStockServices.getAjuste(router.currentRoute.value.params.id).then((data) => {
+        console.log(data.data.ajuste);
         ajuste.value = data.data.ajuste;
-        ajuste.value.fecha = formatearFecha(data.data.ajuste.fecha);
+        ajuste.value.fecha = new Date(data.data.ajuste.fecha);
         detalleAjuste.value = data.data.detalle;
     });
 
@@ -214,8 +215,8 @@ const guardarAjuste = () =>{
                                             <Column class="col" field="cantidadActual"  header="Cantidad actual" aria-sort="none" ></Column>
                                             <Column  class="col" field="cantidadAjustada" header="Ajuste +/-" aria-sort="none">
                                                 <template #body="slotProps">
-                                                    <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                                                        <InputNumber class="inpCant" v-model="slotProps.data.cantidadAjustada" inputId="minmax-buttons" mode="decimal" :min="-slotProps.data.cantidadActual" showButtons />
+                                                    <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
+                                                        <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidadAjustada" inputId="minmax-buttons" mode="decimal" :min="-slotProps.data.cantidadActual" showButtons />
                                                     </div>  
                                                 </template>
                                             </Column>

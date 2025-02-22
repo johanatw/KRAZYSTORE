@@ -1,41 +1,71 @@
 import axios from 'axios';
+import router from '@/router';
 const REEMBOLSO_API_BASE_URL = "http://localhost:7070/api/reembolsos"
+const token = localStorage.getItem('token');
 
 export const ReembolsoServices = {
   obtenerReembolsos() {
-    try {
-      return axios.get(REEMBOLSO_API_BASE_URL);
-    } catch (error) {
-      console.log("hola");
-      console.log(error.name);
-    }
+
+      return axios.get(REEMBOLSO_API_BASE_URL,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
     saveReembolso(reembolso) {
-        try {
-            console.log("pedido", reembolso);
-          return axios.post(REEMBOLSO_API_BASE_URL, reembolso);
-          
-        } catch (error) {
-          console.log(error.name);
-        }
+ 
+          return axios.post(REEMBOLSO_API_BASE_URL, reembolso,{
+            headers: {
+              'Authorization': 'Bearer ' + localStorage.getItem('token')
+            }
+          }).catch(error => {
+            if (error.response && error.response.status === 401) {
+              localStorage.removeItem("token");  // Eliminar el token expirado
+              router.push({name: 'home'});
+              return Promise.reject(error);
+          }
+          return Promise.reject(error);
+        })
         
       },
       getReembolsos(idAnticipo) {
-        //console.log("detalle", pedido);
-        try {
-          console.log("7");
-        return axios.get(REEMBOLSO_API_BASE_URL+'/reembolsos/'+idAnticipo);
-        
-        } catch (error) {
-          console.log("8");
-        console.log(error.name);
+
+        return axios.get(REEMBOLSO_API_BASE_URL+'/reembolsos/'+idAnticipo,{
+          headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+          }
+        }).catch(error => {
+          if (error.response && error.response.status === 401) {
+            localStorage.removeItem("token");  // Eliminar el token expirado
+            router.push({name: 'home'});
+            return Promise.reject(error);
         }
+        return Promise.reject(error);
+      })
         
     },
     deleteReembolso(id){
-  
-      return axios.delete(REEMBOLSO_API_BASE_URL+"/"+id);
+
+      return axios.delete(REEMBOLSO_API_BASE_URL+"/"+id,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     },
 
 };

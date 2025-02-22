@@ -32,7 +32,7 @@ public class PedidoController {
     }
 
     @GetMapping("/{id}")
-    public Optional<PedidoEntity> findById(@PathVariable("id") Long id) {
+    public PedidoCreationDTO findById(@PathVariable("id") Long id) {
         return pedidoService.findById(id);
     }
 

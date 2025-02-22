@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.Service;
 
+import Utils.TipoEvento;
 import Utils.TipoPedido;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.PagoEntity;
@@ -33,5 +34,5 @@ public interface AnticipoService {
     boolean existsByPedido(PedidoEntity p);
     int verificarAnticipoEstado(Long id);
     void deleteAnticipoReembolsos(Long id);
-    AnticipoEntity actualizarSaldoAnticipo(Long idAnticipo, int montoReembolsado);
+    AnticipoEntity actualizarSaldoAnticipo(Long idAnticipo, int montoReembolsado,TipoEvento evento);
 }

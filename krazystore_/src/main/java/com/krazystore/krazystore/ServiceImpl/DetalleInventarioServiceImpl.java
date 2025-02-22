@@ -141,7 +141,7 @@ public class DetalleInventarioServiceImpl implements DetalleInventarioService{
             Optional<DetalleInventario> actual = actualDetalle.stream().filter(act -> Objects.equals(act.getProducto().getId(), anterior.getProducto().getId())).findAny();
             // Si encuentra, y hay diferencia se intenta modificar
             if(actual.isPresent() ){
-                if(actual.get().getCantContada() != anterior.getCantContada()){
+           
                     // Lanza excepción si el producto ya fue facturado
                     /*if(anterior.getCantRecepcionada() > actual.get().getCantidad()){
                         throw new BadRequestException("No es posible modificar la cantidad del Producto: "+ anterior.getProducto().getNombre());
@@ -150,7 +150,7 @@ public class DetalleInventarioServiceImpl implements DetalleInventarioService{
                     actual.get().setId(anterior.getId());
                     
                     elementos.add(actual.get());
-                }
+                
             }
 
         });
@@ -192,7 +192,10 @@ public class DetalleInventarioServiceImpl implements DetalleInventarioService{
         
         List<ProductoExistenciasDTO> productosActualizarExistencias = new ArrayList<>();
         detalle.forEach(d -> {
-            
+            System.out.println("cantcontada");
+            System.out.println(d.getCantContada());
+            System.out.println("cantdiferencia");
+            System.out.println(d.getDiferencia());
             if(d.getDiferencia() != 0){
                 ProductoExistenciasDTO productoActualizar = new ProductoExistenciasDTO(
                     d.getProducto().getId(),

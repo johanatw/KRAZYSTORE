@@ -4,7 +4,7 @@ import DataTable from 'primevue/datatable';
 import InputText from 'primevue/inputtext';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import {PedidoServices} from '@/services/PedidoServices';
 import { ProveedorServices } from '@/services/ProveedorServices';
 import { PedidoCompraServices } from '@/services/PedidoCompraServices';

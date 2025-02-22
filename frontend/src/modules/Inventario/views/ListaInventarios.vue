@@ -4,7 +4,7 @@ import DataTable from 'primevue/datatable';
 import InputText from 'primevue/inputtext';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { AnticipoServices } from '@/services/AnticipoServices';
 import { CajaServices } from '@/services/CajaServices';
 import Panel from 'primevue/panel';
@@ -66,7 +66,7 @@ const getEstado = (estado) => {
 
 const ajustarInventario = (id) =>{
     InventarioServices.ajustarInventario(id).then((data)=> {
-        
+        getInventarios();
     } );
 }
 

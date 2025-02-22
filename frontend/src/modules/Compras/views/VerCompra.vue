@@ -18,7 +18,7 @@ import { CiudadServices } from '@/services/CiudadServices';
 import { ref, onMounted } from "vue";
 import InputNumber from 'primevue/inputnumber';
 import InputGroup from 'primevue/inputgroup';
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+
 import Panel from 'primevue/panel';
 import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
@@ -55,7 +55,7 @@ import { watch } from "vue";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import {PedidoCompraServices} from "@/services/PedidoCompraServices";
-
+import {formatearNumero, formatearFecha} from '@/utils/utils';
 
 const confirm = useConfirm();
 const toast = useToast();
@@ -169,6 +169,30 @@ const modificarPedido = (id) => {
             </div>
         </div>
         <div class="grid " >
+            <div class="field col-12 md:col-6">
+            
+            <Card >
+        <template #title>
+            <div class="flex justify-content-between ">
+                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                    Información General
+                </div>    
+         
+            
+            </div>
+            
+        </template>
+        <template #content>
+            <div  >
+                
+                Fecha: {{ formatearFecha(pedido.fecha)}}
+            </div> 
+            <div  >
+                N° Factura: {{pedido.nroFactura}}
+            </div> 
+        </template>
+    </Card>
+            </div>
             
            <div class="field col-12 md:col-6">
             
@@ -200,30 +224,7 @@ const modificarPedido = (id) => {
         </template>
     </Card>
             </div>  
-            <div class="field col-12 md:col-6">
-            
-            <Card >
-        <template #title>
-            <div class="flex justify-content-between ">
-                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
-                    Detalle Compra
-                </div>    
-         
-            
-            </div>
-            
-        </template>
-        <template #content>
-            <div class="field" >
-                
-                Fecha: {{pedido.fecha}}
-            </div> 
-            <div class="field" >
-                N° Factura: {{pedido.nroFactura}}
-            </div> 
-        </template>
-    </Card>
-            </div>
+           
             
             <div class="col-12" >
                         <Card >
@@ -273,7 +274,7 @@ const modificarPedido = (id) => {
                                             Total: 
                                         </div>
                                         <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; font-weight: bold; font-size: 16px;" >
-                                            {{ pedido.total }}
+                                            {{ formatearNumero(pedido.total) }}
                                            
                                         </div>
 

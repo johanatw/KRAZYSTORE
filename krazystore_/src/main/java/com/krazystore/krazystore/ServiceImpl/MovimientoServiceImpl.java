@@ -118,7 +118,12 @@ public class MovimientoServiceImpl implements MovimientoService {
         nuevoMovimiento.setAnticipo(anticipo);
         nuevoMovimiento.setFecha(anticipo.getFecha());
         nuevoMovimiento.setMonto(anticipo.getTotal());
-        nuevoMovimiento.setConcepto(new ConceptoEntity((long)1,"ANTICIPO"));
+        if(anticipo.getTipoPedido() == TipoPedido.PEDIDOVENTA.getCodigo()){
+            nuevoMovimiento.setConcepto(new ConceptoEntity((long)1,"ANTICIPO"));
+        }else{
+            nuevoMovimiento.setConcepto(new ConceptoEntity((long)12,"ANTICIPO"));
+        }
+        
         nuevoMovimiento.setCaja(caja);
         return nuevoMovimiento;
     }
@@ -131,7 +136,7 @@ public class MovimientoServiceImpl implements MovimientoService {
         MovimientoEntity nuevoMovimiento = movimientoRepository.save(movimiento);
         pagoService.savePagos(nuevoMovimiento, reembolsoDTO.getPagos());
         
-        actualizarSaldoAnticipo(reembolso.getAnticipo().getId(), reembolso.getMonto());
+        actualizarSaldoAnticipo(reembolso.getAnticipo().getId(), reembolso.getMonto(), TipoEvento.REEMBOLSO_CREADO);
         return nuevoMovimiento;
     }
     
@@ -147,8 +152,8 @@ public class MovimientoServiceImpl implements MovimientoService {
     }
     
     @Transactional
-    private void actualizarSaldoAnticipo(Long idAnticipo, int montoReembolsado){
-        anticipoService.actualizarSaldoAnticipo(idAnticipo, montoReembolsado);
+    private void actualizarSaldoAnticipo(Long idAnticipo, int montoReembolsado, TipoEvento evento){
+        anticipoService.actualizarSaldoAnticipo(idAnticipo, montoReembolsado, evento);
         
     }
 
@@ -296,7 +301,7 @@ public class MovimientoServiceImpl implements MovimientoService {
          // Se elimina el movimiento      
         movimientoRepository.deleteById(movimiento.getId());
         
-        actualizarSaldoAnticipo(reembolso.getAnticipo().getId(), reembolso.getMonto());
+        actualizarSaldoAnticipo(reembolso.getAnticipo().getId(), reembolso.getMonto(), TipoEvento.REEMBOLSO_ELIMINADO);
         
         reembolsoService.deleteReembolso(id);
       

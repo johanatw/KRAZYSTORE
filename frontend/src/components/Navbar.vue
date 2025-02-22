@@ -16,6 +16,14 @@
                     <i v-if="hasSubmenu" :class="['pi pi-angle-down', { 'pi-angle-down ml-2': root, 'pi-angle-right ml-auto': !root }]"></i>
                 </a>
             </template>
+            <template #end>
+                <SplitButton text :model="opciones">
+    <span class="flex items-center font-bold">
+        <span>{{username}}</span>
+    </span>
+</SplitButton>
+
+    </template>
          
         </Menubar>
         <Toast />
@@ -31,13 +39,23 @@ import InputText from "primevue/inputtext";
 import Avatar from "primevue/avatar";
 import router from "@/router";
 import Toast from 'primevue/toast';
-
-
+import SplitButton from "primevue/splitbutton";
+import { AuthServices } from '@/services/AuthServices';
 import { useToast } from "primevue/usetoast";
 
 const toast = useToast();
 
+const opciones = [
+    {
+        label: 'Cerrar sesión',
+        command: () => {
+            logout();
+        }
+    },
 
+];
+
+const username = localStorage.getItem('username');
 const items = ref([
    
     { 
@@ -150,6 +168,14 @@ const items = ref([
     },
 
 ]);
+
+const logout = () =>{
+
+    AuthServices.logout();
+    router.push({name: 'home'});
+
+
+}
 </script>
 <style>
 .p-menubar .p-menubar-root-list > .p-menuitem > .p-menuitem-content .p-menuitem-link {

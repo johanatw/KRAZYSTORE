@@ -28,42 +28,12 @@
 
 .p-card-title{
   font-weight: bolder;
-
+  font-size: medium !important;
 }
 
-.p-inputtext {
-  padding: 4px !important;
-  font-size: 14px ;
+.p-card-body{
+  padding: 1.3rem !important;
 }
-
-.p-button {
-  padding: 0.4rem 1rem;
-  
-}
-
-.p-button.p-button-icon-only.p-button-rounded {
-  padding: 0.1rem 0.1rem;
-  height: 1rem;
-  width: 1rem;
-}
-
-
-
-.p-card{
-  box-shadow:none;
-  font-size:14px;
-
-}
-
-.p-card .p-card-body{
-  padding: 5px !important;
-
-}
-
-.field {
-  margin-bottom: 5px !important;  
-}
-
 
 a,
 .green {

@@ -4,10 +4,21 @@ import { ref, onMounted } from 'vue';
 const caja = ref();
 
   export function formatearFecha(value) {
-    return new Date(value).toLocaleDateString('en-US', {
+    return new Date(value).toLocaleDateString('es-ES', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric'
+    });
+};
+
+export function formatearFechaHora(value) {
+    return new Date(value).toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
     });
 };
 
@@ -16,6 +27,7 @@ export function formatearNumero(valor) {
     return valor.toLocaleString("de-DE");
 }
 };
+
 
 export async function existeCajaAbierta() {
    let c = (await CajaServices.getCajaAbierta()).data;

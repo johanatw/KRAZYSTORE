@@ -176,14 +176,29 @@ public class InventarioServiceImpl implements InventarioService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
-    public InventarioEntity finalizarInventario(Long id) {
+    public InventarioEntity finalizarInventario(InventarioCreationDTO inventarioDTO, Long id) throws Exception {
         InventarioEntity inventario = inventarioRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Inventario no encontrado"));
         
         inventario.setEstado(Estado.FINALIZADO.getCodigo());
+        inventarioRepository.save(inventario);
+         // Actualizar detalles si existen
+        List<DetalleInventarioDTO> detalleDTO = inventarioDTO.getDetalle();
+        if(detalleDTO != null && !detalleDTO.isEmpty()){
+            List<DetalleInventario> detalle = detalleDTO
+                .stream()
+                .map(detalleMapper)
+                .collect(Collectors.toList());
+            
+        // Establecer la relación bidireccional si es necesario
+        detalle.forEach(det -> det.setInventario(inventario));
+
+        detalleService.updateDetInventario(detalle, id);
         
-        return inventarioRepository.save(inventario);
+        }
+        return inventario;
     }
     
 }

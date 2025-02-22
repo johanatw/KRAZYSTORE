@@ -21,6 +21,7 @@ import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
 import { TipoDocServices } from "@/services/TipoDocServices";
 import {DepartamentoServices } from '@/services/DepartamentoServices';
+import DatePicker from "primevue/datepicker";
 const map = ref();
 const direcciones = ref([]);
 const direccion = ref({});
@@ -98,7 +99,7 @@ onMounted(() => {
             costo.value = pedido.value.costoEnvio.costo;
         }
         
-    getDetalle();
+
     getPedido();
    
    PersonaServices.obtenerClientes().then((data) => {
@@ -146,35 +147,40 @@ const formatearNumero = (valor) =>{
 
 async function getDetalle() {
     await PedidoServices.getDetalle(router.currentRoute.value.params.id).then((data) => {
-        console.log("Este", data);
+        console.log("Este", data.data);
         productos.value.setDetalle(data.data);
 
     });
     
 }
 
-async function getPedido() {
-    await PedidoServices.getPedido(router.currentRoute.value.params.id).then((data) => {
+const getPedido = () => {
+    PedidoServices.getPedido(router.currentRoute.value.params.id).then((data) => {
+        console.log(data.data);
         /*formaPago.value.setPago(data.data.formaPago);
         modoEntrega.value.setEntrega(data.data.modoEntrega, data.data.costoEnvio);
         cliente.value.setCliente(data.data.cliente);*/
         //getCliente(data.data.cliente);
-        selectedCliente.value = data.data.cliente;
-        mostrarCliente();
-        selectedFormaEntrega.value = data.data.modoEntrega;
-        selectedEnvio.value = data.data.costoEnvio;
-        direccionSelected.value = data.data.direccionEnvio;
-        saveEntrega();
+        pedido.value = data.data.pedido;
+        let det = data.data.detalle;
+
+        selectedCliente.value = pedido.value.cliente;
+        selectedFormaEntrega.value = pedido.value.modoEntrega;
+        selectedEnvio.value = pedido.value.costoEnvio;
+        direccionSelected.value = pedido.value.direccionEnvio;
+        
+        console.log(det);
+        
+        productos.value.setDetalle(det);
         //getEntrega(data.data.modoEntrega, data.data.costoEnvio);
 
        
 
-        fecha.value = new Date(data.data.fecha);
-        fechaCompleta.value = fecha.value.getDate() + "-"+ (fecha.value.getMonth()+1) + "-"+ fecha.value.getFullYear() ;
+        fecha.value = new Date(pedido.value.fecha);
 
-        pedido.value = data.data;
         
-        
+        mostrarCliente();
+        saveEntrega();
     });
 }
 //Cliente
@@ -570,7 +576,7 @@ const submit = () =>{
         
         console.log("pedidodetalle", productos.value.detalles);
         pedido.value.cliente = selectedCliente.value;
-
+        pedido.value.fecha = fecha.value;
         pedido.value.modoEntrega = selectedFormaEntrega.value;
         if (selectedFormaEntrega.value?.descripcion === "Envío") {
             pedido.value.costoEnvio = selectedEnvio.value;
@@ -826,7 +832,23 @@ const validarForm = (event) => {
             </div>
         </div>
         <div class="grid " >
-           
+            <div class="field col-12 md:col-12">
+                    <Card>
+                        <template #title>
+                            <div class="flex justify-content-between ">
+                                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                                    Información General
+                                </div>    
+                            </div>
+                        </template>
+                        <template #content>
+                            <div class="field" >
+                                Fecha: <DatePicker dateFormat="dd/mm/yy" v-model="fecha" showIcon iconDisplay="input" />
+                            </div> 
+
+                        </template>
+                    </Card>
+                </div> 
            <div class="field col-12 md:col-6">
             
             <Card >
@@ -836,10 +858,10 @@ const validarForm = (event) => {
                     Cliente
                 </div>    
                 <div v-if="clienteSeleccionado">
-                    <Button class="pi pi-times" link @click="eliminarClienteSelected"/>
+                    <Button icon="pi pi-times" link @click="eliminarClienteSelected"/>
                 </div>   
                 <div v-else>
-                    <Button class="pi pi-plus" link @click="registrarCliente"/>
+                    <Button icon="pi pi-plus" link @click="registrarCliente"/>
                 </div>             
             
             </div>
@@ -853,7 +875,7 @@ const validarForm = (event) => {
             
                 <div v-if="!clienteSeleccionado" >
                     
-                    <AutoComplete v-model="selectedCliente" optionLabel="nombre" forceSelection :suggestions="filteredClientes" @complete="search" @item-select="mostrarCliente">
+                    <AutoComplete v-model="selectedCliente" fluid optionLabel="nombre" forceSelection :suggestions="filteredClientes" @complete="search" @item-select="mostrarCliente">
                     <template #option="slotProps">
                         <div class="flex flex-column align-options-start">
                             <div>{{ slotProps.option.nombre }}</div>
@@ -877,7 +899,7 @@ const validarForm = (event) => {
                     Entrega
                 </div>    
                 <div>
-                    <Button class="pi pi-pencil" link @click="añadirDatoEntrega()"/>
+                    <Button icon="pi pi-pencil" link @click="añadirDatoEntrega()"/>
                 </div>              
             
             </div>

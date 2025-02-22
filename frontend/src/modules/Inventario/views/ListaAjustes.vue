@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { AnticipoServices } from '@/services/AnticipoServices';
 import { CajaServices } from '@/services/CajaServices';
 import { AjusteStockServices } from '@/services/AjusteStockServices';
@@ -76,7 +76,7 @@ const vistaVerAjuste = (id) => {
 
 const ajustarInventario = (id) =>{
     AjusteStockServices.ajustar(id).then((data)=> {
-        
+        getAjustes();
         //closeDialog();
         //emit('anticipoGuardado', data.data.id);
         

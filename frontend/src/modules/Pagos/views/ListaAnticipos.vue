@@ -4,13 +4,14 @@ import DataTable from 'primevue/datatable';
 import InputText from 'primevue/inputtext';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { AnticipoServices } from '@/services/AnticipoServices';
 import { CajaServices } from '@/services/CajaServices';
 import Panel from 'primevue/panel';
 import router from '@/router';
 import { FormasPagoServices } from '@/services/FormasPagoServices';
 import Card from 'primevue/card';
+import { watch } from 'vue';
 import InputNumber from 'primevue/inputnumber';
 import Dropdown from 'primevue/dropdown';
 import { PagoServices } from '@/services/PagoServices';
@@ -20,8 +21,10 @@ import ConfirmDialog from 'primevue/confirmdialog';
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import InputGroup from 'primevue/inputgroup';
-import {formatearNumero, formatearFecha, existeCajaAbierta} from '@/utils/utils';
-
+import {formatearNumero, formatearFecha, existeCajaAbierta, formatearFechaHora} from '@/utils/utils';
+import InputGroupAddon from 'primevue/inputgroupaddon';
+import Select from 'primevue/select';
+import SelectButton from 'primevue/selectbutton';
 const visible = ref(false);
 const  formasPago = ref();
 const disabled = ref(true);
@@ -48,6 +51,28 @@ const cajaAbierta = ref({});
 const tipoPedido = ref({cod: 'V', descripcion:'Venta'});
 const optionsPedido = ref([{cod: 'V', descripcion:'Venta'}, {cod: 'C', descripcion:'Compra'}]);
 
+const sumaTotal = ref(0);
+
+// Watcher para observar cambios en sumaTotal
+watch(() => sumaTotal.value, (newValue, oldValue) => {
+    habilitarSubmit();
+     
+    });
+// Función para actualizar el importe de un ítem al escribir
+const actualizarImporte = (event, index) => {
+            pagos.value[index].importe = event.value || 0;
+            actualizarSumaTotal();
+        };
+
+// Función para actualizar la suma total
+const actualizarSumaTotal = () => {
+    sumaTotal.value = calcularImportePagos();
+};
+
+const calcularImportePagos = () => {
+  return pagos.value.reduce((acc, item) => acc + (item.importe || 0), 0);
+};
+
 //Funciones Registrar Anticipo
 const buscarPedido= (id, e) => {
   
@@ -65,65 +90,16 @@ const buscarPedido= (id, e) => {
                 searched.value = true;
                 console.log(data.data);
             });
-        }                     
+        }      
+        actualizarSumaTotal();               
         
     }
     
 
 }
 
-const addRowAnticipo = () => {
-    pagosAnticipo.value.push({formaPago:null , importe: 0});
-};
-
-const eliminarRowAnticipo = (index) => {
-    if (index > 0) {
-        pagosAnticipo.value.splice(index,1);
-    }
-    calcularAbonadoAnticipo();
-};
-
-const habilitarInputAnticipo = (index, item) => {
-    let inp = document.getElementsByName("input")[index].firstElementChild;
-    if (inp.disabled  ) {
-        inp.disabled = false;
-    }
-
-    calcularAbonadoAnticipo();
-    
-};
-
-const calcularAbonadoAnticipo = (event) => {
-    if (event !== undefined) {
-        console.log(event);
-        let valorActual = Number(event.value);
-        let valorAnterior = Number(event.formattedValue.replaceAll(".",""));
-        abonado.value = abonado.value - valorAnterior + valorActual;
-    }else {
-        let monto = 0 ;
-        pagos.value.forEach(element => {
-            monto += element.importe;
-        })
-        abonado.value = monto;
-    }
-    calcularDiferenciaRegistrar();
-  
-};
-
-const habilitarSubmitRegistrar = () =>{
-    if (abonado.value > 0 && pedido.value && abonado.value <= (pedido.value.total - pedido.value.totalPagos)) {
-        disabledSubmitRegistrar.value = false;
-        color.value = '#4b5563';
-            
-    }else{
-        disabledSubmitRegistrar.value = true;
-        color.value = 'red';
-     
-    }
-}
-
 const registrarAnticipo = () =>{
-    inicializarPagosAnticipo();
+    inicializarPagos();
     dialogRegistrar.value = true;
     
 };
@@ -142,12 +118,12 @@ async function guardarAnticipo() {
     console.log(d);
     if (d) {
         let fechaAnticipo = new Date();
-    let ant = {total: abonado.value, fecha: fechaAnticipo, idPedido: pedido.value.id, tipoPedido: tipoPedido.value.cod};
+    let ant = {total: sumaTotal.value, fecha: fechaAnticipo, idPedido: pedido.value.id, tipoPedido: tipoPedido.value.cod};
 
-    let anticipoCreationDTO = {anticipo: ant, pagos: pagosAnticipo.value};
+    let anticipoCreationDTO = {anticipo: ant, pagos: pagos.value};
     CajaServices.saveAnticipo(anticipoCreationDTO ).then((data)=> {
         getAnticipos();
-        closeDialogRegistrar();
+        closeDialog();
         toast.add({ severity:"success", detail: 'Anticipo registrado', life: 3000 });
     } );
     } else {
@@ -155,98 +131,48 @@ async function guardarAnticipo() {
     }
 };
 
-
-
-const calcularDiferenciaRegistrar = () => {
-    habilitarSubmitRegistrar();
-};
-
-const closeDialogRegistrar = (event) =>{
-    if (event == false) {
-        reiniciarDialogRegistrar();
-    }
-
-    if (event == null) {
-        dialogRegistrar.value = false;
-        reiniciarDialogRegistrar();
-    }
-    
-}
-
-const reiniciarDialogRegistrar = () =>{
-    pedido.value = null;
-    pagosAnticipo.value =[];
-    color.value = '#4b5563';
-    abonado.value = 0;
-    disabled.value = true;
-    searched.value = false;
-    id.value = null;
-
-}
-
-
-const inicializarPagosAnticipo = () => {
+const inicializarPagos= () => {
     pago.value.formaPago = null;
     pago.value.importe = 0;
-    pagosAnticipo.value.push(pago.value);
+    pago.value.disabled = true;
+    pagos.value.push(pago.value);
 
 };
-
-
 
 
 
 //Funciones Registrar Reembolso
 
 const addRow = () => {
-    pagos.value.push({formaPago:null , importe: 0});
+    pagos.value.push({formaPago:null , importe: 0, disabled: true});
 };
 
 const eliminarRow = (index) => {
     if (index > 0) {
         pagos.value.splice(index,1);
     }
-    calcularAbonado();
+    actualizarSumaTotal();
+
 };
 
 const habilitarInput = (index, item) => {
-    let inp = document.getElementsByName("input")[index].firstElementChild;
-    if (inp.disabled  ) {
-        inp.disabled = false;
+
+    if (item.disabled  ) {
+        item.disabled = false;
     }
    
-    if (abonado.value < anticipo.value.saldo ) {
-        item.importe = anticipo.value.saldo - abonado.value;
+    if (visible.value && sumaTotal.value < anticipo.value.saldo ) {
+        item.importe = anticipo.value.saldo - sumaTotal.value;
     }
-    calcularAbonado();
+    actualizarSumaTotal();
     
-};
-
-const calcularAbonado = (event) => {
-    if (event !== undefined) {
-        console.log(event);
-        let valorActual = Number(event.value);
-        let valorAnterior = Number(event.formattedValue.replaceAll(".",""));
-        abonado.value = abonado.value - valorAnterior + valorActual;
-    }else {
-        let monto = 0 ;
-        pagos.value.forEach(element => {
-            monto += element.importe;
-        })
-        abonado.value = monto;
-    }
-    
-    calcularDiferencia();
-    
-  
-};
-
-const calcularDiferencia = () => {
-    habilitarSubmit();
 };
 
 const habilitarSubmit = () =>{
-    if (abonado.value > anticipo.value.saldo || abonado.value<1) {
+    if (visible.value && sumaTotal.value > anticipo.value.saldo || sumaTotal.value<1) {
+        disabledSubmit.value = true;
+        color.value = 'red';
+    } else if (dialogRegistrar.value && (sumaTotal.value == 0 || !pedido.value || sumaTotal.value > (pedido.value.total - pedido.value.totalPagos))) {
         disabledSubmit.value = true;
         color.value = 'red';
     }else{
@@ -260,18 +186,11 @@ const showDialogReembolso = (ant) =>{
     anticipo.value = ant;
         
     montoReembolsar.value = ant.saldo;
-    inicializarPagosReembolso();
+    inicializarPagos();
     
     visible.value = true;
 }
 
-const inicializarPagosReembolso = () => {
-    pago.value.formaPago = null;
-    pago.value.importe = 0;
-    pagos.value.push(pago.value);
-
-}; 
-  
 const closeDialog = (event) =>{
     if (event == false) {
         reiniciarDialog();
@@ -279,6 +198,7 @@ const closeDialog = (event) =>{
 
     if (event == null) {
         visible.value = false;
+        dialogRegistrar.value = false;
         reiniciarDialog();
     }
       
@@ -290,13 +210,16 @@ const reiniciarDialog = () =>{
     motivo.value = null;
     abonado.value = 0;
     disabled.value = true;
-  
+    sumaTotal.value = 0;
+    pedido.value = null;
+    searched.value = false;
+    id.value = null;
 }
   
   
 const guardarReembolso = () =>{
     if (cajaAbierta.value != null) {
-        montoReembolsar.value = abonado.value;
+        montoReembolsar.value = sumaTotal.value;
         let fecha = new Date();
         let reembolso = {monto: montoReembolsar.value,
         fecha: fecha,
@@ -320,9 +243,8 @@ const guardarReembolso = () =>{
 
 //Funciones Anticipos
 
-async function getAnticipos() {
-  await AnticipoServices.obtenerAnticipos().then((data) => {
-        console.log(data.data);
+const getAnticipos = () => {
+  AnticipoServices.obtenerAnticipos().then((data) => {
        anticipos.value = data.data;
    });
  
@@ -401,10 +323,6 @@ const isAnticipoUtilizado = (utilizado) =>{
 const filters = ref({
     'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
 });
-
-
-
-
 
 //Otros
 
@@ -504,7 +422,7 @@ const getFormasPago= () => {
                                     <template #content>
                                         <div >
                                             <label for="fecha" style="font-weight: 600;" >Fecha:</label>
-                                            {{ formatearFecha(anticipo.fecha) }}<br>
+                                            {{ formatearFechaHora(anticipo.fecha) }}<br>
                                             <label for="fecha" style="font-weight: 600;" >Monto total Anticipo:</label>
                                             {{ formatearNumero(anticipo.total) }} Gs.<br>
                                             <label for="fecha" style="font-weight: 600;"  >Monto utilizado:</label>
@@ -527,11 +445,11 @@ const getFormasPago= () => {
                                         <div>
                                             <div class="formgrid grid" v-for="item, index in pagos" :key="item" >
                                                 <div class="field col-12 md:col-6" style="justify-content: start;  ">
-                                                    <Dropdown class="flex flex-grow-1" style="padding: 0rem !important;" v-model="item.formaPago" :options="formasPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   /> 
+                                                    <Select class="flex flex-grow-1" style="padding: 0rem !important;" v-model="item.formaPago" :options="formasPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   /> 
                                                 </div>
                                     
                                                 <div class="flex field col-12 md:col-5" style=" justify-content: start; " >
-                                                    <InputNumber class="p-fluid " disabled=true name="input" style="padding: 0rem !important;  " v-model="item.importe" @input="calcularAbonado($event)"  />
+                                                    <InputNumber fluid :disabled="item.disabled" name="input" style="padding: 0rem !important;  " v-model="item.importe" @input="actualizarImporte($event, index)"  />
                                                 </div>
                                                 <div v-if="index > 0" class=" field col-12 md:col-1" style=" justify-content: flex-end;">
                                                     <Button style="background: none !important; border: none !important;  " icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="eliminarRow(index)" />
@@ -546,7 +464,7 @@ const getFormasPago= () => {
                                                     <label for="totalPagos" style="font-weight: 600;"> Monto a reembolsar: </label>
                                                 </div>
                                                 <div  class="flex field col-12 md:col-6" style=" justify-content: start; " :style="{color: color}" >
-                                                    {{ abonado.toLocaleString("de-DE") }} Gs.
+                                                    {{ sumaTotal.toLocaleString("de-DE") }} Gs.
                                                 </div>
                                     
                                                 <div class="flex field col-12 md:col-6 " >
@@ -575,7 +493,7 @@ const getFormasPago= () => {
         </div>
 
         <!--Modal Resgistrar Nuevo Anticipo-->
-        <Dialog v-model:visible="dialogRegistrar" @update:visible="closeDialogRegistrar($event)" modal header="Edit Profile" :style="{ width: '30rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+        <Dialog v-model:visible="dialogRegistrar" @update:visible="closeDialog($event)" modal header="Edit Profile" :style="{ width: '30rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
             <template #header>
                 <div class="flex align-items-center gap-2">
                     <h3 class="font-bold">Registrar Anticipo</h3>
@@ -590,30 +508,33 @@ const getFormasPago= () => {
                                 <template #title> Detalle del Pedido </template>
                                 <template #content>
                                     <div class="formgrid grid">
-                                        <div class="flex field col-12 md:col-6">
-                                            <label for="username" class="font-semibold w-9rem">Tipo Pedido</label>
+                                        <div class="flex field col-12 md:col-6 " style="height: 1.5rem;" >
+                                            <label for="email" class="w-9rem" style="font-weight: 600;" >Tipo Pedido</label>
                                         </div>
-                                        <div class="flex field col-12 md:col-6">
-                                            <Dropdown v-model:model-value="tipoPedido" :options="optionsPedido" optionLabel="descripcion" placeholder="Seleccione un elemento" checkmark :highlightOnSelect="false" class="w-full md:w-14rem"  />
+                                        <div class="flex field col-12 md:col-6" style="height: 1.5rem;">
+                                            <SelectButton fluid v-model="tipoPedido" :options="optionsPedido" optionLabel="descripcion"/>
                                         </div>
+
                                         <div class="flex field col-12 md:col-6 "style="height: 1.5rem;" >
                                             <label for="email" class="w-9rem" style="font-weight: 600;" >Pedido N°</label>
                                         </div>
                                         <div class="flex field col-12 md:col-6 " style="height: 1.5rem;">
                                             <InputGroup>
-                                                <InputText v-model="id" placeholder="N° Pedido" @keypress="buscarPedido(id, $event)" />
-                                                <Button icon="pi pi-search" />
+                                                <InputText v-model="id" placeholder="N° Pedido" @keypress="buscarPedido(id, $event)"/>
+                                                <InputGroupAddon>
+                                                <i class="pi pi-search" />
+                                                </InputGroupAddon>
                                             </InputGroup>
                                         </div>
                                         <div class="flex field col-12 md:col-6" style="height: 1.5rem;">
-                                            <label   style="font-weight: 600;" >Total Pedido:</label>
+                                            <label   style="font-weight: 600;" >Total pedido:</label>
                                         </div>
                                         <div class="flex field col-12 md:col-6 "style="height: 1.5rem;" >
                                             <label v-if="pedido"  >{{formatearNumero(pedido.total)}} Gs.</label>
                                             <label v-else   > 0 Gs.</label>
                                         </div>
                                         <div class="flex field col-12 md:col-6 " style="height: 1.5rem;">
-                                            <label  style="font-weight: 600;" >Total pagos:</label>
+                                            <label  style="font-weight: 600;" >Total anticipos:</label>
                                         </div>
                                         <div class="flex field col-12 md:col-6 " style="height: 1.5rem;">
                                             <label v-if="pedido"   >{{formatearNumero(pedido.totalPagos)}} Gs.</label>
@@ -639,18 +560,18 @@ const getFormasPago= () => {
                                 <template #title> Registrar Pago</template>
                                 <template #content>
                                     <div>
-                                        <div class="formgrid grid" v-for="item, index in pagosAnticipo" :key="item" >
+                                        <div class="formgrid grid" v-for="item, index in pagos" :key="item" >
                                             <div class="field col-12 md:col-6" style="justify-content: start;  ">
-                                                <Dropdown class="flex flex-grow-1" style="padding: 0rem !important;" v-model="item.formaPago" :options="formasPago" @change="habilitarInputAnticipo(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   /> 
+                                                <Select class="flex flex-grow-1" style="padding: 0rem !important;" v-model="item.formaPago" :options="formasPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   /> 
                                             </div>
                                             <div class="flex field col-12 md:col-5" style=" justify-content: start; " >
-                                                <InputNumber class="p-fluid " disabled=true name="input" style="padding: 0rem !important;  " v-model="item.importe" @input="calcularAbonadoAnticipo($event)"  />
+                                                <InputNumber fluid :disabled="item.disabled" name="input" style="padding: 0rem !important;  " v-model="item.importe" @input="actualizarImporte($event, index)"  />
                                             </div>
                                             <div v-if="index > 0" class=" field col-12 md:col-1" style=" justify-content: flex-end;">
-                                                <Button style="background: none !important; border: none !important;  " icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="eliminarRowAnticipo(index)" />
+                                                <Button style="background: none !important; border: none !important;  " icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="eliminarRow(index)" />
                                             </div>
                                             <div v-else class=" field col-12 md:col-1" style=" justify-content: flex-end;">
-                                                <Button style="background: none !important; border: none !important " icon="pi pi-plus" severity="danger" text rounded aria-label="Cancel" @click="addRowAnticipo()" />
+                                                <Button style="background: none !important; border: none !important " icon="pi pi-plus" severity="danger" text rounded aria-label="Cancel" @click="addRow()" />
                                             </div>
                                         </div>
 
@@ -659,7 +580,7 @@ const getFormasPago= () => {
                                                 <label for="totalPagos" style="font-weight: 600;"> Monto a pagar: </label>
                                             </div>
                                             <div  class="flex field col-12 md:col-6" style=" justify-content: start; " :style="{color: color}" >
-                                                {{ abonado.toLocaleString("de-DE") }} Gs.
+                                                {{ sumaTotal.toLocaleString("de-DE") }} Gs.
                                             </div>
                                         </div>
                                     </div>
@@ -671,8 +592,8 @@ const getFormasPago= () => {
             </div>
             <template #footer>
                 <div class="card flex" style="justify-content: end;">  
-                    <Button  label="Cancelar"  style="margin-right: 1%;" @click="closeDialogRegistrar()" />
-                    <Button  label="Guardar" :disabled="disabledSubmitRegistrar" @click="guardarAnticipo()" />
+                    <Button  label="Cancelar"  style="margin-right: 1%;" @click="closeDialog()" />
+                    <Button  label="Guardar" :disabled="disabledSubmit" @click="guardarAnticipo()" />
                 </div>
             </template>
         </Dialog>
@@ -687,15 +608,16 @@ const getFormasPago= () => {
             </template>
       
             <template #icons>
-
                 <div class="flex align-items-center">
-                    <Button  icon="pi pi-plus " @click="registrarAnticipo()" style=" width: 3rem !important; height: 2.9rem;" />
-                    <span class="p-input-icon-left" style="margin-left: 1%;">
-                    <i class="pi pi-search" style="top: 35%;"/>
-                    <InputText style="padding: 12px !important; padding-left: 40px !important;" class="buscador p-fluid" v-model="filters['global'].value" placeholder="Buscar..."  />
-                    </span>
-
+                <Button  icon="pi pi-plus " @click="registrarAnticipo()" style="margin-right: 1% ;"  />
+                <InputGroup>
+                    <InputText v-model="filters['global'].value" placeholder="Search..." />
+                    <InputGroupAddon>
+                    <i class="pi pi-search" />
+                    </InputGroupAddon>
+                </InputGroup>
                 </div>
+            
             </template>
             
       
@@ -707,10 +629,14 @@ const getFormasPago= () => {
                     <Column field="id" sortable header="N°" aria-sort="ascending" ></Column>
                     <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
                         <template #body="slotProps">
-                            {{ formatearFecha(slotProps.data.fecha) }}
+                            {{ formatearFechaHora(slotProps.data.fecha) }}
                         </template>
                     </Column>
-                    <Column field="pedido.id" header="Pedido N°" aria-sort="ascending" sortable></Column>
+                    <Column field="pedido.id" header="Pedido N°" aria-sort="ascending" sortable>
+                        <template #body="slotProps">
+                            P{{slotProps.data.tipoPedido}}-{{ formatearNumero(slotProps.data.idPedido) }}
+                        </template>
+                    </Column>
                     <Column  field="total" header="Total" aria-sort="ascending" sortable >
                         <template #body="slotProps">
                             {{ formatearNumero(slotProps.data.total) }}

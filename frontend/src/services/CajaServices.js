@@ -1,6 +1,7 @@
 import axios from 'axios';
-
+import router from '@/router';
 const CAJA_API_BASE_URL = "http://localhost:7070/api/cajas"
+const token = localStorage.getItem('token');
 
 export const CajaServices = {
 obtenerMovimientosByPedido(id) {
@@ -14,160 +15,278 @@ obtenerMovimientosByPedido(id) {
     }
     
   },obtenerMovimientosByCaja(id) {
-    try {
-        console.log("ciudadservice");
-      return axios.get(CAJA_API_BASE_URL+"/caja/"+id);
-      
-    } catch (error) {
-      console.log("hola");
-      console.log(error.name);
-    }
+
+      return axios.get(CAJA_API_BASE_URL+"/caja/"+id,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
   deleteAnticipo(id){
-  
-    return axios.delete(CAJA_API_BASE_URL+"/anticipo/"+id);
+
+    return axios.delete(CAJA_API_BASE_URL+"/anticipo/"+id,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
   },
   
   deleteReembolso(id){
   
-    return axios.delete(CAJA_API_BASE_URL+"/reembolso/"+id);
+    return axios.delete(CAJA_API_BASE_URL+"/reembolso/"+id,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
   },
   deleteMovimiento(id){
-  
-    return axios.delete(CAJA_API_BASE_URL+"/"+id);
+ 
+    return axios.delete(CAJA_API_BASE_URL+"/"+id,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
   },
   
   savePagosMovimiento(movimientoCreationDTO) {
-    try {
-      console.log("movimiento id");
-      console.log(movimientoCreationDTO);
-      return axios.post(CAJA_API_BASE_URL+'/pagar_factura',movimientoCreationDTO);
-      
-    } catch (error) {
-      console.log(error.name);
-    }
+
+      return axios.post(CAJA_API_BASE_URL+'/pagar_factura',movimientoCreationDTO,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
   saveReembolso(reembolso) {
-    try {
-        console.log("pedido", reembolso);
-      return axios.post(CAJA_API_BASE_URL+"/reembolso", reembolso);
-      
-    } catch (error) {
-      console.log(error.name);
-    }
+
+      return axios.post(CAJA_API_BASE_URL+"/reembolso", reembolso,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
   
   saveMovimiento(movimientoCreationDTO) {
-    try {
-      return axios.post(CAJA_API_BASE_URL+"/movimiento",movimientoCreationDTO);
-      
-    } catch (error) {
-      console.log(error.name);
-    }
+
+      return axios.post(CAJA_API_BASE_URL+"/movimiento",movimientoCreationDTO,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
   saveAnticipo(anticipoCreationDTO) {
-    try {
-      return axios.post(CAJA_API_BASE_URL+"/anticipo",anticipoCreationDTO);
-      
-    } catch (error) {
-      console.log(error.name);
-    }
+
+      return axios.post(CAJA_API_BASE_URL+"/anticipo",anticipoCreationDTO,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
   getCajas() {
-    try {
-      return axios.get(CAJA_API_BASE_URL);
-      
-    } catch (error) {
-    }
+
+      return axios.get(CAJA_API_BASE_URL,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
   getCajaAbierta() {
-    try {
-      return axios.get(CAJA_API_BASE_URL+"/caja_abierta");
-      
-    } catch (error) {
-    }
+    
+      return axios.get(CAJA_API_BASE_URL+"/caja_abierta",{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
   abrirCaja() {
-    try {
-        
-        
-      return axios.post(CAJA_API_BASE_URL);
-      
-    } catch (error) {
-    }
+
+      return axios.post(CAJA_API_BASE_URL,{},{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
   obtenerCajaById(id) {
-    try {
-        console.log("ciudadservice");
-      return axios.get(CAJA_API_BASE_URL+"/"+id);
-      
-    } catch (error) {
-      console.log("hola");
-      console.log(error.name);
-    }
+
+      return axios.get(CAJA_API_BASE_URL+"/"+id,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
   cerraCaja(id) {
-    try {
-        console.log("ciudadservice");
-      return axios.put(CAJA_API_BASE_URL+"/"+id);
-      
-    } catch (error) {
-      console.log("hola");
-      console.log(error.name);
-    }
+
+      return axios.put(CAJA_API_BASE_URL+"/cerrar/"+id,{},{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
   
   
   obtenerFacturasPendientes() {
-    try {
-        
-      return axios.get(CAJA_API_BASE_URL+"/pendientes");
-      
-    } catch (error) {
-      console.log("hola");
-      console.log(error.name);
-    }
+   
+      return axios.get(CAJA_API_BASE_URL+"/pendientes",{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+   
+    })
     
   },
   obtenerPagosPedido(id) {
-    try {
-        
-      return axios.get(CAJA_API_BASE_URL+"/estado_pagos_pedido_venta/"+id);
-      
-    } catch (error) {
-      console.log("hola");
-      console.log(error.name);
-    }
+
+      return axios.get(CAJA_API_BASE_URL+"/estado_pagos_pedido_venta/"+id,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
   obtenerPagosPedidoCompra(id) {
-    try {
-        
-      return axios.get(CAJA_API_BASE_URL+"/estado_pagos_pedido_compra/"+id);
-      
-    } catch (error) {
-      console.log("hola");
-      console.log(error.name);
-    }
+
+      return axios.get(CAJA_API_BASE_URL+"/estado_pagos_pedido_compra/"+id,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
   saveVenta(ventaCreationDTO) {
-    try {
-      return axios.post(CAJA_API_BASE_URL+"/venta", ventaCreationDTO);
-      
-    } catch (error) {
-      console.log(error.name);
-    }
+   
+      return axios.post(CAJA_API_BASE_URL+"/venta", ventaCreationDTO,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   }
 

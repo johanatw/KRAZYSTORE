@@ -1,27 +1,39 @@
 import axios from 'axios';
+import router from '@/router';
 const CIUDAD_API_BASE_URL = "http://localhost:7070/api/ciudades"
+const token = localStorage.getItem('token');
 
 export const CiudadServices = {
   obtenerCiudades() {
-    try {
-        console.log("ciudadservice");
-      return axios.get(CIUDAD_API_BASE_URL);
-      
-    } catch (error) {
-      console.log("hola");
-      console.log(error.name);
-    }
+
+      return axios.get(CIUDAD_API_BASE_URL,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
   obtenerCiudadesByDepartamento(id) {
-    try {
-        console.log("ciudadservice");
-      return axios.get(CIUDAD_API_BASE_URL+"/departamento/"+id);
-      
-    } catch (error) {
-      console.log("hola");
-      console.log(error.name);
-    }
+
+      return axios.get(CIUDAD_API_BASE_URL+"/departamento/"+id,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
 

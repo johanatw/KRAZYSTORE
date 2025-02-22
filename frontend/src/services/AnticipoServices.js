@@ -1,116 +1,189 @@
 import axios from 'axios';
+import router from '@/router';
 const ANTICIPO_API_BASE_URL = "http://localhost:7070/api/anticipos"
 const DETALLE_ANTICIPO_API_BASE_URL = "http://localhost:7070/api/detalles_anticipo";
-
+const token = localStorage.getItem('token');
 
 export const AnticipoServices = {
   obtenerAnticipos() {
-    try {
-      return axios.get(ANTICIPO_API_BASE_URL);
-    } catch (error) {
-      console.log("hola");
-      console.log(error.name);
-    }
+   
+      return axios.get(ANTICIPO_API_BASE_URL,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error); 
+      }
+      return Promise.reject(error); 
+    })
     
   },
   saveAnticipo(anticipoCreationDTO) {
-    try {
-        console.log("anticipo", anticipoCreationDTO);
-        
-      return axios.post(ANTICIPO_API_BASE_URL,anticipoCreationDTO);
-      
-    } catch (error) {
-      console.log(error.name);
-    }
+
+      return axios.post(ANTICIPO_API_BASE_URL,anticipoCreationDTO,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
 
   getDetalleAnticipo(idAnticipo) {
     //console.log("detalle", pedido);
-    try {
-      console.log("7");
-    return axios.get(DETALLE_ANTICIPO_API_BASE_URL+'/detalle?idAnticipo='+idAnticipo);
-    
-    } catch (error) {
-      console.log("8");
-    console.log(error.name);
+ 
+    return axios.get(DETALLE_ANTICIPO_API_BASE_URL+'/detalle?idAnticipo='+idAnticipo,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
     }
+    return Promise.reject(error);
+  })
     
 },
 getCantidadPagado(idPedido, idProducto) {
   //console.log("detalle", pedido);
-  try {
+
     console.log("7");
-  return axios.get(DETALLE_ANTICIPO_API_BASE_URL+'/pagos?idPedido='+idPedido+'&idProducto='+idProducto);
-  
-  } catch (error) {
-    console.log("8");
-  console.log(error.name);
+  return axios.get(DETALLE_ANTICIPO_API_BASE_URL+'/pagos?idPedido='+idPedido+'&idProducto='+idProducto,{
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
+  }).catch(error => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");  // Eliminar el token expirado
+      router.push({name: 'home'});
+      return Promise.reject(error);
   }
+  return Promise.reject(error);
+})
   
 },
   obtenerAnticipo(id) {
-    try {
-      console.log("5");
+  
         //console.log("ciudadservice");
-      return axios.get(ANTICIPO_API_BASE_URL+"/"+id);
-      
-    } catch (error) {
-      console.log("6");
-      //console.log("hola");
-      //console.log(error.name);
-    }
+      return axios.get(ANTICIPO_API_BASE_URL+"/"+id,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
   obtenerAnticipoPdf(id) {
-    try {
-      console.log("5");
-      console.log("pdfservice");
+
         //console.log("ciudadservice");
-      return axios.get(ANTICIPO_API_BASE_URL+"/pdf/"+id);
-      
-    } catch (error) {
-      console.log("6");
-      //console.log("hola");
-      //console.log(error.name);
-    }
+      return axios.get(ANTICIPO_API_BASE_URL+"/pdf/"+id,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
     
   },
   getAnticiposByIdPedidoVenta(idPedido) {
     //console.log("detalle", pedido);
-    try {
-      console.log("7");
-    return axios.get(ANTICIPO_API_BASE_URL+'/pedido_venta/'+idPedido);
-    
-    } catch (error) {
-      console.log("8");
-    console.log(error.name);
+
+    return axios.get(ANTICIPO_API_BASE_URL+'/pedido_venta/'+idPedido,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
     }
+    return Promise.reject(error);
+  })
     
 },
 getAnticiposByIdRecepcion(id) {
-  console.log("recepcion", id);
-  try {
-    console.log("7");
-  return axios.get(ANTICIPO_API_BASE_URL+'/recepcion/'+id);
-  
-  } catch (error) {
-    console.log("8");
-  console.log(error.name);
+
+  return axios.get(ANTICIPO_API_BASE_URL+'/recepcion/'+id,{
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
+  }).catch(error => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");  // Eliminar el token expirado
+      router.push({name: 'home'});
+      return Promise.reject(error);
   }
+  return Promise.reject(error);
+})
   
 },
 deleteAnticipo(id){
   
-  return axios.delete(ANTICIPO_API_BASE_URL+"/"+id);
+  return axios.delete(ANTICIPO_API_BASE_URL+"/"+id,{
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
+  }).catch(error => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");  // Eliminar el token expirado
+      router.push({name: 'home'});
+      return Promise.reject(error);
+  }
+  return Promise.reject(error);
+})
 },
 deleteAnticipoReembolsos(id){
   
-  return axios.delete(ANTICIPO_API_BASE_URL+"/reembolsos/"+id);
+  return axios.delete(ANTICIPO_API_BASE_URL+"/reembolsos/"+id,{
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
+  }).catch(error => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");  // Eliminar el token expirado
+      router.push({name: 'home'});
+      return Promise.reject(error);
+  }
+  return Promise.reject(error);
+})
 },
 verificarEstadoAnticipo(id){
-  
-  return axios.get(ANTICIPO_API_BASE_URL+"/verificar/"+id);
+ 
+  return axios.get(ANTICIPO_API_BASE_URL+"/verificar/"+id,{
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
+  }).catch(error => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");  // Eliminar el token expirado
+      router.push({name: 'home'});
+      return Promise.reject(error);
+  }
+  return Promise.reject(error);
+})
 },
 
 };

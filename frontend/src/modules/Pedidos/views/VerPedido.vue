@@ -13,7 +13,7 @@ import DataTable from 'primevue/datatable';
 import InputText from 'primevue/inputtext';
 import Column from 'primevue/column';
 import Card from "primevue/card";
-
+import { formatearFecha } from "@/utils/utils";
 import Tag from 'primevue/tag';
 
 import router from '@/router';
@@ -63,16 +63,11 @@ onMounted(() => {
 async function getPedido() {
     console.log("get function");
     PedidoServices.getPedido(router.currentRoute.value.params.id).then((data) => {
-
-    detalle.value.setDetalle(router.currentRoute.value.params.id, data.data.total, data.data.costoEnvio);
-    getCliente(data.data.cliente);
-    getEntrega(data.data.modoEntrega, data.data.costoEnvio);
-    estadoPago.value = data.data.estadoPago;
-    estadoPedido.value = data.data.estadoPedido;
-    fecha.value = new Date(data.data.fecha);
-    fechaCompleta.value = fecha.value.getDate() + "-"+ (fecha.value.getMonth()+1) + "-"+ fecha.value.getFullYear() ;
-
-    pedido.value = data.data;
+        console.log(data.data);
+    detalle.value.setDetalle(router.currentRoute.value.params.id, data.data.pedido.total, data.data.pedido.costoEnvio);
+    getCliente(data.data.pedido.cliente);
+    getEntrega(data.data.pedido.modoEntrega, data.data.pedido.costoEnvio);
+    pedido.value = data.data.pedido;
 
 });
 }
@@ -204,36 +199,24 @@ const getEntrega = (formaEntrega, envio) =>{
         </div>
 
         <div class="grid " >
-            <div class="field col-12 md:col-12" >
-                <Card >
 
-                    <template #content>
-                        <p class="m-0">
-                            <div>
-                                <div style=" display: flex; flex-direction: row;  ">
-                                    Fecha: &nbsp;    
-                                        {{ formatearNumero(pedido.fecha) }}
-                                </div>
-                                    
-                                <div style="align-content: center; display: flex; flex-direction: row; ">
-                                    Estado del pedido: &nbsp; 
-                                    <div v-if="estadoPedido">
-                                        <Tag  style="background-color: rgb(215, 227, 552); color: rgb(50, 111, 252); font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ getEstado(estadoPedido) }}</Tag>
-                                        
-                                    </div> 
-                                </div>
-                                <div style=" display: flex; flex-direction: row; ">
-                                    Estado de pago: &nbsp;
-                                    <div v-if="estadoPago">
-                                        <Tag :style="getSeverity(estadoPago)" style=" font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ getEstado(estadoPago) }}</Tag>
-                                    </div>
-                                </div>
+            <div class="field col-12 md:col-12">
+                    <Card>
+                        <template #title>
+                            <div class="flex justify-content-between ">
+                                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                                    Información General
+                                </div>    
                             </div>
-                        </p>
-                    </template>
-                </Card>
-            </div>
-            
+                        </template>
+                        <template #content>
+                            <div class="field" >
+                                Fecha: {{ formatearFecha(pedido.fecha)}}
+                            </div> 
+
+                        </template>
+                    </Card>
+                </div>
             <div class="field col-12 md:col-6">
                 <MiCard ref="cardCliente" :titulo="'Cliente'" :contenido="infoCliente" @edit="searchCard.showDialog()"/> 
             </div>  

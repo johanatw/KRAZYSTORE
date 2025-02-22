@@ -20,7 +20,7 @@ import { CiudadServices } from '@/services/CiudadServices';
 import { ref, onMounted } from "vue";
 import InputNumber from 'primevue/inputnumber';
 import InputGroup from 'primevue/inputgroup';
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+
 import Panel from 'primevue/panel';
 import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
@@ -67,21 +67,21 @@ const modificarAjuste = (id) => {
             </template>
             <template #icons>
                 <div class="card flex" style="justify-content: end;">   
-                    <div class="card flex" style="justify-content: end;">  
-                        <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaListaAjustes()" />
-                        <Button  label="Modificar" @click="modificarAjuste(router.currentRoute.value.params.id)" />
+                    <div v-show="ajuste?.estado == 'P'" class="card flex" style="justify-content: end;">  
+                        <Button v-show="ajuste?.estado == 'P'"  label="Cancelar"  style="margin-right: 1%;" @click="vistaListaAjustes()" />
+                        <Button v-show="ajuste?.estado == 'P'" label="Modificar" @click="modificarAjuste(router.currentRoute.value.params.id)" />
                     </div>  
                 </div>
             </template>
 
             <div class="grid " >
                 <!--Detalle Ajuste -->
-                <div class="field col-12 md:col-6">
+                <div class="field col-12 md:col-12">
                     <Card >
                         <template #title>
                             <div class="flex justify-content-between ">
                                 <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
-                                    Detalle Ajuste
+                                    Información General
                                 </div>    
                             </div>
                         </template>
@@ -90,7 +90,7 @@ const modificarAjuste = (id) => {
                                 Fecha: {{ formatearFecha(ajuste.fecha) }}
                             </div> 
                             <div class="field" >
-                                Observaciones: <InputText disabled="true" type="text" v-model="ajuste.observaciones" />
+                                Observaciones: <InputText disabled type="text" v-model="ajuste.observaciones" />
                             </div> 
                         </template>
                     </Card>

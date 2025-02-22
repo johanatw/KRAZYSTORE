@@ -20,7 +20,7 @@ import { CiudadServices } from '@/services/CiudadServices';
 import { ref, onMounted } from "vue";
 import InputNumber from 'primevue/inputnumber';
 import InputGroup from 'primevue/inputgroup';
-import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import Panel from 'primevue/panel';
 import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
@@ -56,7 +56,7 @@ import { watch } from "vue";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import PedidoCompraServices from "@/services/PedidoCompraServices";
-
+import DatePicker from 'primevue/datepicker';
 const confirm = useConfirm();
 const toast = useToast();
 
@@ -100,7 +100,7 @@ onMounted(() => {
             selectedCliente.value = data.data.proveedor;
         }
        total.value = compra.value.total;
-       fechaCompra.value = compra.value.fecha;
+       fechaCompra.value = new Date(compra.value.fecha);
        nroFactura.value = compra.value.nroFactura;
         mostrarCliente();
    });
@@ -421,24 +421,25 @@ const eliminar = (detalle) => {
 
     <!--Dialog Registrar Modificar Cliente-->
     <Dialog v-model:visible="clienteDialog" :closable="false" :style="{width: '450px'}" header="Cliente" :modal="true" class="p-fluid">
+        <div class="formgrid">
         <div class="field">
             <label for="name">Nombre</label>
-            <InputText id="name" v-model.trim="cliente.descripcion" required="true" autofocus :class="{'p-invalid': submitted && !cliente.descripcion}" />
+            <InputText fluid id="name" v-model.trim="cliente.descripcion" required="true" autofocus :class="{'p-invalid': submitted && !cliente.descripcion}" />
             <small class="p-error" v-if="submitted && !cliente.descripcion">Ingrese un Nombre</small>
         </div>
         <div class="field">
             <label for="description">RUC</label>
-            <InputText id="description" v-model="cliente.ruc" required="true"  />
+            <InputText fluid id="description" v-model="cliente.ruc" required="true"  />
         </div>
         <div class="field">
             <label for="description">Correo</label>
-            <InputText id="description" v-model="cliente.correo" required="true"  />
+            <InputText fluid id="description" v-model="cliente.correo" required="true"  />
         </div>
         <div class="field">
             <label for="description">Telefono</label>
-            <InputText id="description" v-model="cliente.telefono" required="true"  />
+            <InputText fluid id="description" v-model="cliente.telefono" required="true"  />
         </div>
-
+    </div>
         <template #footer>
             <Button label="Cancel" icon="pi pi-times" text @click="hideDialog"/>
             <Button label="Save" icon="pi pi-check" text @click="saveCliente" />
@@ -471,6 +472,28 @@ const eliminar = (detalle) => {
             </div>
         </div>
         <div class="grid " >
+            <div class="field col-12 md:col-6">
+            
+            <Card >
+        <template #title>
+            <div class="flex justify-content-between ">
+                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                    Información General
+                </div>                
+            </div>
+            
+        </template>
+        <template #content>
+            <div class="field" >
+                
+                Fecha: <DatePicker dateFormat="dd/mm/yy" v-model="fechaCompra" showIcon iconDisplay="input" />
+            </div> 
+            <div class="field" >
+                N° Factura: <InputText fluid type="text" v-model="nroFactura" />
+            </div> 
+        </template>
+    </Card>
+            </div> 
             
            <div class="field col-12 md:col-6">
             
@@ -481,10 +504,10 @@ const eliminar = (detalle) => {
                     Proveedor
                 </div>    
                 <div v-if="clienteSeleccionado">
-                    <Button class="pi pi-times" link @click="eliminarClienteSelected"/>
+                    <Button icon="pi pi-times" link @click="eliminarClienteSelected"/>
                 </div>   
                 <div v-else>
-                    <Button class="pi pi-plus" link @click="registrarCliente"/>
+                    <Button icon="pi pi-plus" link @click="registrarCliente"/>
                 </div>             
             
             </div>
@@ -514,30 +537,6 @@ const eliminar = (detalle) => {
         </template>
     </Card>
             </div>  
-            <div class="field col-12 md:col-6">
-            
-            <Card >
-        <template #title>
-            <div class="flex justify-content-between ">
-                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
-                    Detalle Compra
-                </div>    
-         
-            
-            </div>
-            
-        </template>
-        <template #content>
-            <div class="field" >
-                
-                Fecha: <Calendar v-model="fechaCompra" />
-            </div> 
-            <div class="field" >
-                N° Factura: <InputText type="text" v-model="nroFactura" />
-            </div> 
-        </template>
-    </Card>
-            </div> 
             
             <div class="col-12" >
                         <Card >
@@ -564,7 +563,7 @@ const eliminar = (detalle) => {
          <Column class="col" field="costoCompra"  header="Precio" aria-sort="none" >
             <template #body="slotProps">
             <div class="flex-auto p-fluid" >
-                  <InputNumber class="inpCant" v-model="slotProps.data.costoCompra" mode="decimal"   @update:modelValue="sendSubTotal" />
+                  <InputNumber fluid class="inpCant" v-model="slotProps.data.costoCompra" mode="decimal"   @update:modelValue="sendSubTotal" />
               </div> 
             </template>
         </Column>
@@ -572,7 +571,7 @@ const eliminar = (detalle) => {
         <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
             <template #body="slotProps">
                 <div v-if="!isFromRecepcion()" class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                  <InputNumber class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="1"  @update:modelValue="sendSubTotal" />
+                  <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="1"  @update:modelValue="sendSubTotal" />
               </div> 
               <div v-else class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
                   {{slotProps.data.cantidad}}
