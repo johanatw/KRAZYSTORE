@@ -4,6 +4,10 @@
  */
 package com.krazystore.krazystore.exception;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import jakarta.servlet.http.HttpServletResponse;
 import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
@@ -94,12 +98,30 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<String> handleBadCredentialsException(BadCredentialsException ex) {
+        System.out.println("handleBadCredentialsException");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Contraseña incorrecta.");
     }
     
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<String> handleAccessDenied(AccessDeniedException ex) {
+        System.out.println("handleAccessDenied");
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Acceso denegado: token inválido o expirado");
     }
     
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<String> handleExpiredToken(ExpiredJwtException ex) {
+        System.out.println("handleExpiredToken");
+        return ResponseEntity.status(HttpServletResponse.SC_UNAUTHORIZED).body("Token expirado");
+    }
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ApiResponse> handleInvalidToken(JwtException ex,
+                                                                  WebRequest webRequest) {
+        System.out.println("handleInvalidToken");
+        ApiResponse apiResponse = new ApiResponse("Token inválido", webRequest.getDescription(false));
+        return new ResponseEntity<>(apiResponse, HttpStatus.UNAUTHORIZED);
+    }
+    
+    
+
 }

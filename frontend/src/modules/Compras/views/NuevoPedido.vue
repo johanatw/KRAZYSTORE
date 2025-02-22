@@ -185,6 +185,10 @@ const registrarCliente = () =>{
     clienteDialog.value = true;
 }
 
+const vistaPedidos= () =>{
+    router.push({name: 'pedidos_compras'});
+}
+
 const modificarCliente = (cli) => {
     ProveedorServices.getProveedor(cli.id).then((data) => {
         console.log("data direccion");
@@ -432,7 +436,7 @@ const eliminar = (detalle) => {
             <template #icons>
                 <div class="card flex" style="justify-content: end;">   
                     <div class="card flex" style="justify-content: end;">  
-                        <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaFacturasVenta()" />
+                        <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaPedidos()" />
                         <Button  label="Guardar" @click="validarForm" />
                     </div>  
                 </div>

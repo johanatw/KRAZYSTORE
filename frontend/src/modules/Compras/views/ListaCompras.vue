@@ -56,11 +56,6 @@ const confirm2 = (id) => {
     });
 };
 onMounted(() => {
-  if (AuthServices.isTokenExpired()) {
-    localStorage.clear();  // Elimina los datos del usuario
-    router.push('/'); // Redirige al login
-  }
-  
     getCompras();
     getCajaAbierta();
     

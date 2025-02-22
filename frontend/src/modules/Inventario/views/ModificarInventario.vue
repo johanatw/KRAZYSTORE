@@ -26,7 +26,7 @@
                         </template>
                         <template #content>
                             <div class="field" >
-                                Fecha: <DatePicker v-model="fecha" dateFormat="dd/mm/yy" showIcon iconDisplay="input" />
+                                Fecha: <DatePicker v-model="inventario.fecha" dateFormat="dd/mm/yy" showIcon iconDisplay="input" />
                             </div> 
 
                         </template>
@@ -119,7 +119,7 @@ import Card from 'primevue/card';
 import DatePicker from 'primevue/datepicker';
 
 const detalleInventario = ref();
-const inventario = ref();
+const inventario = ref({});
 const categorias = ref();
 const filtros = ref();
 const fecha= ref();
@@ -169,10 +169,11 @@ onMounted(() => {
         console.log(data.data.detalle);
         console.log(data.data.filtrosInventario);
         inventario.value = data.data.inventario;
+        inventario.value.fecha = new Date(data.data.inventario.fecha);
         detalleInventario.value = data.data.detalle;
         filtros.value = data.data.filtrosInventario;
         filters.value.categoria.value = filtros.value;
-        fecha.value = new Date(data.data.inventario.fecha);
+       
     });
 
     ProductoServices.obtenerCategorias().then((data) => {

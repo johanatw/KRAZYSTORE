@@ -24,7 +24,7 @@ import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
 import { TipoDocServices } from "@/services/TipoDocServices";
 import {DepartamentoServices } from '@/services/DepartamentoServices';
-import { formatearFecha } from "@/utils/utils";
+import { formatearFecha, getEstadoRecepcion } from "@/utils/utils";
 const map = ref();
 const direccion = ref({});
 const selectedCliente = ref();
@@ -159,7 +159,9 @@ const modificarPedido = (id) => {
     }
   }
 
-
+  const vistaRecepciones= () =>{
+    router.push({name: 'recepciones'});
+}
 </script>
 <template>
     
@@ -172,12 +174,12 @@ const modificarPedido = (id) => {
                 </div>
             </template>
             <template #icons>
-                <div class="card flex" style="justify-content: end;">   
+            
                     <div class="card flex" style="justify-content: end;">  
-                        <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaFacturasVenta()" />
+                        <Button  label="Atras"  style="margin-right: 1%;" @click="vistaRecepciones()" />
                         <Button v-if="!isFacturada(pedido.estado)" label="Modificar" @click="modificarRecepcion(pedido.id)" />
                     </div>  
-                </div>
+              
             </template>
         <div class="contenedor" >
 
@@ -201,8 +203,11 @@ const modificarPedido = (id) => {
                             </div>
                         </template>
                         <template #content>
-                            <div class="field" >
+                            <div >
                                 Fecha: {{ formatearFecha(fecha)}}
+                            </div> 
+                            <div  >
+                                Estado: {{getEstadoRecepcion(pedido.estado)}}
                             </div> 
 
                         </template>

@@ -191,6 +191,21 @@ const showDialogReembolso = (ant) =>{
     visible.value = true;
 }
 
+const getTipoPedido = (tipo) =>{
+
+    switch (tipo) {
+        case 'V':
+            return 'Venta'
+            break;
+        case 'C':
+            return 'Compra'
+            break;
+        default:
+            return ''
+            break;
+    }
+}
+
 const closeDialog = (event) =>{
     if (event == false) {
         reiniciarDialog();
@@ -632,9 +647,14 @@ const getFormasPago= () => {
                             {{ formatearFechaHora(slotProps.data.fecha) }}
                         </template>
                     </Column>
+                    <Column field="pedido.id" header="Tipo Pedido" aria-sort="ascending" sortable>
+                        <template #body="slotProps">
+                            {{ getTipoPedido(slotProps.data.tipoPedido)}}
+                        </template>
+                    </Column>
                     <Column field="pedido.id" header="Pedido N°" aria-sort="ascending" sortable>
                         <template #body="slotProps">
-                            P{{slotProps.data.tipoPedido}}-{{ formatearNumero(slotProps.data.idPedido) }}
+                           {{ formatearNumero(slotProps.data.idPedido) }}
                         </template>
                     </Column>
                     <Column  field="total" header="Total" aria-sort="ascending" sortable >

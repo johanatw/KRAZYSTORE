@@ -12,12 +12,13 @@ export const ProductoServices = {
           'Authorization': 'Bearer ' + localStorage.getItem('token')
         }
       }).catch(error => {
+        console.log(error.response.status );
         if (error.response && error.response.status === 401) {
           localStorage.removeItem("token");  // Eliminar el token expirado
           router.push({name: 'home'});
           return Promise.reject(error);
-      }
-      return Promise.reject(error);
+      }return Promise.reject(error);
+     
     })
     
   },

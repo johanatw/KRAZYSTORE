@@ -32,6 +32,7 @@ import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import PedidoCompraServices from "@/services/PedidoCompraServices";
 import {formatearNumero, formatearFecha} from '@/utils/utils';
+import DatePicker from "primevue/datepicker";
 
 const mensaje = ref([]);
 const visible = ref(false);
@@ -185,7 +186,7 @@ const guardarAjuste = () =>{
                         </template>
                         <template #content>
                             <div class="field" >
-                                Fecha: <Calendar v-model="fechaAjuste" />
+                                Fecha: <DatePicker v-model="fechaAjuste" dateFormat="dd/mm/yy" showIcon iconDisplay="input" />
                             </div> 
                             <div class="field" >
                                 Observaciones: <InputText type="text" v-model="observaciones" />

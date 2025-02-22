@@ -15,6 +15,7 @@ import Column from 'primevue/column';
 import Card from "primevue/card";
 import { formatearFecha } from "@/utils/utils";
 import Tag from 'primevue/tag';
+import { getEstadoPedidoVenta } from "@/utils/utils";
 
 import router from '@/router';
 const pedido = ref({ });
@@ -74,6 +75,10 @@ async function getPedido() {
 
 const modificarPedido = (id) =>{
     router.push({name: 'ModificarPedido', params: {id}});
+}
+
+const verPedidos = () =>{
+    router.push({name: 'pedidos'});
 }
 
 const getSeverity = (estado) => {
@@ -182,9 +187,10 @@ const getEntrega = (formaEntrega, envio) =>{
             </div>
         </template>
         <template #icons>
-        
-            <Button  label="Modificar" @click="modificarPedido(router.currentRoute.value.params.id)" />
-        
+            <div class="flex" style="justify-content: end;">  
+                <Button  label="Atras"  style="margin-right: 1%;"  @click="verPedidos()" />
+                <Button  label="Modificar" @click="modificarPedido(router.currentRoute.value.params.id)" />
+                </div>
         </template>
         <div class="contenedor" style="padding-left: 4%; padding-right: 4%;">
 
@@ -210,8 +216,11 @@ const getEntrega = (formaEntrega, envio) =>{
                             </div>
                         </template>
                         <template #content>
-                            <div class="field" >
+                            <div >
                                 Fecha: {{ formatearFecha(pedido.fecha)}}
+                            </div> 
+                            <div  >
+                                Estado: {{getEstadoPedidoVenta(pedido.estadoPedido)}}
                             </div> 
 
                         </template>

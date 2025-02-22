@@ -500,10 +500,10 @@ const isRecepcionado = (detalle) => {
                     Proveedor
                 </div>    
                 <div v-if="clienteSeleccionado && !isPedidoRecepcionado() ">
-                    <Button class="pi pi-times" link @click="eliminarClienteSelected"/>
+                    <Button icon="pi pi-times" link @click="eliminarClienteSelected"/>
                 </div>   
                 <div v-else-if="!clienteSeleccionado">
-                    <Button class="pi pi-plus" link @click="registrarCliente"/>
+                    <Button icon="pi pi-plus" link @click="registrarCliente"/>
                 </div>             
             
             </div>

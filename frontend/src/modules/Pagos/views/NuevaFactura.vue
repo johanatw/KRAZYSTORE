@@ -585,10 +585,10 @@ const eliminar = (detalle) => {
                     Cliente
                 </div>    
                 <div v-if="clienteSeleccionado">
-                    <Button class="pi pi-times" link @click="eliminarClienteSelected"/>
+                    <Button icon="pi pi-times" link @click="eliminarClienteSelected"/>
                 </div>   
                 <div v-else>
-                    <Button class="pi pi-plus" link @click="registrarCliente"/>
+                    <Button icon="pi pi-plus" link @click="registrarCliente"/>
                 </div>             
             
             </div>

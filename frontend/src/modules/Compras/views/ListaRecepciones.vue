@@ -170,6 +170,8 @@ const nuevoPedido = () =>{
     router.push({name: 'nuevo_pedido_compra'});
 }
 
+
+
 </script>
 
 <template>
@@ -187,7 +189,6 @@ const nuevoPedido = () =>{
          
       <template #icons>
         <div class="flex align-items-center">
-          <Button  icon="pi pi-plus " @click="nuevoPedido" style="margin-right: 1% ;"  />
           <InputGroup>
             <InputText v-model="filters['global'].value" placeholder="Search..." />
             <InputGroupAddon>

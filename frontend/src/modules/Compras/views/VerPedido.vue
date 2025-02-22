@@ -16,7 +16,7 @@ import { CiudadServices } from '@/services/CiudadServices';
 import { ref, onMounted } from "vue";
 import InputNumber from 'primevue/inputnumber';
 import InputGroup from 'primevue/inputgroup';
-
+import { getEstadoPedidoCompra } from "@/utils/utils";
 import Panel from 'primevue/panel';
 import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
@@ -100,6 +100,9 @@ onMounted(() => {
 
 });
 
+const vistaPedidos= () =>{
+    router.push({name: 'pedidos_compras'});
+}
 
 const mostrarCliente = (proveedor) =>{
     let valor;
@@ -134,11 +137,11 @@ const modificarPedido = (id) => {
                 </div>
             </template>
             <template #icons>
-                <div class="card flex" style="justify-content: end;">   
-                    <div class="card flex" style="justify-content: end;">  
-                        <Button  label="Modificar" @click="modificarPedido(pedido.id)" />
-                    </div>  
+                <div class="flex" style="justify-content: end;">  
+                <Button  label="Atras"  style="margin-right: 1%;"  @click="vistaPedidos()" />
+                <Button  label="Modificar" @click="modificarPedido(pedido.id)" />
                 </div>
+ 
             </template>
         <div class="contenedor" >
 
@@ -162,8 +165,11 @@ const modificarPedido = (id) => {
                             </div>
                         </template>
                         <template #content>
-                            <div class="field" >
+                            <div >
                                 Fecha: {{ formatearFecha(pedido.fecha)}}
+                            </div> 
+                            <div  >
+                                Estado: {{getEstadoPedidoCompra(pedido.estadoPedido)}}
                             </div> 
 
                         </template>
