@@ -109,6 +109,38 @@ export function getEstadoFacturaVenta(estado) {
    }
 };
 
+export function getEstadoInventario(estado) {
+    switch (estado) {
+         case 'A':
+             return 'Ajustado';
+  
+         case 'S':
+             return 'En curso';
+  
+          case 'F':
+             return 'Finalizado';
+  
+         default:
+             return null;
+     }
+  };
+
+  export function getEstadoAjuste(estado) {
+    switch (estado) {
+         case 'A':
+             return 'Ajustado';
+  
+         case 'S':
+             return 'En curso';
+  
+          case 'P':
+             return 'Pendiente de ajuste';
+  
+         default:
+             return null;
+     }
+  };
+
 export function getEstadoCaja(estado) {
   switch (estado) {
        case 'C':

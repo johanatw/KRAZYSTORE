@@ -485,6 +485,10 @@ const verPedido = (id) =>{
     router.push({name: 'VisualizarPedido', params: {id}});
 }
 
+const verPedidos = () =>{
+    router.push({name: 'pedidos'});
+}
+
 const submit = () =>{
 
     if (!error.value) {
@@ -732,9 +736,11 @@ const validarForm = (event) => {
             </div>
         </template>
         <template #icons>
-                
-            <Button  label="Guardar"  @click="validarForm" />
-    
+            <div class="flex" style="justify-content: end;">  
+                <Button  label="Cancelar"  style="margin-right: 1%;"  @click="verPedidos()" />
+                <Button  label="Guardar"  @click="validarForm" />
+            </div>
+
         </template>
         <div class="contenedor" >
 

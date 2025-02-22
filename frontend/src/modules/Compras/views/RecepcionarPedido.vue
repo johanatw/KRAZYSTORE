@@ -160,6 +160,10 @@ const modificarPedido = (id) => {
     router.push({name: 'ver_recepcion', params: {id}});
 }
 
+const vistaPedidos= () =>{
+    router.push({name: 'pedidos_compras'});
+}
+
 </script>
 <template>
     
@@ -174,7 +178,7 @@ const modificarPedido = (id) => {
             <template #icons>
                 <div class="card flex" style="justify-content: end;">   
                     <div class="card flex" style="justify-content: end;">  
-                        <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaFacturasVenta()" />
+                        <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaPedidos()" />
                         <Button  label="Guardar" @click="modificarPedido(pedido.id)" />
                     </div>  
                 </div>

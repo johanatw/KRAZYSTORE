@@ -486,7 +486,7 @@ const eliminar = (detalle) => {
         <template #content>
             <div class="field" >
                 
-                Fecha: <DatePicker dateFormat="dd/mm/yy" v-model="fechaCompra" showIcon iconDisplay="input" />
+                Fecha: <DatePicker fluid dateFormat="dd/mm/yy" v-model="fechaCompra" showIcon iconDisplay="input" />
             </div> 
             <div class="field" >
                 N° Factura: <InputText fluid type="text" v-model="nroFactura" />

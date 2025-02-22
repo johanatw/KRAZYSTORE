@@ -354,6 +354,10 @@ const eliminar = (detalle) => {
   
   }
 
+  const vistaRecepciones= () =>{
+    router.push({name: 'recepciones'});
+}
+
   const verPedidoCompra = (id) => {
     router.push({name: 'ver_pedido_compra', params: {id}});
   
@@ -464,10 +468,10 @@ const eliminar = (detalle) => {
             </template>
             <template #icons>
                 <div class="card flex" style="justify-content: end;">   
-                    <div class="card flex" style="justify-content: end;">  
-                        <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaFacturasVenta()" />
+                     
+                        <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaRecepciones()" />
                         <Button  label="Guardar" @click="validarForm" />
-                    </div>  
+               
                 </div>
             </template>
         <div class="contenedor" >

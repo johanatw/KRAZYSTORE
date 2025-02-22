@@ -9,9 +9,12 @@
             </template>
      
             <template #icons>
-                <div class="flex align-items-center">
-                    <Button  label="Guardar" @click="guardarInventario()" />
-                </div>
+                <div class="card flex" style="justify-content: end;">   
+                     
+                     <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaInventarios()" />
+                     <Button  label="Guardar" @click="guardarInventario()" />
+            
+             </div>
             </template>
             <div >
                             <!--Detalle Ajuste -->
@@ -26,7 +29,7 @@
                         </template>
                         <template #content>
                             <div class="field" >
-                                Fecha: <DatePicker v-model="fecha" showIcon iconDisplay="input" />
+                                Fecha: <DatePicker v-model="fecha" dateFormat="dd/mm/yy" showIcon iconDisplay="input" />
                             </div> 
 
                         </template>
@@ -216,6 +219,9 @@ const verInventario = (id) =>{
     router.push({name: 'ver_inventario', params: {id}});
 }
 
+const vistaInventarios= () =>{
+    router.push({name: 'inventario'});
+}
 
 </script>
 <style>

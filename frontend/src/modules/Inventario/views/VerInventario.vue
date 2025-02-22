@@ -10,6 +10,7 @@
      
             <template #icons>
                 <div  class="flex" style="justify-content: end;">  
+                    <Button label="Atras"  style="margin-right: 1%;" @click="vistaInventarios()" />
                     <Button v-show="inventario?.estado == 'S' " label="Finalizar"  style="margin-right: 1%;" @click="finalizarInventario()" />
                     <Button v-show="inventario?.estado == 'S' " label="Modificar" @click="modificarInventario()" />
                 </div>
@@ -26,8 +27,11 @@
                             </div>
                         </template>
                         <template #content>
-                            <div class="field" >
+                            <div >
                                 Fecha: {{ formatearFecha(fecha) }}
+                            </div> 
+                            <div  >
+                                Estado: {{getEstadoInventario(inventario.estado)}}
                             </div> 
 
                         </template>
@@ -94,7 +98,7 @@ import router from '@/router';
 import "jspdf-autotable";
 import {InventarioServices} from '@/services/InventarioServices';
 import DatePicker from 'primevue/datepicker';
-import { formatearFecha } from '@/utils/utils';
+import { formatearFecha, getEstadoInventario } from '@/utils/utils';
 const fecha = ref(new Date());
 const detalleInventario = ref();
 const inventario = ref({});
@@ -191,6 +195,10 @@ const finalizarInventario = () =>{
 
 const modificarInventario = (id) =>{
     router.push({name: 'modificar_inventario', params: {id}});
+}
+
+const vistaInventarios= () =>{
+    router.push({name: 'inventario'});
 }
 
 </script>

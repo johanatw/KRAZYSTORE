@@ -138,6 +138,10 @@ const modificarPedido = (id) => {
    }
 };
 
+const vistaCompras= () =>{
+    router.push({name: 'compras'});
+}
+
 </script>
 <template>
     
@@ -152,7 +156,7 @@ const modificarPedido = (id) => {
             <template #icons>
                 <div class="card flex" style="justify-content: end;">   
                     <div class="card flex" style="justify-content: end;">  
-                        <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaFacturasVenta()" />
+                        <Button  label="Atras"  style="margin-right: 1%;" @click="vistaCompras()" />
                         <Button v-if="puedeModificar()" label="Modificar" @click="modificarPedido(pedido.id)" />
                     </div>  
                 </div>

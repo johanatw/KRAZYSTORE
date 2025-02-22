@@ -19,7 +19,7 @@ import { CiudadServices } from '@/services/CiudadServices';
 import { ref, onMounted } from "vue";
 import InputNumber from 'primevue/inputnumber';
 import InputGroup from 'primevue/inputgroup';
-
+import DatePicker from "primevue/datepicker";
 import Panel from 'primevue/panel';
 import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
@@ -182,8 +182,7 @@ const guardarAjuste = () =>{
                         </template>
                         <template #content>
                             <div class="field" >
-                                Fecha: 
-                                <Calendar v-model="ajuste.fecha" />  
+                                Fecha: <DatePicker v-model="ajuste.fecha" dateFormat="dd/mm/yy" showIcon iconDisplay="input" />  
                             </div> 
                             <div class="field" >
                                 Observaciones: <InputText type="text" v-model="ajuste.observaciones" />

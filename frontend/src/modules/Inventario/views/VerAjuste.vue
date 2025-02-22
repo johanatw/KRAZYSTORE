@@ -32,7 +32,7 @@ import { watch } from "vue";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import PedidoCompraServices from "@/services/PedidoCompraServices";
-import {formatearNumero, formatearFecha} from '@/utils/utils';
+import {formatearNumero, formatearFecha, getEstadoAjuste} from '@/utils/utils';
 
 const mensaje = ref([]);
 const error = ref(false);
@@ -67,8 +67,8 @@ const modificarAjuste = (id) => {
             </template>
             <template #icons>
                 <div class="card flex" style="justify-content: end;">   
-                    <div v-show="ajuste?.estado == 'P'" class="card flex" style="justify-content: end;">  
-                        <Button v-show="ajuste?.estado == 'P'"  label="Cancelar"  style="margin-right: 1%;" @click="vistaListaAjustes()" />
+                    <div class="card flex" style="justify-content: end;">  
+                        <Button label="Atras"  style="margin-right: 1%;" @click="vistaListaAjustes()" />
                         <Button v-show="ajuste?.estado == 'P'" label="Modificar" @click="modificarAjuste(router.currentRoute.value.params.id)" />
                     </div>  
                 </div>
@@ -86,11 +86,15 @@ const modificarAjuste = (id) => {
                             </div>
                         </template>
                         <template #content>
-                            <div class="field" >
+                            <div  >
                                 Fecha: {{ formatearFecha(ajuste.fecha) }}
                             </div> 
-                            <div class="field" >
-                                Observaciones: <InputText disabled type="text" v-model="ajuste.observaciones" />
+                            <div  >
+                                Estado: {{getEstadoAjuste(ajuste.estado)}}
+                            </div> 
+                            <div>
+                                Observaciones: 
+                                {{ajuste.observaciones}}
                             </div> 
                         </template>
                     </Card>

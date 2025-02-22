@@ -733,7 +733,7 @@ const eliminar = (detalle) => {
         <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
             <template #body="slotProps">
                 <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
-                  <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="1" :max="slotProps.data.cantDisponible" @input="prueba(slotProps.data.producto,slotProps.data.cantDisponible,$event)" @update:modelValue="sendSubTotal" />
+                  <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="1" :max="slotProps.data.cantidadSolicitada" @input="prueba(slotProps.data.producto,slotProps.data.cantDisponible,$event)" @update:modelValue="sendSubTotal" />
               </div>  
             </template>
              

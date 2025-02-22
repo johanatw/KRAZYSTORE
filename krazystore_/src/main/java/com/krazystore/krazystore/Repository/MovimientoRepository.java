@@ -141,7 +141,7 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
             + "ON p.movimiento = m "
             + "LEFT JOIN p.formaPago f "
             + "WHERE ca.id = ?1 AND p.anticipo IS NULL "
-            + "ORDER BY m.id DESC"
+            + "ORDER BY m.fecha DESC"
            )
     public List<MovimientosDTO> findByIdCaja(Long id);
     

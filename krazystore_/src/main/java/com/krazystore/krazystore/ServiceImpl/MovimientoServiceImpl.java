@@ -44,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.krazystore.krazystore.Service.MovimientoService;
 import com.krazystore.krazystore.Service.PedidoCompraService;
 import com.krazystore.krazystore.Service.PedidoService;
+import java.util.Date;
 
 /**
  *
@@ -404,6 +405,7 @@ public class MovimientoServiceImpl implements MovimientoService {
     
     private void actualizarMovimiento(MovimientoEntity movimiento, CajaEntity caja) {
         movimiento.setCaja(caja);
+        movimiento.setFecha(new Date());
         movimiento.setEstado(Estado.PAGOCOMPLETO.getCodigo());
     }
 

@@ -5,6 +5,8 @@
 package com.krazystore.krazystore.security;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,7 +32,7 @@ public class JwtFilter extends OncePerRequestFilter{
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-       // try {
+        try {
         String authorizationHeader = request.getHeader("Authorization");
             
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
@@ -48,17 +50,23 @@ public class JwtFilter extends OncePerRequestFilter{
         }
 
         filterChain.doFilter(request, response);
-        /*} catch (ExpiredJwtException e) {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // Cambia 403 a 401
-        response.getWriter().write("Token expirado");
-        response.getWriter().flush();
-        response.getWriter().close();
-    } catch (Exception e) {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getWriter().write("Acceso denegado");
-        response.getWriter().flush();
-        response.getWriter().close();
-    }*/
+        } catch (ExpiredJwtException e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // Cambia 403 a 401
+            response.getWriter().write("Token expirado");
+            response.getWriter().flush();
+            response.getWriter().close();
+        } catch (MalformedJwtException e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // Cambia 403 a 401
+            response.getWriter().write("Formato de JWT inválido");
+            response.getWriter().flush();
+            response.getWriter().close(); 
+        }catch (JwtException e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Token invalido");
+            response.getWriter().flush();
+            response.getWriter().close();
+        }
+
         
     }
     

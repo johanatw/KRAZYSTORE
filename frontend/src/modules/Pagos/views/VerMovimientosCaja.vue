@@ -537,7 +537,10 @@ const getColor = (tipo) => {
 const puedeEliminarseEnCaja = (concepto) =>{
     switch (concepto) {
         
-        case 'Anticipo':
+        case 'Anticipo cliente':
+            return false;
+            break;
+        case 'Anticipo proveedor':
             return false;
             break;
         case 'Reembolso':
