@@ -73,13 +73,14 @@
         <DataTable class="tablaCarrito" ref="dt" :value="detalleFacturar" scrollable scrollHeight="400px" dataKey="producto.id" style="width: 100%;">
           
          <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
-         <Column class="col" field="producto.precio"  header="Precio" aria-sort="none" >
+        <Column class="col" field="producto.precio"  header="Precio" aria-sort="none" >
             <template #body="slotProps">
-              <div>
-                {{ slotProps.data.producto.precio.toLocaleString("de-DE") }}
-              </div>
+            <div class="flex-auto p-fluid" >
+                  <InputNumber fluid class="inpCant" v-model="slotProps.data.producto.precio" mode="decimal" />
+              </div> 
             </template>
         </Column>
+        
         <Column  class="col" field="cantidadSolicitada" header="Solicitado" aria-sort="none">
             
              
@@ -91,8 +92,8 @@
          
         <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
             <template #body="slotProps">
-                <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                  <InputNumber class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="1" :max="slotProps.data.producto.cantStock" @input="prueba(slotProps.data.producto,slotProps.data.cantDisponible,$event)" @update:modelValue="sendSubTotal" />
+                <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
+                  <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="1" :max="slotProps.data.producto.cantStock" @input="prueba(slotProps.data.producto,slotProps.data.cantDisponible,$event)" @update:modelValue="sendSubTotal" />
               </div>  
             </template>
              

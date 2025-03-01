@@ -36,7 +36,7 @@ public class CostoEntity {
     @Column(name = "fecha_fin")
     private Date fechaFin;
     @Column
-    private int costo;
+    private Long costo;
     @ManyToOne
     @JoinColumn(name="id_producto")
     private ProductoEntity producto;
@@ -67,11 +67,11 @@ public class CostoEntity {
 
     
 
-    public int getCosto() {
+    public Long getCosto() {
         return costo;
     }
 
-    public void setCosto(int costo) {
+    public void setCosto(Long costo) {
         this.costo = costo;
     }
 

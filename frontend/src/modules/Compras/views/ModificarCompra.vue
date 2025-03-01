@@ -19,6 +19,7 @@ import { VentaServices } from '@/services/VentaServices';
 import { CiudadServices } from '@/services/CiudadServices';
 import { ref, onMounted } from "vue";
 import InputNumber from 'primevue/inputnumber';
+import { formatearNumero } from "@/utils/utils";
 import InputGroup from 'primevue/inputgroup';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import Panel from 'primevue/panel';
@@ -322,8 +323,8 @@ console.log("holaaaitem",item);
    detalle.value.cantStock = item.cantStock;
    detalle.value.cantPreVenta = item.cantPreVenta;
   detalle.value.cantidad = 1;
-  
-   detalle.value.subTotal = item.precio * detalle.value.cantidad;
+  detalle.value.costoCompra = detalle.value.producto.costo;
+   detalle.value.subTotal = detalle.value.costoCompra * detalle.value.cantidad;
    detalleFacturar.value.push(detalle.value);
    detalle.value= {};
 }
@@ -562,12 +563,14 @@ const eliminar = (detalle) => {
          <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
          <Column class="col" field="costoCompra"  header="Precio" aria-sort="none" >
             <template #body="slotProps">
-            <div class="flex-auto p-fluid" >
+            <div v-if="!isFromRecepcion()"  class="flex-auto p-fluid" >
                   <InputNumber fluid class="inpCant" v-model="slotProps.data.costoCompra" mode="decimal"   @update:modelValue="sendSubTotal" />
               </div> 
+              <div v-else class="flex-auto p-fluid" >
+                {{ formatearNumero(slotProps.data.costoCompra) }}
+              </div> 
             </template>
-        </Column>
-         
+        </Column>         
         <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
             <template #body="slotProps">
                 <div v-if="!isFromRecepcion()" class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
@@ -644,10 +647,10 @@ const eliminar = (detalle) => {
 
                                                     </Column>
                                                     
-                                                    <Column field="precio"  header="Precio" aria-sort="none" >
+                                                    <Column field="precio"  header="Costo" aria-sort="none" >
                                                         <template #body="slotProps">
                                                         <div>
-                                                            {{ slotProps.data.precio.toLocaleString("de-DE") }}
+                                                            {{ slotProps.data.costo.toLocaleString("de-DE") }}
                                                         </div>
                                                         </template>
                                                     </Column>

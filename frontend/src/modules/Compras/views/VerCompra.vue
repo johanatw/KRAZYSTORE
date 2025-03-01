@@ -249,7 +249,7 @@ const vistaCompras= () =>{
     <div class="flex card-container" style="width: 100%;">
         <DataTable class="tablaCarrito" ref="dt" :value="detalle" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
          <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
-         <Column class="col" field="costoCompra"  header="Precio" aria-sort="none" >
+         <Column class="col" field="costoCompra"  header="Costo" aria-sort="none" >
             <template #body="slotProps">
             <div class="flex-auto p-fluid" >
                 {{  slotProps.data.costoCompra.toLocaleString("de-DE") }}

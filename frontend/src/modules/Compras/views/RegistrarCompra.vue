@@ -601,7 +601,7 @@ const validarForm = (event) => {
         <DataTable class="tablaCarrito" ref="dt" :value="detalleFacturar" scrollable scrollHeight="400px" dataKey="producto.id" style="width: 100%;">
           
          <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
-         <Column class="col" field="producto.precio"  header="Precio" aria-sort="none" >
+         <Column class="col" field="producto.precio"  header="Preciojyg" aria-sort="none" >
           
         </Column>
          

@@ -200,6 +200,7 @@ onMounted(() => {
 const getPedidos = async () => {
     try {
       const response = await PedidoServices.getPedidos();
+      console.log(response.data);
         pedidos.value = response.data;
     } catch (error) {
        
@@ -436,6 +437,8 @@ const reload = () =>{
           :paginator="true" :rows="7" :filters="filters"
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 
           currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros" >
+          <template #empty> No hay registros para mostrar. </template>
+          <template #loading> Cargando. </template>
 
           <Column field="id" sortable header="N°" aria-sort="ascending" ></Column>
           <Column field="fecha"  header="Fecha" aria-sort="ascending" sortable> 

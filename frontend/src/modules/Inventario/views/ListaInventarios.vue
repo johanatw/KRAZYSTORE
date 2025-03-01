@@ -56,8 +56,8 @@ const getEstado = (estado) => {
        case 'S':
            return 'En curso';
 
-        case 'F':
-           return 'Finalizado';
+        case 'P':
+           return 'Pendiente de ajuste';
 
        default:
            return null;
@@ -100,8 +100,8 @@ const ajustarInventario = (id) =>{
                 :paginator="true" :rows="7" :filters="filters"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 
                 currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros" >
-                <template #empty> No customers found. </template>
-                <template #loading> Loading customers data. Please wait. </template>
+                <template #empty> No hay registros para mostrar. </template>
+                <template #loading> Cargando. </template>
                     <Column field="id" sortable header="N°" aria-sort="ascending" ></Column>
                     <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
                         <template #body="slotProps">
@@ -116,7 +116,7 @@ const ajustarInventario = (id) =>{
                     <Column :exportable="false" style="min-width:8rem">
                         <template #body="slotProps">
                             <Button icon="pi pi-search" text rounded aria-label="Search" style="height: 2rem !important; width: 2rem !important;" @click="verInventario(slotProps.data.id)" />
-                            <Button v-if="slotProps.data.estado == 'F'" icon="pi pi-cog" text rounded aria-label="Search" style="height: 2rem !important; width: 2rem !important;" @click="ajustarInventario(slotProps.data.id)" />
+                            <Button v-if="slotProps.data.estado == 'P'" icon="pi pi-cog" text rounded aria-label="Search" style="height: 2rem !important; width: 2rem !important;" @click="ajustarInventario(slotProps.data.id)" />
                         </template>
                     </Column>
                 </DataTable>

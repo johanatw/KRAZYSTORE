@@ -37,6 +37,13 @@ public class ProductoDTO {
         this.precio = precio;
     }
 
+    public ProductoDTO(Long id, String nombre, CategoriaEntity categoria) {
+        this.id = id;
+        this.nombre = nombre;
+        this.categoria = categoria;
+    }
+
+    
     public ProductoDTO(Long id, String nombre, int precio, int costo) {
         this.id = id;
         this.nombre = nombre;
@@ -44,12 +51,13 @@ public class ProductoDTO {
         this.costo = costo;
     }
 
-    public ProductoDTO(Long id, String nombre, CategoriaEntity categoria, int precio, int costo, Boolean bajoDemanda, int cantLimBajoDemanda, int cantStock, int cantDisponible, int cantReservada) {
+    public ProductoDTO(Long id, String nombre, CategoriaEntity categoria, Long precio, 
+            Long costo, Boolean bajoDemanda, int cantLimBajoDemanda, int cantStock, int cantDisponible, int cantReservada) {
         this.id = id;
         this.nombre = nombre;
         this.categoria = categoria;
-        this.precio = precio;
-        this.costo = costo;
+        this.precio = (int)(long)precio;
+        this.costo = (int)(long)costo;
         this.bajoDemanda = bajoDemanda;
         this.cantLimBajoDemanda = cantLimBajoDemanda;
         this.cantStock = cantStock;

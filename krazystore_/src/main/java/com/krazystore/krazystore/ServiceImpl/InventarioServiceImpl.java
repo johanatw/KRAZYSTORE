@@ -182,7 +182,7 @@ public class InventarioServiceImpl implements InventarioService {
         InventarioEntity inventario = inventarioRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Inventario no encontrado"));
         
-        inventario.setEstado(Estado.FINALIZADO.getCodigo());
+        inventario.setEstado(Estado.PENDIENTEAJUSTE.getCodigo());
         inventarioRepository.save(inventario);
          // Actualizar detalles si existen
         List<DetalleInventarioDTO> detalleDTO = inventarioDTO.getDetalle();

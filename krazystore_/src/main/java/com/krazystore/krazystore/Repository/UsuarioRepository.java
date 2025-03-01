@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.Repository;
 
+import com.krazystore.krazystore.Entity.PersonaEntity;
 import com.krazystore.krazystore.Entity.Usuario;
 import java.util.List;
 import java.util.Optional;
@@ -25,4 +26,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario,Long> {
             + "JOIN Usuario u ON u = ur.usuario "
             + "WHERE u.username = ?1 ")
     public List<String> getRolesByUsername(String username);
+    
+    @Query("SELECT p FROM PersonaEntity p "
+            + "JOIN Usuario u on u.persona = p "
+            + "WHERE u.username = ?1 ")
+    Optional<PersonaEntity> getPersonaByUsername(String username);
 }

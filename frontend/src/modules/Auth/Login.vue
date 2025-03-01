@@ -434,7 +434,9 @@ async function login() {
         // Guardar token y datos de usuario en localStorage
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('username', response.data.username);
+        
         localStorage.setItem('roles', JSON.stringify(response.data.roles));
+        localStorage.setItem('nombre', response.data.nombre);
 
         const payload = JSON.parse(atob(response.data.token.split('.')[1])); // Decodifica el JWT
         const expirationTime = payload.exp * 1000; // Convertir a milisegundos
@@ -476,7 +478,7 @@ const onFormSubmit = ({ valid, values }) => {
 
 </script>
 <template>
-    <div class="card flex" style="justify-content: center; background-color: pink; " >
+    <div class="card flex" style="justify-content: center; " >
     <Card style="width: 25rem; overflow: hidden; border: solid, pink; " >
  
         <template #title>
@@ -507,3 +509,6 @@ const onFormSubmit = ({ valid, values }) => {
 </div>
     
 </template>
+<style>
+
+</style>

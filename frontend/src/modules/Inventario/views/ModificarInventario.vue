@@ -73,7 +73,16 @@
                             </div>
                         </template>
                     </Column>
-                    <Column field="stockActual" sortable header="Stock Existente" aria-sort="ascending" ></Column>
+                    <Column field="stockActual" sortable header="Stock Existente" aria-sort="ascending" >
+                        <template #body="slotProps">
+                            <div v-if="slotProps.data.id" class="flex-auto p-fluid" style="max-width: 20dvh;">
+                                <label for="diferencia"> {{  (slotProps.data.stockInicialInventario).toLocaleString("de-DE") }}</label>
+                            </div>
+                            <div v-else class="flex-auto p-fluid" style="max-width: 20dvh;">
+                                <label for="diferencia"> {{  (slotProps.data.stockInicialInventario = slotProps.data.stockActual).toLocaleString("de-DE") }}</label>
+                            </div>
+                        </template>
+                    </Column>
                     <Column  class="col" field="cantContada" header="Cantidad Contada" aria-sort="none">
                         <template #body="slotProps">
                             <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
@@ -84,7 +93,7 @@
                     <Column  class="col" field="diferencia" header="Diferencia" aria-sort="none" >
                         <template #body="slotProps">
                             <div class="flex-auto p-fluid" style="max-width: 20dvh;">
-                                <label for="diferencia"> {{  (slotProps.data.cantContada - slotProps.data.stockActual).toLocaleString("de-DE") }}</label>
+                                <label for="diferencia"> {{  (slotProps.data.diferencia = slotProps.data.cantContada - slotProps.data.stockInicialInventario).toLocaleString("de-DE") }}</label>
                             </div>
                         </template>
                     </Column>

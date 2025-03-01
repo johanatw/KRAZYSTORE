@@ -67,7 +67,7 @@ defineExpose({
             <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
             <Column class="col" field="producto.precio"  header="Precio" aria-sort="none" >
             <template #body="slotProps">
-            {{ slotProps.data.producto.precio.toLocaleString("de-DE") }}
+            {{ slotProps.data.precio }}
             </template>
         </Column>
             <Column  class="col" field="cantidad" header="Uds." aria-sort="none">                

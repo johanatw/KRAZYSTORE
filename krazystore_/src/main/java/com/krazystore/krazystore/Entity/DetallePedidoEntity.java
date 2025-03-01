@@ -61,11 +61,14 @@ public class DetallePedidoEntity {
     private int cantidadPagado;
     @Column
     private int cantidadFacturada=0;
+    @Column
+    private int precio;
 
     public DetallePedidoEntity() {
     }
 
-    public DetallePedidoEntity(Long id, PedidoEntity pedido, ProductoEntity producto, int cantidad, int subtotal, int montoIva, int pagado, int saldoPendiente, int cantidadPagado) {
+    public DetallePedidoEntity(Long id, PedidoEntity pedido, ProductoEntity producto, 
+            int cantidad, int subtotal, int montoIva, int pagado, int saldoPendiente, int cantidadPagado) {
         this.id = id;
         this.pedido = pedido;
         this.producto = producto;
@@ -75,6 +78,20 @@ public class DetallePedidoEntity {
         this.pagado = pagado;
         this.saldoPendiente = saldoPendiente;
         this.cantidadPagado = cantidadPagado;
+    }
+    
+    public DetallePedidoEntity(Long id, PedidoEntity pedido, ProductoEntity producto, 
+            int cantidad, int subtotal, int montoIva, int pagado, int saldoPendiente, int cantidadPagado, int precio) {
+        this.id = id;
+        this.pedido = pedido;
+        this.producto = producto;
+        this.cantidad = cantidad;
+        this.subtotal = subtotal;
+        this.montoIva = montoIva;
+        this.pagado = pagado;
+        this.saldoPendiente = saldoPendiente;
+        this.cantidadPagado = cantidadPagado;
+        this.precio = precio;
     }
 
     public DetallePedidoEntity(DetallePedidoEntity detalle) {
@@ -172,6 +189,15 @@ public class DetallePedidoEntity {
     public void setSaldoPendiente(int saldoPendiente) {
         this.saldoPendiente = saldoPendiente;
     }
+
+    public int getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(int precio) {
+        this.precio = precio;
+    }
+    
     
     
 }

@@ -19,7 +19,7 @@
             <template #end>
                 <SplitButton text :model="opciones">
     <span class="flex items-center font-bold">
-        <span>{{username}}</span>
+        <span>{{nombre.toUpperCase()}}</span>
     </span>
 </SplitButton>
 
@@ -56,6 +56,7 @@ const opciones = [
 ];
 
 const username = localStorage.getItem('username');
+const nombre = localStorage.getItem('nombre');
 const items = ref([
    
     { 

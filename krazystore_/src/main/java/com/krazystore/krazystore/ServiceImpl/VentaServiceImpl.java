@@ -53,6 +53,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -406,6 +407,7 @@ public class VentaServiceImpl implements VentaService{
     }
     
     public void generarDetalle(VentaEntity venta, Document document) throws BadElementException {
+            DecimalFormat formatter = new DecimalFormat("#,###");
             List<DetalleVentaEntity> detalle = detalleVentaService.findByIdVenta(venta.getId());
             PdfPTable mainTable = new PdfPTable(1);
             mainTable.setWidthPercentage(100);
@@ -454,10 +456,10 @@ public class VentaServiceImpl implements VentaService{
             {
                 table.addCell(new PdfPCell(new Paragraph(Integer.toString(d.getCantidad()),font2)));
                 table.addCell(new PdfPCell(new Paragraph(d.getProducto().getNombre(),font2)));
-                table.addCell(new PdfPCell(new Paragraph(Integer.toString(d.getProducto().getPrecio()),font2)));
+                table.addCell(new PdfPCell(new Paragraph(formatter.format(d.getPrecio()),font2)));
                 table.addCell(new PdfPCell(new Paragraph(" ",font2)));
                 table.addCell(new PdfPCell(new Paragraph(" ",font2)));
-                table.addCell(new PdfPCell(new Paragraph(Integer.toString(d.getSubTotal()),font2)));
+                table.addCell(new PdfPCell(new Paragraph(formatter.format(d.getSubTotal()),font2)));
             }
             PdfPCell cell = new PdfPCell();
             cell.addElement(table);
@@ -470,7 +472,7 @@ public class VentaServiceImpl implements VentaService{
     }
     
     public void generarSubTotales(VentaEntity venta, Document document) throws BadElementException {
-            
+            DecimalFormat formatter = new DecimalFormat("#,###");
             PdfPTable mainTable = new PdfPTable(1);
             mainTable.setWidthPercentage(100);
             Font font2 = FontFactory.getFont(FontFactory.HELVETICA, 10);
@@ -484,7 +486,7 @@ public class VentaServiceImpl implements VentaService{
             cell1.setVerticalAlignment(Element.ALIGN_MIDDLE);  // Alineación vertical
             
             table.addCell(cell1);
-            table.addCell(new PdfPCell(new Paragraph(Integer.toString(venta.getMontoTotal()),font2 )));
+            table.addCell(new PdfPCell(new Paragraph(formatter.format(venta.getMontoTotal()),font2 )));
             
             // Crear una celda que abarque 2 filas (rowspan)
             String monto = NumberToLetterConverter.convertNumberToLetter(venta.getMontoTotal());
@@ -493,7 +495,7 @@ public class VentaServiceImpl implements VentaService{
             cell2.setVerticalAlignment(Element.ALIGN_MIDDLE);  // Alineación vertical
             
             table.addCell(cell2);
-            table.addCell(new PdfPCell(new Paragraph(Integer.toString(venta.getMontoTotal()),font2 )));
+            table.addCell(new PdfPCell(new Paragraph(formatter.format(venta.getMontoTotal()),font2 )));
             
             PdfPTable table2 = new PdfPTable(2);
             float secondcolWidth2[]= {60f,40f};
@@ -501,7 +503,7 @@ public class VentaServiceImpl implements VentaService{
             table2.setWidthPercentage(100);
             
             // Crear una celda que abarque 2 filas (rowspan)
-            PdfPCell cell3 = new PdfPCell(new Paragraph("LIQUIDACION DEL IVA  \t\t\t5%            \t\t\t\t\t\t\t\t\t\t\t\t\t\t10%  "+ Integer.toString(venta.getMontoIva()),font2));
+            PdfPCell cell3 = new PdfPCell(new Paragraph("LIQUIDACION DEL IVA  \t\t\t5%            \t\t\t\t\t\t\t\t\t\t\t\t\t\t10%  "+ formatter.format(venta.getMontoIva()),font2));
             //cell3.setColspan(4);  // Ocupa 2 filas
            // cell3.setVerticalAlignment(Element.ALIGN_MIDDLE);  // Alineación vertical
             
@@ -509,7 +511,7 @@ public class VentaServiceImpl implements VentaService{
             table2.addCell(cell3).setBorder(PdfPCell.NO_BORDER);
 
             // Crear una celda que abarque 2 columnas (colspan)
-            PdfPCell cell4 = new PdfPCell(new Paragraph("TOTAL IVA: " + Integer.toString(venta.getMontoIva()),font2));
+            PdfPCell cell4 = new PdfPCell(new Paragraph("TOTAL IVA: " + formatter.format(venta.getMontoIva()),font2));
             //cell4.setColspan(2);  // Ocupa 2 columnas
             //cell4.setHorizontalAlignment(Element.ALIGN_LEFT);  // Alineación centrada
             

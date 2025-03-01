@@ -22,6 +22,7 @@ import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
 import { TipoDocServices } from "@/services/TipoDocServices";
 import {DepartamentoServices } from '@/services/DepartamentoServices';
+import { formatearNumero } from "@/utils/utils";
 const map = ref();
 const direccion = ref({});
 const selectedCliente = ref();
@@ -114,7 +115,7 @@ onMounted(() => {
 
 async function getPedido() {
     await PedidoServices.getPedido(router.currentRoute.value.params.id).then((data) => {
-
+        console.log(data.data);
         selectedCliente.value = data.data.pedido.cliente;
         mostrarCliente();
        
@@ -140,7 +141,7 @@ async function getPedido() {
                 break;
             }
 
-            total.value += (element.cantidad * element.producto.precio);
+            total.value += (element.cantidad * element.precio);
 
         }
         })
@@ -313,6 +314,7 @@ const saveCliente = () => {
                 selectedCliente.value = response.data;
                 
                 mostrarCliente();
+                direccion.value.tipo = null;
             }).catch(
                 (error)=>messageError("error")
             );
@@ -327,6 +329,7 @@ const saveCliente = () => {
                 toast.add({severity:'success', summary: 'Successful', detail: 'Registro creado', life: 3000});
                 selectedCliente.value = response.data;
                 mostrarCliente();
+                direccion.value.tipo = null;
             }).catch(
                 (error)=>messageError("error")
             );
@@ -441,8 +444,8 @@ console.log("holaaaitem",item);
    detalle.value.cantStock = item.cantStock;
    detalle.value.cantPreVenta = item.cantPreVenta;
   detalle.value.cantidad = 1;
-  
-   detalle.value.subTotal = item.precio * detalle.value.cantidad;
+  detalle.value.precio = item.precio;
+   detalle.value.subtotal = detalle.value.precio * detalle.value.cantidad;
    detalleFacturar.value.push(detalle.value);
    detalle.value= {};
 }
@@ -463,8 +466,8 @@ const eliminar = (detalle) => {
   
   }
 
-  const vistaFacturasVenta = () => {
-   router.push({name: 'ventas'});
+  const vistaPedidos = () => {
+   router.push({name: 'pedidos'});
   
   }
 
@@ -479,7 +482,7 @@ const eliminar = (detalle) => {
  
      
  
-       monto += (e.producto.precio*e.cantidad);
+       monto += (e.precio*e.cantidad);
   });
   subTotal.value = monto;
      total.value = subTotal.value ;
@@ -630,7 +633,7 @@ const eliminar = (detalle) => {
             <template #icons>
                 <div class="card flex" style="justify-content: end;">   
                     <div class="card flex" style="justify-content: end;">  
-                        <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaFacturasVenta()" />
+                        <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaPedidos()" />
                         <Button  label="Guardar" @click="validarForm" />
                     </div>  
                 </div>
@@ -714,11 +717,11 @@ const eliminar = (detalle) => {
         <DataTable class="tablaCarrito" ref="dt" :value="detalleFacturar" scrollable scrollHeight="400px" dataKey="producto.id" style="width: 100%;">
           
          <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
-         <Column class="col" field="producto.precio"  header="Precio" aria-sort="none" >
+        <Column class="col" field="producto.precio"  header="Precio" aria-sort="none" >
             <template #body="slotProps">
-              <div>
-                {{ slotProps.data.producto.precio.toLocaleString("de-DE") }}
-              </div>
+            <div class="flex-auto p-fluid" style="max-width:20lvb  !important; " >
+                {{ formatearNumero(slotProps.data.precio) }}
+              </div> 
             </template>
         </Column>
         <Column  class="col" field="cantidadSolicitada" header="Solicitado" aria-sort="none">
@@ -742,7 +745,7 @@ const eliminar = (detalle) => {
          <Column  class="col" field="subTotal" header="Total" aria-sort="none" >
              <template #body="slotProps">
                  <div class="flex-auto p-fluid" style="max-width: 20dvh;">
-                     <label for="subtotal"> {{  (slotProps.data.subTotal =  slotProps.data.cantidad * slotProps.data.producto.precio ).toLocaleString("de-DE") }}</label>
+                     <label for="subtotal"> {{  (slotProps.data.subTotal =  slotProps.data.cantidad * slotProps.data.precio ).toLocaleString("de-DE") }}</label>
                   </div>
             </template>
          </Column>
@@ -804,7 +807,7 @@ const eliminar = (detalle) => {
                                                     <Column field="nombre" header="Nombre" aria-sort="none" ></Column>
                                                     <Column field="cantDisponible" header="Disponible" aria-sort="none" >
                                                     <template #body="slotProps">
-                                                        <h4 v-if="slotProps.data.cantStock < 1 && slotProps.data.preVenta" style="color: tomato !important;">{{slotProps.data.cantDisponible }}</h4>
+                                                        <h4 v-if="slotProps.data.cantStock < 1 && slotProps.data.bajoDemanda" style="color: tomato !important;">{{slotProps.data.cantDisponible }}</h4>
                                                         <h4 v-else style="color: green !important;">{{slotProps.data.cantDisponible}}</h4>
 
                                                     </template>

@@ -76,7 +76,13 @@
                             </div>
                         </template>
                     </Column>
-                    <Column field="stockActual" sortable header="Stock Existente" aria-sort="ascending" ></Column>
+                    <Column field="stockActual" sortable header="Stock Existente" aria-sort="ascending" >
+                        <template #body="slotProps">
+                            <div class="flex-auto p-fluid" style="max-width: 20dvh;">
+                                <label for="diferencia"> {{  (slotProps.data.stockInicialInventario = slotProps.data.stockActual).toLocaleString("de-DE") }}</label>
+                            </div>
+                        </template>
+                    </Column>
                     <Column  class="col" field="cantContada" header="Cantidad Contada" aria-sort="none">
                         <template #body="slotProps">
                             <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
@@ -87,7 +93,7 @@
                     <Column  class="col" field="diferencia" header="Diferencia" aria-sort="none" >
                         <template #body="slotProps">
                             <div class="flex-auto p-fluid" style="max-width: 20dvh;">
-                                <label for="diferencia"> {{  (slotProps.data.cantContada - slotProps.data.stockActual).toLocaleString("de-DE") }}</label>
+                                <label for="diferencia"> {{  (slotProps.data.diferencia = slotProps.data.cantContada - slotProps.data.stockActual).toLocaleString("de-DE") }}</label>
                             </div>
                         </template>
                     </Column>
@@ -150,8 +156,8 @@ const exportCSV = () => {
       // Define the table headers and rows
       const headers = [["Nombre","Categoria","Cantidad Contada"]];
       const data = productosFiltrados.value.map((c) => [
-        c.producto.nombre,
-        c.producto.categoria.descripcion,
+        c.producto,
+        c.categoria.descripcion,
         
  
       ]);

@@ -56,7 +56,7 @@
                         
                         <template #body="{ data }">
                             <div class="flex align-items-center gap-2">
-                                <span>{{ data.stockInicialInventario = data.stockActual }}</span>
+                                <span>{{ data.stockInicialInventario }}</span>
                             </div>
                         </template>
                     </Column>
@@ -64,7 +64,7 @@
                     <Column  class="col" field="diferencia" header="Diferencia" aria-sort="none" >
                         <template #body="slotProps">
                             <div class="flex-auto p-fluid" style="max-width: 20dvh;">
-                                <label for="diferencia"> {{  slotProps.data.diferencia =  slotProps.data.cantContada - slotProps.data.stockActual }}</label>
+                                <label for="diferencia"> {{  slotProps.data.diferencia }}</label>
                             </div>
                         </template>
                     </Column>

@@ -22,6 +22,7 @@ import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
 import { TipoDocServices } from "@/services/TipoDocServices";
 import {DepartamentoServices } from '@/services/DepartamentoServices';
+import { formatearNumero } from "@/utils/utils";
 const map = ref();
 const direccion = ref({});
 const selectedCliente = ref();
@@ -240,6 +241,7 @@ const saveCliente = () => {
                 selectedCliente.value = response.data;
                 
                 mostrarCliente();
+                direccion.value.tipo = null;
             }).catch(
                 (error)=>messageError("error")
             );
@@ -254,6 +256,7 @@ const saveCliente = () => {
                 toast.add({severity:'success', summary: 'Successful', detail: 'Registro creado', life: 3000});
                 selectedCliente.value = response.data;
                 mostrarCliente();
+                direccion.value.tipo = null;
             }).catch(
                 (error)=>messageError("error")
             );
@@ -368,7 +371,7 @@ console.log("holaaaitem",item);
    detalle.value.cantStock = item.cantStock;
    detalle.value.cantPreVenta = item.cantPreVenta;
   detalle.value.cantidad = 1;
-  
+  detalle.value.precio = item.precio;
    detalle.value.subTotal = item.precio * detalle.value.cantidad;
    detalleFacturar.value.push(detalle.value);
    detalle.value= {};
@@ -406,7 +409,7 @@ const eliminar = (detalle) => {
  
      
  
-       monto += (e.producto.precio*e.cantidad);
+       monto += (e.precio*e.cantidad);
   });
   subTotal.value = monto;
      total.value = subTotal.value ;
@@ -642,18 +645,17 @@ const eliminar = (detalle) => {
         <DataTable class="tablaCarrito" ref="dt" :value="detalleFacturar" scrollable scrollHeight="400px" dataKey="producto.id" style="width: 100%;">
           
          <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
-         <Column class="col" field="producto.precio"  header="Precio" aria-sort="none" >
+        <Column class="col" field="producto.precio"  header="Precio" aria-sort="none" >
             <template #body="slotProps">
-              <div>
-                {{ slotProps.data.producto.precio.toLocaleString("de-DE") }}
-              </div>
+            <div class="flex-auto p-fluid" >
+                {{ formatearNumero(slotProps.data.precio) }}
+              </div> 
             </template>
         </Column>
-         
         <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
             <template #body="slotProps">
-                <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                  <InputNumber class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="1" :max="slotProps.data.cantDisponible" @input="prueba(slotProps.data.producto,slotProps.data.cantDisponible,$event)" @update:modelValue="sendSubTotal" />
+                <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
+                  <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="1" :max="slotProps.data.cantDisponible" @input="prueba(slotProps.data.producto,slotProps.data.cantDisponible,$event)" @update:modelValue="sendSubTotal" />
               </div>  
             </template>
              
@@ -662,7 +664,7 @@ const eliminar = (detalle) => {
          <Column  class="col" field="subTotal" header="Total" aria-sort="none" >
              <template #body="slotProps">
                  <div class="flex-auto p-fluid" style="max-width: 20dvh;">
-                     <label for="subtotal"> {{  (slotProps.data.subTotal =  slotProps.data.cantidad * slotProps.data.producto.precio ).toLocaleString("de-DE") }}</label>
+                     <label for="subtotal"> {{  (slotProps.data.subTotal =  slotProps.data.cantidad * slotProps.data.precio ).toLocaleString("de-DE") }}</label>
                   </div>
             </template>
          </Column>

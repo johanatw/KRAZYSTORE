@@ -40,6 +40,7 @@ public class PedidoCompraEntity {
     private ProveedorEntity proveedor;
     @Column(name = "estado")
     private Character estadoPedido;
+    
 
     public Character getEstadoPedido() {
         return estadoPedido;
@@ -80,6 +81,5 @@ public class PedidoCompraEntity {
     public void setProveedor(ProveedorEntity proveedor) {
         this.proveedor = proveedor;
     }
-    
     
 }

@@ -18,5 +18,5 @@ public interface DetalleRecepcionService {
     List<DetalleRecepcion> findByIdRecepcion(Long id);
     List<ProductoExistenciasDTO> saveDetRecepcion (List<DetalleRecepcion> detalle, Long idRecepcion);
     List<ProductoExistenciasDTO> updateDetRecepcion(List<DetalleRecepcion> detalle, Long idRecepcion);
-    void deleteDetRecepcion(Long idRecepcion);
+    List<ProductoExistenciasDTO> deleteDetRecepcion(Long idRecepcion);
 }

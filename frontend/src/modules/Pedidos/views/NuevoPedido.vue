@@ -231,6 +231,7 @@ const saveCliente = () => {
                 selectedCliente.value = response.data;
                 
                 mostrarCliente();
+                direccion.value.tipo = null;
             }).catch(
                 (error)=>messageError("error")
             );
@@ -245,6 +246,7 @@ const saveCliente = () => {
                 toast.add({severity:'success', summary: 'Successful', detail: 'Registro creado', life: 3000});
                 selectedCliente.value = response.data;
                 mostrarCliente();
+                direccion.value.tipo = null;
             }).catch(
                 (error)=>messageError("error")
             );
@@ -459,6 +461,7 @@ const generarDireccion = (dir) => {
 };
 
 const algunCampoTieneValor = (dir) => {
+    console.log(dir);
       return Object.values(dir).some(valor => valor !== "" && valor !== null && valor !== undefined);
     }
 

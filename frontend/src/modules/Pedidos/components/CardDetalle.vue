@@ -14,6 +14,7 @@ import DataTable from 'primevue/datatable';
 import InputText from 'primevue/inputtext';
 import InputNumber from 'primevue/inputnumber';
 import Column from 'primevue/column';
+import { formatearNumero } from '@/utils/utils';
 
 const visible = ref(false);
 const det = ref(null);
@@ -45,6 +46,7 @@ async function existeCajaAbierta() {
 
 async function getProductos(){
     productos.value = (await ProductoServices.obtenerProductos()).data;
+    console.log(productos.value);
 }
 
 const filters = ref({
@@ -52,7 +54,7 @@ const filters = ref({
 });
 
 async function setDetalle(lista) {
-    getProductos();
+    productos.value = (await ProductoServices.obtenerProductos()).data;
     
     lista.forEach(element => {
         let index = productos.value.findIndex((loopVariable) => loopVariable.id === element.producto.id);
@@ -65,8 +67,6 @@ async function setDetalle(lista) {
         element.cantReservada = productos.value[index].cantReservada;
         element.cantStock = productos.value[index].cantStock;
         element.cantPreVenta = productos.value[index].cantPreVenta;
-       
-        
 
     });
 
@@ -139,7 +139,7 @@ const sendSubTotal = () => {
 
     
 
-      monto += (e.producto.precio*e.cantidad);
+      monto += (e.precio*e.cantidad);
  });
  subTotal.value = monto;
     total.value = subTotal.value + costoEnvio.value;
@@ -176,8 +176,8 @@ if (index>-1) {
    detalle.value.cantStock = item.cantStock;
    detalle.value.cantPreVenta = item.cantPreVenta;
   detalle.value.cantidad = 1;
-  
-   detalle.value.subtotal = item.precio * detalle.value.cantidad;
+  detalle.value.precio = item.precio;
+   detalle.value.subtotal = detalle.value.precio * detalle.value.cantidad;
    detalles.value.push(detalle.value);
    detalle.value= {};
 }
@@ -242,14 +242,14 @@ const eliminar = (detalle) => {
          <Column  class="col" field="producto.nombre" header="Nombres" aria-sort="none" ></Column>
          <Column class="col" field="producto.precio"  header="Precio" aria-sort="none" >
             <template #body="slotProps">
-              <div>
-                {{ slotProps.data.producto.precio.toLocaleString("de-DE") }}
-              </div>
+            <div class="flex-auto p-fluid" >
+                  {{  formatearNumero(slotProps.data.precio) }}
+              </div> 
             </template>
         </Column>
          <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
             <template #body="slotProps">
-                <div  >
+                <div style="max-width:15lvb  !important; " >
                   <InputNumber fluid v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="1" :max="slotProps.data.cantDisponible" @input="prueba(slotProps.data.producto,slotProps.data.cantDisponible,$event)"  @update:modelValue="sendSubTotal" />
               </div>  
               
@@ -260,7 +260,7 @@ const eliminar = (detalle) => {
          <Column  class="col" field="subtotal" header="Total" aria-sort="none" >
              <template #body="slotProps">
                  <div class="flex-auto p-fluid" style="max-width: 20dvh;">
-                     <label for="subtotal"> {{  (slotProps.data.subtotal =  slotProps.data.cantidad * slotProps.data.producto.precio ).toLocaleString("de-DE") }}</label>
+                     <label for="subtotal"> {{  (slotProps.data.subtotal =  slotProps.data.cantidad * slotProps.data.precio ).toLocaleString("de-DE") }}</label>
                   </div>
             </template>
          </Column>
@@ -329,7 +329,7 @@ const eliminar = (detalle) => {
                                                     <Column field="nombre" header="Nombre" aria-sort="none" ></Column>
                                                     <Column field="cantDisponible" header="Disponible" aria-sort="none" >
                                                     <template #body="slotProps">
-                                                        <h4 v-if="slotProps.data.cantStock < 1 && slotProps.data.preVenta" style="color: tomato !important;">{{slotProps.data.cantDisponible }}</h4>
+                                                        <h4 v-if="slotProps.data.cantStock < 1 && slotProps.data.bajoDemanda" style="color: tomato !important;">{{slotProps.data.cantDisponible }}</h4>
                                                         <h4 v-else style="color: green !important;">{{slotProps.data.cantDisponible}}</h4>
 
                                                     </template>

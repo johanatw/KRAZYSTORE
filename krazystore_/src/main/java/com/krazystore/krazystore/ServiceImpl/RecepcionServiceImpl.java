@@ -139,9 +139,10 @@ public class RecepcionServiceImpl implements RecepcionService {
         }
         Long idPedidoCompra = recepcionRepository.getIdPedidoCompraByIdRecepcion(id);
         
-        detalleService.deleteDetRecepcion(id);
-        recepcionRepository.deleteById(id);
+        List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.deleteDetRecepcion(id);
         
+        recepcionRepository.deleteById(id);
+        actualizarExistencias(productosActualizarExistencias);
         actualizarRecepcionPedidoCompra(idPedidoCompra);
         
     }

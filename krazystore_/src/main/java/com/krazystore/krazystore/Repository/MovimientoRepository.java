@@ -83,7 +83,7 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
     "        ELSE 0 " +
     "    END) - " +
     "   SUM(CASE " +
-    "       WHEN c.descripcion = 'Reembolso' THEN COALESCE(m.monto, 0) " +
+    "       WHEN c.descripcion = 'Reembolso cliente' THEN COALESCE(m.monto, 0) " +
     "       ELSE 0 " +
     "   END ) " +
     ") " +
@@ -105,7 +105,7 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
     "        ELSE 0 " +
     "    END) - " +
     "   SUM(CASE " +
-    "       WHEN c.descripcion = 'Reembolso' THEN COALESCE(m.monto, 0) " +
+    "       WHEN c.descripcion = 'Reembolso proveedor' THEN COALESCE(m.monto, 0) " +
     "       ELSE 0 " +
     "   END ) " +
     ") " +

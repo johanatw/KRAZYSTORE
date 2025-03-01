@@ -152,6 +152,9 @@ public class ProductoServiceImpl implements ProductoService{
                         System.out.println(d.getCantidad());
                         producto.setCantStock(producto.getCantStock() - d.getCantidad());
                         producto.setCantDisponible(producto.getCantDisponible() - d.getCantidad());
+                    } else if (tipoEvento == TipoEvento.RECEPCIONAR_PRODUCTOS) {
+                        producto.setCantStock(producto.getCantStock() - d.getCantidad());
+                        producto.setCantDisponible(producto.getCantDisponible() - d.getCantidad());
                     }
             }
 

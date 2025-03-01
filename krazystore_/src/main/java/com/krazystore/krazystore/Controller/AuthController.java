@@ -6,6 +6,7 @@ package com.krazystore.krazystore.Controller;
 
 import com.krazystore.krazystore.DTO.AuthRequest;
 import com.krazystore.krazystore.DTO.AuthResponse;
+import com.krazystore.krazystore.Entity.PersonaEntity;
 import com.krazystore.krazystore.Entity.Usuario;
 import com.krazystore.krazystore.Service.UsuarioService;
 import com.krazystore.krazystore.security.JwtTokenUtil;
@@ -75,6 +76,11 @@ public class AuthController {
                 userDetails.getUsername(),
                 roles
             );
+            
+            PersonaEntity persona = usuarioService.getPersonaByUsername(userDetails.getUsername())
+                    .orElseThrow(() -> new IllegalArgumentException("Persona no encontrada"));
+            
+            response.setNombre(persona.getNombre()+' '+persona.getApellido());
 
             System.out.println(response.getToken());
             System.out.println(response.getUsername());

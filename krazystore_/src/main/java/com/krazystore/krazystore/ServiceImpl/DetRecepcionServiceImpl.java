@@ -53,11 +53,12 @@ public class DetRecepcionServiceImpl implements DetalleRecepcionService {
         detalle.forEach(d -> {
             
             if(d.getCantRecepcionada() > 0){
+                d.setCantAceptada(d.getCantRecepcionada() - d.getCantRechazada());
                 detalleGuardar.add(d);
                 
                 ProductoExistenciasDTO productoActualizar = new ProductoExistenciasDTO(
                    d.getDetallePedido().getProducto().getId(),
-                    d.getCantRecepcionada(),
+                    d.getCantAceptada(),
                     TipoAjusteExistencia.INCREMENTAR
                 );
             
@@ -109,8 +110,23 @@ public class DetRecepcionServiceImpl implements DetalleRecepcionService {
     
 
     @Override
-    public void deleteDetRecepcion(Long idRecepcion) {
+    public List<ProductoExistenciasDTO> deleteDetRecepcion(Long idRecepcion) {
+        List<DetalleRecepcion> detalle = detalleRepository.findByIdRecepcion(idRecepcion);
+        List<ProductoExistenciasDTO> productosActualizarExistencias = new ArrayList<>();
+         
+        detalle.forEach(d -> {
+                ProductoExistenciasDTO productoActualizar = new ProductoExistenciasDTO(
+                   d.getDetallePedido().getProducto().getId(),
+                    d.getCantAceptada(),
+                    TipoAjusteExistencia.DISMINUIR
+                );
+            
+                productosActualizarExistencias.add(productoActualizar);
+            
+        });
+        
         detalleRepository.deleteAllByIdRecepcion(idRecepcion);
+        return productosActualizarExistencias;
     }
     
     private void procesarModificaciones(List<DetalleRecepcion> detallesAnteriores, List<DetalleRecepcion> nuevosDetalles) {
@@ -131,10 +147,10 @@ public class DetRecepcionServiceImpl implements DetalleRecepcionService {
             Optional<DetalleRecepcion> actual = actualDetalle.stream().filter(act -> Objects.equals(act.getDetallePedido().getProducto().getId(), anterior.getDetallePedido().getProducto().getId())).findAny();
             // Si encuentra, y hay diferencia se intenta modificar
             if(actual.isPresent() ){
-                if(actual.get().getCantRecepcionada() > 0){
+                if(actual.get().getCantRecepcionada() > 0 ){
                     
                     actual.get().setId(anterior.getId());
-                    
+                    actual.get().setCantAceptada(actual.get().getCantRecepcionada()-actual.get().getCantRechazada());
                     elementos.add(actual.get());
                 }
             }
@@ -167,7 +183,7 @@ public class DetRecepcionServiceImpl implements DetalleRecepcionService {
             Long idProducto = detalle.getDetallePedido().getProducto().getId();
             
             int cantidadAnterior = (tipoOperacion == TipoOperacionDetalle.MODIFICAR ) ? mapaCantidadAnterior.getOrDefault(idProducto, 0): 0;
-            int cantidadNueva = detalle.getCantRecepcionada();
+            int cantidadNueva = detalle.getCantAceptada();
             
             ProductoExistenciasDTO productoActualizar = new ProductoExistenciasDTO();
             productoActualizar.setIdProducto(idProducto);
@@ -183,7 +199,7 @@ public class DetRecepcionServiceImpl implements DetalleRecepcionService {
         return detallesAnteriores.stream()
                 .collect(Collectors.toMap(
                     detalle -> detalle.getDetallePedido().getProducto().getId(),
-                    DetalleRecepcion::getCantRecepcionada
+                    detalle -> detalle.getCantRecepcionada() - detalle.getCantRechazada()
                 ));
     }
     

@@ -18,6 +18,6 @@ public interface DetalleCompraService {
     List<DetalleCompra> findByIdCompra(Long id);
     List<ProductoExistenciasDTO> saveDetCompra(List<DetalleCompra> detalle, Long idCompra) throws Exception;
     List<ProductoExistenciasDTO> updateDetCompra(List<DetalleCompra> detalle, Long idCompra)throws Exception;
-    void deleteDetCompra(Long idCompra);
+    List<ProductoExistenciasDTO> deleteDetCompra(Long idCompra);
     boolean esCostoActualizado(Long idProducto, int costo, Date fecha);
 }

@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.Service;
 
+import com.krazystore.krazystore.Entity.PersonaEntity;
 import com.krazystore.krazystore.Entity.Usuario;
 import java.util.List;
 import java.util.Optional;
@@ -15,4 +16,5 @@ import java.util.Optional;
 public interface UsuarioService {
     public Optional<Usuario> findByUsername(String username);
     public List<String> getRolesByUsername(String username);
+    Optional<PersonaEntity> getPersonaByUsername(String username);
 }

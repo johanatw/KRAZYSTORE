@@ -121,8 +121,13 @@ public class CompraServiceImpl implements CompraService {
             actualizarEstadoRecepcion(compra.getRecepcion().getId(), Estado.PENDIENTEDEFACTURA.getCodigo());
         }
         movimientoService.deleteCompra(id);
-        detalleService.deleteDetCompra(id);
+        
+        List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.deleteDetCompra(id);
         compraRepository.deleteById(id);
+        
+        if(compra.getRecepcion() == null){
+            actualizarExistencias(productosActualizarExistencias);
+        }
     }
     
     @EventListener

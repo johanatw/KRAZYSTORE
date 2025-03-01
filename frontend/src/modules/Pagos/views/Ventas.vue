@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { version } from 'vue';
 import DataTable from 'primevue/datatable';
 import InputText from 'primevue/inputtext';
 import Column from 'primevue/column';
@@ -59,7 +60,7 @@ const confirm2 = (id, nro) => {
     });
 };
 onMounted(() => {
- 
+ alert(version);
  
 getVentas();
     
@@ -225,6 +226,8 @@ const nuevoPedido = () =>{
           :paginator="true" :rows="7" :filters="filters"
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 
           currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros" >
+          <template #empty> No hay registros para mostrar. </template>
+           <template #loading> Cargando. </template>
           
           <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
             <template #body="slotProps">

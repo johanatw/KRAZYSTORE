@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.ServiceImpl;
 
+import com.krazystore.krazystore.Entity.PersonaEntity;
 import com.krazystore.krazystore.Entity.Usuario;
 import com.krazystore.krazystore.Repository.UsuarioRepository;
 import com.krazystore.krazystore.Service.UsuarioService;
@@ -32,6 +33,11 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     public List<String> getRolesByUsername(String username) {
         return usuarioRespository.getRolesByUsername(username);
+    }
+    
+    @Override
+    public Optional<PersonaEntity> getPersonaByUsername(String username) {
+        return usuarioRespository.getPersonaByUsername(username);
     }
     
 }

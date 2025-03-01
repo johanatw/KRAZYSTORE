@@ -306,8 +306,8 @@ console.log("holaaaitem",item);
    detalle.value.cantStock = item.cantStock;
    detalle.value.cantPreVenta = item.cantPreVenta;
   detalle.value.cantidad = 1;
-  
-   detalle.value.subTotal = item.precio * detalle.value.cantidad;
+  detalle.value.costoCompra = detalle.value.producto.costo;
+   detalle.value.subTotal = detalle.value.costoCompra * detalle.value.cantidad;
    detalleFacturar.value.push(detalle.value);
    detalle.value= {};
 }
@@ -349,8 +349,8 @@ const eliminar = (detalle) => {
  
      
  
-       monto += (e.producto.costo*e.cantidad);
-       e.costoCompra = e.producto.costo;
+       monto += (e.costoCompra*e.cantidad);
+       //e.costoCompra = e.producto.costo;
   });
   subTotal.value = monto;
      total.value = subTotal.value ;
@@ -545,10 +545,10 @@ const eliminar = (detalle) => {
     <div class="flex card-container" style="width: 100%;">
         <DataTable class="tablaCarrito" ref="dt" :value="detalleFacturar" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
          <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
-         <Column class="col" field="producto.costo"  header="Precio" aria-sort="none" >
+         <Column class="col" field="producto.costo"  header="Costo" aria-sort="none" >
             <template #body="slotProps">
             <div class="flex-auto p-fluid" >
-                  <InputNumber fluid class="inpCant" v-model="slotProps.data.producto.costo" mode="decimal"   @update:modelValue="sendSubTotal" />
+                  <InputNumber fluid class="inpCant" v-model="slotProps.data.costoCompra" mode="decimal"   @update:modelValue="sendSubTotal" />
               </div> 
             </template>
         </Column>
@@ -565,7 +565,7 @@ const eliminar = (detalle) => {
          <Column  class="col" field="subTotal" header="Total" aria-sort="none" >
              <template #body="slotProps">
                  <div class="flex-auto p-fluid" style="max-width: 20dvh;">
-                     <label for="subtotal"> {{  (slotProps.data.subTotal =  slotProps.data.cantidad * slotProps.data.producto.costo).toLocaleString("de-DE") }}</label>
+                     <label for="subtotal"> {{  (slotProps.data.subTotal =  slotProps.data.cantidad * slotProps.data.costoCompra).toLocaleString("de-DE") }}</label>
                   </div>
             </template>
          </Column>
@@ -625,10 +625,10 @@ const eliminar = (detalle) => {
 
                                                     </Column>
                                                     
-                                                    <Column field="precio"  header="Precio" aria-sort="none" >
+                                                    <Column field="precio"  header="Costo" aria-sort="none" >
                                                         <template #body="slotProps">
                                                         <div>
-                                                            {{ slotProps.data.precio.toLocaleString("de-DE") }}
+                                                            {{ slotProps.data.costo.toLocaleString("de-DE") }}
                                                         </div>
                                                         </template>
                                                     </Column>

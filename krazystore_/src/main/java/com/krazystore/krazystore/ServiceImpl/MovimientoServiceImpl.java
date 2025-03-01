@@ -122,7 +122,7 @@ public class MovimientoServiceImpl implements MovimientoService {
         if(anticipo.getTipoPedido() == TipoPedido.PEDIDOVENTA.getCodigo()){
             nuevoMovimiento.setConcepto(new ConceptoEntity((long)1,"ANTICIPO"));
         }else{
-            nuevoMovimiento.setConcepto(new ConceptoEntity((long)12,"ANTICIPO"));
+            nuevoMovimiento.setConcepto(new ConceptoEntity((long)2,"ANTICIPO"));
         }
         
         nuevoMovimiento.setCaja(caja);
@@ -144,10 +144,16 @@ public class MovimientoServiceImpl implements MovimientoService {
     @Override
     public MovimientoEntity crearMovimiento(ReembolsoEntity reembolso, CajaEntity caja) {
         MovimientoEntity nuevoMovimiento = new MovimientoEntity();
+        char tipoPedido = reembolso.getAnticipo().getTipoPedido();
         nuevoMovimiento.setReembolso(reembolso);
         nuevoMovimiento.setFecha(reembolso.getFecha());
         nuevoMovimiento.setMonto(reembolso.getMonto());
-        nuevoMovimiento.setConcepto(new ConceptoEntity((long)2,"REEMBOLSO"));
+        if (tipoPedido == TipoPedido.PEDIDOVENTA.getCodigo()){
+            nuevoMovimiento.setConcepto(new ConceptoEntity((long)5,"REEMBOLSO CLIENTE"));
+        }else{
+            nuevoMovimiento.setConcepto(new ConceptoEntity((long)6,"REEMBOLSO PROVEEDOR"));
+        }
+        
         nuevoMovimiento.setCaja(caja);
         return nuevoMovimiento;
     }
@@ -220,7 +226,7 @@ public class MovimientoServiceImpl implements MovimientoService {
         nuevoMovimiento.setNroDocumento(compraEntity.getNroFactura());
         nuevoMovimiento.setEstado(Estado.PENDIENTE.getCodigo());
         nuevoMovimiento.setFecha(compraEntity.getFecha());
-        nuevoMovimiento.setConcepto(new ConceptoEntity((long)6,"COMPRA"));  
+        nuevoMovimiento.setConcepto(new ConceptoEntity((long)4,"COMPRA"));  
         
         return nuevoMovimiento;
     }

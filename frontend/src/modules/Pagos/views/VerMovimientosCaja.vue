@@ -34,7 +34,7 @@
                     </div>
                     <div class="flex align-items-center gap-3 mb-2">
                         <label for="email" class="font-semibold w-9rem">Documento</label>
-                        <InputText v-model:model-value="movimiento.documento" id="email" class="flex-auto" autocomplete="off"  />
+                        <InputText v-model:model-value="movimiento.nroDocumento" id="email" class="flex-auto" autocomplete="off"  />
                     </div>
                     <div class="flex align-items-center gap-3 mb-2">
                         <label for="email" class="font-semibold w-9rem">Observación</label>
@@ -337,7 +337,7 @@ const calcularImporteAnticipos = () => {
 
 const inicializarCampos = () => {
     movimiento.value.tipo = 'Ingreso';
-    movimiento.value.concepto = {id: 4, descripcion: 'Otros', tipo: 'I'};
+    movimiento.value.concepto = {id: 7, descripcion: 'Ingresos varios', tipo: 'I'};
     movimiento.value.formaPago = {id: 2, descripcion: 'Efectivo'};
     disabledSubmit.value = true;
     getFormasPago();
@@ -543,7 +543,10 @@ const puedeEliminarseEnCaja = (concepto) =>{
         case 'Anticipo proveedor':
             return false;
             break;
-        case 'Reembolso':
+        case 'Reembolso cliente':
+            return false;
+            break;
+        case 'Reembolso proveedor':
             return false;
             break;
    
@@ -594,6 +597,22 @@ const nuevoMovimiento = () =>{
     });
 
     visible.value = true;
+}
+
+const getConceptos = (tipo) =>{
+    let tipoChar;
+    if(tipo == 'Ingreso'){
+        tipoChar = 'I';
+    }else{
+        tipoChar = 'E';
+    }
+    console.log(tipoChar);
+    ConceptoServices.obtenerConceptosByTipo(tipoChar).then((data) => {
+        conceptos.value = data.data;
+        console.log('conceptos');
+        console.log(conceptos.value);
+    });
+
 }
 
 async function getMovimientos() {

@@ -88,8 +88,20 @@ public class DetCompraServiceImpl implements DetalleCompraService {
 
     @Transactional
     @Override
-    public void deleteDetCompra(Long idCompra) {
+    public List<ProductoExistenciasDTO> deleteDetCompra(Long idCompra) {
+        List<DetalleCompra> detalle = detalleRepository.findAllByIdCompra(idCompra); 
+        List<ProductoExistenciasDTO> productosActualizarExistencias = new ArrayList<>();
+        detalle.forEach(d -> {
+            ProductoExistenciasDTO productoActualizar = new ProductoExistenciasDTO(
+                    d.getProducto().getId(),
+                    d.getCantidad(),
+                    TipoAjusteExistencia.DISMINUIR
+            );
+            productosActualizarExistencias.add(productoActualizar);
+        });
+        
         detalleRepository.deleteAllByIdCompra(idCompra);
+        return productosActualizarExistencias;
     }
 
     @Override

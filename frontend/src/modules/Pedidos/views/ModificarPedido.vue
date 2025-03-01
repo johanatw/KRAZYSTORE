@@ -313,6 +313,7 @@ const saveCliente = () => {
                 selectedCliente.value = response.data;
                 
                 mostrarCliente();
+                direccion.value.tipo = null;
             }).catch(
                 (error)=>messageError("error")
             );
@@ -327,6 +328,7 @@ const saveCliente = () => {
                 toast.add({severity:'success', summary: 'Successful', detail: 'Registro creado', life: 3000});
                 selectedCliente.value = response.data;
                 mostrarCliente();
+                direccion.value.tipo = null;
             }).catch(
                 (error)=>messageError("error")
             );

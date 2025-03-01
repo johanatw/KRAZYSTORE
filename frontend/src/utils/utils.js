@@ -117,8 +117,8 @@ export function getEstadoInventario(estado) {
          case 'S':
              return 'En curso';
   
-          case 'F':
-             return 'Finalizado';
+          case 'P':
+             return 'Pendiente de ajuste';
   
          default:
              return null;

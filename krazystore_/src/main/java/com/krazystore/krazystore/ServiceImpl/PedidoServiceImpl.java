@@ -127,7 +127,7 @@ public class PedidoServiceImpl implements PedidoService {
    @EventListener
     public void updateEstadoPedido(PedidoEvent evento) {
         PedidoEntity pedido = pedidorepository.findById(evento.getPedidoId())
-                .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado"));;
+                .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado"));
 
         System.out.println("UPDATEESTADOPEDIDO");
         switch (evento.getTipoEvento()) {
