@@ -7,7 +7,7 @@ import Dropdown from "primevue/dropdown";
 import AutoComplete from 'primevue/autocomplete';
 
 import Calendar from 'primevue/calendar';
-
+import Select from "primevue/select";
 import Card from "primevue/card";
 import { ProveedorServices } from '@/services/ProveedorServices';
 import Button from 'primevue/button';
@@ -110,6 +110,10 @@ onMounted(() => {
         console.log(response.data)
         if (response.data.length > 0) {
             detalleFacturar.value = response.data;
+
+            detalleFacturar.value.forEach(element => {
+                element.iva = { name: '10 %'};
+            }); 
         }
         
     });
@@ -167,6 +171,9 @@ const search = (event) => {
 const mostrarCliente = () =>{
     console.log(selectedCliente.value);
     let texto = selectedCliente.value.descripcion;
+    if (selectedCliente.value.ruc) {
+        texto = texto + "\nRUC: "+selectedCliente.value.ruc;
+    }
     if (selectedCliente.value.telefono) {
         texto = texto + "\nTelefono: "+selectedCliente.value.telefono;
     }
@@ -260,6 +267,9 @@ const saveCliente = () => {
 
 //Otros
 
+const impuestos = ref([
+    { name: '10 %'}
+]);
 
 const hideDialog = () => {
     clienteDialog.value = false;
@@ -294,7 +304,7 @@ const validarForm = () => {
 
     } else {
         error.value = true;
-            mensaje.value.push("Debe seleccionar un cliente");
+            mensaje.value.push("Debe seleccionar un proveedor");
     }
 
     if (total.value <1) {
@@ -325,6 +335,7 @@ console.log("holaaaitem",item);
   detalle.value.cantidad = 1;
   detalle.value.costoCompra = detalle.value.producto.costo;
    detalle.value.subTotal = detalle.value.costoCompra * detalle.value.cantidad;
+   detalle.value.iva = { name: '10 %'};
    detalleFacturar.value.push(detalle.value);
    detalle.value= {};
 }
@@ -522,12 +533,12 @@ const eliminar = (detalle) => {
             
                 <div v-if="!clienteSeleccionado" >
                     
-                    <AutoComplete v-model="selectedCliente" optionLabel="descripcion" forceSelection :suggestions="filteredClientes" @complete="search" @item-select="mostrarCliente">
+                    <AutoComplete fluid v-model="selectedCliente" optionLabel="descripcion" forceSelection :suggestions="filteredClientes" @complete="search" @item-select="mostrarCliente">
                     <template #option="slotProps">
                         <div class="flex flex-column align-options-start">
                             <div>{{ slotProps.option.descripcion }}</div>
-                            <div v-if="slotProps.option.telefono">{{ slotProps.option.telefono }}</div>
-                            <div v-if="slotProps.option.ruc">{{ slotProps.option.ruc }}</div>
+                            <div v-if="slotProps.option.ruc">RUC: {{ slotProps.option.ruc }}</div>
+                            <div v-if="slotProps.option.telefono">Telefono: {{ slotProps.option.telefono }}</div>
                         </div>
                     </template>
                 </AutoComplete>
@@ -561,7 +572,7 @@ const eliminar = (detalle) => {
     <div class="flex card-container" style="width: 100%;">
         <DataTable class="tablaCarrito" ref="dt" :value="detalleFacturar" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
          <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
-         <Column class="col" field="costoCompra"  header="Precio" aria-sort="none" >
+         <Column class="col" field="costoCompra"  header="Costo" aria-sort="none" >
             <template #body="slotProps">
             <div v-if="!isFromRecepcion()"  class="flex-auto p-fluid" >
                   <InputNumber fluid class="inpCant" v-model="slotProps.data.costoCompra" mode="decimal"   @update:modelValue="sendSubTotal" />
@@ -582,6 +593,13 @@ const eliminar = (detalle) => {
 
             </template>
              
+         </Column>
+         <Column  class="col" field="cantidad" header="IVA" aria-sort="none">
+            <template #body="slotProps">
+                <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
+                    <Select v-model="slotProps.data.iva" :options="impuestos" optionLabel="name" class="w-full md:w-56" />
+                  </div>  
+            </template>
          </Column>
          
          <Column  class="col" field="subTotal" header="Total" aria-sort="none" >
@@ -611,7 +629,15 @@ const eliminar = (detalle) => {
                                            
                                         </div>
 
-                                    </div>         
+                                    </div>   
+                                    <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
+                                        <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
+                                            IVA 10%: 
+                                        </div>
+                                        <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
+                                            {{ (montoIva = Math.round(total/11)).toLocaleString("de-DE") }}
+                                        </div>
+                                    </div>        
 
                                 </div>
                                 <div >

@@ -234,16 +234,16 @@ const modificarPedido = (id) => {
         <DataTable class="tablaCarrito" ref="dt" :value="detalle" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
          <Column  class="col" field="detallePedido.producto.nombre" header="Nombre" aria-sort="none" ></Column>
          
-        <Column  class="col" field="detallePedido.cantidad" header="Cantidad Pedida" aria-sort="none">
+        <Column  class="col" field="detallePedido.cantidad" header="Solicitado" aria-sort="none">
          </Column>
-         <Column  class="col" field="cantidad" header="Cantidad Pendiente" aria-sort="none">
+         <Column  class="col" field="cantidad" header="Pendiente" aria-sort="none">
             <template #body="slotProps">
                 <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
                 {{ slotProps.data.cantPendiente }}  
                 </div>  
             </template>
          </Column>
-         <Column  class="col" field="cantRecepcionado" header="Cantidad Recibida" aria-sort="none">
+         <Column  class="col" field="cantRecepcionado" header="Recibido" aria-sort="none">
             
             <template #body="slotProps">
                 <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
@@ -251,7 +251,14 @@ const modificarPedido = (id) => {
                 </div>  
             </template>
          </Column>
-         <Column  class="col" field="cantDañada" header="Cantidad Dañada" aria-sort="none">
+         <Column  class="col" field="cantDañada" header="Aceptado" aria-sort="none">
+            <template #body="slotProps">
+                <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
+                {{ slotProps.data.cantAceptada }}  
+                </div>  
+            </template>
+         </Column>
+         <Column  class="col" field="cantDañada" header="Rechazado" aria-sort="none">
             <template #body="slotProps">
                 <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
                 {{ slotProps.data.cantRechazada }}  

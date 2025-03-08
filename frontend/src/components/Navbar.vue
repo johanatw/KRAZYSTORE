@@ -17,11 +17,27 @@
                 </a>
             </template>
             <template #end>
-                <SplitButton text :model="opciones">
-    <span class="flex items-center font-bold">
-        <span>{{nombre.toUpperCase()}}</span>
-    </span>
-</SplitButton>
+                <div class="card flex justify-center">
+        
+        <Button variant="text" type="button" :label="nombre ? nombre : ' '" @click="toggle" class="min-w-48" />
+
+
+        <Popover ref="op">
+            <div class="flex flex-col gap-4 w-[25rem]">
+                <div>
+                    <ul class="list-none p-0 m-0 flex flex-col gap-4">
+                        <li v-for="opcion in opciones" :key="opcion.label" class="flex items-center gap-2 px-2 py-3 hover:bg-emphasis cursor-pointer rounded-border" @click="logout()">
+                            <div>
+                                <span class="font-medium">{{ opcion.label }}</span>
+                          
+                            </div>
+     
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </Popover>
+    </div>
 
     </template>
          
@@ -32,11 +48,12 @@
 
 <script setup>
 import { ref } from "vue";
-
+import Popover from "primevue/popover";
 import Menubar from 'primevue/menubar';
 import Badge from "primevue/badge";
 import InputText from "primevue/inputtext";
 import Avatar from "primevue/avatar";
+import Button from "primevue/button";
 import router from "@/router";
 import Toast from 'primevue/toast';
 import SplitButton from "primevue/splitbutton";
@@ -56,7 +73,7 @@ const opciones = [
 ];
 
 const username = localStorage.getItem('username');
-const nombre = localStorage.getItem('nombre');
+const nombre = localStorage.getItem('nombre').toUpperCase();
 const items = ref([
    
     { 
@@ -90,13 +107,7 @@ const items = ref([
         label: 'Compras',
         icon: 'pi pi-bill',
         items: [
-            {
-                label: 'Pedidos',
-                icon: 'pi pi-star',
-                command: () => {
-                    router.push({name: 'pedidos_compras'});
-                }
-            },
+            
             {
                 label: 'Facturas de compras',
                 icon: 'pi pi-star',
@@ -111,7 +122,13 @@ const items = ref([
                     router.push({name: 'recepciones'});
                 }
             },
-          
+            {
+                label: 'Pedidos',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'pedidos_compras'});
+                }
+            },
 
         ]
     },
@@ -182,6 +199,12 @@ const logout = () =>{
     router.push({name: 'home'});
 
 
+}
+
+const op = ref();
+
+const toggle = (event) => {
+    op.value.toggle(event);
 }
 </script>
 <style>

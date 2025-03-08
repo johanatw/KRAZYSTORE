@@ -475,6 +475,7 @@ const eliminar = (detalle) => {
                 <div class="border-circle bg-primary inline-flex justify-content-center align-items-center h-6rem w-6rem -mt-8">
                     <i class="pi pi-check text-5xl"></i>
                 </div>
+
                 <p class="block mb-2 mt-4">{{ message.message }}</p>
                 <span class="font-bold mb-0 ">{{ message.header }}</span>
                 

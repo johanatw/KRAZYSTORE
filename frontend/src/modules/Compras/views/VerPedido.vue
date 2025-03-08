@@ -111,8 +111,13 @@ const mostrarCliente = (proveedor) =>{
         infoProveedor.value.push(valor);
     }
 
+    if(proveedor.ruc!=null){
+        valor={valor: 'RUC: '+ proveedor.ruc};
+        infoProveedor.value.push(valor);
+    }
+
     if(proveedor.telefono!=null){
-        valor={valor: proveedor.telefono};
+        valor={valor: 'Telefono: '+ proveedor.telefono};
         infoProveedor.value.push(valor);
     }
     

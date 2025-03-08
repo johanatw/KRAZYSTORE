@@ -53,6 +53,9 @@ public class DetRecepcionServiceImpl implements DetalleRecepcionService {
         detalle.forEach(d -> {
             
             if(d.getCantRecepcionada() > 0){
+                System.out.println(d.getCantRecepcionada());
+                System.out.println(d.getCantAceptada());
+                System.out.println(d.getCantRechazada());
                 d.setCantAceptada(d.getCantRecepcionada() - d.getCantRechazada());
                 detalleGuardar.add(d);
                 

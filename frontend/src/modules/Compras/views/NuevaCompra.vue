@@ -18,6 +18,7 @@ import { CompraServices } from "@/services/CompraServices";
 import { VentaServices } from '@/services/VentaServices';
 import { CiudadServices } from '@/services/CiudadServices';
 import { ref, onMounted } from "vue";
+import Select from "primevue/select";
 import InputNumber from 'primevue/inputnumber';
 import InputGroup from 'primevue/inputgroup';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
@@ -150,6 +151,9 @@ const verCompra = (id) =>{
 const mostrarCliente = () =>{
     console.log(selectedCliente.value);
     let texto = selectedCliente.value.descripcion;
+    if (selectedCliente.value.ruc) {
+        texto = texto + "\nRUC: "+selectedCliente.value.ruc;
+    }
     if (selectedCliente.value.telefono) {
         texto = texto + "\nTelefono: "+selectedCliente.value.telefono;
     }
@@ -242,7 +246,9 @@ const saveCliente = () => {
 
 
 //Otros
-
+const impuestos = ref([
+    { name: '10 %'}
+]);
 
 const hideDialog = () => {
     clienteDialog.value = false;
@@ -277,7 +283,7 @@ const validarForm = () => {
 
     } else {
         error.value = true;
-            mensaje.value.push("Debe seleccionar un cliente");
+            mensaje.value.push("Debe seleccionar un proveedor");
     }
 
     if (total.value <1) {
@@ -308,6 +314,7 @@ console.log("holaaaitem",item);
   detalle.value.cantidad = 1;
   detalle.value.costoCompra = detalle.value.producto.costo;
    detalle.value.subTotal = detalle.value.costoCompra * detalle.value.cantidad;
+   detalle.value.iva = { name: '10 %'};
    detalleFacturar.value.push(detalle.value);
    detalle.value= {};
 }
@@ -328,8 +335,8 @@ const eliminar = (detalle) => {
   
   }
 
-  const vistaFacturasVenta = () => {
-   router.push({name: 'ventas'});
+  const vistaFacturasCompras = () => {
+   router.push({name: 'compras'});
   
   }
 
@@ -439,7 +446,7 @@ const eliminar = (detalle) => {
             <template #icons>
                 <div class="card flex" style="justify-content: end;">   
                     <div class="card flex" style="justify-content: end;">  
-                        <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaFacturasVenta()" />
+                        <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaFacturasCompras()" />
                         <Button  label="Guardar" @click="validarForm" />
                     </div>  
                 </div>
@@ -509,8 +516,8 @@ const eliminar = (detalle) => {
                     <template #option="slotProps">
                         <div class="flex flex-column align-options-start">
                             <div>{{ slotProps.option.descripcion }}</div>
-                            <div v-if="slotProps.option.telefono">{{ slotProps.option.telefono }}</div>
-                            <div v-if="slotProps.option.ruc">{{ slotProps.option.ruc }}</div>
+                            <div v-if="slotProps.option.ruc">RUC: {{ slotProps.option.ruc }}</div>
+                            <div v-if="slotProps.option.telefono">Telefono: {{ slotProps.option.telefono }}</div>
                         </div>
                     </template>
                 </AutoComplete>
@@ -561,7 +568,14 @@ const eliminar = (detalle) => {
             </template>
              
          </Column>
-         
+         <Column  class="col" field="cantidad" header="IVA" aria-sort="none">
+            <template #body="slotProps">
+                <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
+                    <Select v-model="slotProps.data.iva" :options="impuestos" optionLabel="name" class="w-full md:w-56" />
+                  </div>  
+            </template>
+             
+         </Column>
          <Column  class="col" field="subTotal" header="Total" aria-sort="none" >
              <template #body="slotProps">
                  <div class="flex-auto p-fluid" style="max-width: 20dvh;">
@@ -589,7 +603,15 @@ const eliminar = (detalle) => {
                                            
                                         </div>
 
-                                    </div>         
+                                    </div>    
+                                    <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
+                                        <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
+                                            IVA 10%: 
+                                        </div>
+                                        <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
+                                            {{ (montoIva = Math.round(total/11)).toLocaleString("de-DE") }}
+                                        </div>
+                                    </div>     
 
                                 </div>
                                 <div >

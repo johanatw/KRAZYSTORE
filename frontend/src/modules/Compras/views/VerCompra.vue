@@ -111,8 +111,13 @@ const mostrarCliente = (proveedor) =>{
         infoProveedor.value.push(valor);
     }
 
+    if(proveedor.ruc!=null){
+        valor={valor: 'RUC: '+ proveedor.ruc};
+        infoProveedor.value.push(valor);
+    }
+
     if(proveedor.telefono!=null){
-        valor={valor: proveedor.telefono};
+        valor={valor: 'Telefono: '+ proveedor.telefono};
         infoProveedor.value.push(valor);
     }
     
@@ -259,7 +264,11 @@ const vistaCompras= () =>{
          
         <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
          </Column>
-         
+         <Column  class="col"  header="IVA" aria-sort="none">
+            <template #body="slotProps">
+            10%
+            </template>
+         </Column>
          <Column  class="col" field="subTotal" header="Total" aria-sort="none" >
              <template #body="slotProps">
                  <div class="flex-auto p-fluid" style="max-width: 20dvh;">
@@ -282,6 +291,14 @@ const vistaCompras= () =>{
                                            
                                         </div>
 
+                                    </div>  
+                                    <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
+                                        <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
+                                            IVA 10%: 
+                                        </div>
+                                        <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
+                                            {{ (Math.round(pedido.total/11)).toLocaleString("de-DE") }}
+                                        </div>
                                     </div>         
 
                                 </div>

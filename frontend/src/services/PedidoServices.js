@@ -5,20 +5,25 @@ const DETALLE_PEDIDO_API_BASE_URL = "http://localhost:7070/api/detalle_pedidos";
 const token = localStorage.getItem('token');
 
 export const PedidoServices = {
- getPedidos() {
-
-      return axios.get(PEDIDO_API_BASE_URL,{
-        headers: {
-          'Authorization': 'Bearer ' +  localStorage.getItem('token')
-        }
-      }).catch(error => {
-        if (error.response && error.response.status === 401) {
-          localStorage.removeItem("token");  // Eliminar el token expirado
-          router.push({name: 'home'});
-          return Promise.reject(error);
+ async getPedidos() {
+  try {
+    const response = await axios.get(PEDIDO_API_BASE_URL,{
+      headers: {
+        'Authorization': 'Bearer ' +  localStorage.getItem('token')
       }
-      return Promise.reject(error);
     })
+    return response;
+  } catch (error) {
+    console.log(error);
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");  // Eliminar el token expirado
+      router.push({name: 'home'});
+      return;
+    }
+    throw error;
+    
+    
+  }
     
   },
   getPedido(id){

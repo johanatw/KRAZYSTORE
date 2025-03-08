@@ -141,6 +141,9 @@ const search = (event) => {
 const mostrarCliente = () =>{
     console.log(selectedCliente.value);
     let texto = selectedCliente.value.descripcion;
+    if (selectedCliente.value.ruc) {
+        texto = texto + "\nRUC: "+selectedCliente.value.ruc;
+    }
     if (selectedCliente.value.telefono) {
         texto = texto + "\nTelefono: "+selectedCliente.value.telefono;
     }
@@ -272,7 +275,7 @@ const validarForm = () => {
 
     } else {
         error.value = true;
-            mensaje.value.push("Debe seleccionar un cliente");
+            mensaje.value.push("Debe seleccionar un proveedor");
     }
 
     if (total.value <1) {
@@ -464,7 +467,7 @@ const eliminar = (detalle) => {
                         </template>
                         <template #content>
                             <div class="field" >
-                                Fecha: <DatePicker dateFormat="dd/mm/yy" v-model="fecha" showIcon iconDisplay="input" />
+                                Fecha: <DatePicker fluid dateFormat="dd/mm/yy" v-model="fecha" showIcon iconDisplay="input" />
                             </div> 
 
                         </template>
@@ -497,12 +500,12 @@ const eliminar = (detalle) => {
             
                 <div v-if="!clienteSeleccionado" >
                     
-                    <AutoComplete v-model="selectedCliente" optionLabel="descripcion" forceSelection :suggestions="filteredClientes" @complete="search" @item-select="mostrarCliente">
+                    <AutoComplete fluid v-model="selectedCliente" optionLabel="descripcion" forceSelection :suggestions="filteredClientes" @complete="search" @item-select="mostrarCliente">
                     <template #option="slotProps">
                         <div class="flex flex-column align-options-start">
                             <div>{{ slotProps.option.descripcion }}</div>
-                            <div v-if="slotProps.option.telefono">{{ slotProps.option.telefono }}</div>
-                            <div v-if="slotProps.option.ruc">{{ slotProps.option.ruc }}</div>
+                            <div v-if="slotProps.option.ruc">RUC: {{ slotProps.option.ruc }}</div>
+                            <div v-if="slotProps.option.telefono">Telefono: {{ slotProps.option.telefono }}</div>
                         </div>
                     </template>
                 </AutoComplete>

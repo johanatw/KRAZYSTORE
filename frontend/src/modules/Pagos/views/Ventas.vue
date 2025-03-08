@@ -60,7 +60,7 @@ const confirm2 = (id, nro) => {
     });
 };
 onMounted(() => {
- alert(version);
+
  
 getVentas();
     

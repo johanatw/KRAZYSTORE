@@ -148,6 +148,9 @@ const search = (event) => {
 const mostrarCliente = () =>{
     console.log(selectedCliente.value);
     let texto = selectedCliente.value.descripcion;
+    if (selectedCliente.value.ruc) {
+        texto = texto + "\nRUC: "+selectedCliente.value.ruc;
+    }
     if (selectedCliente.value.telefono) {
         texto = texto + "\nTelefono: "+selectedCliente.value.telefono;
     }
@@ -520,8 +523,8 @@ const isRecepcionado = (detalle) => {
                     <template #option="slotProps">
                         <div class="flex flex-column align-options-start">
                             <div>{{ slotProps.option.descripcion }}</div>
-                            <div v-if="slotProps.option.telefono">{{ slotProps.option.telefono }}</div>
-                            <div v-if="slotProps.option.ruc">{{ slotProps.option.ruc }}</div>
+                            <div v-if="slotProps.option.ruc">RUC: {{ slotProps.option.ruc }}</div>
+                            <div v-if="slotProps.option.telefono">Telefono: {{ slotProps.option.telefono }}</div>
                         </div>
                     </template>
                 </AutoComplete>

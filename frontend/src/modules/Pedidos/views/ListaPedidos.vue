@@ -203,7 +203,7 @@ const getPedidos = async () => {
       console.log(response.data);
         pedidos.value = response.data;
     } catch (error) {
-       
+       alert(error);
     }
 };
 

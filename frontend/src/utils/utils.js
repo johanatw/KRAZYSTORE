@@ -64,7 +64,7 @@ export function getEstadoPedidoCompra(estado) {
        case 'R':
            return 'Recepcionado';
         case 'M':
-           return 'Parcial';
+           return 'Recepcion parcial';
 
        default:
            return null;

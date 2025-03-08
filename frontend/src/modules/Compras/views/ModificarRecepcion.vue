@@ -219,29 +219,37 @@ const modificarPedido = (id) => {
         <DataTable class="tablaCarrito" ref="dt" :value="detalle" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
          <Column  class="col" field="detallePedido.producto.nombre" header="Nombre" aria-sort="none" ></Column>
          
-        <Column  class="col" field="detallePedido.cantidad" header="Uds." aria-sort="none">
+        <Column  class="col" field="detallePedido.cantidad" header="Solicitado" aria-sort="none">
          </Column>
-         <Column  class="col" field="cantidad" header="Cantidad Pendiente" aria-sort="none">
+         <Column  class="col" field="cantidad" header="Pendiente" aria-sort="none">
             <template #body="slotProps">
-                <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
+                <div class="flex-auto p-fluid">
                 {{ slotProps.data.cantPendiente }}  
                 </div>  
             </template>
          </Column>
-         <Column  class="col" field="cantRecepcionado" header="Cantidad Recibida" aria-sort="none">
+         <Column  class="col" field="cantRecepcionado" header="Recibido" aria-sort="none">
             
             <template #body="slotProps">
-                <div  class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                  <InputNumber fluid class="inpCant" v-model="slotProps.data.cantRecepcionado" :min="0" :max="slotProps.data.cantPendiente" inputId="minmax-buttons" mode="decimal" showButtons />
+                <div  class="flex-auto p-fluid" style="max-width:12lvb  !important; ">
+                  <InputNumber fluid class="inpCant" v-model="slotProps.data.cantRecepcionado" :min="1" :max="slotProps.data.cantPendiente" inputId="minmax-buttons" mode="decimal" showButtons />
               </div>  
               
             </template>
          </Column>
-         <Column  class="col" field="cantDañada" header="Cantidad Dañada" aria-sort="none">
+         <Column  class="col" field="cantDañada" header="Aceptado" aria-sort="none">
             <template #body="slotProps">
-                <div  class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                  <InputNumber fluid class="inpCant" v-model="slotProps.data.cantRechazada" :min="0" :max="slotProps.data.cantRecepcionado" inputId="minmax-buttons" mode="decimal" showButtons />
+                <div  class="flex-auto p-fluid" style="max-width:12lvb  !important; ">
+                  <InputNumber fluid class="inpCant" v-model="slotProps.data.cantAceptada" :min="0" :max="slotProps.data.cantRecepcionado" inputId="minmax-buttons" mode="decimal" showButtons />
               </div> 
+       
+            </template>
+         </Column>
+         <Column  class="col" field="cantDañada" header="Rechazado" aria-sort="none">
+            <template #body="slotProps">
+                <div  class="flex-auto p-fluid" style="max-width:12lvb  !important; ">
+                    {{slotProps.data.cantRechazada = slotProps.data.cantRecepcionado - slotProps.data.cantAceptada}}
+                  </div> 
        
             </template>
          </Column>

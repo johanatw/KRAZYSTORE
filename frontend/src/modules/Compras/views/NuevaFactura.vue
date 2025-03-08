@@ -7,7 +7,7 @@ import Dropdown from "primevue/dropdown";
 import AutoComplete from 'primevue/autocomplete';
 
 import Calendar from 'primevue/calendar';
-
+import Select from "primevue/select";
 import Card from "primevue/card";
 import { ProveedorServices } from '@/services/ProveedorServices';
 import Button from 'primevue/button';
@@ -103,20 +103,22 @@ onMounted(() => {
         detalle.value.forEach(element => {
             console.log(element);
             let e = {};
-            e.cantidad = element.cantRecepcionado;
+            e.cantidad = element.cantAceptada;
             e.costoCompra = element.detallePedido.costoCompra;
             e.producto = element.detallePedido.producto;
             e.subTotal = e.cantidad * e.costoCompra;
-            
+            e.iva = { name: '10 %'};
             detalleFacturar.value.push(e);
             
 
         });  
         
+        console.log(detalleFacturar.value);
         sendSubTotal();
 
    });
 
+   
 
     ProductoServices.obtenerProductos().then((data) => {
      productos.value = data.data
@@ -139,6 +141,10 @@ onMounted(() => {
 
 
 });
+
+const impuestos = ref([
+    { name: '10 %'}
+]);
 
 const filters = ref({
  'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
@@ -172,9 +178,14 @@ const search = (event) => {
 const mostrarCliente = () =>{
     console.log(selectedCliente.value);
     let texto = selectedCliente.value.descripcion;
+    if (selectedCliente.value.ruc) {
+        texto = texto + "\nRUC: "+selectedCliente.value.ruc;
+    }
     if (selectedCliente.value.telefono) {
         texto = texto + "\nTelefono: "+selectedCliente.value.telefono;
     }
+
+    
 
     let textoConSaltos = texto.replace(/\n/g, "<br>");  // Reemplazar \n con <br>
 
@@ -229,6 +240,7 @@ const modificarCliente = (cli) => {
 
 
 const saveCliente = () => {
+    console.log(cliente.value);
     submitted.value = true;
     if (cliente?.value.descripcion?.trim() ) {
         if (cliente.value.id) {
@@ -330,6 +342,7 @@ console.log("holaaaitem",item);
   detalle.value.cantidad = 1;
   detalle.value.costoCompra = item.costo;
    detalle.value.subTotal = detalle.value.costoCompra * detalle.value.cantidad;
+   detalle.value.iva = { name: '10 %'};
    detalleFacturar.value.push(detalle.value);
    detalle.value= {};
 }
@@ -501,10 +514,10 @@ const eliminar = (detalle) => {
         <template #content>
             <div class="field" >
                 
-                Fecha: <DatePicker dateFormat="dd/mm/yy" v-model="fechaCompra" showIcon iconDisplay="input" />
+                Fecha: <DatePicker fluid dateFormat="dd/mm/yy" v-model="fechaCompra" showIcon iconDisplay="input" />
             </div> 
             <div class="field" >
-                N° Factura: <InputText type="text" v-model="nroFactura" />
+                N° Factura: <InputText fluid type="text" v-model="nroFactura" />
             </div> 
         </template>
     </Card>
@@ -535,12 +548,12 @@ const eliminar = (detalle) => {
             
                 <div v-if="!clienteSeleccionado" >
                     
-                    <AutoComplete v-model="selectedCliente" optionLabel="descripcion" forceSelection :suggestions="filteredClientes" @complete="search" @item-select="mostrarCliente">
+                    <AutoComplete fluid v-model="selectedCliente" optionLabel="descripcion" forceSelection :suggestions="filteredClientes" @complete="search" @item-select="mostrarCliente">
                     <template #option="slotProps">
                         <div class="flex flex-column align-options-start">
                             <div>{{ slotProps.option.descripcion }}</div>
-                            <div v-if="slotProps.option.telefono">{{ slotProps.option.telefono }}</div>
-                            <div v-if="slotProps.option.ruc">{{ slotProps.option.ruc }}</div>
+                            <div v-if="slotProps.option.ruc">RUC: {{ slotProps.option.ruc }}</div>
+                            <div v-if="slotProps.option.telefono">Telefono: {{ slotProps.option.telefono }}</div>
                         </div>
                     </template>
                 </AutoComplete>
@@ -581,16 +594,24 @@ const eliminar = (detalle) => {
          
         <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
             <template #body="slotProps">
-                <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
+                <div class="flex-auto p-fluid" >
                     {{ slotProps.data.cantidad }}
                </div>  
+            </template>
+             
+         </Column>
+         <Column  class="col" field="cantidad" header="IVA" aria-sort="none">
+            <template #body="slotProps">
+                <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
+                    <Select fluid v-model="slotProps.data.iva" :options="impuestos" optionLabel="name" class="w-full md:w-56" />
+                  </div>  
             </template>
              
          </Column>
          
          <Column  class="col" field="subTotal" header="Total" aria-sort="none" >
              <template #body="slotProps">
-                 <div class="flex-auto p-fluid" style="max-width: 20dvh;">
+                 <div class="flex-auto p-fluid">
                      <label for="subtotal"> {{  (slotProps.data.subTotal =  slotProps.data.cantidad * slotProps.data.costoCompra).toLocaleString("de-DE") }}</label>
                   </div>
             </template>
@@ -611,7 +632,15 @@ const eliminar = (detalle) => {
                                            
                                         </div>
 
-                                    </div>         
+                                    </div>   
+                                    <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
+                                        <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
+                                            IVA 10%: 
+                                        </div>
+                                        <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
+                                            {{ (montoIva = Math.round(total/11)).toLocaleString("de-DE") }}
+                                        </div>
+                                    </div>    
 
                                 </div>
                                 <div >
