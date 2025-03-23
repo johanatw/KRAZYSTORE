@@ -1,31 +1,23 @@
 <script setup>
-import { ref, onMounted } from 'vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Panel from 'primevue/panel';
 import InputText from 'primevue/inputtext';
 import { PersonaServices } from '@/services/PersonaServices';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
+import { ref, onMounted } from 'vue';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import {DepartamentoServices } from '@/services/DepartamentoServices';
 import {CiudadServices } from '@/services/CiudadServices';
 import {DireccionServices} from '@/services/DireccionServices';
-import InputGroup from 'primevue/inputgroup';
-import InputGroupAddon from 'primevue/inputgroupaddon';
-import { useConfirm } from "primevue/useconfirm";
-import { useToast } from "primevue/usetoast";
 
 const clienteDialog = ref(false);
 const personaCreationDTO = ref({});
 const clientes= ref([]);
 const direccion = ref({});
-const direcciones = ref([]);
-const direccionSubmitted = ref(false);
-const direccionSelected = ref();
 const ciudades = ref([]);
 const departamentos = ref([]);
-const direccionEnvio = ref({});
 
 async function getClientes() {
   await PersonaServices.obtenerClientes().then((data) => {
@@ -33,7 +25,7 @@ async function getClientes() {
    });
 }
 const updateClientes = (clientes) =>{
-    PersonaServices.modificarPersona(clientes.id, clientes);
+    PersonaServices.modificarPersona(cliente.id, cliente);
 }
 //Otros
 
@@ -46,43 +38,31 @@ const registrarCliente = () =>{
     clienteDialog.value = true;
 }
 /* ----------------------------------------------*/
+
+const modificarCliente = (clientes) => {
+    PersonaServices.getClientes(clientes.id).then((data) => {
+        console.log("data direccion");
+        console.log(data.data.direccion);
+       cliente.value = data.data.persona;
+       clienteDialog.value = true;
+       if (data.data.direccion) {
+        direccion.value = data.data.direccion;
+        direccion.value.departamento = data.data.direccion.ciudad.departamento;
+       } 
+       if(data.data.direccion && data.data.direccion.ciudad != null){
+        console.log("entra if ");
+        getCiudades(data.data.direccion.ciudad.departamento.id);
+       }
+ 
+    });
+    
+};
 const hideDialog = () => {
     clienteDialog.value = false;
     direccion.value = {};
     submitted.value = false;
 };
 
-
-
-const filters = ref({
-    'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
-});
-
-const cancelar = ()=>{
-  visible.value = false;
-  selectedOpcion.value = null;
-};
-
-const modificarCliente = (cli) => {
-    PersonaServices.getClientes(clientes.id).then((data) => {
-        console.log("data direccion");
-        console.log(data.data.direccion);
-       clientes.value = data.data.persona;
-       clienteDialog.value = true;
-       if (data.data.direccion) {
-        direccion.value = data.data.direccion;
-        direccion.value.departamento = data.data.direccion.ciudad.departamento;
-       } 
-
-       if(data.data.direccion && data.data.direccion.ciudad != null){
-        console.log("entra if ");
-        getCiudades(data.data.direccion.ciudad.departamento.id);
-       }
-       
-       
-    });
-    
-};
 
 const validarDireccionCliente = (dir) => {
     if (algunCampoTieneValor(dir) && (!dir.calle1 || !dir.ciudad)) {
@@ -97,22 +77,24 @@ const validarDireccionCliente = (dir) => {
     return true;
 
 };
-const verCliente = (id) =>{
-    router.push({name: 'VisualizarCliente', params: {id}});
-    
-}
+
+
+const filters = ref({
+    'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
+});
+
 const saveCliente = () => {
     submitted.value = true;
     console.log(direccion.value.calle1);
-    if (clientes?.value.nombre?.trim() && validarDireccionClientes(direccion.value) ) {
+    if (clientes?.value.nombre?.trim() && validarDireccionCliente(direccion.value) ) {
         direccion.value.tipo = 'P';
-        generarDirecciones(direccion.value);
-        personaCreationDTO.value = {personaEntity: cliente.value, direccion: direccion.value};
+        generarDireccion(direccion.value);
+        personaCreationDTO.value = {personaEntity: clientes.value, direccion: direccion.value};
         if (clientes.value.id) {
-            PersonaServices.modificarPersona(cliente.value.id, personaCreationDTO.value).then((response)=>{
+            PersonaServices.modificarPersona(clientes.value.id, personaCreationDTO.value).then((response)=>{
             console.log("mod");
                 eliminarClienteSelected();
-                clientes.value[findIndexById(cliente.value.id)] = cliente.value;
+                clientes.value[findIndexById(clientes.value.id)] = clientes.value;
                 toast.add({severity:'success', summary: 'Successful', detail: 'Registro modificado', life: 3000});
                 selectedCliente.value = response.data;
                 
@@ -125,7 +107,7 @@ const saveCliente = () => {
         }
         else {
          
-            PersonaServices.registrarPersona(personaCreationDTO.value).then((response)=>{
+            PersonaServices.registrarCliente(personaCreationDTO.value).then((response)=>{
             console.log("reg");
             console.log(personaCreationDTO.value);
                 clientes.value.push(response.data);
@@ -143,69 +125,9 @@ const saveCliente = () => {
     }
 };
 
-const getDireccionesCliente = () =>{
-    DireccionServices.getDireccionesCliente(selectedCliente.value.id).then((data) => {
-        console.log("data.data");
-        console.log(data.data);
-        direcciones.value=data.data;
-        if (direcciones.value.length < 1) {
-            console.log("direcciones.value.length");
-            console.log(direcciones.value.length);
-            nuevaDireccion.value = true;
-        }
-
-    });
-};
-const generarDirecciones = (dir) => {
-    let d = dir.calle1;
-    if (dir.calle2?.trim()) {
-        d = d + " " +selectedOp.value + " "+ dir.calle2;
-    }
-    if (dir.calle3?.trim()) {
-        d = d + " y " + dir.calle3;
-    }
-
-    dir.direccion = d;
-};
-const validarDireccionClientes = (dir) => {
-    if (algunCampoTieneValor(dir) && (!dir.calle1 || !dir.ciudad)) {
-        return false;
-    }
-
-    if (!algunCampoTieneValor(dir)) {
-        return true;
-    }
-    
-    
-    return true;
-
-};
-const getCiudades = (id) => {
-    CiudadServices.obtenerCiudadesByDepartamento(id).then((data) => {
-        console.log("data ciudades");
-        console.log(data.data);
-       ciudades.value = data.data;
-       
-    });
-    
-};
-const generarDireccion = (dir) => {
-    let d = dir.calle1;
-    if (dir.calle2?.trim()) {
-        d = d + " " +selectedOp.value + " "+ dir.calle2;
-    }
-    if (dir.calle3?.trim()) {
-        d = d + " y " + dir.calle3;
-    }
-
-    dir.direccion = d;
-};
-
-
-
-
 
 </script>
+
 <template>
     
   <div class="flex p-fluid justify-content-center " >
@@ -239,9 +161,11 @@ const generarDireccion = (dir) => {
         </div>
         
         <div class="field">
-            <label for="description">Calle Secundaria</label>
-            <InputText fluid id="description" v-model="direccion.calle2" required="true" :class="{'p-invalid': submitted && !validarDireccionCliente(direccion) && !direccion.calle1}" />
-            <small class="p-error" v-if="submitted && !validarDireccionCliente(direccion) && !direccion.calle2">Ingrese Calle Secundaria</small>
+            <label for="description">Calle 2</label>
+            <InputGroup fluid>
+                <Dropdown v-model="selectedOp" :options="opciones"  placeholder="Select a City" style="width: 0.1rem !important;" />
+                <InputText id="description" v-model="direccion.calle2" required="true"  />
+            </InputGroup>
         </div>
         <div class="field" v-if="selectedOp=='Entre'">
             <label for="description">Calle 3</label>
@@ -321,5 +245,3 @@ const generarDireccion = (dir) => {
         </Panel> 
     </div>       
 </template>
-
-
