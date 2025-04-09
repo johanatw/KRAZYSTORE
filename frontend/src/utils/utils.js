@@ -47,6 +47,8 @@ export function getEstadoPedidoVenta(estado) {
            return 'Nuevo';
        case 'F':
            return 'Facturado';
+        case 'P':
+           return 'Fact. Parcial';
         case 'A':
            return 'Con Anticipo';
 
@@ -65,7 +67,10 @@ export function getEstadoPedidoCompra(estado) {
            return 'Recepcionado';
         case 'M':
            return 'Recepcion parcial';
-
+        case 'F':
+            return 'Facturado';
+            case 'P':
+                return 'Fact. Parcial';
        default:
            return null;
    }

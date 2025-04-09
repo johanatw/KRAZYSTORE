@@ -4,44 +4,44 @@
  */
 package com.krazystore.krazystore.ServiceImpl;
 
-import com.krazystore.krazystore.Entity.EnvioEntity;
-import com.krazystore.krazystore.Repository.EnvioRepository;
-import com.krazystore.krazystore.Service.EnvioService;
+import com.krazystore.krazystore.Entity.EmpresaTransporte;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
+import com.krazystore.krazystore.Repository.EmpresaTransporteRepository;
+import com.krazystore.krazystore.Service.EmpresaTransporteService;
 
 /**
  *
  * @author HP
  */
 @Service
-public class EnvioServiceImpl implements EnvioService {
-    private final EnvioRepository enviorepository;
+public class EmpresaTransporteServiceImpl implements EmpresaTransporteService {
+    private final EmpresaTransporteRepository enviorepository;
 
-    public EnvioServiceImpl(EnvioRepository enviorepository) {
+    public EmpresaTransporteServiceImpl(EmpresaTransporteRepository enviorepository) {
         this.enviorepository = enviorepository;
     }
     
   
 
     @Override
-    public List<EnvioEntity> findAll() {
+    public List<EmpresaTransporte> findAll() {
         return enviorepository.findAll();
     }
 
     @Override
-    public Optional<EnvioEntity> findById(Long id) {
+    public Optional<EmpresaTransporte> findById(Long id) {
         return enviorepository.findById(id);
     }
 
     @Override
-    public EnvioEntity saveEnvio(EnvioEntity envioEntity) {
+    public EmpresaTransporte saveEnvio(EmpresaTransporte envioEntity) {
         return enviorepository.save(envioEntity);
     }
 
     @Override
-    public EnvioEntity updateEnvio(EnvioEntity envioEntity, Long id) {
+    public EmpresaTransporte updateEnvio(EmpresaTransporte envioEntity, Long id) {
         var updatedEnvio = enviorepository.findById(id).get();
         
         updatedEnvio.setDescripcion(envioEntity.getDescripcion());

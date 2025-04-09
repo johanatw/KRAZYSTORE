@@ -340,6 +340,7 @@ const inicializarCampos = () => {
     movimiento.value.concepto = {id: 7, descripcion: 'Ingresos varios', tipo: 'I'};
     movimiento.value.formaPago = {id: 2, descripcion: 'Efectivo'};
     disabledSubmit.value = true;
+    sumaTotal.value = 0;
     getFormasPago();
 };
 

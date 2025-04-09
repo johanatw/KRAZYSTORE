@@ -123,8 +123,10 @@ public class CajaServiceImpl implements CajaService{
             movimientoService.saveMovimiento(event.getNuevaCompra());
         }else if(event.getTipoEvento() == TipoEvento.FACTURA_ANULADA) {
             movimientoService.deleteVenta(event.getNuevaVenta().getId());
-        }else if(event.getTipoEvento() == TipoEvento.FACTURA_MODIFICADA) {
+        }else if(event.getTipoEvento() == TipoEvento.FACTURA_COMPRA_MODIFICADA) {
             movimientoService.updateMovimiento(event.getNuevaCompra());
+        }else if(event.getTipoEvento() == TipoEvento.FACTURA_VENTA_MODIFICADA) {
+            movimientoService.updateMovimiento(event.getNuevaVenta());
         }
         
     }

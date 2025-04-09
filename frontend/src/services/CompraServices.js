@@ -22,6 +22,23 @@ export const CompraServices = {
     })
     
   },
+  obtenerComprasByPedido(id) {
+
+    return axios.get(COMPRA_API_BASE_URL+"/pedido/"+id,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+    
+  })
+  
+},
   registrarCompra(pedido){
     
     return  axios.post(COMPRA_API_BASE_URL, pedido,{

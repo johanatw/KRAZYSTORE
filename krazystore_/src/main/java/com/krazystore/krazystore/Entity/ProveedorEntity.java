@@ -9,6 +9,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,6 +36,16 @@ public class ProveedorEntity {
     private String ruc;
     @Column
     private String telefono;
+    @Column
+    private String correo;
+    @ManyToOne
+    @JoinColumn(name = "id_tipo")
+    private TipoProveedor tipo;
+    @Column
+    private String direccion;
+    @ManyToOne
+    @JoinColumn(name = "id_ciudad")
+    private CiudadEntity ciudad;
 
     public Long getId() {
         return id;
@@ -65,6 +77,38 @@ public class ProveedorEntity {
 
     public void setTelefono(String telefono) {
         this.telefono = telefono;
+    }
+
+    public TipoProveedor getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(TipoProveedor tipo) {
+        this.tipo = tipo;
+    }
+
+    public String getCorreo() {
+        return correo;
+    }
+
+    public void setCorreo(String correo) {
+        this.correo = correo;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
+    }
+
+    public CiudadEntity getCiudad() {
+        return ciudad;
+    }
+
+    public void setCiudad(CiudadEntity ciudad) {
+        this.ciudad = ciudad;
     }
          
     

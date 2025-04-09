@@ -62,11 +62,12 @@ async function setDetalle(lista) {
             element.producto = productos.value[index];
         
         }
-      
-        element.cantDisponible = productos.value[index].cantDisponible + element.cantidad;
+        console.log(productos.value[index].cantDisponible);
+        console.log(element);
+        element.cantDisponible = productos.value[index].cantDisponible + element.cantSolicitado;
         element.cantReservada = productos.value[index].cantReservada;
         element.cantStock = productos.value[index].cantStock;
-        element.cantPreVenta = productos.value[index].cantPreVenta;
+        element.cantLimBajoDemanda = productos.value[index].cantLimBajoDemanda;
 
     });
 
@@ -139,7 +140,7 @@ const sendSubTotal = () => {
 
     
 
-      monto += (e.precio*e.cantidad);
+      monto += (e.precio*e.cantSolicitado);
  });
  subTotal.value = monto;
     total.value = subTotal.value + costoEnvio.value;
@@ -159,13 +160,24 @@ sendSubTotal();
 }*/
 
 
+const showTag = (detalle) => {
+    console.log(detalle);
+    let solicitado = detalle.cantSolicitado;
+    let facturado = detalle.cantFacturada;
+    let stock = detalle.producto.cantStock;
+    let pendiente = solicitado - facturado > 0? true: false;
 
+    if (stock<solicitado && pendiente) {
+        return true;
+    }
+    return false;
+}
 
 const addItem = (item) => {
 let index = detalles.value.findIndex((loopVariable) => loopVariable.producto.id === item.id);
 
 if (index>-1) {
-   detalles.value[index].cantidad++;
+   detalles.value[index].cantSolicitado++;
 
 } else {
 
@@ -174,14 +186,20 @@ if (index>-1) {
    detalle.value.cantDisponible = item.cantDisponible;
    detalle.value.cantReservada = item.cantReservada;
    detalle.value.cantStock = item.cantStock;
-   detalle.value.cantPreVenta = item.cantPreVenta;
-  detalle.value.cantidad = 1;
+   detalle.value.cantLimBajoDemanda = item.cantLimBajoDemanda;
+  detalle.value.cantSolicitado = 1;
   detalle.value.precio = item.precio;
-   detalle.value.subtotal = detalle.value.precio * detalle.value.cantidad;
+   detalle.value.subTotal = detalle.value.precio * detalle.value.cantSolicitado;
    detalles.value.push(detalle.value);
    detalle.value= {};
 }
-item.cantDisponible--;
+
+if (item.cantStock < 1 && item.bajoDemanda) {
+    item.cantLimBajoDemanda--;
+} else {
+    item.cantDisponible--;
+    
+}
 item.cantReservada++;
 sendSubTotal();
 
@@ -192,8 +210,8 @@ const eliminar = (detalle) => {
   
    let index = detalles.value.findIndex((loopVariable) => loopVariable.producto.id === detalle.producto.id);
    detalles.value.splice(index,cantidad);
-   detalle.producto.cantDisponible = detalle.producto.cantDisponible + detalle.cantidad;
-   detalle.producto.cantReservada = detalle.producto.cantReservada - detalle.cantidad;
+   detalle.producto.cantDisponible = detalle.producto.cantDisponible + detalle.cantSolicitado;
+   detalle.producto.cantReservada = detalle.producto.cantReservada - detalle.cantSolicitado;
    sendSubTotal();
   
   }
@@ -222,7 +240,7 @@ const eliminar = (detalle) => {
                     Productos
                 </div>
                 <div >
-                    <Button label="+ Producto" link @click="visible = true" />
+                    <Button label="Agregar Producto" text @click="visible = true" />
                     </div>
             </div>
                          </template>
@@ -234,7 +252,7 @@ const eliminar = (detalle) => {
         <DataTable class="tablaCarrito" ref="dt" :value="detalles" scrollable scrollHeight="400px" dataKey="producto.id" style="width: 100%;">
           <Column  class="col"  aria-sort="none" style="width:1.5rem">
              <template #body="slotProps">
-                 <div class="flex-auto p-fluid" v-if="slotProps.data.producto.cantStock < 1" style="max-width:10lvb  !important; ">
+                 <div class="flex-auto p-fluid" v-if="showTag(slotProps.data)" style="max-width:10lvb  !important; ">
                    <Tag value="SinStock"></Tag>
                 </div>  
             </template>  
@@ -249,18 +267,20 @@ const eliminar = (detalle) => {
         </Column>
          <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
             <template #body="slotProps">
-                <div style="max-width:15lvb  !important; " >
-                  <InputNumber fluid v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="1" :max="slotProps.data.cantDisponible" @input="prueba(slotProps.data.producto,slotProps.data.cantDisponible,$event)"  @update:modelValue="sendSubTotal" />
+                <div v-if="(slotProps.data.cantStock < 1 && slotProps.data.producto.bajoDemanda && slotProps.data.cantLimBajoDemanda>0)" style="max-width:15lvb  !important; " >
+                  <InputNumber fluid v-model="slotProps.data.cantSolicitado" inputId="minmax-buttons" mode="decimal" showButtons :min="1" :max="slotProps.data.cantLimBajoDemanda"   @update:modelValue="sendSubTotal" />
               </div>  
-              
+              <div v-else style="max-width:15lvb  !important; " >
+                  <InputNumber fluid v-model="slotProps.data.cantSolicitado" inputId="minmax-buttons" mode="decimal" showButtons :min="1" :max="slotProps.data.cantDisponible"   @update:modelValue="sendSubTotal" />
+              </div>
             </template>
              
          </Column>
          
-         <Column  class="col" field="subtotal" header="Total" aria-sort="none" >
+         <Column  class="col" field="subtotal" header="Sub Total" aria-sort="none" >
              <template #body="slotProps">
                  <div class="flex-auto p-fluid" style="max-width: 20dvh;">
-                     <label for="subtotal"> {{  (slotProps.data.subtotal =  slotProps.data.cantidad * slotProps.data.precio ).toLocaleString("de-DE") }}</label>
+                     <label for="subtotal"> {{  (slotProps.data.subTotal =  slotProps.data.cantSolicitado * slotProps.data.precio ).toLocaleString("de-DE") }}</label>
                   </div>
             </template>
          </Column>
@@ -273,29 +293,13 @@ const eliminar = (detalle) => {
    </div>
  </div>
                                 <div class="grid" style="margin-top: 1rem;">
-                                    <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
-                                        <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
-                                            Total items 
-                                        </div>
-                                        <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
-                                            {{ subTotal.toLocaleString("de-DE") }}
-                                        </div>
-                                    </div>
-                                    <div v-if="showEnvio" class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
-                                        <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
-                                            Envio
-                                        </div>
-                                        <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
-                                            {{ costoEnvio.toLocaleString("de-DE") }}
-                                        </div>
-
-                                    </div>
+                                   
                                     <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
                                         <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; font-weight: bold; font-size: 16px;">
                                             Total
                                         </div>
                                         <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; font-weight: bold; font-size: 16px;" >
-                                            {{ total.toLocaleString("de-DE") }}
+                                            {{ total.toLocaleString("de-DE") }} Gs.
                                         </div>
 
                                     </div>
@@ -305,18 +309,18 @@ const eliminar = (detalle) => {
                                 <div >
                                     
                        
-                                    <Dialog v-if="visible" v-model:visible="visible" modal header="Seleccionar productos" :closable="false" :draggable="false" :style="{ width: '40rem' }"  >
+                                    <Dialog v-if="visible" v-model:visible="visible" modal header="Seleccionar productos" :closable="false" :draggable="false" >
                                     <template #footer>
                                         <div class="flex justify-content-end">
                                             <Button label="Cerrar" icon="pi pi-times" text @click="visible = false" />
                                         </div>
                                     </template> 
 
-                                    <div class="grid" style="row-gap: 2.5vh;">
+                                    <div class="grid" >
                                         <div class="card col-12" style="width: 100%;">
                                             <span class="p-input-icon-left" style="width: 100%; margin-top: 0.5rem;">
                                             
-                                                <InputText  class="buscador p-fluid" style="width: 100%;" v-model="filters['global'].value" placeholder="Buscar..." />
+                                                <InputText fluid  class="buscador p-fluid" style="width: 100%;" v-model="filters['global'].value" placeholder="Buscar..." />
                                             </span>
     
                                             <div class="flex card-container col-12" style="width: 100%;">
@@ -329,7 +333,7 @@ const eliminar = (detalle) => {
                                                     <Column field="nombre" header="Nombre" aria-sort="none" ></Column>
                                                     <Column field="cantDisponible" header="Disponible" aria-sort="none" >
                                                     <template #body="slotProps">
-                                                        <h4 v-if="slotProps.data.cantStock < 1 && slotProps.data.bajoDemanda" style="color: tomato !important;">{{slotProps.data.cantDisponible }}</h4>
+                                                        <h4 v-if="slotProps.data.cantStock < 1 && slotProps.data.bajoDemanda" style="color: tomato !important;">{{slotProps.data.cantLimBajoDemanda}}</h4>
                                                         <h4 v-else style="color: green !important;">{{slotProps.data.cantDisponible}}</h4>
 
                                                     </template>
@@ -345,7 +349,7 @@ const eliminar = (detalle) => {
                                                     </Column>
                                                     <Column :exportable="false" style="min-width:8rem">
                                                     <template #body="slotProps">
-                                                        <Button v-if=" slotProps.data.cantDisponible > 0" icon="pi pi-shopping-cart" class="mod_icono"  @click="addItem(slotProps.data)"/>
+                                                        <Button v-if=" slotProps.data.cantDisponible > 0 || (slotProps.data.cantStock < 1 && slotProps.data.bajoDemanda && slotProps.data.cantLimBajoDemanda>0)" icon="pi pi-shopping-cart" class="mod_icono"  @click="addItem(slotProps.data)"/>
                                                             <Button v-else disabled="true" icon="pi pi-shopping-cart" class="mod_icono" />
                                                     </template>
                                                     </Column>

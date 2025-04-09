@@ -6,6 +6,7 @@ package com.krazystore.krazystore.ServiceImpl;
 
 import Utils.TipoAjusteExistencia;
 import Utils.TipoOperacionDetalle;
+import com.krazystore.krazystore.DTO.DetallePedidoCompraDTO;
 import com.krazystore.krazystore.DTO.DetallePedidoCreationRequest;
 import com.krazystore.krazystore.DTO.DetallePedidoDTO;
 import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
@@ -57,6 +58,11 @@ public class DetallePedidoServiceImpl implements DetallePedidoService{
     }
 
     @Override
+    public List<DetallePedidoDTO> findDTOByIdPedido(Long id) {
+        return detallepedidorepository.findDetallesByIdPedido(id);
+    }
+    
+    @Override
     public Optional<DetallePedidoEntity> findById(Long id) {
         return detallepedidorepository.findById(id);
     }
@@ -87,7 +93,6 @@ public class DetallePedidoServiceImpl implements DetallePedidoService{
                     TipoAjusteExistencia.INCREMENTAR
             );
             d.setPedido(pedido);
-            d.setSaldoPendiente(d.getSubtotal());
             productosActualizarExistencias.add(productoActualizar);
         });
         
@@ -207,10 +212,10 @@ public class DetallePedidoServiceImpl implements DetallePedidoService{
 
             // Si no existe en el detalle actual, se intenta eliminar
             if (!existe) {
-                if (anterior.getCantidadFacturada() > 0) {
+                /*if (anterior.getCantidadFacturada() > 0) {
                     // Lanza excepción si el producto ya fue facturado
                     throw new BadRequestException("No es posible eliminar el Producto: " + anterior.getProducto().getNombre());
-                }
+                }*/
                 // Si no está facturado, se agrega a la lista de elementos a eliminar
                 elementos.add(anterior);
             }
@@ -230,12 +235,12 @@ public class DetallePedidoServiceImpl implements DetallePedidoService{
             if(actual.isPresent() ){
                 if(actual.get().getCantidad() != anterior.getCantidad()){
                     // Lanza excepción si el producto ya fue facturado
-                    if(anterior.getCantidadFacturada() > actual.get().getCantidad()){
+                    /*if(anterior.getCantidadFacturada() > actual.get().getCantidad()){
                         throw new BadRequestException("No es posible modificar la cantidad del Producto: "+ anterior.getProducto().getNombre());
-                    }
+                    }*/
                     
                     actual.get().setId(anterior.getId());
-                    actual.get().setPedido(anterior.getPedido());
+                    //actual.get().setPedido(anterior.getPedido());
                     
                     elementos.add(actual.get());
                 }
@@ -249,15 +254,17 @@ public class DetallePedidoServiceImpl implements DetallePedidoService{
     public List<DetallePedidoEntity> getElementosRegistrar (List<DetallePedidoEntity> anteriorDetalle, List<DetallePedidoEntity> actualDetalle) {
         PedidoEntity pedido = anteriorDetalle.get(0).getPedido();
         List<DetallePedidoEntity> elementos = new ArrayList<>();
-                           
+        System.out.println("getElementosRegistrar");
         // Recorre detalle anterior
         actualDetalle.forEach(actual -> {
+            System.out.println(actual.getProducto().getId());
             // Busca si el producto del detalle actual no existe en el detalle anterior
             boolean existe = anteriorDetalle.stream()
                     .anyMatch(anterior -> Objects.equals(actual.getProducto().getId(), anterior.getProducto().getId()));
 
             // Si no existe en el detalle anterior, se intenta registrar
             if (!existe) {
+                System.out.println("ENTRA IF");
                 actual.setPedido(pedido);
               
                 elementos.add(actual);
@@ -351,7 +358,7 @@ public class DetallePedidoServiceImpl implements DetallePedidoService{
     
     
  
-  
+  /*
     @Override
     public void updateDetallesFacturadas(List<DetalleVentaEntity> detalles, PedidoEntity pedido, String accion){
         List<DetallePedidoEntity> detallePedido = detallepedidorepository.findByNroPedido(pedido.getId());
@@ -372,7 +379,7 @@ public class DetallePedidoServiceImpl implements DetallePedidoService{
 
         });
        detallepedidorepository.saveAll(detallePedidoUpdated);
-    }
+    }*/
 
     
     @Override
@@ -389,6 +396,8 @@ public class DetallePedidoServiceImpl implements DetallePedidoService{
     public void deleteByPedido(Long id) {
         detallepedidorepository.deleteByPedido(id);
     }
+
+   
     
 
 }

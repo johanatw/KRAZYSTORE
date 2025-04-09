@@ -80,6 +80,13 @@ const items = ref([
         label: 'Ventas',
         icon: 'pi pi-bill',
     items: [
+                {
+                label: 'Entregas',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'entregas'});
+                }
+            },
             {
                 label: 'Facturas de ventas',
                 icon: 'pi pi-star',
@@ -94,6 +101,7 @@ const items = ref([
                     router.push({name: 'pedidos'});
                 }
             },
+
             {
                 label: 'Clientes',
                 icon: 'pi pi-star',
@@ -101,6 +109,14 @@ const items = ref([
                     router.push({name: 'clientes'});
                 }
             },
+            {
+                label: 'Productos',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'productos_venta'});
+                }
+            },
+          
         ]
     },
     { 
@@ -127,6 +143,20 @@ const items = ref([
                 icon: 'pi pi-star',
                 command: () => {
                     router.push({name: 'pedidos_compras'});
+                }
+            },
+            {
+                label: 'Proveedores',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'proveedores'});
+                }
+            },
+            {
+                label: 'Productos',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'productos_compra'});
                 }
             },
 

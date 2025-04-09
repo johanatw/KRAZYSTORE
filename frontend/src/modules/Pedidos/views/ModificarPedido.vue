@@ -14,6 +14,7 @@ import {CajaServices} from '@/services/CajaServices';
 import { ref, onMounted } from "vue";
 import RadioButton from "primevue/radiobutton";
 import InputGroup from 'primevue/inputgroup';
+import Textarea from "primevue/textarea";
 import {DireccionServices} from '@/services/DireccionServices';
 import Panel from 'primevue/panel';
 import {PedidoServices} from '@/services/PedidoServices';
@@ -45,6 +46,7 @@ const estadoPedido = ref();
 const estadoPago = ref();
 const pedidoId = ref(0);
 const cliente = ref({});
+const observaciones = ref();
 const selectedOp = ref('Casi');
 const direccionSelected = ref();
 const direccionEnvio = ref({});
@@ -165,9 +167,9 @@ const getPedido = () => {
         let det = data.data.detalle;
 
         selectedCliente.value = pedido.value.cliente;
-        selectedFormaEntrega.value = pedido.value.modoEntrega;
-        selectedEnvio.value = pedido.value.costoEnvio;
-        direccionSelected.value = pedido.value.direccionEnvio;
+        //selectedFormaEntrega.value = pedido.value.modoEntrega;
+        //selectedEnvio.value = pedido.value.costoEnvio;
+        //direccionSelected.value = pedido.value.direccionEnvio;
         
         console.log(det);
         
@@ -180,7 +182,7 @@ const getPedido = () => {
 
         
         mostrarCliente();
-        saveEntrega();
+        //saveEntrega();
     });
 }
 //Cliente
@@ -264,8 +266,8 @@ const registrarCliente = () =>{
 
 const modificarCliente = (cli) => {
     PersonaServices.getPersona(cli.id).then((data) => {
-        console.log("data direccion");
-        console.log(data.data.direccion);
+        //console.log("data direccion");
+        //console.log(data.data.direccion);
        cliente.value = data.data.persona;
        clienteDialog.value = true;
        if (data.data.direccion) {
@@ -302,7 +304,7 @@ const saveCliente = () => {
     console.log(direccion.value.calle1);
     if (cliente?.value.nombre?.trim() && validarDireccionCliente(direccion.value) ) {
         direccion.value.tipo = 'P';
-        generarDireccion(direccion.value);
+       // generarDireccion(direccion.value);
         personaCreationDTO.value = {personaEntity: cliente.value, direccion: direccion.value};
         if (cliente.value.id) {
             PersonaServices.modificarPersona(cliente.value.id, personaCreationDTO.value).then((response)=>{
@@ -579,22 +581,7 @@ const submit = () =>{
         console.log("pedidodetalle", productos.value.detalles);
         pedido.value.cliente = selectedCliente.value;
         pedido.value.fecha = fecha.value;
-        pedido.value.modoEntrega = selectedFormaEntrega.value;
-        if (selectedFormaEntrega.value?.descripcion === "Envío") {
-            pedido.value.costoEnvio = selectedEnvio.value;
-
-            if (nuevaDireccion.value) {
-                pedido.value.direccionEnvio = direccionEnvio.value; 
-            } else {
-                pedido.value.direccionEnvio = direccionSelected.value;
-            }
-
-        }
-
-        if (selectedFormaEntrega.value?.descripcion === 'Retiro') {
-            pedido.value.direccionEnvio = null;
-            pedido.value.costoEnvio = null;
-        }
+       
         
         detallePedido.value = productos.value.detalles;
        // console.log("submitdetalle",);
@@ -662,7 +649,7 @@ const validarForm = (event) => {
             </div>
         </div>
 
-           
+          <!-- 
         <div class="field" v-show="selectedFormaEntrega.descripcion === 'Envío'">
             <div v-if="direcciones.length > 0 && !nuevaDireccion">
                 <label for="description">Dirección</label>
@@ -736,7 +723,7 @@ const validarForm = (event) => {
                 </Dropdown>
                 <small class="p-error" v-if="direccionSubmitted && !selectedEnvio.id">Ingrese Medio de envío</small>
             </div> 
-        </div>
+        </div>-->
 
         <template #footer>
             <Button label="Cancel" icon="pi pi-times" text @click="closeEntregaDialog"/>
@@ -748,59 +735,60 @@ const validarForm = (event) => {
     <Dialog v-model:visible="clienteDialog" :closable="false" :style="{width: '450px'}" header="Cliente" :modal="true" class="p-fluid">
         <div class="field">
             <label for="name">Nombre</label>
-            <InputText id="name" v-model.trim="cliente.nombre" required="true" autofocus :class="{'p-invalid': submitted && !cliente.nombre}" />
+            <InputText fluid id="name" v-model.trim="cliente.nombre" required="true" autofocus :class="{'p-invalid': submitted && !cliente.nombre}" />
             <small class="p-error" v-if="submitted && !cliente.nombre">Ingrese un Nombre</small>
         </div>
         <div class="field">
             <label for="description">Apellido</label>
-            <InputText id="description" v-model="cliente.apellido" required="true"  />
+            <InputText fluid id="description" v-model="cliente.apellido" required="true"  />
         </div>
         <div class="field">
             <label for="inventoryStatus" class="mb-3">Tipo Documento</label>
-            <Dropdown id="inventoryStatus" v-model="cliente.tipoDoc" :options="documentos" optionLabel="descripcion" placeholder="Select a Status" />
+            <Dropdown fluid id="inventoryStatus" v-model="cliente.tipoDoc" :options="documentos" optionLabel="descripcion" placeholder="Seleccione el tipo de documento" />
         </div>
         <div class="field">
             <label for="description">Nro Documento</label>
-            <InputText id="description" v-model="cliente.nroDoc" required="true"  />
+            <InputText fluid id="description" v-model="cliente.nroDoc" required="true"  />
         </div>
         <div class="field">
             <label for="description">Telefono</label>
-            <InputText id="description" v-model="cliente.telefono" required="true"  />
+            <InputText fluid id="description" v-model="cliente.telefono" required="true"  />
         </div>
         <div class="field">
             <label for="description">Calle Principal</label>
-            <InputText id="description" v-model="direccion.calle1" required="true" :class="{'p-invalid': submitted && !validarDireccionCliente(direccion) && !direccion.calle1}" />
+            <InputText fluid id="description" v-model="direccion.calle1" required="true" :class="{'p-invalid': submitted && !validarDireccionCliente(direccion) && !direccion.calle1}" />
             <small class="p-error" v-if="submitted && !validarDireccionCliente(direccion) && !direccion.calle1">Ingrese Calle Principal</small>
         </div>
         
         <div class="field">
             <label for="description">Calle 2</label>
-            <InputGroup>
+            <InputGroup fluid>
                 <Dropdown v-model="selectedOp" :options="opciones"  placeholder="Select a City" style="width: 0.1rem !important;" />
                 <InputText id="description" v-model="direccion.calle2" required="true"  />
             </InputGroup>
         </div>
         <div class="field" v-if="selectedOp=='Entre'">
             <label for="description">Calle 3</label>
-            <InputText id="description" v-model="direccion.calle3" required="true"  />
+            <InputText fluid id="description" v-model="direccion.calle3" required="true"  />
         </div>
         <div class="field">
             <label for="description">N° Casa</label>
-            <InputText id="description" v-model="direccion.nroCasa" required="true"  />
+            <InputText fluid id="description" v-model="direccion.nroCasa" required="true"  />
         </div>
         <div class="field " >
             <label for="nombreu">Departamento</label>
-            <Dropdown v-model="direccion.departamento" :options="departamentos" optionLabel="descripcion" placeholder="Seleccione un departamento" @change="getCiudades(direccion.departamento.id)"  />
+            <Dropdown fluid v-model="direccion.departamento" :options="departamentos" optionLabel="descripcion" placeholder="Seleccione un departamento" @change="getCiudades(direccion.departamento.id)"  />
         </div>
         <div class="field " >
             <label for="nombreu">Ciudad</label>
-            <Dropdown v-model="direccion.ciudad" :options="ciudades" optionLabel="descripcion" placeholder="Seleccione una ciudad" :class="{'p-invalid': submitted && !validarDireccionCliente(direccion) && !direccion.ciudad}"  />
+            <Dropdown fluid v-model="direccion.ciudad" :options="ciudades" optionLabel="descripcion" placeholder="Seleccione una ciudad" :class="{'p-invalid': submitted && !validarDireccionCliente(direccion) && !direccion.ciudad}"  />
             <small class="p-error" v-if="submitted && !validarDireccionCliente(direccion) && !direccion.ciudad">Ingrese Ciudad</small>
         </div>
-        <div class="field">
+        
+       <!-- <div class="field">
             <label for="description">Ubicar en el mapa</label>
             <MapComponent @getUbicacion="getUbicacion" ref="map" :lat="direccion.lat" :lng="direccion.lng" />
-        </div>
+        </div>-->
 
         <template #footer>
             <Button label="Cancel" icon="pi pi-times" text @click="hideDialog"/>
@@ -834,7 +822,7 @@ const validarForm = (event) => {
             </div>
         </div>
         <div class="grid " >
-            <div class="field col-12 md:col-12">
+            <div class="field col-12 md:col-6">
                     <Card>
                         <template #title>
                             <div class="flex justify-content-between ">
@@ -845,9 +833,12 @@ const validarForm = (event) => {
                         </template>
                         <template #content>
                             <div class="field" >
-                                Fecha: <DatePicker dateFormat="dd/mm/yy" v-model="fecha" showIcon iconDisplay="input" />
+                                Fecha: <DatePicker fluid dateFormat="dd/mm/yy" v-model="fecha" showIcon iconDisplay="input" />
                             </div> 
-
+                            <div class="field">
+                                Observaciones: 
+                                <Textarea fluid v-model="pedido.observaciones" rows="3" cols="33" />
+                            </div>
                         </template>
                     </Card>
                 </div> 
@@ -893,6 +884,7 @@ const validarForm = (event) => {
         </template>
     </Card>
             </div>  
+            <!--
             <div class="field col-12 md:col-6">
                 <Card >
         <template #title>
@@ -922,7 +914,7 @@ const validarForm = (event) => {
             
         </template>
     </Card>
-                </div>
+                </div>-->
             <div class="field col-12 md:col-12">
                 <CardDetalle ref="productos"/>
             </div>

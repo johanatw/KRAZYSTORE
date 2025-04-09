@@ -51,8 +51,8 @@ public class DireccionServiceImpl implements DireccionService {
         updatedDireccion.setDireccion(direccionEntity.getDireccion());
         updatedDireccion.setCiudad(direccionEntity.getCiudad());
         updatedDireccion.setPersona(direccionEntity.getPersona());
-        updatedDireccion.setLat(direccionEntity.getLat());
-        updatedDireccion.setLng(direccionEntity.getLng());
+        //updatedDireccion.setLat(direccionEntity.getLat());
+        //updatedDireccion.setLng(direccionEntity.getLng());
         return direccionrepository.save(updatedDireccion);
     }
 
@@ -64,7 +64,6 @@ public class DireccionServiceImpl implements DireccionService {
                 (direccion.getCalle3() != null && !direccion.getCalle3().isEmpty()) ||
                (direccion.getNroCasa() != null && !direccion.getNroCasa().isEmpty()) ||
                 (direccion.getDireccion() != null && !direccion.getDireccion().isEmpty()) ||
-                (direccion.getLat() != null) ||
                 (direccion.getCiudad() != null);
     }
 

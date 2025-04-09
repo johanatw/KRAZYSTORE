@@ -38,6 +38,12 @@ public class DetalleAjuste {
     private ProductoEntity producto;
     @Column(name = "cantidad_ajustada")
     private int cantidadAjustada;
+    @Column(name = "stock_anterior")
+    private int stockAnterior;
+    @Column(name = "stock_posterior")
+    private int stockPosterior;
+    @Column
+    private String motivo;
 
     public Long getId() {
         return id;
@@ -69,6 +75,30 @@ public class DetalleAjuste {
 
     public void setCantidadAjustada(int cantidadAjustada) {
         this.cantidadAjustada = cantidadAjustada;
+    }
+
+    public int getStockAnterior() {
+        return stockAnterior;
+    }
+
+    public void setStockAnterior(int stockAnterior) {
+        this.stockAnterior = stockAnterior;
+    }
+
+    public int getStockPosterior() {
+        return stockPosterior;
+    }
+
+    public void setStockPosterior(int stockPosterior) {
+        this.stockPosterior = stockPosterior;
+    }
+
+    public String getMotivo() {
+        return motivo;
+    }
+
+    public void setMotivo(String motivo) {
+        this.motivo = motivo;
     }
     
     

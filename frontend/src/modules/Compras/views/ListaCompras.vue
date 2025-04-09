@@ -226,9 +226,9 @@ const nuevoPedido = () =>{
                 {{ formatearFecha(slotProps.data.fecha) }}
             </template>
         </Column>
-        <Column field="fecha" sortable header="N° Recepcion" aria-sort="ascending" >
+        <Column field="fecha" sortable header="N° Pedido" aria-sort="ascending" >
             <template #body="slotProps">
-                {{ slotProps.data.recepcion?.id }}
+                {{ slotProps.data.pedido?.id }}
             </template>
         </Column>
           <Column field="proveedor.descripcion"  header="Proveedor" aria-sort="ascending" sortable>           

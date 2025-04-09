@@ -41,8 +41,14 @@ public class CompraEntity {
     @JoinColumn(name="id_proveedor")
     private ProveedorEntity proveedor;
     @ManyToOne
-    @JoinColumn(name="id_recepcion")
-    private RecepcionEntity recepcion;
+    @JoinColumn(name="id_pedido")
+    private PedidoCompraEntity pedido;
+    @Column(name="total_iva")
+    private int montoIva;
+    @Column(name="total_gravada")
+    private int totalGravada;
+    @Column(name="total_exentas")
+    private int totalExentas;
     @Column
     private char estado;
 
@@ -72,13 +78,6 @@ public class CompraEntity {
         this.total = total;
     }
 
-    public RecepcionEntity getRecepcion() {
-        return recepcion;
-    }
-
-    public void setRecepcion(RecepcionEntity recepcion) {
-        this.recepcion = recepcion;
-    }
 
     public String getNroFactura() {
         return nroFactura;
@@ -103,7 +102,37 @@ public class CompraEntity {
     public void setProveedor(ProveedorEntity proveedor) {
         this.proveedor = proveedor;
     }
-    
-    
-    
+
+    public int getMontoIva() {
+        return montoIva;
+    }
+
+    public void setMontoIva(int montoIva) {
+        this.montoIva = montoIva;
+    }
+
+    public int getTotalGravada() {
+        return totalGravada;
+    }
+
+    public void setTotalGravada(int totalGravada) {
+        this.totalGravada = totalGravada;
+    }
+
+    public int getTotalExentas() {
+        return totalExentas;
+    }
+
+    public void setTotalExentas(int totalExentas) {
+        this.totalExentas = totalExentas;
+    }
+
+    public PedidoCompraEntity getPedido() {
+        return pedido;
+    }
+
+    public void setPedido(PedidoCompraEntity pedido) {
+        this.pedido = pedido;
+    }
+
 }

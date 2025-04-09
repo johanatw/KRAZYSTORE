@@ -8,10 +8,12 @@ import Utils.Estado;
 import Utils.FacturaVentaPagadoEvent;
 import Utils.NuevaFacturaVentaEvent;
 import Utils.NumberToLetterConverter;
+import Utils.PedidoEvent;
 import Utils.PedidoFacturadoEvent;
 import Utils.ProductosFacturadosEvent;
 import Utils.TipoEvento;
 import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
+import com.krazystore.krazystore.DTO.VentaCreationDTO;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.ConceptoEntity;
 import com.krazystore.krazystore.Entity.DetallePedidoEntity;
@@ -30,6 +32,7 @@ import com.krazystore.krazystore.Service.DetalleVentaService;
 import com.krazystore.krazystore.Service.PedidoService;
 import com.krazystore.krazystore.Service.TimbradoService;
 import com.krazystore.krazystore.Service.VentaService;
+import com.krazystore.krazystore.exception.BadRequestException;
 import com.lowagie.text.BadElementException;
 import com.lowagie.text.Cell;
 import com.lowagie.text.Document;
@@ -131,21 +134,55 @@ public class VentaServiceImpl implements VentaService{
         if(venta.getPedido() != null){
             //Modifica cantidad facturada del pedido
             PedidoEntity pedido = venta.getPedido();
-            detallePedidoService.updateDetallesFacturadas(detalle, pedido, "REGISTRAR");
+            //actualiza existencias de los productos del pedido
+            actualizarProductosPedidoFacturado(productosActualizarExistencias);
+            //actualiza estado del pedido
+            actualizarEstadoPedido(pedido.getId(), TipoEvento.PEDIDO_FACTURADO);
+        }else{
+            //actualiza existencias de los productos de la venta
+            actualizarProductosFacturados(productosActualizarExistencias);
+        }
+        
+       /* try {
+            generarPdf(venta);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(VentaServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }*/
+        
+        return venta;
+    }
+    
+    @Transactional
+    @Override
+    public VentaEntity updateVenta(VentaCreationDTO ventaDTO, Long id)throws Exception {
+        VentaEntity venta = ventaDTO.getVenta();
+        VentaEntity updatedVenta = ventarepository.findById(id).get();
+        //No puede modificar una factura si ya esta pagado
+        if(Estado.PAGADO.getCodigo() == updatedVenta.getEstado()){
+            throw new BadRequestException("No se puede modificar " );
+        }
+        updatedVenta.setCliente(venta.getCliente());
+        updatedVenta.setMontoIva(venta.getMontoIva());
+        updatedVenta.setMontoTotal(venta.getMontoTotal());
+        
+        ventarepository.save(updatedVenta);
+ 
+        List<ProductoExistenciasDTO> productosActualizarExistencias = detalleVentaService.updateDetVenta(ventaDTO.getDetalle(), id);
+        actualizarProductosFacturados(productosActualizarExistencias);
+            
+        notificarFacturaVentaModificada(updatedVenta);
+        
+        //Si la factura viene de un pedido
+        if(venta.getPedido() != null){
+            //Modifica cantidad facturada del pedido
+            PedidoEntity pedido = venta.getPedido();
             //actualiza existencias de los productos del pedido
             actualizarProductosPedidoFacturado(productosActualizarExistencias);
         }else{
             //actualiza existencias de los productos de la venta
             actualizarProductosFacturados(productosActualizarExistencias);
         }
-        
-        try {
-            generarPdf(venta);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(VentaServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        return venta;
+        return updatedVenta;
     }
 
     @Override
@@ -160,6 +197,7 @@ public class VentaServiceImpl implements VentaService{
 
         return ventarepository.save(updatedVenta);
     }
+    
     
     @Transactional
     @Override
@@ -178,9 +216,10 @@ public class VentaServiceImpl implements VentaService{
         
         if(facturaVenta.getPedido() != null){
             PedidoEntity pedido = facturaVenta.getPedido();
-            detallePedidoService.updateDetallesFacturadas(detalleVenta, pedido, "ELIMINAR");
             //actualiza existencias de los productos de la venta
             actualizarProductosPedidoFacturado(productosActualizarExistencias);
+            //actualiza estado del pedido
+            actualizarEstadoPedido(pedido.getId(), TipoEvento.FACTURA_ANULADA);
         }else{
             //actualiza existencias de los productos de la venta
             actualizarProductosFacturados(productosActualizarExistencias);
@@ -196,12 +235,17 @@ public class VentaServiceImpl implements VentaService{
         ventarepository.deleteById(id);
     }
     
-    public void generarPdf(VentaEntity venta) throws FileNotFoundException {
+    @Override
+    public String generarPdf(Long id) throws FileNotFoundException {
         
         try {
+        VentaEntity venta = ventarepository.findById(id).get();
         Date fecha = new Date();
         
-        String nombre = "src/main/resources/recibos/Recibo_" + venta.getNroFactura() +".pdf";
+        String rutaBase = "src/main/resources/recibos/";
+        String nombreArchivo = "Factura_"+venta.getNroFactura() +".pdf";
+                
+        String nombre = rutaBase + nombreArchivo;
         Document document = new Document(PageSize.A4);
         document.getPageSize().setRotation(90);
         
@@ -218,11 +262,17 @@ public class VentaServiceImpl implements VentaService{
         generarDetalle(venta, document);
         generarSubTotales(venta, document);
         
+        venta.setNombreArchivo(nombreArchivo);
+        
+        
         document.close();
+        ventarepository.save(venta);
+        return venta.getNombreArchivo();
         } catch (BadElementException ex) {
             //Logger.getLogger(AnticipoServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException("No se pudo obtener el nombre del archivo.");
         } 
-  
+       
     }
     
     public void generarCabecera(VentaEntity venta, Document document) throws BadElementException {
@@ -579,8 +629,13 @@ public class VentaServiceImpl implements VentaService{
         
         try {
             VentaEntity venta = ventarepository.findById(id).get();
+            String rutaBase = "src/main/resources/recibos/";
+            
+            
+            
+            String nombreArchivo = venta.getNombreArchivo()!= null?venta.getNombreArchivo():generarPdf(id);
                     
-            File file = new File("src/main/resources/recibos/Recibo_"+venta.getNroFactura()+".pdf");
+            File file = new File(rutaBase+nombreArchivo);
             InputStream in = new FileInputStream(file);
             org.apache.tomcat.util.http.fileupload.IOUtils.copy(in, response.getOutputStream());
             response.flushBuffer();
@@ -614,6 +669,18 @@ public class VentaServiceImpl implements VentaService{
     public void notificarFacturaVentaAnulada(VentaEntity ventaAnulada) {
         // Publicar el evento
         NuevaFacturaVentaEvent evento = new NuevaFacturaVentaEvent(TipoEvento.FACTURA_ANULADA, ventaAnulada );
+        eventPublisher.publishEvent(evento);
+    }
+    
+    public void notificarFacturaVentaModificada(VentaEntity venta) {
+        // Publicar el evento
+        NuevaFacturaVentaEvent evento = new NuevaFacturaVentaEvent(TipoEvento.FACTURA_VENTA_MODIFICADA,venta );
+        eventPublisher.publishEvent(evento);
+    }
+    
+    public void actualizarEstadoPedido(Long idPedido, TipoEvento tipoEvento) {
+        // Publicar el evento
+        PedidoEvent evento = new PedidoEvent(idPedido, tipoEvento);
         eventPublisher.publishEvent(evento);
     }
     

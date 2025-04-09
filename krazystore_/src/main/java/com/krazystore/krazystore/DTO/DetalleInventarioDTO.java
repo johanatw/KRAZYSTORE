@@ -6,6 +6,7 @@ package com.krazystore.krazystore.DTO;
 
 import com.krazystore.krazystore.Entity.CategoriaEntity;
 import com.krazystore.krazystore.Entity.ProductoEntity;
+import com.krazystore.krazystore.Entity.SubCategoriaEntity;
 
 /**
  *
@@ -15,7 +16,7 @@ public class DetalleInventarioDTO {
     private Long id;
     private Long idProducto;
     private String producto;
-    private CategoriaEntity categoria;
+    private SubCategoriaEntity subCategoria;
     private int stockActual;
     private int stockInicialInventario;
     private int cantContada;
@@ -24,12 +25,12 @@ public class DetalleInventarioDTO {
     public DetalleInventarioDTO() {
     }
 
-    public DetalleInventarioDTO(Long id, Long idProducto, String producto, CategoriaEntity categoria, 
+    public DetalleInventarioDTO(Long id, Long idProducto, String producto, SubCategoriaEntity categoria, 
             int stockActual, int stockInicialInventario, int cantContada, int diferencia) {
         this.id = id;
         this.idProducto = idProducto;
         this.producto = producto;
-        this.categoria = categoria;
+        this.subCategoria = categoria;
         this.stockActual = stockActual;
         this.stockInicialInventario = stockInicialInventario;
         this.cantContada = cantContada;
@@ -60,12 +61,12 @@ public class DetalleInventarioDTO {
         this.producto = producto;
     }
 
-    public CategoriaEntity getCategoria() {
-        return categoria;
+    public SubCategoriaEntity getSubCategoria() {
+        return subCategoria;
     }
 
-    public void setCategoria(CategoriaEntity categoria) {
-        this.categoria = categoria;
+    public void setSubCategoria(SubCategoriaEntity subCategoria) {
+        this.subCategoria = subCategoria;
     }
 
     public int getStockActual() {

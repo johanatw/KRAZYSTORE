@@ -21,6 +21,9 @@ public class DetalleAjusteDTO {
     private String categoria;
     private int cantidadActual;
     private int cantidadAjustada;
+    private int stockAnterior;
+    private int stockPosterior;
+    private String motivo;
 
     public DetalleAjusteDTO() {
     }
@@ -131,5 +134,30 @@ public class DetalleAjusteDTO {
     public void setCantidadAjustada(int cantidadAjustada) {
         this.cantidadAjustada = cantidadAjustada;
     }
+
+    public int getStockAnterior() {
+        return stockAnterior;
+    }
+
+    public void setStockAnterior(int stockAnterior) {
+        this.stockAnterior = stockAnterior;
+    }
+
+    public int getStockPosterior() {
+        return stockPosterior;
+    }
+
+    public void setStockPosterior(int stockPosterior) {
+        this.stockPosterior = stockPosterior;
+    }
+
+    public String getMotivo() {
+        return motivo;
+    }
+
+    public void setMotivo(String motivo) {
+        this.motivo = motivo;
+    }
+    
     
 }

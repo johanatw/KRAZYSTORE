@@ -38,8 +38,6 @@ public class DetallePedidoCompra {
     private PedidoCompraEntity pedidoCompra;
     @Column
     private int cantidad;
-    @Column(name="cant_recep")
-    private int cantRecepcionada;
     @Column(name="sub_total")
     private int subTotal;
     @Column(name="costo_compra")
@@ -59,14 +57,6 @@ public class DetallePedidoCompra {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public int getCantRecepcionada() {
-        return cantRecepcionada;
-    }
-
-    public void setCantRecepcionada(int cantRecepcionada) {
-        this.cantRecepcionada = cantRecepcionada;
     }
 
     public ProductoEntity getProducto() {

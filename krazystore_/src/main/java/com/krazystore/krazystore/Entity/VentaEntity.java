@@ -30,10 +30,16 @@ public class VentaEntity {
     private TimbradoEntity timbrado;
     @Column
     private String nroFactura;
+    @Column(name = "nombre_archivo")
+    private String nombreArchivo;
     @Column
     private Date fecha;
-    @Column
+    @Column(name="total_iva")
     private int montoIva;
+    @Column(name="total_gravada")
+    private int totalGravada;
+    @Column(name="total_exentas")
+    private int totalExentas;
     @Column
     private int montoTotal;
     @Column
@@ -125,6 +131,30 @@ public class VentaEntity {
 
     public void setMontoTotal(int montoTotal) {
         this.montoTotal = montoTotal;
+    }
+
+    public String getNombreArchivo() {
+        return nombreArchivo;
+    }
+
+    public void setNombreArchivo(String nombreArchivo) {
+        this.nombreArchivo = nombreArchivo;
+    }
+
+    public int getTotalGravada() {
+        return totalGravada;
+    }
+
+    public void setTotalGravada(int totalGravada) {
+        this.totalGravada = totalGravada;
+    }
+
+    public int getTotalExentas() {
+        return totalExentas;
+    }
+
+    public void setTotalExentas(int totalExentas) {
+        this.totalExentas = totalExentas;
     }
     
     

@@ -14,6 +14,7 @@ import RadioButton from "primevue/radiobutton";
 import InputGroup from 'primevue/inputgroup';
 import {DireccionServices} from '@/services/DireccionServices';
 import Panel from 'primevue/panel';
+import Textarea from "primevue/textarea";
 import {PedidoServices} from '@/services/PedidoServices';
 import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
@@ -57,6 +58,7 @@ const medios = ref();
 const infoEntrega = ref([{
     valor: "Retiro"
 }])
+const observaciones = ref();
 
 import ConfirmDialog from 'primevue/confirmdialog';
 import Toast from 'primevue/toast';
@@ -217,7 +219,7 @@ const validarDireccionCliente = (dir) => {
 
 const saveCliente = () => {
     submitted.value = true;
-    console.log(direccion.value.calle1);
+    console.log(direccion.value);
     if (cliente?.value.nombre?.trim() && validarDireccionCliente(direccion.value) ) {
         direccion.value.tipo = 'P';
         generarDireccion(direccion.value);
@@ -321,14 +323,15 @@ const getUbicacionEnvio = (lat, lng) =>{
 }
 
 const añadirDatoEntrega = () =>{
-    if (selectedCliente.value) {
+    visible.value = true;
+   /* if (selectedCliente.value) {
 
         guardarEstadoEntregaOriginal();
         visible.value = true;
     getDireccionesCliente();
     } else {
         toast.add({ severity: 'info', summary: 'Info Message', detail: 'Seleccione un cliente', life: 3000 });
-    }
+    }*/
     
 }
 
@@ -501,21 +504,8 @@ const submit = () =>{
         console.log("pedidodetalle", productos.value.detalles);
         pedido.value.cliente = selectedCliente.value;
         pedido.value.fecha = fecha.value;
-        pedido.value.modoEntrega = selectedFormaEntrega.value;
-        if (selectedFormaEntrega.value?.descripcion === "Envío") {
-            pedido.value.costoEnvio = selectedEnvio.value;
-
-            if (nuevaDireccion.value) {
-                pedido.value.direccionEnvio = direccionEnvio.value; 
-            } else {
-                pedido.value.direccionEnvio = direccionSelected.value;
-            }
-
-        }
-
-        if (selectedFormaEntrega.value?.descripcion === 'Retiro') {
-            pedido.value.direccionEnvio = null;
-        }
+        pedido.value.observaciones = observaciones.value;
+      
         
         detallePedido.value = productos.value.detalles;
        // console.log("submitdetalle",);
@@ -584,7 +574,7 @@ const validarForm = (event) => {
             </div>
         </div>
 
-           
+           <!--
         <div class="field" v-show="selectedFormaEntrega.descripcion === 'Envío'">
             <div v-if="direcciones.length > 0 && !nuevaDireccion">
                 <label for="description">Dirección</label>
@@ -658,7 +648,7 @@ const validarForm = (event) => {
                 </Dropdown>
                 <small class="p-error" v-if="direccionSubmitted && !selectedEnvio.id">Ingrese Medio de envío</small>
             </div> 
-        </div>
+        </div>-->
     </div>
         <template #footer>
             <Button label="Cancel" icon="pi pi-times" text @click="closeEntregaDialog"/>
@@ -680,7 +670,7 @@ const validarForm = (event) => {
         </div>
         <div class="field">
             <label for="inventoryStatus" class="mb-3">Tipo Documento</label>
-            <Dropdown fluid id="inventoryStatus" v-model="cliente.tipoDoc" :options="documentos" optionLabel="descripcion" placeholder="Select a Status" />
+            <Dropdown fluid id="inventoryStatus" v-model="cliente.tipoDoc" :options="documentos" optionLabel="descripcion" placeholder="Seleccione el tipo de documento" />
         </div>
         <div class="field">
             <label for="description">Nro Documento</label>
@@ -720,10 +710,10 @@ const validarForm = (event) => {
             <Dropdown fluid v-model="direccion.ciudad" :options="ciudades" optionLabel="descripcion" placeholder="Seleccione una ciudad" :class="{'p-invalid': submitted && !validarDireccionCliente(direccion) && !direccion.ciudad}"  />
             <small class="p-error" v-if="submitted && !validarDireccionCliente(direccion) && !direccion.ciudad">Ingrese Ciudad</small>
         </div>
-        <div class="field">
+        <!--<div class="field">
             <label for="description">Ubicar en el mapa</label>
             <MapComponent @getUbicacion="getUbicacion" ref="map" :lat="direccion.lat" :lng="direccion.lng" />
-        </div>
+        </div>-->
     </div>
 
         <template #footer>
@@ -757,7 +747,7 @@ const validarForm = (event) => {
             </div>
         </div>
         <div class="grid " >
-            <div class="field col-12 md:col-12">
+            <div class="field col-12 md:col-6">
                     <Card>
                         <template #title>
                             <div class="flex justify-content-between ">
@@ -768,8 +758,12 @@ const validarForm = (event) => {
                         </template>
                         <template #content>
                             <div class="field" >
-                                Fecha: <DatePicker dateFormat="dd/mm/yy" v-model="fecha" showIcon iconDisplay="input" />
+                                Fecha: <DatePicker fluid dateFormat="dd/mm/yy" v-model="fecha" showIcon iconDisplay="input" />
                             </div> 
+                            <div class="field">
+                                Observaciones: 
+                                <Textarea fluid v-model="observaciones" rows="3" cols="33" />
+                            </div>
 
                         </template>
                     </Card>
@@ -817,6 +811,7 @@ const validarForm = (event) => {
         </template>
     </Card>
             </div>  
+            <!--
             <div class="field col-12 md:col-6">
                 <Card >
         <template #title>
@@ -846,7 +841,7 @@ const validarForm = (event) => {
             
         </template>
     </Card>
-                </div>
+                </div>-->
             <div class="field col-12 md:col-12">
                 <CardDetalle ref="productos"/>
             </div>

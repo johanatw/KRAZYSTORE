@@ -24,7 +24,10 @@ public class DetalleAjusteMapper implements Function<DetalleAjusteDTO, DetalleAj
                     detalleDTO.getId(),
                     detalleDTO.getAjuste(),
                     productoEntity,
-                    detalleDTO.getCantidadAjustada()
+                    detalleDTO.getCantidadAjustada(),
+                    detalleDTO.getStockAnterior(),
+                    detalleDTO.getStockPosterior(),
+                                detalleDTO.getMotivo()
         );
         
     }

@@ -5,6 +5,8 @@
 package com.krazystore.krazystore.DTO;
 
 import com.krazystore.krazystore.Entity.CategoriaEntity;
+import com.krazystore.krazystore.Entity.IvaEntity;
+import com.krazystore.krazystore.Entity.SubCategoriaEntity;
 
 /**
  *
@@ -13,7 +15,8 @@ import com.krazystore.krazystore.Entity.CategoriaEntity;
 public class ProductoDTO {
     private Long id;
     private String nombre;
-    private CategoriaEntity categoria;
+    private String descripcion;
+    private SubCategoriaEntity subCategoria;
     private int precio;
     private int costo;
     private Boolean estado;
@@ -22,6 +25,7 @@ public class ProductoDTO {
     private int cantStock;
     private int cantDisponible;
     private int cantReservada;
+    private IvaEntity tipoIva;
 
     public ProductoDTO() {
     }
@@ -37,10 +41,10 @@ public class ProductoDTO {
         this.precio = precio;
     }
 
-    public ProductoDTO(Long id, String nombre, CategoriaEntity categoria) {
+    public ProductoDTO(Long id, String nombre, SubCategoriaEntity categoria) {
         this.id = id;
         this.nombre = nombre;
-        this.categoria = categoria;
+        this.subCategoria = categoria;
     }
 
     
@@ -51,11 +55,20 @@ public class ProductoDTO {
         this.costo = costo;
     }
 
-    public ProductoDTO(Long id, String nombre, CategoriaEntity categoria, Long precio, 
+    public ProductoDTO(Long id, String nombre, int cantStock, IvaEntity tipoIva) {
+        this.id = id;
+        this.nombre = nombre;
+        this.cantStock = cantStock;
+        this.tipoIva = tipoIva;
+    }
+    
+    
+
+    public ProductoDTO(Long id, String nombre, SubCategoriaEntity categoria, Long precio, 
             Long costo, Boolean bajoDemanda, int cantLimBajoDemanda, int cantStock, int cantDisponible, int cantReservada) {
         this.id = id;
         this.nombre = nombre;
-        this.categoria = categoria;
+        this.subCategoria = categoria;
         this.precio = (int)(long)precio;
         this.costo = (int)(long)costo;
         this.bajoDemanda = bajoDemanda;
@@ -64,13 +77,35 @@ public class ProductoDTO {
         this.cantDisponible = cantDisponible;
         this.cantReservada = cantReservada;
     }
-
-    public CategoriaEntity getCategoria() {
-        return categoria;
+    
+    public ProductoDTO(Long id, String nombre, SubCategoriaEntity categoria, Long precio, 
+            Long costo, Boolean bajoDemanda, int cantLimBajoDemanda, int cantStock, int cantDisponible, int cantReservada, IvaEntity tipoIva) {
+        this.id = id;
+        this.nombre = nombre;
+        this.subCategoria = categoria;
+        this.precio = (int)(long)precio;
+        this.costo = (int)(long)costo;
+        this.bajoDemanda = bajoDemanda;
+        this.cantLimBajoDemanda = cantLimBajoDemanda;
+        this.cantStock = cantStock;
+        this.cantDisponible = cantDisponible;
+        this.cantReservada = cantReservada;
+        this.tipoIva = tipoIva;
     }
 
-    public void setCategoria(CategoriaEntity categoria) {
-        this.categoria = categoria;
+    public ProductoDTO(Long id, String nombre, IvaEntity tipoIva) {
+        this.id = id;
+        this.nombre = nombre;
+        this.tipoIva = tipoIva;
+    }
+
+    
+    public SubCategoriaEntity getSubCategoria() {
+        return subCategoria;
+    }
+
+    public void setSubCategoria(SubCategoriaEntity categoria) {
+        this.subCategoria = categoria;
     }
 
 
@@ -155,6 +190,22 @@ public class ProductoDTO {
 
     public void setCantReservada(int cantReservada) {
         this.cantReservada = cantReservada;
+    }
+
+    public IvaEntity getTipoIva() {
+        return tipoIva;
+    }
+
+    public void setTipoIva(IvaEntity tipoIva) {
+        this.tipoIva = tipoIva;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
     }
     
     

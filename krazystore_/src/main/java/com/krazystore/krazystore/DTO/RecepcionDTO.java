@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.DTO;
 
+import com.krazystore.krazystore.Entity.CompraEntity;
 import com.krazystore.krazystore.Entity.ProveedorEntity;
 import java.util.Date;
 import java.util.List;
@@ -16,8 +17,9 @@ public class RecepcionDTO {
     private Long id;
     private Date fecha;
     private Long idPedido;
-    private char estado;
+    private Character estado;
     private ProveedorEntity proveedor;
+    private CompraEntity compra;
 
     public RecepcionDTO() {
     }
@@ -27,7 +29,24 @@ public class RecepcionDTO {
         this.fecha = fecha;
         this.idPedido = idPedido;
     }
+    
+    public RecepcionDTO(Long id, Date fecha, Long idPedido, Character estado) {
+        this.id = id;
+        this.fecha = fecha;
+        this.idPedido = idPedido;
+        this.estado = estado;
+        
+    }
 
+    public RecepcionDTO(Long id, Date fecha, Long idPedido, Character estado, CompraEntity compra) {
+        this.id = id;
+        this.fecha = fecha;
+        this.idPedido = idPedido;
+        this.estado = estado;
+        this.compra = compra;
+    }
+
+    
     public RecepcionDTO(Long id, Date fecha, Long idPedido, ProveedorEntity proveedor) {
         this.id = id;
         this.fecha = fecha;
@@ -35,7 +54,7 @@ public class RecepcionDTO {
         this.proveedor = proveedor;
     }
 
-    public RecepcionDTO(Long id, Date fecha, Long idPedido, char estado, ProveedorEntity proveedor) {
+    public RecepcionDTO(Long id, Date fecha, Long idPedido, Character estado, ProveedorEntity proveedor) {
         this.id = id;
         this.fecha = fecha;
         this.idPedido = idPedido;
@@ -43,11 +62,11 @@ public class RecepcionDTO {
         this.proveedor = proveedor;
     }
 
-    public char getEstado() {
+    public Character getEstado() {
         return estado;
     }
 
-    public void setEstado(char estado) {
+    public void setEstado(Character estado) {
         this.estado = estado;
     }
 
@@ -89,6 +108,14 @@ public class RecepcionDTO {
 
     public void setIdPedido(Long idPedido) {
         this.idPedido = idPedido;
+    }
+
+    public CompraEntity getCompra() {
+        return compra;
+    }
+
+    public void setCompra(CompraEntity compra) {
+        this.compra = compra;
     }
    
     

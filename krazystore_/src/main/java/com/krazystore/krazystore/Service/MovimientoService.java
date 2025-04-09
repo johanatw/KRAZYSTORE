@@ -36,6 +36,7 @@ public interface MovimientoService {
     MovimientoEntity saveMovimiento(CompraEntity compraEntity);
     
     MovimientoEntity updateMovimiento(CompraEntity compra);
+    MovimientoEntity updateMovimiento(VentaEntity venta);
             
     MovimientoEntity crearMovimiento(AnticipoEntity anticipo, CajaEntity caja);
     MovimientoEntity crearMovimiento(ReembolsoEntity reembolso, CajaEntity caja);

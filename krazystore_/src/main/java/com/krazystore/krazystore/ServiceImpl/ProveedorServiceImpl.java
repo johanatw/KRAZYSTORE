@@ -48,6 +48,10 @@ public class ProveedorServiceImpl implements ProveedorService {
         updatedProveedor.setDescripcion(proveedor.getDescripcion());
         updatedProveedor.setRuc(proveedor.getRuc());
         updatedProveedor.setTelefono(proveedor.getTelefono());
+        updatedProveedor.setCiudad(proveedor.getCiudad());
+        updatedProveedor.setCorreo(proveedor.getCorreo());
+        updatedProveedor.setDireccion(proveedor.getDireccion());
+        updatedProveedor.setTipo(proveedor.getTipo());
         
         return proveedorRepository.save(updatedProveedor);
     }

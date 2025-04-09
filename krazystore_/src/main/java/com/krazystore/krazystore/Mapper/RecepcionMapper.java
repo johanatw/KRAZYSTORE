@@ -20,7 +20,8 @@ public class RecepcionMapper implements Function<RecepcionDTO, RecepcionEntity> 
         return new RecepcionEntity(
                 recepcionDTO.getId(),
                 recepcionDTO.getFecha(),
-                recepcionDTO.getEstado()
+                recepcionDTO.getEstado(),
+                recepcionDTO.getCompra()
         );
     }
     

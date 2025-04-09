@@ -4,6 +4,8 @@
  */
 package com.krazystore.krazystore.Controller;
 
+import com.krazystore.krazystore.DTO.DetallePedidoCompraDTO;
+import com.krazystore.krazystore.DTO.DetallePedidoRecepcionDTO;
 import com.krazystore.krazystore.DTO.PedidoCompraCreationDTO;
 import com.krazystore.krazystore.Entity.PedidoCompraEntity;
 import com.krazystore.krazystore.Service.PedidoCompraService;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -44,6 +47,11 @@ public class PedidoCompraController {
         return pedidoCompraService.findById(id);
     }
 
+    @GetMapping("/detalle_recepciones_facturar")
+    public PedidoCompraCreationDTO findDetalleFacturarByIdsRecepciones(@RequestParam(value="idPedido") Long idPedido, @RequestParam(value="ids") List<Long> ids) {
+        return pedidoCompraService.findDetalleFacturarByIdsRecepciones(idPedido, ids);
+    }
+    
     @PostMapping
     public PedidoCompraEntity savePedidoCompra(@RequestBody PedidoCompraCreationDTO pedidoCompra)throws Exception {
         return pedidoCompraService.savePedido(pedidoCompra);

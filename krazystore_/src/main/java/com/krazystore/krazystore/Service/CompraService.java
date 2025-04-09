@@ -15,7 +15,8 @@ import java.util.Optional;
  */
 public interface CompraService {
     List<CompraEntity> findAll();
-    Optional<CompraEntity> findById(Long id);
+    CompraCreationDTO findById(Long id);
+    List<CompraCreationDTO> findByIdPedido(Long idPedido);
     CompraEntity saveCompra(CompraCreationDTO compra)throws Exception;
     CompraEntity updateCompra(CompraCreationDTO compra, Long id)throws Exception;
     void deleteCompra(Long id);

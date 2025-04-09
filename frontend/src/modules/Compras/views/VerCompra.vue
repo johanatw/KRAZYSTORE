@@ -45,7 +45,10 @@ const error = ref(false);
 const opciones = ref(['Casi','Entre']);
 const infoProveedor= ref([{
     
-}])
+}]);
+
+const iva5 = ref(0);
+const iva10 = ref(0);
 
 //router.currentRoute.value.params.id
 
@@ -92,14 +95,15 @@ const proveedor = ref({});
 
 onMounted(() => {
     CompraServices.getCompra(router.currentRoute.value.params.id).then((data) => {
-        pedido.value = data.data;
-       proveedor.value = data.data.proveedor;
+        pedido.value = data.data.compra;
+        detalle.value = data.data.detalle;
+        calcularIva();
+        console.log(detalle.value);
+       proveedor.value = pedido.value.proveedor;
        mostrarCliente(proveedor.value);
    });
 
-   CompraServices.getDetalleCompra(router.currentRoute.value.params.id).then((response)=>{
-        detalle.value = response.data;
-    });
+
 
 });
 
@@ -146,6 +150,46 @@ const modificarPedido = (id) => {
 const vistaCompras= () =>{
     router.push({name: 'compras'});
 }
+
+const calcularIva = () =>{
+   iva5.value = calcularIva5();
+   iva10.value = calcularIva10();
+   montoIva.value = iva5.value + iva10.value;
+    
+}
+
+const calcularIva5 = () => {
+    console.log(detalle.value);
+  return detalle.value
+  .filter(item => item.ivaAplicado.porcentaje === 5) // Filtra los productos con IVA 5%
+    .reduce((accu, item) => {
+        console.log(item);
+        console.log("item.subTotal1");
+        console.log(item.subTotal);
+        let porcentaje = item.ivaAplicado.porcentaje || 0;
+        let base = item.ivaAplicado.base || 0;
+        let factor_iva = porcentaje + base;
+
+        if (factor_iva === 0) return accu; // Evita división por 0
+        
+        let iva = item.subTotal * porcentaje / factor_iva;
+        if (!isFinite(iva)) return accu; // Evita errores matemáticos
+        return accu + iva;
+    }, 0); // Luego suma
+};
+
+const calcularIva10 = () => {
+  return detalle.value
+    .filter(item => item.ivaAplicado.porcentaje === 10) // Filtra 
+    .reduce((acc, item) => {
+        let factor_iva = item.ivaAplicado.porcentaje + item.ivaAplicado.base;
+        return acc + ((item.subTotal * item.ivaAplicado.porcentaje / factor_iva) || 0)
+    }, 0); // Luego suma
+};
+
+const calcularIvaImportacion = () => {
+    return (pedido.value.gastosImportacion !== 0)? pedido.value.gastosImportacion /11 : 0;
+};
 
 </script>
 <template>
@@ -264,12 +308,16 @@ const vistaCompras= () =>{
          
         <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
          </Column>
-         <Column  class="col"  header="IVA" aria-sort="none">
-            <template #body="slotProps">
-            10%
-            </template>
-         </Column>
-         <Column  class="col" field="subTotal" header="Total" aria-sort="none" >
+         <Column  class="col" field="cantidad" header="IVA" aria-sort="none">
+                <template #body="slotProps">
+                    <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
+                        <label for="subtotal"> {{  (slotProps.data.ivaAplicado.porcentaje) }}%</label>
+                    </div>  
+                </template>
+                
+            </Column>
+  
+         <Column  class="col" field="subTotal" header="Sub Total" aria-sort="none" >
              <template #body="slotProps">
                  <div class="flex-auto p-fluid" style="max-width: 20dvh;">
                      <label for="subtotal"> {{  (slotProps.data.subTotal).toLocaleString("de-DE") }}</label>
@@ -280,24 +328,39 @@ const vistaCompras= () =>{
    </div>
  </div>
                                 <div class="grid" style="margin-top: 1rem;">
-                                    
-                                    
+                                                               
                                     <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
                                         <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; font-weight: bold; font-size: 16px;">
                                             Total: 
                                         </div>
                                         <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; font-weight: bold; font-size: 16px;" >
-                                            {{ formatearNumero(pedido.total) }}
+                                            {{ formatearNumero(pedido.total) }} Gs.
                                            
                                         </div>
 
                                     </div>  
                                     <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
                                         <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
+                                            IVA 5%: 
+                                        </div>
+                                        <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
+                                            {{ ( Math.round(iva5)).toLocaleString("de-DE") }} Gs.
+                                        </div>
+                                    </div>   
+                                    <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
+                                        <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
                                             IVA 10%: 
                                         </div>
                                         <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
-                                            {{ (Math.round(pedido.total/11)).toLocaleString("de-DE") }}
+                                            {{ ( Math.round(iva10)).toLocaleString("de-DE") }} Gs.
+                                        </div>
+                                    </div>  
+                                    <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
+                                        <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
+                                            Total IVA: 
+                                        </div>
+                                        <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
+                                            {{ ( Math.round(montoIva)).toLocaleString("de-DE") }} Gs.
                                         </div>
                                     </div>         
 

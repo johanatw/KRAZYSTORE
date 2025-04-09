@@ -92,6 +92,7 @@ const montoIva = ref(0);
 const total = ref(0);
 const pedido = ref({});
 const proveedor = ref({});
+const compraNacional = ref(true);
 
 onMounted(() => {
     RecepcionServices.getRecepcion(router.currentRoute.value.params.id).then((data) => {
@@ -100,7 +101,14 @@ onMounted(() => {
         detalle.value = data.data.detalle;
         fecha.value = new Date(pedido.value.fecha);
         detalle.value.forEach(element => {
-            element.cantPendiente = element.detallePedido.cantidad - element.detallePedido.cantRecepcionada;
+            element.cantPendiente = element.detallePedido.cantSolicitada - element.detallePedido.cantRecepcionada;
+            /*if (pedido.value.proveedor.tipo.descripcion == 'Extranjero') {
+                compraNacional.value = false;
+                element.cantPendiente = element.detallePedido.cantFacturada - element.detallePedido.cantRecepcionada;
+            }else{ 
+
+                element.cantPendiente = element.detallePedido.cantSolicitada - element.detallePedido.cantRecepcionada;
+            } */
         });  
    });
 
@@ -233,16 +241,19 @@ const modificarPedido = (id) => {
     <div class="flex card-container" style="width: 100%;">
         <DataTable class="tablaCarrito" ref="dt" :value="detalle" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
          <Column  class="col" field="detallePedido.producto.nombre" header="Nombre" aria-sort="none" ></Column>
-         
-        <Column  class="col" field="detallePedido.cantidad" header="Solicitado" aria-sort="none">
+         <Column v-if="compraNacional" class="col" field="detallePedido.cantSolicitada" header="Solicitado" aria-sort="none">
          </Column>
-         <Column  class="col" field="cantidad" header="Pendiente" aria-sort="none">
+        <!-- <Column v-else class="col" field="detallePedido.cantFacturada" header="Facturado" aria-sort="none">
+         </Column>-->
+
+         <Column class="col" field="cantidad" header="Pendiente de recepción" aria-sort="none">
             <template #body="slotProps">
                 <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
                 {{ slotProps.data.cantPendiente }}  
                 </div>  
             </template>
          </Column>
+        
          <Column  class="col" field="cantRecepcionado" header="Recibido" aria-sort="none">
             
             <template #body="slotProps">

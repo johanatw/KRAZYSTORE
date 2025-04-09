@@ -17,6 +17,8 @@ import { formatearFecha } from "@/utils/utils";
 import Tag from 'primevue/tag';
 import { getEstadoPedidoVenta } from "@/utils/utils";
 
+import Fieldset from 'primevue/fieldset';
+
 import router from '@/router';
 const pedido = ref({ });
 const selectedClient = ref();
@@ -55,7 +57,7 @@ onMounted(() => {
 
     });*/
     cardCliente.value.editable = false;
-    cardEntrega.value.editable = false;
+    //cardEntrega.value.editable = false;
     console.log("onmountedVer");
     getPedido();
     console.log("despues de get function");
@@ -65,9 +67,9 @@ async function getPedido() {
     console.log("get function");
     PedidoServices.getPedido(router.currentRoute.value.params.id).then((data) => {
         console.log(data.data);
-    detalle.value.setDetalle(router.currentRoute.value.params.id, data.data.pedido.total, data.data.pedido.costoEnvio);
+    detalle.value.setDetalle(data.data.detalle, data.data.pedido.total, data.data.pedido.costoEnvio);
     getCliente(data.data.pedido.cliente);
-    getEntrega(data.data.pedido.modoEntrega, data.data.pedido.costoEnvio);
+    //getEntrega(data.data.pedido.modoEntrega, data.data.pedido.costoEnvio);
     pedido.value = data.data.pedido;
 
 });
@@ -206,7 +208,7 @@ const getEntrega = (formaEntrega, envio) =>{
 
         <div class="grid " >
 
-            <div class="field col-12 md:col-12">
+            <div class="field col-12 md:col-6">
                     <Card>
                         <template #title>
                             <div class="flex justify-content-between ">
@@ -222,6 +224,13 @@ const getEntrega = (formaEntrega, envio) =>{
                             <div  >
                                 Estado: {{getEstadoPedidoVenta(pedido.estadoPedido)}}
                             </div> 
+                            <div >
+                                Observaciones: 
+                                
+                                <p class="m-0">
+                                    {{ pedido.observaciones }}
+                                </p>
+                            </div>
 
                         </template>
                     </Card>
@@ -229,64 +238,14 @@ const getEntrega = (formaEntrega, envio) =>{
             <div class="field col-12 md:col-6">
                 <MiCard ref="cardCliente" :titulo="'Cliente'" :contenido="infoCliente" @edit="searchCard.showDialog()"/> 
             </div>  
-            <div class="field col-12 md:col-6">
+           <!-- <div class="field col-12 md:col-6">
                 <MiCard ref="cardEntrega" :titulo="'Entrega'" :contenido="infoEntrega" @edit="modoEntrega.showDialog()"/>
-            </div>
+            </div>-->
             <div class="field col-12 md:col-12">
                 <DetallePedido ref="detalle"/>
             </div>
 
-            <div class="field col-12 md:col-12">
-                <Card style="height: 100%;" >
-                            <template #title>
-            <div class="flex justify-content-between ">
-                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
-                    Pagos Asociados
-                </div>
-        
-
-            </div>
             
-        </template>
-                            <!---->
-                            <template #content>
-                                <div v-if="movimientos.length > 0">
-                                    <DataTable :value="movimientos" >
-                                    
-                                    <Column field="concepto" header="Concepto" aria-sort="ascending">
-                                  
-                                </Column>
-                                    <Column field="fecha" header="Fecha" aria-sort="ascending">
-                                        <template #body="slotProps">
-                                            <div >
-                                                {{ formatearNumero(slotProps.data.fecha) }} 
-                                            </div>
-                                        </template> 
-                                    </Column>
-                                    
-                                    <Column field="pago" header="Forma Pago" aria-sort="ascending">
-                                     
-                                    </Column>
-                                    <Column field="monto" header="Monto" aria-sort="ascending">
-                                        <template #body="slotProps">
-                                            <div >
-                                                {{ formatearNumero(slotProps.data.monto) }} 
-                                            </div>
-                                        </template> 
-                                    </Column>
-                                    <Column field="factura" header="N° Factura" aria-sort="ascending"></Column>
-                                </DataTable>
-
-                                    
-
-                                    
-                                </div>
-                                <div v-else>
-                                    El pedido aún no tiene pagos asociados.
-                                </div>
-                            </template>
-                        </Card>
-            </div>
             
         </div>
     </Panel>

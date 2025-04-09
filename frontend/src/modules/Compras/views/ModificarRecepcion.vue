@@ -45,6 +45,7 @@ const clientes=ref();
 const filteredClientes = ref();
 const error = ref(false);
 const opciones = ref(['Casi','Entre']);
+const pedidoNacional = ref(false);
 const infoProveedor= ref([{
     
 }])
@@ -100,8 +101,16 @@ onMounted(() => {
         detalle.value = data.data.detalle;
         console.log(pedido.value);
         console.log(detalle.value);
+        //pedidoNacional.value =  (pedido.value.proveedor.tipo.descripcion !== 'Extranjero')
+
         detalle.value.forEach(element => {
-            element.cantPendiente = element.detallePedido.cantidad - element.detallePedido.cantRecepcionada + element.cantRecepcionado;
+            element.cantPendiente = element.detallePedido.cantSolicitada - element.detallePedido.cantRecepcionada + element.cantRecepcionado;
+           /* if (pedido.value.proveedor.tipo.descripcion == 'Extranjero') {
+                element.cantPendiente = element.detallePedido.cantFacturada - element.detallePedido.cantRecepcionada + element.cantRecepcionado;
+            }else{ 
+
+                element.cantPendiente = element.detallePedido.cantSolicitada - element.detallePedido.cantRecepcionada + element.cantRecepcionado;
+            } */
         });
    });
 
@@ -218,12 +227,13 @@ const modificarPedido = (id) => {
     <div class="flex card-container" style="width: 100%;">
         <DataTable class="tablaCarrito" ref="dt" :value="detalle" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
          <Column  class="col" field="detallePedido.producto.nombre" header="Nombre" aria-sort="none" ></Column>
-         
-        <Column  class="col" field="detallePedido.cantidad" header="Solicitado" aria-sort="none">
+         <Column  class="col" field="detallePedido.cantSolicitada" header="Solicitado" aria-sort="none">
          </Column>
-         <Column  class="col" field="cantidad" header="Pendiente" aria-sort="none">
+         <!--<Column v-else class="col" field="detallePedido.cantFacturada" header="Facturado" aria-sort="none">
+         </Column>-->
+         <Column class="col" field="cantidad" header="Pendiente de recepción" aria-sort="none">
             <template #body="slotProps">
-                <div class="flex-auto p-fluid">
+                <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
                 {{ slotProps.data.cantPendiente }}  
                 </div>  
             </template>
@@ -237,7 +247,7 @@ const modificarPedido = (id) => {
               
             </template>
          </Column>
-         <Column  class="col" field="cantDañada" header="Aceptado" aria-sort="none">
+         <Column  class="col" field="cantDañada" header="Aceptar" aria-sort="none">
             <template #body="slotProps">
                 <div  class="flex-auto p-fluid" style="max-width:12lvb  !important; ">
                   <InputNumber fluid class="inpCant" v-model="slotProps.data.cantAceptada" :min="0" :max="slotProps.data.cantRecepcionado" inputId="minmax-buttons" mode="decimal" showButtons />
@@ -245,7 +255,7 @@ const modificarPedido = (id) => {
        
             </template>
          </Column>
-         <Column  class="col" field="cantDañada" header="Rechazado" aria-sort="none">
+         <Column  class="col" field="cantDañada" header="Rechazar" aria-sort="none">
             <template #body="slotProps">
                 <div  class="flex-auto p-fluid" style="max-width:12lvb  !important; ">
                     {{slotProps.data.cantRechazada = slotProps.data.cantRecepcionado - slotProps.data.cantAceptada}}

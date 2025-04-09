@@ -610,7 +610,7 @@ const validarForm = (event) => {
              
          </Column>
          
-         <Column  class="col" field="subTotal" header="Total" aria-sort="none" >
+         <Column  class="col" field="subTotal" header="Sub Total" aria-sort="none" >
            
          </Column>
          <Column class="col" :exportable="false" style="min-width:1rem">

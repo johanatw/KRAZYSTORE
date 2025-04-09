@@ -23,4 +23,5 @@ public interface DetallePedidoCompraService {
     List<DetallePedidoCompra> saveDetalle (List<DetallePedidoCompra> detalle, Long idPedido)throws Exception;
     List<DetallePedidoCompra> updateDetalle(List<DetallePedidoCompra> detalle, Long idPedido) throws Exception;
     void deleteDetalle(Long idPedido);
+    List<DetallePedidoCompraDTO> findDetalleFacturarByIdsRecepciones(List<Long> ids);
    }

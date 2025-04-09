@@ -4,11 +4,11 @@
  */
 package com.krazystore.krazystore.Controller;
 
-import com.krazystore.krazystore.Entity.EnvioEntity;
-import com.krazystore.krazystore.Service.EnvioService;
+import com.krazystore.krazystore.Entity.EmpresaTransporte;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.web.bind.annotation.*;
+import com.krazystore.krazystore.Service.EmpresaTransporteService;
 
 /**
  *
@@ -17,30 +17,30 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @CrossOrigin("*")
 @RequestMapping("/api/envios")
-public class EnvioController {
-    private final EnvioService envioService;
+public class EmpresaTransporteController {
+    private final EmpresaTransporteService envioService;
 
-    public EnvioController(EnvioService envioService) {
+    public EmpresaTransporteController(EmpresaTransporteService envioService) {
         this.envioService = envioService;
     }
     @GetMapping
-    public List<EnvioEntity> findAll() {
+    public List<EmpresaTransporte> findAll() {
         return envioService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Optional<EnvioEntity> findById(@PathVariable("id") Long id) {
+    public Optional<EmpresaTransporte> findById(@PathVariable("id") Long id) {
         return envioService.findById(id);
     }
     
 
     @PostMapping
-    public EnvioEntity saveEnvio(@RequestBody EnvioEntity envioEntity) {
+    public EmpresaTransporte saveEnvio(@RequestBody EmpresaTransporte envioEntity) {
         return envioService.saveEnvio(envioEntity);
     }
 
     @PutMapping("/{id}")
-    public EnvioEntity updateEnvio(@PathVariable long id, @RequestBody EnvioEntity envio) {
+    public EmpresaTransporte updateEnvio(@PathVariable long id, @RequestBody EmpresaTransporte envio) {
         return envioService.updateEnvio(envio, id);
     }
 

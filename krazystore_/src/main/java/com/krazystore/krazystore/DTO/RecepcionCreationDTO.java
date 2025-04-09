@@ -22,6 +22,7 @@ public class RecepcionCreationDTO {
     private RecepcionDTO recepcion;
     private List<DetalleRecepcionDTO> detalle;
 
+    
     public RecepcionDTO getRecepcion() {
         return recepcion;
     }

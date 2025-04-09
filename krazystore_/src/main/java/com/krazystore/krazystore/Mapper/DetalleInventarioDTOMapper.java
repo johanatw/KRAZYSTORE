@@ -21,7 +21,7 @@ public class DetalleInventarioDTOMapper implements Function<DetalleInventario, D
                     detalleEntity.getId(),
                     detalleEntity.getProducto().getId(),
                     detalleEntity.getProducto().getNombre(),
-                    detalleEntity.getProducto().getCategoria(),
+                    detalleEntity.getProducto().getSubCategoria(),
                     detalleEntity.getProducto().getCantStock(),
                     detalleEntity.getCantStock(),
                     detalleEntity.getCantContada(),

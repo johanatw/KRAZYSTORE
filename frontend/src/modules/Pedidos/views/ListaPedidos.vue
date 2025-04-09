@@ -47,6 +47,8 @@ const productosStockInsuficiente = ref(false);
 const productosParaFacturar = ref(false);
 const visiblePedidoFacturadoDialog = ref(false);
 const detallePedido = ref();
+const prepararPedidoDialog = ref(false);
+const pedidoPreparar = ref({});
 
 const messageError = (msg) => {
     console.log('messageError invocado');
@@ -108,16 +110,28 @@ const isNuevo = (estado) => {
    }
 };
 
-const getDetallePedido = (id) => {
-  idPedidoSelected.value = id;
-  PedidoServices.getDetallePedido(id).then((data) => {
-    detallePedido.value = data.data;
-    
-    verificarStockProductos();
+const existenProductosFacturados = (estado) => {
+  switch (estado) {
+       case 'F':
+           return true;
+        case 'P':
+           return true;
+       default:
+           return false;
+   }
+};
 
-        
-    });
-    
+const isTotalFacturado = (estado) => {
+  switch (estado) {
+       case 'F':
+           return true;
+       default:
+           return false;
+   }
+};
+
+const prepararPedido = (id) => {
+  router.push({name: 'preparar_pedido', params: {id}});
 };
 
 const verificarStockProductos = () => {
@@ -200,10 +214,10 @@ onMounted(() => {
 const getPedidos = async () => {
     try {
       const response = await PedidoServices.getPedidos();
-      console.log(response.data);
+      
         pedidos.value = response.data;
     } catch (error) {
-       alert(error);
+       //alert(error);
     }
 };
 
@@ -238,9 +252,7 @@ const verPedido = (id) =>{
     
 }
 
-const facturarPedido = () =>{
-   console.log(idPedidoSelected.value);
-   let id = idPedidoSelected.value;
+const facturarPedido = (id) =>{
     router.push({name: 'facturar', params: {id}});
     
 }
@@ -481,7 +493,9 @@ const reload = () =>{
                 <Button icon="pi pi-search" text rounded aria-label="Search" @click="verPedido(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
                 <Button icon="pi pi-times" severity="danger" :disabled="!isNuevo(slotProps.data.estadoPedido)" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
             
-                <Button  icon="pi pi-receipt" severity="info" text rounded aria-label="Cancel" @click="getDetallePedido(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button :disabled="isTotalFacturado(slotProps.data.estadoPedido)" icon="pi pi-receipt" severity="info" text rounded aria-label="Cancel" @click="facturarPedido(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button icon="pi pi-box" severity="success" :disabled="!existenProductosFacturados(slotProps.data.estadoPedido)" text rounded aria-label="Cancel" @click="prepararPedido(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+            
                 </template>
           </Column>
         </DataTable>

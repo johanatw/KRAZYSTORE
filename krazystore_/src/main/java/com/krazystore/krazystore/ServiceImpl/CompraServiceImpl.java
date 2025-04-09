@@ -8,19 +8,29 @@ import Utils.Estado;
 import Utils.FacturaCompraPagadoEvent;
 import Utils.NuevaFacturaCompraEvent;
 import Utils.PagoRegistradoEvent;
+import Utils.PedidoCompraEvent;
+import Utils.PreciosCompraActualizadosEvent;
 import Utils.ProductosRecepcionadosEvent;
 import Utils.RecepcionFacturada;
+import Utils.RecepcionesFacturadasEvent;
 import Utils.TipoEvento;
 import com.krazystore.krazystore.DTO.CompraCreationDTO;
+import com.krazystore.krazystore.DTO.DetalleCompraDTO;
 import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
 import com.krazystore.krazystore.Entity.CompraEntity;
+import com.krazystore.krazystore.Entity.CostoEntity;
+import com.krazystore.krazystore.Entity.DetalleCompra;
+import com.krazystore.krazystore.Mapper.DetalleCompraMapper;
 import com.krazystore.krazystore.Repository.CompraRepository;
 import com.krazystore.krazystore.Service.CompraService;
 import com.krazystore.krazystore.Service.DetalleCompraService;
 import com.krazystore.krazystore.Service.MovimientoService;
 import com.krazystore.krazystore.exception.BadRequestException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -35,8 +45,6 @@ public class CompraServiceImpl implements CompraService {
 
     private final CompraRepository compraRepository;
     private final ApplicationEventPublisher eventPublisher;
-    static char PAGADO = 'C';
-    static char PENDIENTE = 'P';
     
     public CompraServiceImpl(CompraRepository compraRepository, ApplicationEventPublisher eventPublisher) {
         this.compraRepository = compraRepository;
@@ -49,14 +57,47 @@ public class CompraServiceImpl implements CompraService {
     @Autowired
     private DetalleCompraService detalleService;
     
+    @Autowired
+    private DetalleCompraMapper detalleCompraMapper;
+    
     @Override
     public List<CompraEntity> findAll() {
         return compraRepository.findAll();
     }
 
     @Override
-    public Optional<CompraEntity> findById(Long id) {
-        return compraRepository.findById(id);
+    public CompraCreationDTO findById(Long id) {
+        CompraEntity compra = compraRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Compra no encontrada"));
+        List<DetalleCompraDTO> detalle = detalleService.findDetallesByIdCompra(id);
+        
+        CompraCreationDTO compraDTO = new CompraCreationDTO();
+        compraDTO.setCompra(compra);
+        compraDTO.setDetalle(detalle);
+        return compraDTO;
+    }
+    
+    @Override
+    public List<CompraCreationDTO> findByIdPedido(Long idPedido) {
+        List<CompraEntity> compras = compraRepository.findByIdPedido(idPedido);
+        
+        if(compras == null){
+            return null;
+        }
+        List<CompraCreationDTO> comprasList = new ArrayList<>();
+        
+        
+        for (CompraEntity compra : compras) {
+            CompraCreationDTO compraDTO = new CompraCreationDTO();
+            List<DetalleCompraDTO> detalle = detalleService.findDetallesByIdCompra(compra.getId());
+            
+            compraDTO.setCompra(compra);
+            compraDTO.setDetalle(detalle);
+            
+            comprasList.add(compraDTO);
+        }
+        
+        return comprasList;
     }
 
     @Transactional
@@ -65,48 +106,97 @@ public class CompraServiceImpl implements CompraService {
         if(compraDTO.getCompra().getProveedor()== null){
             throw new BadRequestException("Falta proveedor " );
         }
+        //System.out.println("entra savecompra");
         
-        compraDTO.getCompra().setEstado(Estado.PENDIENTEDEFACTURA.getCodigo());
+        List<Long> idRecepcionesAsociadas = compraDTO.getIdRecepciones();
+        
+        
+        
+        compraDTO.getCompra().setEstado(Estado.PENDIENTEDEPAGO.getCodigo());
         CompraEntity nuevaCompra;
         nuevaCompra = compraRepository.save(compraDTO.getCompra());
-        List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.saveDetCompra(compraDTO.getDetalle(), nuevaCompra.getId());
         
-        if(nuevaCompra.getRecepcion() != null){
-            actualizarEstadoRecepcion(nuevaCompra.getRecepcion().getId(), 'F');
-        }else{
-            actualizarExistencias(productosActualizarExistencias);
+        List<DetalleCompra> detalle = compraDTO.getDetalle()
+                .stream()
+                .map(detalleCompraMapper)
+                .collect(Collectors.toList());
+        
+        detalle.forEach(det -> det.setCompra(nuevaCompra));
+        
+        List<CostoEntity> preciosActualizados = detalleService.getPreciosCompraActualizados(detalle, null, nuevaCompra.getFecha(), null);
+        
+        List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.saveDetCompra(detalle, nuevaCompra.getId());
+        
+        if(idRecepcionesAsociadas != null && !idRecepcionesAsociadas.isEmpty()){
+            System.out.println("entra if recepcion");
+            asociarRecepcionesFactura(nuevaCompra.getId(), idRecepcionesAsociadas);
         }
+            
+        if(!preciosActualizados.isEmpty()){
+            actualizarCostos(preciosActualizados);
+        }
+        
+        if(nuevaCompra.getPedido() != null){
+            actualizarEstadoPedido(nuevaCompra.getPedido().getId(), TipoEvento.PEDIDO_FACTURADO);
+        }
+        actualizarExistencias(productosActualizarExistencias);
+        
+        
         
         notificarFacturaCompraPendiente(nuevaCompra);
         
         return nuevaCompra;
+           
     }
 
     @Transactional
     @Override
     public CompraEntity updateCompra(CompraCreationDTO compraDTO, Long id)throws Exception {
+        System.out.println("1");
         CompraEntity compra = compraDTO.getCompra();
         CompraEntity updatedCompra = compraRepository.findById(id).get();
         //No puede modificar una factura si ya esta pagado
+        System.out.println("2");
         if(Estado.PAGADO.getCodigo() == updatedCompra.getEstado()){
             throw new BadRequestException("No se puede modificar " );
         }
+        System.out.println("3");
+        List<DetalleCompra> detalle = compraDTO.getDetalle()
+            .stream()
+            .map(detalleCompraMapper)
+            .collect(Collectors.toList());
+        System.out.println("4");
         
+        List<CostoEntity> preciosActualizados = detalleService.getPreciosCompraActualizados(detalle, id, compra.getFecha(), updatedCompra.getFecha());
+        System.out.println("5");
         updatedCompra.setFecha(compra.getFecha());
         updatedCompra.setNroFactura(compra.getNroFactura());
-        System.out.println("updateCompra");
-        
+        updatedCompra.setMontoIva(compra.getMontoIva());
+        updatedCompra.setTotalGravada(compra.getTotalGravada());
+        updatedCompra.setTotalExentas(0);
+        updatedCompra.setTotal(compra.getTotal());
+        updatedCompra.setProveedor(compra.getProveedor());
+        updatedCompra.setTotal(compra.getTotal());
+        compraRepository.save(updatedCompra);
 
-            System.out.println("updateCompraIF");
-            updatedCompra.setProveedor(compra.getProveedor());
-            updatedCompra.setTotal(compra.getTotal());
-            compraRepository.save(updatedCompra);
-            List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.updateDetCompra(compraDTO.getDetalle(), id);
+        System.out.println("6");
+
+        detalle.forEach(det -> det.setCompra(updatedCompra));
+        
+        if(!preciosActualizados.isEmpty()){
+            actualizarCostos(preciosActualizados);
+        }
+        
+        System.out.println("7");
+            List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.updateDetCompra(detalle, id);
             actualizarExistencias(productosActualizarExistencias);
-            
-            
-        notificarFacturaCompraModificada(updatedCompra);
+        if(updatedCompra.getPedido() != null){
+            actualizarEstadoPedido(updatedCompra.getPedido().getId(), TipoEvento.PEDIDO_MODIFICADO);
+        }
+            System.out.println("8");
+        //notificarFacturaCompraModificada(updatedCompra);
         return updatedCompra;
+        
     }
 
     @Transactional
@@ -117,17 +207,17 @@ public class CompraServiceImpl implements CompraService {
         if(Estado.PAGADO.getCodigo() == compra.getEstado()){
             throw new BadRequestException("No se puede Eliminar " );
         }
-        if(compra.getRecepcion() != null){
-            actualizarEstadoRecepcion(compra.getRecepcion().getId(), Estado.PENDIENTEDEFACTURA.getCodigo());
+        if(compra.getPedido() != null){
+            actualizarEstadoPedido(compra.getPedido().getId(), TipoEvento.PEDIDO_MODIFICADO);
         }
         movimientoService.deleteCompra(id);
         
         List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.deleteDetCompra(id);
         compraRepository.deleteById(id);
         
-        if(compra.getRecepcion() == null){
-            actualizarExistencias(productosActualizarExistencias);
-        }
+        actualizarExistencias(productosActualizarExistencias);
+        
+        
     }
     
     @EventListener
@@ -143,10 +233,11 @@ public class CompraServiceImpl implements CompraService {
 
     }
     
-    public void actualizarEstadoRecepcion(Long idRecepcion, char estado) {
+    public void actualizarEstadoPedido(Long idPedido, TipoEvento tipoEvento) {
         
         // Publicar el evento
-        RecepcionFacturada evento = new RecepcionFacturada(idRecepcion, estado, this);
+        // Publicar el evento
+        PedidoCompraEvent evento = new PedidoCompraEvent(idPedido, tipoEvento);
         eventPublisher.publishEvent(evento);
     }
     
@@ -164,8 +255,20 @@ public class CompraServiceImpl implements CompraService {
     
     public void notificarFacturaCompraModificada(CompraEntity compra) {
         // Publicar el evento
-        NuevaFacturaCompraEvent evento = new NuevaFacturaCompraEvent(TipoEvento.FACTURA_MODIFICADA, compra );
+        NuevaFacturaCompraEvent evento = new NuevaFacturaCompraEvent(TipoEvento.FACTURA_COMPRA_MODIFICADA, compra );
         eventPublisher.publishEvent(evento);
     }
     
+    public void asociarRecepcionesFactura(Long idCompra, List<Long> idsRecepciones) {
+        // Publicar el evento
+        RecepcionesFacturadasEvent evento = new RecepcionesFacturadasEvent(idCompra, idsRecepciones );
+        eventPublisher.publishEvent(evento);
+    }
+    
+            
+    public void actualizarCostos(List<CostoEntity> preciosCompra) {
+        // Publicar el evento
+        PreciosCompraActualizadosEvent evento = new PreciosCompraActualizadosEvent(preciosCompra );
+        eventPublisher.publishEvent(evento);
+    }
 }

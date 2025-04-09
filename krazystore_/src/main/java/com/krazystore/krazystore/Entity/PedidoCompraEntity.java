@@ -35,6 +35,8 @@ public class PedidoCompraEntity {
     private Date fecha;
     @Column
     private int total;
+    @Column
+    private String observaciones;
     @ManyToOne
     @JoinColumn(name = "id_proveedor")
     private ProveedorEntity proveedor;
@@ -81,5 +83,15 @@ public class PedidoCompraEntity {
     public void setProveedor(ProveedorEntity proveedor) {
         this.proveedor = proveedor;
     }
-    
+
+    public String getObservaciones() {
+        return observaciones;
+    }
+
+    public void setObservaciones(String observaciones) {
+        this.observaciones = observaciones;
+    }
+
+
+
 }

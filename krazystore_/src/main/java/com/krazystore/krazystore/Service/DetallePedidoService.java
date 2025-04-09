@@ -21,10 +21,10 @@ public interface DetallePedidoService {
     List<DetallePedidoEntity> findAll();
     Optional<DetallePedidoEntity> findById(Long id);
     List<DetallePedidoEntity> findByPedido(Long idPedido);
+    List<DetallePedidoDTO> findDTOByIdPedido(Long id);
     List<DetallePedidoDTO> findByNroPedido(Long idPedido);
     List<ProductoExistenciasDTO> saveDetallePedido(Long idPedido, List<DetallePedidoEntity> detalles);
     List<ProductoExistenciasDTO> updateDetallesPedido(List<DetallePedidoEntity> detallePedido, Long id)throws Exception;
-    void updateDetallesFacturadas(List<DetalleVentaEntity> detalles, PedidoEntity pedido, String accion);
     void deleteByPedido(Long id);
     void deleteDetallesPedido(List<Long> ids);
     void deleteDetallePedido(Long id);

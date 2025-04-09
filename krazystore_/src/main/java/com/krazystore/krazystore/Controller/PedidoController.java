@@ -38,13 +38,13 @@ public class PedidoController {
 
     @PostMapping
     public PedidoEntity savePedido(@RequestBody PedidoCreationDTO pedidoCreationDTO) {
-        return pedidoService.savePedido(pedidoCreationDTO.getPedido(), pedidoCreationDTO.getDetalle());
+        return pedidoService.savePedido(pedidoCreationDTO);
     }
     
 
     @PutMapping("/{id}")
     public PedidoEntity updatePedido(@PathVariable long id, @RequestBody PedidoCreationDTO pedidoCreationDTO) throws Exception {
-        return pedidoService.updatePedido(pedidoCreationDTO.getPedido(), pedidoCreationDTO.getDetalle(), id);
+        return pedidoService.updatePedido(pedidoCreationDTO, id);
     }
 
     @DeleteMapping("/{id}")

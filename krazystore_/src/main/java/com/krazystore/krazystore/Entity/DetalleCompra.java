@@ -42,6 +42,9 @@ public class DetalleCompra {
     private CompraEntity compra;
     @Column(name="costo_compra")
     private int costoCompra;
+    @ManyToOne
+    @JoinColumn(name = "iva_aplicado")
+    private IvaEntity ivaAplicado;
 
     public DetalleCompra(DetalleCompra detalle) {
         this.id = detalle.getId();
@@ -51,8 +54,27 @@ public class DetalleCompra {
         this.compra = detalle.getCompra();
         this.costoCompra = detalle.getCostoCompra();
     }
+
+    public DetalleCompra(Long id, int cantidad, int subTotal, ProductoEntity producto, int costoCompra) {
+        this.id = id;
+        this.cantidad = cantidad;
+        this.subTotal = subTotal;
+        this.producto = producto;
+        this.costoCompra = costoCompra;
+    }
+
+    public DetalleCompra(Long id, int cantidad, int subTotal, ProductoEntity producto, int costoCompra, IvaEntity ivaAplicado) {
+        this.id = id;
+        this.cantidad = cantidad;
+        this.subTotal = subTotal;
+        this.producto = producto;
+        this.costoCompra = costoCompra;
+        this.ivaAplicado = ivaAplicado;
+    }
+    
     
 
+    
     public Long getId() {
         return id;
     }
@@ -100,6 +122,16 @@ public class DetalleCompra {
     public void setCostoCompra(int costoCompra) {
         this.costoCompra = costoCompra;
     }
+
+    public IvaEntity getIvaAplicado() {
+        return ivaAplicado;
+    }
+
+    public void setIvaAplicado(IvaEntity ivaAplicado) {
+        this.ivaAplicado = ivaAplicado;
+    }
+
+    
     
     
 }

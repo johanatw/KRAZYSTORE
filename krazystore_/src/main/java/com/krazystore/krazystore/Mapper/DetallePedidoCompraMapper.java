@@ -28,7 +28,6 @@ public class DetallePedidoCompraMapper implements Function<DetallePedidoCompraDT
                 producto,
                 t.getPedidoCompra(),
                 t.getCantidad(),
-                t.getCantRecepcionada(),
                 t.getSubTotal(),
                 t.getCostoCompra()
         );

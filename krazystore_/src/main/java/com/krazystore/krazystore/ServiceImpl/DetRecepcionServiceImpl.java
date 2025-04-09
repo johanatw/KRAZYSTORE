@@ -9,6 +9,7 @@ import Utils.TipoOperacionDetalle;
 import static Utils.TipoOperacionDetalle.MODIFICAR;
 import static Utils.TipoOperacionDetalle.REGISTRAR;
 import com.krazystore.krazystore.DTO.DetallePedidoRecepcionDTO;
+import com.krazystore.krazystore.DTO.DetalleRecepcionDTO;
 import com.krazystore.krazystore.DTO.ProductoActualizarInventarioDTO;
 import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
 import com.krazystore.krazystore.Entity.DetalleRecepcion;
@@ -44,6 +45,12 @@ public class DetRecepcionServiceImpl implements DetalleRecepcionService {
     public List<DetalleRecepcion> findByIdRecepcion(Long id) {
         return detalleRepository.findByIdRecepcion(id);
     }
+    
+    @Override
+    public List<DetalleRecepcionDTO> obtenerDetalleFacturaRecepcionar(Long idCompra) {
+        return detalleRepository.obtenerDetalleFacturaRecepcionar(idCompra);
+    }
+    
 
     @Transactional
     @Override
@@ -205,5 +212,12 @@ public class DetRecepcionServiceImpl implements DetalleRecepcionService {
                     detalle -> detalle.getCantRecepcionada() - detalle.getCantRechazada()
                 ));
     }
+
+    @Override
+    public List<DetalleRecepcionDTO> findDetalleByIdRecepcion(Long idRecepcion) {
+        return detalleRepository.findDetalleByIdRecepcion(idRecepcion);
+    }
+
+  
     
 }

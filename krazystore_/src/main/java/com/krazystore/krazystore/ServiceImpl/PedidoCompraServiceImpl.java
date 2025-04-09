@@ -7,7 +7,9 @@ package com.krazystore.krazystore.ServiceImpl;
 import Utils.Estado;
 import Utils.PedidoCompraEvent;
 import Utils.ProductosPedidoRecepcionadosEvent;
+import Utils.TipoEvento;
 import com.krazystore.krazystore.DTO.DetallePedidoCompraDTO;
+import com.krazystore.krazystore.DTO.DetallePedidoRecepcionDTO;
 import com.krazystore.krazystore.DTO.PedidoCompraCreationDTO;
 import com.krazystore.krazystore.Entity.DetallePedidoCompra;
 import com.krazystore.krazystore.Entity.DetalleRecepcion;
@@ -19,9 +21,11 @@ import com.krazystore.krazystore.Service.PedidoCompraService;
 import com.krazystore.krazystore.Service.RecepcionService;
 import com.krazystore.krazystore.exception.BadRequestException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,10 +37,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class PedidoCompraServiceImpl implements PedidoCompraService {
     private final PedidoCompraRepository pedidoCompraRepository;
+    private final ApplicationEventPublisher eventPublisher;
     
     
-    public PedidoCompraServiceImpl(PedidoCompraRepository pedidoCompraRepository) {
+    public PedidoCompraServiceImpl(PedidoCompraRepository pedidoCompraRepository, ApplicationEventPublisher eventPublisher) {
         this.pedidoCompraRepository = pedidoCompraRepository;
+        this.eventPublisher = eventPublisher;
     }
     
     @Autowired
@@ -50,7 +56,7 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
 
     @Override
     public List<PedidoCompraEntity> findAll() {
-        return pedidoCompraRepository.findAll();
+        return pedidoCompraRepository.findAllByOrderByIdDesc();
     }
 
     @Override
@@ -100,6 +106,7 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
         updatedPedido.setFecha(pedido.getFecha());
         updatedPedido.setProveedor(pedido.getProveedor());
         updatedPedido.setTotal(pedido.getTotal());
+        updatedPedido.setObservaciones(pedido.getObservaciones());
         
         pedidoCompraRepository.save(updatedPedido);
         
@@ -112,6 +119,8 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
         detalle.forEach(det -> det.setPedidoCompra(updatedPedido) );
         
         detallePedidoService.updateDetalle(detalle, id);
+        
+        actualizarEstadoPedido(updatedPedido.getId(), TipoEvento.PEDIDO_MODIFICADO);
         
         return updatedPedido;
         
@@ -181,54 +190,75 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
       
     }
     
+    public void actualizarEstadoPedido(Long idPedido, TipoEvento tipoEvento) {
+        
+        // Publicar el evento
+        // Publicar el evento
+        PedidoCompraEvent evento = new PedidoCompraEvent(idPedido, tipoEvento);
+        eventPublisher.publishEvent(evento);
+    }
+    
     @EventListener
     public void updateEstadoPedido(PedidoCompraEvent evento) {
         PedidoCompraEntity pedido = pedidoCompraRepository.findById(evento.getPedidoId())
                 .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado"));
 
+        String tipoProveedor = pedido.getProveedor().getTipo().getDescripcion();
         boolean hasAnticipos = hasAnticipos(pedido.getId());
+        boolean hasFacturas = hasFacturas(pedido.getId());
+        boolean esTotalmenteFacturado = pedidoCompraRepository.esPedidoTotalmenteFacturado(pedido.getId());
         Character estadoRecepcion = getEstadoRecepcionPedido(pedido.getId());
-
-        if(!hasAnticipos && estadoRecepcion == null){
-            System.out.println("IF");
-            
-            pedido.setEstadoPedido(Estado.NUEVO.getCodigo());
-        }else if(hasAnticipos && estadoRecepcion == null){
-            System.out.println("ELSE1");
-            pedido.setEstadoPedido(Estado.CONANTICIPO.getCodigo());
-        }else if(estadoRecepcion != null){
-            System.out.println("ELSE2");
-            pedido.setEstadoPedido(estadoRecepcion);
-        }
-        /*switch (evento.getTipoEvento()) {
+        Character nuevoEstado = pedido.getEstadoPedido();
+        
+        switch (evento.getTipoEvento()) {
             case ANTICIPO_CREADO:
-                    pedido.setEstadoPedido(Estado.CONANTICIPO.getCodigo());
-
+                if(!hasFacturas && estadoRecepcion == null ){
+                    nuevoEstado = Estado.CONANTICIPO.getCodigo();
+                }
                 break;
 
             case ANTICIPO_ELIMINADO:
-                if (getEstadoRecepcionPedido(pedido.getId()) == null && !hasAnticipos(pedido.getId())) {
-                    pedido.setEstadoPedido(Estado.NUEVO.getCodigo());
+                if (estadoRecepcion == null && !hasAnticipos) {
+                    nuevoEstado = Estado.NUEVO.getCodigo();
                 }
                 
                 break;
             case PEDIDO_RECEPCIONADO:
-                    pedido.setEstadoPedido(getEstadoRecepcionPedido(pedido.getId()));
+                    nuevoEstado = estadoRecepcion;
                 break;
             case RECEPCION_ELIMINADO:
-                Character estadoRecepcion = getEstadoRecepcionPedido(pedido.getId());
-                if ( estadoRecepcion  == null && !hasAnticipos(pedido.getId())) {
-                    pedido.setEstadoPedido(Estado.NUEVO.getCodigo());
+                if(hasFacturas){
+                    nuevoEstado = esTotalmenteFacturado ? Estado.FACTURADO.getCodigo() : Estado.PARCIALMENTEFACTURADO.getCodigo();
+                }else if(estadoRecepcion  == null && hasAnticipos){
+                    nuevoEstado = Estado.CONANTICIPO.getCodigo();
+                }else if(estadoRecepcion  == null && !hasAnticipos){
+                    nuevoEstado = Estado.NUEVO.getCodigo();
+                }else{
+                    nuevoEstado = estadoRecepcion;
                 }
-                    pedido.setEstadoPedido(getEstadoRecepcionPedido(pedido.getId()));
+                break;
+            case PEDIDO_MODIFICADO:
+                if(hasFacturas){
+                    nuevoEstado = esTotalmenteFacturado ? Estado.FACTURADO.getCodigo() : Estado.PARCIALMENTEFACTURADO.getCodigo();
+                }else if(estadoRecepcion  == null && hasAnticipos){
+                    nuevoEstado = Estado.CONANTICIPO.getCodigo();
+                }else if(estadoRecepcion  == null && !hasAnticipos){
+                    nuevoEstado = Estado.NUEVO.getCodigo();
+                }else{
+                    nuevoEstado = estadoRecepcion;
+                }
+                break;
+            case PEDIDO_FACTURADO:
+                    nuevoEstado = esTotalmenteFacturado ? Estado.FACTURADO.getCodigo() : Estado.PARCIALMENTEFACTURADO.getCodigo();
                 break;
 
             default:
                 throw new IllegalArgumentException("Evento no reconocido: " + evento.getTipoEvento());
-        }*/
+        }
         
+      
+        pedido.setEstadoPedido(nuevoEstado);
         pedidoCompraRepository.save(pedido);
-        
     }
     
     /*@EventListener
@@ -241,5 +271,20 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
 
     private boolean hasAnticipos(Long id) {
         return !pedidoCompraRepository.getAnticipos(id).isEmpty();
+    }
+    
+    private boolean hasFacturas(Long id) {
+        return !pedidoCompraRepository.getFacturas(id).isEmpty();
+    }
+
+    @Override
+    public PedidoCompraCreationDTO findDetalleFacturarByIdsRecepciones(Long idPedido, List<Long> ids) {
+        PedidoCompraEntity pedido = pedidoCompraRepository.findById(idPedido)
+                .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado"));
+        
+         List<DetallePedidoCompraDTO> detalle = detallePedidoService.findDetalleFacturarByIdsRecepciones(ids);
+         
+         PedidoCompraCreationDTO pedidoDTO = new PedidoCompraCreationDTO(pedido, detalle);
+        return pedidoDTO;
     }
 }

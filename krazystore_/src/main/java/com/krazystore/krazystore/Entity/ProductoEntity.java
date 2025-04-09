@@ -21,31 +21,6 @@ import org.springframework.beans.factory.annotation.Value;
  *
  * @author HP
  */
-@NamedNativeQuery(name= "ProductoEntity.findProductosDTO",
-        query="SELECT p.id as id, c.id as idCategoria, p.nombre as nombre,  c.descripcion as categoria, "
-                + "p.precio as precio, p.costo as costo, p.estado as estado, p.pre_venta as bajoDemanda, "
-                + "COALESCE(p.cant_pre_venta, 0) as cantLimBajoDemanda, e.id as idExistencia, COALESCE(e.stock, 0)as cantStock, "
-                + "COALESCE(e.disponible, 0) as cantDisponible, COALESCE(e.reservado, 0) as cantReservada "
-                + "FROM productos p LEFT JOIN existencias e "
-                + "ON e.id_producto = p.id "
-                + "JOIN categorias c "
-                + "ON c.id = p.id_categoria",
-        resultSetMapping = "Mapping.ProductoDTO")
-@SqlResultSetMapping(name="Mapping.ProductoDTO",
-        classes = @ConstructorResult(targetClass = ProductoDTO.class,
-                columns = {@ColumnResult(name = "id"),
-                @ColumnResult(name = "idCategoria"),
-                @ColumnResult(name = "nombre"),
-                @ColumnResult(name = "categoria"),
-                @ColumnResult(name = "precio"),
-                @ColumnResult(name = "costo"),
-                @ColumnResult(name = "estado"),
-                @ColumnResult(name = "bajoDemanda"),
-                @ColumnResult(name = "cantLimBajoDemanda"),
-                @ColumnResult(name = "idExistencia"),
-                @ColumnResult(name = "cantStock"),
-                @ColumnResult(name = "cantDisponible"),
-                @ColumnResult(name = "cantReservada")}))
 
 
 @Entity
@@ -57,56 +32,70 @@ public class ProductoEntity {
     private Long id;
     @NotNull
     private String nombre;
-    
+    @Column
+    private String descripcion;
     @ManyToOne
-    @JoinColumn(name = "id_categoria")
-    private CategoriaEntity categoria;
-    @Column
-    private Integer precio;
-    @Column
-    private Integer costo;
+    @JoinColumn(name = "id_sub_categoria")
+    private SubCategoriaEntity subCategoria;
+    @ManyToOne
+    @JoinColumn(name = "id_tipo_iva")
+    private IvaEntity tipoIva;
     @Column
     private Boolean estado;
-    @Column
-    private Boolean preVenta = false;
-    @Column
-    private Integer cantPreVenta;
+    @Column(name = "bajo_demanda")
+    private Boolean bajoDemanda = false;
+    @Column(name = "limite_bajo_demanda")
+    private Integer cantLimBajoDemanda;
     @Column
     private int cantStock = 0;
     @Column
     private int cantDisponible = 0;
     @Column
     private int cantReservada = 0;
-    @Column
-    private Integer seña;
+
     
     public ProductoEntity() {
         
     }
 
-    public ProductoEntity(Long id, String nombre, CategoriaEntity categoria, Integer precio, Integer costo, Boolean estado, Boolean preVenta, Integer cantPreVenta, int cantStock, int cantDisponible, int cantReservada, Integer seña) {
+    public ProductoEntity(Long id, String nombre, SubCategoriaEntity subCategoria, Boolean estado, Boolean preVenta, Integer cantPreVenta, int cantStock, int cantDisponible, int cantReservada) {
         this.id = id;
         this.nombre = nombre;
-        this.categoria = categoria;
-        this.precio = precio;
-        this.costo = costo;
+        this.subCategoria = subCategoria;
         this.estado = estado;
-        this.preVenta = preVenta;
-        this.cantPreVenta = cantPreVenta;
+        this.bajoDemanda = preVenta;
+        this.cantLimBajoDemanda = cantPreVenta;
         this.cantStock = cantStock;
         this.cantDisponible = cantDisponible;
         this.cantReservada = cantReservada;
-        this.seña = seña;
     }
 
-    public Integer getSeña() {
-        return seña;
+   public ProductoEntity(Long id, String nombre, SubCategoriaEntity subCategoria, IvaEntity tipoIva,Boolean bajoDemanda, Integer cantLimBajoDemanda) {
+        this.id = id;
+        this.nombre = nombre;
+        this.subCategoria = subCategoria;
+        this.tipoIva = tipoIva;
+        this.bajoDemanda = bajoDemanda;
+        this.cantLimBajoDemanda = cantLimBajoDemanda;
     }
 
-    public void setSeña(Integer seña) {
-        this.seña = seña;
+    public ProductoEntity(Long id, String nombre, String descripcion, SubCategoriaEntity subCategoria, IvaEntity tipoIva, Boolean bajoDemanda, Integer cantLimBajoDemanda) {
+        this.id = id;
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+        this.subCategoria = subCategoria;
+        this.tipoIva = tipoIva;
+        this.bajoDemanda = bajoDemanda;
+        this.cantLimBajoDemanda = cantLimBajoDemanda;
     }
 
+    public ProductoEntity(Long id, String nombre) {
+        this.id = id;
+        this.nombre = nombre;
+    }
+
+   
+    
     public int getCantStock() {
         return cantStock;
     }
@@ -135,20 +124,20 @@ public class ProductoEntity {
     
     
 
-    public Boolean getPreVenta() {
-        return preVenta;
+    public Boolean getBajoDemanda() {
+        return bajoDemanda;
     }
 
-    public void setPreVenta(Boolean preVenta) {
-        this.preVenta = preVenta;
+    public void setBajoDemanda(Boolean bajoDemanda) {
+        this.bajoDemanda = bajoDemanda;
     }
 
-    public Integer getCantPreVenta() {
-        return cantPreVenta;
+    public Integer getCantLimBajoDemanda() {
+        return cantLimBajoDemanda;
     }
 
-    public void setCantPreVenta(Integer cantPreVenta) {
-        this.cantPreVenta = cantPreVenta;
+    public void setCantLimBajoDemanda(Integer cantLimBajoDemanda) {
+        this.cantLimBajoDemanda = cantLimBajoDemanda;
     }
         
 
@@ -168,29 +157,15 @@ public class ProductoEntity {
         this.nombre = nombre;
     }
 
-    public CategoriaEntity getCategoria() {
-        return categoria;
+    public SubCategoriaEntity getSubCategoria() {
+        return subCategoria;
     }
 
-    public void setCategoria(CategoriaEntity categoria) {
-        this.categoria = categoria;
+    public void setSubCategoria(SubCategoriaEntity subCategoria) {
+        this.subCategoria = subCategoria;
     }
 
-    public Integer getPrecio() {
-        return precio;
-    }
 
-    public void setPrecio(Integer precio) {
-        this.precio = precio;
-    }
-
-    public Integer getCosto() {
-        return costo;
-    }
-
-    public void setCosto(Integer costo) {
-        this.costo = costo;
-    }
 
     public Boolean getEstado() {
         return estado;
@@ -198,6 +173,22 @@ public class ProductoEntity {
 
     public void setEstado(Boolean estado) {
         this.estado = estado;
+    }
+
+    public IvaEntity getTipoIva() {
+        return tipoIva;
+    }
+
+    public void setTipoIva(IvaEntity tipoIva) {
+        this.tipoIva = tipoIva;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
     }
     
     

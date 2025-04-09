@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.Controller;
 
+import com.krazystore.krazystore.DTO.DetalleRecepcionDTO;
 import com.krazystore.krazystore.DTO.RecepcionCreationDTO;
 import com.krazystore.krazystore.DTO.RecepcionDTO;
 import com.krazystore.krazystore.Entity.RecepcionEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -44,7 +46,18 @@ public class RecepcionController {
     public RecepcionCreationDTO findById(@PathVariable("id") Long id) {
         return recepcionService.findById(id);
     }
-
+    
+     @GetMapping("/detalle_compra_recepcionar/{id}")
+    public List<DetalleRecepcionDTO> obtenerDetalleFacturaRecepcionar(@PathVariable("id") Long id) {
+        return recepcionService.obtenerDetalleFacturaRecepcionar(id);
+    }
+   
+    
+    @GetMapping("/pedido_compra/{id}")
+    public List<RecepcionCreationDTO> findByIdPedido(@PathVariable("id") Long id) {
+        return recepcionService.findByIdPedido(id);
+    }
+    
     @PostMapping
     public RecepcionEntity saveRecepcion(@RequestBody RecepcionCreationDTO recepcion) {
         System.out.println("savecontroller");

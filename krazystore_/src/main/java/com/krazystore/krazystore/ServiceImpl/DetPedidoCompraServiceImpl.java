@@ -132,10 +132,10 @@ public class DetPedidoCompraServiceImpl implements DetallePedidoCompraService {
 
             // Si no existe en el detalle actual, se intenta eliminar
             if (!existe) {
-                if (anterior.getCantRecepcionada() > 0) {
+                /*if (anterior.getCantRecepcionada() > 0) {
                     // Lanza excepción si el producto ya fue facturado
                     throw new BadRequestException("No es posible eliminar el Producto: " + anterior.getProducto().getNombre());
-                }
+                }*/
                 // Si no está facturado, se agrega a la lista de elementos a eliminar
                 elementos.add(anterior);
             }
@@ -155,9 +155,9 @@ public class DetPedidoCompraServiceImpl implements DetallePedidoCompraService {
             if(actual.isPresent() ){
                 if(actual.get().getCantidad() != anterior.getCantidad() || actual.get().getCostoCompra() != anterior.getCostoCompra()){
                     // Lanza excepción si el producto ya fue facturado
-                    if(anterior.getCantRecepcionada() > actual.get().getCantidad()){
+                    /*if(anterior.getCantRecepcionada() > actual.get().getCantidad()){
                         throw new BadRequestException("No es posible modificar la cantidad del Producto: "+ anterior.getProducto().getNombre());
-                    }
+                    }*/
                     
                     
                     actual.get().setId(anterior.getId());
@@ -187,6 +187,11 @@ public class DetPedidoCompraServiceImpl implements DetallePedidoCompraService {
         });
         
         return elementos;
+    }
+
+    @Override
+    public List<DetallePedidoCompraDTO> findDetalleFacturarByIdsRecepciones(List<Long> ids) {
+        return detalleRepository.findDetalleFacturarByIdsRecepciones(ids);
     }
     
 }

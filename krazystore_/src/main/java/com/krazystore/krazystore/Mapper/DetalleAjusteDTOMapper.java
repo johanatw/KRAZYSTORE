@@ -22,8 +22,8 @@ public class DetalleAjusteDTOMapper implements Function<DetalleAjuste, DetalleAj
                     detalleEntity.getAjuste(),
                     detalleEntity.getProducto().getId(),
                     detalleEntity.getProducto().getNombre(),
-                    detalleEntity.getProducto().getCategoria().getId(),
-                    detalleEntity.getProducto().getCategoria().getDescripcion(),
+                    detalleEntity.getProducto().getSubCategoria().getId(),
+                    detalleEntity.getProducto().getSubCategoria().getDescripcion(),
                     detalleEntity.getProducto().getCantStock(),
                     detalleEntity.getCantidadAjustada()
         );

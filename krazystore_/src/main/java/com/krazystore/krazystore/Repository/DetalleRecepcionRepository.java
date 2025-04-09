@@ -5,11 +5,13 @@
 package com.krazystore.krazystore.Repository;
 
 import com.krazystore.krazystore.DTO.DetallePedidoRecepcionDTO;
+import com.krazystore.krazystore.DTO.DetalleRecepcionDTO;
 import com.krazystore.krazystore.Entity.DetalleRecepcion;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,4 +51,34 @@ public interface DetalleRecepcionRepository extends JpaRepository<DetalleRecepci
             + "WHERE d.producto.id = ?1 AND d.pedidoCompra.id = ?2 "
            )
         Integer getTotalRecepcionado(Long idProducto, Long idPedido); */
+    
+    @Query("SELECT new com.krazystore.krazystore.DTO.DetalleRecepcionDTO( " +
+       "dp.id, dc.producto.id, " +
+       "dc.producto.nombre, " +
+       "dc.cantidad, " +
+       "COALESCE(SUM(dr.cantRecepcionada), 0)) " +
+       "FROM DetalleCompra dc " +
+       "JOIN dc.compra c " +
+       "JOIN c.pedido p " +  // Asegura que la compra tenga su pedido
+       "JOIN DetallePedidoCompra dp ON dp.pedidoCompra.id = p.id AND dp.producto.id = dc.producto.id " + // Relación por producto
+       "LEFT JOIN RecepcionEntity r ON r.compra.id = c.id " +
+       "LEFT JOIN DetalleRecepcion dr ON dr.detallePedido.id = dp.id AND dr.recepcion.id = r.id " +
+       "WHERE c.id = :idCompra " +
+       "GROUP BY dp.id, dc.producto.id, dc.producto.nombre, dc.cantidad")
+    List<DetalleRecepcionDTO> obtenerDetalleFacturaRecepcionar(@Param("idCompra") Long idCompra);
+    
+    
+    @Query("SELECT new com.krazystore.krazystore.DTO.DetalleRecepcionDTO( " +
+       "dp.id, dp.producto.id, " +
+       "dp.producto.nombre, " +
+       "dr.cantAceptada, dr.cantRechazada, dr.cantRecepcionada ) " +
+       "FROM DetalleRecepcion dr " +
+       "JOIN dr.detallePedido dp " +
+       "JOIN dr.recepcion r " + 
+       "WHERE r.id = :idRecepcion ")
+    List<DetalleRecepcionDTO> findDetalleByIdRecepcion(@Param("idRecepcion") Long idRecepcion);
+    
+    
+    
+   
 }

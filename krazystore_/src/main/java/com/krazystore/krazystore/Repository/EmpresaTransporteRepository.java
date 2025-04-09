@@ -5,13 +5,15 @@
 package com.krazystore.krazystore.Repository;
 
 
-import com.krazystore.krazystore.Entity.EnvioEntity;
+import com.krazystore.krazystore.Entity.EmpresaTransporte;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 /**
  *
  * @author HP
  */
-public interface EnvioRepository extends JpaRepository<EnvioEntity, Long>{
+@Repository
+public interface EmpresaTransporteRepository extends JpaRepository<EmpresaTransporte, Long>{
     
 }

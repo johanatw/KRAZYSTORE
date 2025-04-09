@@ -6,11 +6,13 @@
 package com.krazystore.krazystore.Service;
 
 
+import com.krazystore.krazystore.DTO.VentaCreationDTO;
 import com.krazystore.krazystore.Entity.CategoriaEntity;
 import com.krazystore.krazystore.Entity.DetalleVentaEntity;
 import com.krazystore.krazystore.Entity.PagoEntity;
 import com.krazystore.krazystore.Entity.VentaEntity;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,8 +24,10 @@ public interface VentaService {
     List<VentaEntity> findAll();
     Optional<VentaEntity> findById(Long id);
     VentaEntity saveVenta(VentaEntity ventaEntity, List<DetalleVentaEntity> detalle, List<PagoEntity> pagos);
+    VentaEntity updateVenta(VentaCreationDTO ventaDTO, Long id)throws Exception;
     int anularFactura(Long id);
     VentaEntity updateVenta(VentaEntity VentaEntity, Long id);
     void deleteVenta(Long id);
     void getFacturaPdf(HttpServletResponse response, Long id);
+    String generarPdf(Long id) throws FileNotFoundException;
 }

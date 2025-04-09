@@ -56,6 +56,54 @@ export const ProductoServices = {
   })
   },
 
+  obtenerProducto(id){
+
+    return axios.get(PRODUCTO_API_BASE_URL + "/" + id,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+  },
+  saveProducto(producto) {
+   
+    return axios.post(PRODUCTO_API_BASE_URL, producto,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+  
+},
+obtenerProductosByValor(valor) {
+
+  return axios.get(PRODUCTO_API_BASE_URL+'/nombre?nombre='+valor,{
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
+  }).catch(error => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");  // Eliminar el token expirado
+      router.push({name: 'home'});
+      return Promise.reject(error);
+  }
+  return Promise.reject(error);
+})
+
+},
+
   modificarExistencias(productos){
 
     return axios.put(PRODUCTO_API_BASE_URL + "/" + existencias, productos,{

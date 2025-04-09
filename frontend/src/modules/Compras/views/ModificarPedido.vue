@@ -16,9 +16,11 @@ import { CiudadServices } from '@/services/CiudadServices';
 import { ref, onMounted } from "vue";
 import InputNumber from 'primevue/inputnumber';
 import InputGroup from 'primevue/inputgroup';
+import Textarea from "primevue/textarea";
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import Panel from 'primevue/panel';
 import {PersonaServices} from '@/services/PersonaServices';
+import Select from "primevue/select";
 import router from '@/router';
 import { TipoDocServices } from "@/services/TipoDocServices";
 import {DepartamentoServices } from '@/services/DepartamentoServices';
@@ -36,10 +38,10 @@ const ciudades = ref([]);
 const departamentos = ref([]);
 const documentos = ref([]);
 const visible = ref(false);
-const cliente = ref({});
+const proveedor = ref({});
 const selectedOp = ref('Casi');
 const productos= ref();
-const clientes=ref();
+const proveedores=ref();
 const filteredClientes = ref();
 const error = ref(false);
 const opciones = ref(['Casi','Entre']);
@@ -47,7 +49,7 @@ const infoEntrega = ref([{
     valor: "Retiro"
 }])
 const pedido = ref({});
-const proveedor = ref({});
+
 
 import ConfirmDialog from 'primevue/confirmdialog';
 import Toast from 'primevue/toast';
@@ -56,6 +58,10 @@ import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import {PedidoCompraServices} from "@/services/PedidoCompraServices";
 
+const tiposProveedor = ref([
+  {id: 1, descripcion: 'Nacional'},
+  {id: 2, descripcion: 'Extranjero'}
+]);
 const confirm = useConfirm();
 const toast = useToast();
 
@@ -95,8 +101,7 @@ onMounted(() => {
         fecha.value = new Date(data.data.pedido.fecha);
         detalleFacturar.value = data.data.detalle;
         if (pedido.value.proveedor != null) {
-            proveedor.value = pedido.value.proveedor;
-            selectedCliente.value = proveedor.value;
+            selectedCliente.value = pedido.value.proveedor;
         }
        total.value = pedido.value.total;
        
@@ -110,9 +115,13 @@ onMounted(() => {
     });
     
    ProveedorServices.obtenerProveedores().then((data) => {
-       clientes.value = data.data;
+       proveedores.value = data.data;
    });
 
+   DepartamentoServices.obtenerDepartamentos().then((data) => {
+        departamentos.value=data.data;
+
+    });
 
 });
 
@@ -125,10 +134,10 @@ const search = (event) => {
     
     setTimeout(() => {
         if (!event.query.trim().length) {
-            filteredClientes.value = [...clientes.value];
+            filteredClientes.value = [...proveedores.value];
         } else {
         
-            filteredClientes.value = clientes.value.filter((cliente) => {
+            filteredClientes.value = proveedores.value.filter((cliente) => {
                 if (isNaN(event.query)) {
                     return (cliente.descripcion).toLowerCase().startsWith(event.query.toLowerCase());
                 } else {
@@ -191,7 +200,7 @@ const eliminarClienteSelected = () =>{
 
 const registrarCliente = () =>{
     
-    cliente.value = {};
+    proveedor.value = {};
     clienteDialog.value = true;
 }
 
@@ -199,22 +208,32 @@ const modificarCliente = (cli) => {
     ProveedorServices.getProveedor(cli.id).then((data) => {
         console.log("data direccion");
        
-       cliente.value = data.data;
+       proveedor.value = data.data;
+       proveedor.value.departamento = data.data.ciudad?.departamento;
+       if (proveedor.value.departamento != null) {
+        obtenerCiudadesByDepartamento(proveedor.value.departamento?.id);
+       }
        clienteDialog.value = true;       
        
     });
     
 };
 
+const obtenerCiudadesByDepartamento = (id) =>{
+    CiudadServices.obtenerCiudadesByDepartamento(id).then((data) => {
+        ciudades.value = data.data;
+        console.log(ciudades.value);
+    });
+}
 
 const saveCliente = () => {
     submitted.value = true;
-    if (cliente?.value.descripcion?.trim() ) {
-        if (cliente.value.id) {
-            ProveedorServices.modificarProveedor(cliente.value.id, cliente.value).then((response)=>{
+    if (proveedor?.value.descripcion?.trim() ) {
+        if (proveedor.value.id) {
+            ProveedorServices.modificarProveedor(proveedor.value.id, proveedor.value).then((response)=>{
             console.log("mod");
                 eliminarClienteSelected();
-                clientes.value[findIndexById(cliente.value.id)] = cliente.value;
+                proveedores.value[findIndexById(proveedor.value.id)] = proveedor.value;
                 toast.add({severity:'success', summary: 'Successful', detail: 'Registro modificado', life: 3000});
                 selectedCliente.value = response.data;
                 
@@ -225,9 +244,9 @@ const saveCliente = () => {
             
         }
         else {
-            ProveedorServices.registrarProveedor(cliente.value).then((response)=>{
+            ProveedorServices.registrarProveedor(proveedor.value).then((response)=>{
             console.log("reg");
-                clientes.value.push(response.data);
+                proveedores.value.push(response.data);
                 toast.add({severity:'success', summary: 'Successful', detail: 'Registro creado', life: 3000});
                 selectedCliente.value = response.data;
                 mostrarCliente();
@@ -237,7 +256,7 @@ const saveCliente = () => {
         }
         submitted.value = false;
         clienteDialog.value = false;
-        cliente.value = {};
+        proveedor.value = {};
     }
 };
 
@@ -253,8 +272,8 @@ const hideDialog = () => {
 
 const findIndexById = (id) => {
     let index = -1;
-    for (let i = 0; i < clientes.value.length; i++) {
-        if (clientes.value[i].id === id) {
+    for (let i = 0; i < proveedores.value.length; i++) {
+        if (proveedores.value[i].id === id) {
             index = i;
             break;
         }
@@ -365,9 +384,9 @@ const eliminar = (detalle) => {
     if (!error.value){
 
   
-    let ant = {total: total.value, fecha: fecha.value, estado: pedido.value.estado, proveedor: selectedCliente.value};
+    let ant = {total: total.value, fecha: fecha.value, estado: pedido.value.estado, proveedor: selectedCliente.value, observaciones: pedido.value.observaciones};
 
-
+    console.log(detalleFacturar.value);
     let anticipoCreationDTO = {pedido: ant, detalle: detalleFacturar.value};
     PedidoCompraServices.modificarPedido(pedido.value.id, anticipoCreationDTO ).then((data)=> {
         console.log("saveanticipothen");
@@ -427,20 +446,37 @@ const isRecepcionado = (detalle) => {
         <div class="formgrid">
         <div class="field">
             <label for="name">Nombre</label>
-            <InputText fluid id="name" v-model.trim="cliente.descripcion" required="true" autofocus :class="{'p-invalid': submitted && !cliente.descripcion}" />
-            <small class="p-error" v-if="submitted && !cliente.descripcion">Ingrese un Nombre</small>
+            <InputText fluid id="name" v-model.trim="proveedor.descripcion" required="true" autofocus :class="{'p-invalid': submitted && !proveedor.descripcion}" />
+            <small class="p-error" v-if="submitted && !proveedor.descripcion">Ingrese un Nombre</small>
+        </div>
+        <div class="field">
+            <label for="description">Tipo Proveedor</label>
+            <Select fluid v-model="proveedor.tipo" :options="tiposProveedor" optionLabel="descripcion" placeholder="Seleccione un tipo" class="w-full md:w-56" />
         </div>
         <div class="field">
             <label for="description">RUC</label>
-            <InputText fluid id="description" v-model="cliente.ruc" required="true"  />
+            <InputText fluid id="description" v-model="proveedor.ruc" required="true"  />
         </div>
+        
         <div class="field">
             <label for="description">Correo</label>
-            <InputText fluid id="description" v-model="cliente.correo" required="true"  />
+            <InputText fluid id="description" v-model="proveedor.correo" required="true"  />
         </div>
         <div class="field">
             <label for="description">Telefono</label>
-            <InputText fluid id="description" v-model="cliente.telefono" required="true"  />
+            <InputText fluid id="description" v-model="proveedor.telefono" required="true"  />
+        </div>
+        <div class="field">
+            <label for="description">Departamento</label>
+            <Select fluid v-model="proveedor.departamento" :options="departamentos" @change="obtenerCiudadesByDepartamento(proveedor.departamento.id)"  optionLabel="descripcion" placeholder="Seleccione un departamento" class="w-full md:w-56" />
+        </div>
+        <div class="field">
+            <label for="description">Ciudad</label>
+            <Select fluid v-model="proveedor.ciudad" :options="ciudades"  optionLabel="descripcion" placeholder="Seleccione una ciudad" class="w-full md:w-56" />
+        </div>
+        <div class="field">
+            <label for="description">Direccion</label>
+            <InputText fluid id="description" v-model="proveedor.direccion" required="true"  />
         </div>
     </div>
         <template #footer>
@@ -486,8 +522,12 @@ const isRecepcionado = (detalle) => {
                         </template>
                         <template #content>
                             <div class="field" >
-                                Fecha: <DatePicker dateFormat="dd/mm/yy" v-model="fecha" showIcon iconDisplay="input" />
+                                Fecha: <DatePicker fluid dateFormat="dd/mm/yy" v-model="fecha" showIcon iconDisplay="input" />
                             </div> 
+                            <div class="field">
+                                Observaciones: 
+                                <Textarea fluid v-model="pedido.observaciones" rows="3" cols="33" />
+                            </div>
 
                         </template>
                     </Card>
@@ -519,7 +559,7 @@ const isRecepcionado = (detalle) => {
             
                 <div v-if="!clienteSeleccionado" >
                     
-                    <AutoComplete v-model="selectedCliente" optionLabel="descripcion" forceSelection :suggestions="filteredClientes" @complete="search" @item-select="mostrarCliente">
+                    <AutoComplete fluid v-model="selectedCliente" optionLabel="descripcion" forceSelection :suggestions="filteredClientes" @complete="search" @item-select="mostrarCliente">
                     <template #option="slotProps">
                         <div class="flex flex-column align-options-start">
                             <div>{{ slotProps.option.descripcion }}</div>
@@ -544,7 +584,7 @@ const isRecepcionado = (detalle) => {
                     Productos
                 </div>
                 <div >
-                    <Button label="+ Producto" link @click="visible = true" />
+                    <Button label="Agregar Producto" text @click="visible = true" />
                     </div>
 
             </div>
@@ -575,7 +615,7 @@ const isRecepcionado = (detalle) => {
              
          </Column>
          
-         <Column  class="col" field="subTotal" header="Total" aria-sort="none" >
+         <Column  class="col" field="subTotal" header="Sub Total" aria-sort="none" >
              <template #body="slotProps">
                  <div class="flex-auto p-fluid" style="max-width: 20dvh;">
                      <label for="subtotal"> {{  (slotProps.data.subTotal =  slotProps.data.cantidad * slotProps.data.costoCompra).toLocaleString("de-DE") }}</label>
@@ -598,7 +638,7 @@ const isRecepcionado = (detalle) => {
                                             Total: 
                                         </div>
                                         <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; font-weight: bold; font-size: 16px;" >
-                                            {{ total.toLocaleString("de-DE") }}
+                                            {{ total.toLocaleString("de-DE") }} Gs.
                                            
                                         </div>
 
@@ -608,18 +648,18 @@ const isRecepcionado = (detalle) => {
                                 <div >
                                     
                        
-                                    <Dialog v-if="visible" v-model:visible="visible" modal header="Seleccionar productos" :closable="false" :draggable="false" :style="{ width: '40rem' }"  >
+                                    <Dialog v-if="visible" v-model:visible="visible" modal header="Seleccionar productos" :closable="false" :draggable="false" >
                                     <template #footer>
                                         <div class="flex justify-content-end">
                                             <Button label="Cerrar" icon="pi pi-times" text @click="visible = false" />
                                         </div>
                                     </template> 
 
-                                    <div class="grid" style="row-gap: 2.5vh;">
+                                    <div class="grid" >
                                         <div class="card col-12" style="width: 100%;">
                                             <span class="p-input-icon-left" style="width: 100%; margin-top: 0.5rem;">
                                             
-                                                <InputText  class="buscador p-fluid" style="width: 100%;" v-model="filters['global'].value" placeholder="Buscar..." />
+                                                <InputText fluid  class="buscador p-fluid" style="width: 100%;" v-model="filters['global'].value" placeholder="Buscar..." />
                                             </span>
     
                                             <div class="flex card-container col-12" style="width: 100%;">

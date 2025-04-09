@@ -22,12 +22,16 @@ import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
 import { TipoDocServices } from "@/services/TipoDocServices";
 import {DepartamentoServices } from '@/services/DepartamentoServices';
-import { formatearNumero } from "@/utils/utils";
+import { TimbradoServices } from "@/services/TimbradoServices";
+import { formatearNumero, formatearFecha } from "@/utils/utils";
 const map = ref();
+const timbrado = ref();
+const nroFactura = ref();
 const direccion = ref({});
 const selectedCliente = ref();
 const clienteDialog = ref(false);
 const personaCreationDTO = ref({});
+const infoFactura = ref([]);
 const submitted = ref(false);
 const clienteSeleccionado = ref(false);
 const mensaje = ref([]);
@@ -39,6 +43,8 @@ const cliente = ref({});
 const selectedOp = ref('Casi');
 const productos= ref();
 const clientes=ref();
+const iva5 = ref(0);
+const iva10 = ref(0);
 const filteredClientes = ref();
 const error = ref(false);
 const opciones = ref(['Casi','Entre']);
@@ -84,6 +90,18 @@ const total = ref(0);
 
 
 onMounted(() => {
+    TimbradoServices.obtenerTimbradoVigente().then((data) => {
+        console.log(data.data);
+        if (data.data.timbrado!=null) {
+            timbrado.value = data.data.timbrado;
+            nroFactura.value = data.data.nroFactura;
+
+            getInfoFactura();
+        }
+        
+    
+    });
+
     ProductoServices.obtenerProductos().then((data) => {
      productos.value = data.data
      console.log("productosssss",productos.value);
@@ -106,6 +124,67 @@ onMounted(() => {
 
 
 });
+
+const getInfoFactura = () =>{
+    let valor;
+    valor = {valor: 'Timbrado: ' + timbrado.value.numeroTimbrado };
+    infoFactura.value.push(valor);
+
+    valor = {valor: 'Factura N°: ' + nroFactura.value };
+    infoFactura.value.push(valor);
+
+    valor = {valor: 'Fecha: ' + formatearFecha(new Date()) };
+    infoFactura.value.push(valor);
+}
+
+const calcularIva = () =>{
+   iva5.value = calcularIva5();
+   iva10.value = calcularIva10();
+   montoIva.value = iva5.value + iva10.value;
+    
+}
+
+const calcularIva5 = () => {
+    let detalle;
+  
+        detalle = detalleFacturar.value;
+    
+
+    if (detalle == null) {
+        return 0;
+    }
+  return detalle
+  .filter(item => item.producto?.tipoIva?.porcentaje === 5) // Filtra los productos con IVA 5%
+    .reduce((accu, item) => {
+        let porcentaje = item.producto.tipoIva.porcentaje || 0;
+        let base = item.producto.tipoIva.base || 0;
+        let factor_iva = porcentaje + base;
+
+        if (factor_iva === 0) return accu; // Evita división por 0
+        
+        let iva = item.subTotal * porcentaje / factor_iva;
+        if (!isFinite(iva)) return accu; // Evita errores matemáticos
+        return accu + iva;
+    }, 0); // Luego suma
+};
+
+const calcularIva10 = () => {
+    let detalle;
+    
+        detalle = detalleFacturar.value;
+   
+
+    if (detalle == null) {
+        return 0;
+    }
+  return detalle
+    .filter(item => item.producto.tipoIva.porcentaje === 10) // Filtra 
+    .reduce((acc, item) => {
+        let factor_iva = item.producto.tipoIva.porcentaje + item.producto.tipoIva.base;
+        return acc + ((item.subTotal * item.producto.tipoIva.porcentaje / factor_iva) || 0)
+    }, 0); // Luego suma
+};
+
 
 const filters = ref({
  'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
@@ -408,12 +487,12 @@ const eliminar = (detalle) => {
        //e.cantDisponible = e.producto.cantDisponible - e.cantidad;
  
      
- 
-       monto += (e.precio*e.cantidad);
+       e.subTotal = e.precio*e.cantidad
+       monto += (e.subTotal);
   });
   subTotal.value = monto;
      total.value = subTotal.value ;
- 
+     calcularIva();
   //emit("getSubTotal",total, detalles);
  
  }
@@ -501,7 +580,7 @@ const eliminar = (detalle) => {
         </div>
         <div class="field">
             <label for="inventoryStatus" class="mb-3">Tipo Documento</label>
-            <Dropdown fluid id="inventoryStatus" v-model="cliente.tipoDoc" :options="documentos" optionLabel="descripcion" placeholder="Select a Status" />
+            <Dropdown fluid id="inventoryStatus" v-model="cliente.tipoDoc" :options="documentos" optionLabel="descripcion" placeholder="Seleccione el tipo de documento" />
         </div>
         <div class="field">
             <label for="description">Nro Documento</label>
@@ -541,10 +620,10 @@ const eliminar = (detalle) => {
             <Dropdown fluid v-model="direccion.ciudad" :options="ciudades" optionLabel="descripcion" placeholder="Seleccione una ciudad" :class="{'p-invalid': submitted && !validarDireccionCliente(direccion) && !direccion.ciudad}"  />
             <small class="p-error" v-if="submitted && !validarDireccionCliente(direccion) && !direccion.ciudad">Ingrese Ciudad</small>
         </div>
-        <div class="field">
+       <!-- <div class="field">
             <label for="description">Ubicar en el mapa</label>
             <MapComponent @getUbicacion="getUbicacion" ref="map" :lat="direccion.lat" :lng="direccion.lng" />
-        </div>
+        </div>-->
     </div>
 
         <template #footer>
@@ -606,7 +685,7 @@ const eliminar = (detalle) => {
             
                 <div v-if="!clienteSeleccionado" >
                     
-                    <AutoComplete v-model="selectedCliente" optionLabel="nombre" forceSelection :suggestions="filteredClientes" @complete="search" @item-select="mostrarCliente">
+                    <AutoComplete fluid v-model="selectedCliente" optionLabel="nombre" forceSelection :suggestions="filteredClientes" @complete="search" @item-select="mostrarCliente">
                     <template #option="slotProps">
                         <div class="flex flex-column align-options-start">
                             <div>{{ slotProps.option.nombre }}</div>
@@ -622,6 +701,26 @@ const eliminar = (detalle) => {
         </template>
     </Card>
             </div>  
+            <div class="field col-12 md:col-6">
+                <Card >
+        <template #title>
+            <div class="flex justify-content-between ">
+                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                    Detalle Factura
+                </div>            
+            </div>
+            
+        </template>
+        <template #content>
+            <p class="m-0">
+                <div v-for="v in infoFactura">
+                    {{ v.valor }}
+                </div>
+                
+            </p>
+        </template>
+    </Card>
+ </div>
             
             <div class="col-12" >
                         <Card >
@@ -631,7 +730,7 @@ const eliminar = (detalle) => {
                     Productos
                 </div>
                 <div >
-                    <Button label="+ Producto" link @click="visible = true" />
+                    <Button label="Agregar Producto" text @click="visible = true" />
                     </div>
 
             </div>
@@ -661,8 +760,15 @@ const eliminar = (detalle) => {
             </template>
              
          </Column>
-         
-         <Column  class="col" field="subTotal" header="Total" aria-sort="none" >
+         <Column  class="col" field="cantidad" header="IVA" aria-sort="none">
+                <template #body="slotProps">
+                    <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
+                        <label for="subtotal"> {{  (slotProps.data.producto.tipoIva.porcentaje) }}%</label>
+                    </div>  
+                </template>
+                
+            </Column>
+         <Column  class="col" field="subTotal" header="Sub Total" aria-sort="none" >
              <template #body="slotProps">
                  <div class="flex-auto p-fluid" style="max-width: 20dvh;">
                      <label for="subtotal"> {{  (slotProps.data.subTotal =  slotProps.data.cantidad * slotProps.data.precio ).toLocaleString("de-DE") }}</label>
@@ -685,36 +791,52 @@ const eliminar = (detalle) => {
                                             Total: 
                                         </div>
                                         <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; font-weight: bold; font-size: 16px;" >
-                                            {{ total.toLocaleString("de-DE") }}
+                                            {{ total.toLocaleString("de-DE") }} Gs.
                                         </div>
 
                                     </div>
                                     <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
                                         <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
+                                            IVA 5%: 
+                                        </div>
+                                        <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
+                                            {{ ( Math.round(iva5)).toLocaleString("de-DE") }} Gs.
+                                        </div>
+                                    </div>   
+                                    <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
+                                        <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
                                             IVA 10%: 
                                         </div>
                                         <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
-                                            {{ (montoIva = Math.round(total/11)).toLocaleString("de-DE") }}
+                                            {{ ( Math.round(iva10)).toLocaleString("de-DE") }} Gs.
                                         </div>
-                                    </div>
+                                    </div>  
+                                    <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
+                                        <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
+                                            Total IVA: 
+                                        </div>
+                                        <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
+                                            {{ ( Math.round(montoIva)).toLocaleString("de-DE") }} Gs.
+                                        </div>
+                                    </div> 
             
 
                                 </div>
                                 <div >
                                     
                        
-                                    <Dialog v-if="visible" v-model:visible="visible" modal header="Seleccionar productos" :closable="false" :draggable="false" :style="{ width: '40rem' }"  >
+                                    <Dialog v-if="visible" v-model:visible="visible" modal header="Seleccionar productos" :closable="false" :draggable="false" >
                                     <template #footer>
                                         <div class="flex justify-content-end">
                                             <Button label="Cerrar" icon="pi pi-times" text @click="visible = false" />
                                         </div>
                                     </template> 
 
-                                    <div class="grid" style="row-gap: 2.5vh;">
+                                    <div class="grid" >
                                         <div class="card col-12" style="width: 100%;">
                                             <span class="p-input-icon-left" style="width: 100%; margin-top: 0.5rem;">
                                             
-                                                <InputText  class="buscador p-fluid" style="width: 100%;" v-model="filters['global'].value" placeholder="Buscar..." />
+                                                <InputText fluid class="buscador p-fluid" style="width: 100%;" v-model="filters['global'].value" placeholder="Buscar..." />
                                             </span>
     
                                             <div class="flex card-container col-12" style="width: 100%;">

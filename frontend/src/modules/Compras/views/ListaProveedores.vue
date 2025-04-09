@@ -4,40 +4,36 @@ import DataTable from 'primevue/datatable';
 import InputText from 'primevue/inputtext';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
+import Select from 'primevue/select';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
-import {PedidoServices} from '@/services/PedidoServices';
 import { ProveedorServices } from '@/services/ProveedorServices';
-import { PedidoCompraServices } from '@/services/PedidoCompraServices';
-import { AnticipoServices } from '@/services/AnticipoServices';
-import {ReembolsoServices} from '@/services/ReembolsoServices'
-import { CompraServices } from '@/services/CompraServices';
-import {CajaServices} from '@/services/CajaServices'
 import Panel from 'primevue/panel';
-import router from '@/router';
+import InputGroup from 'primevue/inputgroup';
+import InputGroupAddon from 'primevue/inputgroupaddon';
 import Toast from 'primevue/toast';
-import Tag from 'primevue/tag';
 import Dialog from 'primevue/dialog';
 import ConfirmDialog from 'primevue/confirmdialog';
-import RadioButton from 'primevue/radiobutton';
-const visible = ref(false);
-import Listbox from 'primevue/listbox';
-
-
-import SplitButton from 'primevue/splitbutton';
-
-const pedidos = ref();
-
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
+import { TipoDocServices } from '@/services/TipoDocServices';
+import { DepartamentoServices } from '@/services/DepartamentoServices';
+import { CiudadServices } from '@/services/CiudadServices';
 
 
-
+const proveedores = ref();
 const confirm = useConfirm();
 const toast = useToast();
-const selectedOpcion = ref();
-const idPedidoSelected = ref();
+const proveedorDialog = ref(false);
+const proveedor = ref({});
+const tiposDoc = ref([]);
+const departamentos = ref([]);
+const ciudades = ref([]);
+const submitted = ref(false);
+const tiposProveedor = ref([
+  {id: 1, descripcion: 'Nacional'},
+  {id: 2, descripcion: 'Extranjero'}
+]);
 
-const cajaAbierta = ref({});
 const confirm2 = (id) => {
    
     confirm.require({
@@ -56,91 +52,109 @@ const confirm2 = (id) => {
     });
 };
 onMounted(() => {
-    PedidoCompraServices.obtenerPedidos().then((data) => {
-        pedidos.value = data.data;
-        console.log(pedidos.value);
+  ProveedorServices.obtenerProveedores().then((data) => {
+        proveedores.value = data.data;
+        console.log(proveedores.value);
     });
- getCajaAbierta();
+
+    TipoDocServices.obtenerTiposDocFiscal().then((data) => {
+        tiposDoc.value = data.data;
+        console.log(tiposDoc.value);
+    });
+
+    DepartamentoServices.obtenerDepartamentos().then((data) => {
+        departamentos.value = data.data;
+        console.log(departamentos.value);
+    });
+ 
     
 });
-
-const getCajaAbierta= () => {
-    CajaServices.getCajaAbierta().then((data) => {
-        cajaAbierta.value=data.data;
-        console.log(cajaAbierta.value);
-    });
-};
-
-const deleteReembolso = (id) =>{
-    const cantidad= 1;
-    const index = reembolsos.value.findIndex((loopVariable) => loopVariable.id === id);
-    CajaServices.deleteReembolso(id).then((response)=>{
-      console.log("response");
-      console.log(response.data);
-      
-        reembolsos.value.splice(index,cantidad);
-            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 5000 });
-      
-            
-        })
-
-   
-}
-
-const registradoEnCajaActualAbierta = (fechaRegistro) =>{
-    console.log("registradoEnCajaActualAbierta");
-    if (cajaAbierta.value != null && fechaRegistro >= cajaAbierta.value.fecha) {
-        return false;
-    } else {
-        return true;
-    }
-};
-
 
 
 const filters = ref({
     'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
 });
 
-
-
-const verPedido = (id) =>{
-    router.push({name: 'VisualizarPedido', params: {id}});
+const registrarProveedor = () =>{
     
+    proveedor.value = {};
+    proveedorDialog.value = true;
 }
 
-const verAnticipo = (id) =>{
-    console.log("veranticipofuncion");
-    router.push({name: 'verAnticipo', params: {id}});
-}
-
-const deletePedido = (id) =>{
-    const cantidad= 1;
-    const index = pedidos.value.findIndex((loopVariable) => loopVariable.id === id);
-    
-    
-    PedidoServices.deleteDetallesPedido(id).then((response)=>{
-        console.log(response);
-        PedidoServices.deletePedido(id).then((response)=>{
-            pedidos.value.splice(index,cantidad);
-            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 3000 });
-        })
+const obtenerCiudadesByDepartamento = (id) =>{
+    CiudadServices.obtenerCiudadesByDepartamento(id).then((data) => {
+        ciudades.value = data.data;
+        console.log(ciudades.value);
     });
 }
 
-const formatearNumero = (valor) =>{
-    if(typeof(valor) == "number"){
-        return valor.toLocaleString("de-DE");
+const modificarProveedor = (id) => {
+    ProveedorServices.getProveedor(id).then((data) => {
+        console.log("data direccion");
+       
+       proveedor.value = data.data;
+       proveedor.value.departamento = data.data.ciudad?.departamento;
+       if (proveedor.value.departamento != null) {
+        obtenerCiudadesByDepartamento(proveedor.value.departamento?.id);
+       }
+       
+       proveedorDialog.value = true;       
+       
+    });
+    
+};
+
+const findIndexById = (id) => {
+    let index = -1;
+    for (let i = 0; i < proveedores.value.length; i++) {
+      console.log("for");
+      console.log(id);
+      console.log(proveedores.value[i]);
+      console.log(proveedores.value[i].id);
+        if (proveedores.value[i].id === id) {
+          console.log("if");
+            index = i;
+            break;
+        }
     }
+    console.log(index);
+    return index;
+};
 
-    let fecha = new Date(valor);
-    let fechaFormateada = fecha.getDate() + '/' + (fecha.getMonth()+1) + '/' +fecha.getFullYear()+' '+ fecha.getHours()+':'+fecha.getMinutes()+':'+fecha.getSeconds();
-    return fechaFormateada;
-}
+const hideDialog = () => {
+    proveedorDialog.value = false;
+    submitted.value = false;
+};
 
-const nuevoPedido = () =>{
-    router.push({name: 'nuevo_pedido_compra'});
-}
+const saveProveedor = () => {
+    submitted.value = true;
+    if (proveedor?.value.descripcion?.trim() ) {
+        if (proveedor.value.id) {
+          console.log("proveedor.value");
+          console.log(proveedor.value);
+            ProveedorServices.modificarProveedor(proveedor.value.id, proveedor.value).then((response)=>{
+
+                proveedores.value[findIndexById(response.data.id)] = response.data;
+                toast.add({severity:'success', summary: 'Successful', detail: 'Registro modificado', life: 3000});
+            }).catch(
+                (error)=>messageError("error")
+            );
+            
+        }
+        else {
+            ProveedorServices.registrarProveedor(proveedor.value).then((response)=>{
+            console.log("reg");
+                proveedores.value.push(response.data);
+                 toast.add({severity:'success', summary: 'Successful', detail: 'Registro creado', life: 3000});
+            }).catch(
+                (error)=>messageError("error")
+            );
+        }
+        submitted.value = false;
+        proveedorDialog.value = false;
+        proveedor.value = {};
+    }
+};
 
 </script>
 
@@ -150,51 +164,88 @@ const nuevoPedido = () =>{
 
     <ConfirmDialog ></ConfirmDialog>
     <Toast />
+    <!--Dialog Registrar Modificar Cliente-->
+    <Dialog v-model:visible="proveedorDialog" :closable="false" :style="{width: '450px'}" header="Proveedor" :modal="true" class="p-fluid">
+        <div class="formgrid">
+        <div class="field">
+            <label for="name">Nombre</label>
+            <InputText fluid id="name" v-model.trim="proveedor.descripcion" required="true" autofocus :class="{'p-invalid': submitted && !proveedor.descripcion}" />
+            <small class="p-error" v-if="submitted && !proveedor.descripcion">Ingrese un Nombre</small>
+        </div>
+        <div class="field">
+            <label for="description">Tipo Proveedor</label>
+            <Select fluid v-model="proveedor.tipo" :options="tiposProveedor" optionLabel="descripcion" placeholder="Seleccione un tipo" class="w-full md:w-56" />
+        </div>
+        <div class="field">
+            <label for="description">RUC</label>
+            <InputText fluid id="description" v-model="proveedor.ruc" required="true"  />
+        </div>
+        
+        <div class="field">
+            <label for="description">Correo</label>
+            <InputText fluid id="description" v-model="proveedor.correo" required="true"  />
+        </div>
+        <div class="field">
+            <label for="description">Telefono</label>
+            <InputText fluid id="description" v-model="proveedor.telefono" required="true"  />
+        </div>
+        <div class="field">
+            <label for="description">Departamento</label>
+            <Select fluid v-model="proveedor.departamento" :options="departamentos" @change="obtenerCiudadesByDepartamento(proveedor.departamento.id)"  optionLabel="descripcion" placeholder="Seleccione un departamento" class="w-full md:w-56" />
+        </div>
+        <div class="field">
+            <label for="description">Ciudad</label>
+            <Select fluid v-model="proveedor.ciudad" :options="ciudades"  optionLabel="descripcion" placeholder="Seleccione una ciudad" class="w-full md:w-56" />
+        </div>
+        <div class="field">
+            <label for="description">Direccion</label>
+            <InputText fluid id="description" v-model="proveedor.direccion" required="true"  />
+        </div>
+    </div>
+        <template #footer>
+            <Button label="Cancel" icon="pi pi-times" text @click="hideDialog"/>
+            <Button label="Save" icon="pi pi-check" text @click="saveProveedor" />
+        </template>
+    </Dialog>
     <Panel style=" position: relative; width: 100%;" >
       <template #header>
         <div class="flex align-items-center gap-2">
-            <h3 class="font-bold">Pedidos</h3>
+            <h3 class="font-bold">Proveedores</h3>
         </div>
       </template>
-         
+    
+
       <template #icons>
         <div class="flex align-items-center">
-          <Button  icon="pi pi-plus " @click="nuevoPedido" style=" width: 3rem !important; height: 2.9rem;" />
-        <span class="p-input-icon-left" style="margin-left: 1%;">
-          <i class="pi pi-search" style="top: 35%;"/>
-          <InputText style="padding: 12px !important; padding-left: 40px !important;" class="buscador p-fluid" v-model="filters['global'].value" placeholder="Buscar..."  />
-        </span>
-
+          <Button  icon="pi pi-plus " @click="registrarProveedor" style="margin-right: 1% ;"  />
+          <InputGroup>
+            <InputText v-model="filters['global'].value" placeholder="Search..." />
+            <InputGroupAddon>
+              <i class="pi pi-search" />
+            </InputGroupAddon>
+        </InputGroup>
         </div>
-        
     
       </template>
       
   
       <div >
         
-        <DataTable  :value="pedidos" scrollHeight="400px"  
+        <DataTable  :value="proveedores" scrollHeight="400px"  
           :paginator="true" :rows="7" :filters="filters"
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 
           currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros" >
           <Column field="id" sortable header="N°" aria-sort="ascending" ></Column>
-          <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
-            <template #body="slotProps">
-                {{ formatearNumero(slotProps.data.fecha) }}
-            </template>
+          <Column field="descripcion"  header="Proveedor" aria-sort="ascending" sortable>           
         </Column>
-          <Column field="proveedor"  header="Proveedor" aria-sort="ascending" sortable>           
-        </Column>
-          <Column field="total"  header="Total" aria-sort="ascending" sortable> 
-            <template #body="slotProps">
-                {{ formatearNumero(slotProps.data.total) }}
-            </template> 
+          <Column field="ruc"  header="Ruc" aria-sort="ascending" sortable> 
         </Column>   
         
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
-                
-                <Button :disabled="registradoEnCajaActualAbierta(slotProps.data.fecha)"  icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+              <Button icon="pi pi-pencil" text rounded aria-label="Search" @click="modificarProveedor(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
+
+                <Button icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                 
                 </template>
           </Column>

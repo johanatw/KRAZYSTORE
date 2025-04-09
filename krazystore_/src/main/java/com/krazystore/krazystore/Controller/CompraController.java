@@ -39,14 +39,20 @@ public class CompraController {
     public List<CompraEntity> findAll() {
         return compraService.findAll();
     }
+    
+    @GetMapping("/pedido/{id}")
+    public List<CompraCreationDTO> findByIdPedido(@PathVariable("id") Long id) {
+        return compraService.findByIdPedido(id);
+    }
 
     @GetMapping("/{id}")
-    public Optional<CompraEntity> findById(@PathVariable("id") Long id) {
+    public CompraCreationDTO findById(@PathVariable("id") Long id) {
         return compraService.findById(id);
     }
 
     @PostMapping
     public CompraEntity saveCompra(@RequestBody CompraCreationDTO compra)throws Exception {
+        System.out.println("controllercompra");
         return compraService.saveCompra(compra);
     }
 

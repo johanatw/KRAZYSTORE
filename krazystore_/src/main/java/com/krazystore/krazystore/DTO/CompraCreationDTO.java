@@ -20,7 +20,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CompraCreationDTO {
     private CompraEntity compra;
-    private List<DetalleCompra> detalle;
+    private List<DetalleCompraDTO> detalle;
+    private List<Long> idRecepciones; //recepciones asociadas
 
     public CompraEntity getCompra() {
         return compra;
@@ -30,12 +31,20 @@ public class CompraCreationDTO {
         this.compra = compra;
     }
 
-    public List<DetalleCompra> getDetalle() {
+    public List<DetalleCompraDTO> getDetalle() {
         return detalle;
     }
 
-    public void setDetalle(List<DetalleCompra> detalle) {
+    public void setDetalle(List<DetalleCompraDTO> detalle) {
         this.detalle = detalle;
+    }
+
+    public List<Long> getIdRecepciones() {
+        return idRecepciones;
+    }
+
+    public void setIdRecepciones(List<Long> idRecepciones) {
+        this.idRecepciones = idRecepciones;
     }
     
     

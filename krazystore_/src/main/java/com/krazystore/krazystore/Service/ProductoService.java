@@ -19,7 +19,8 @@ public interface ProductoService {
     List<ProductoDTO> findAll();
     
     Optional<ProductoEntity> findById(Long id);
-    ProductoEntity saveProducto(ProductoEntity productoEntity);
+    List<ProductoDTO> buscarPorNombre(String nombre);
+    ProductoEntity saveProducto(ProductoDTO productoDTO);
     ProductoEntity updateProducto(ProductoEntity productoEntity, Long id);
     ProductoEntity updatePreVenta (Long id,Integer cantPreVenta);
     void updateExistencias(List<ProductoEntity> productos);

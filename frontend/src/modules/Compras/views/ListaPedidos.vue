@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted,  computed } from 'vue';
 import DataTable from 'primevue/datatable';
 import InputText from 'primevue/inputtext';
 import Column from 'primevue/column';
@@ -15,6 +15,7 @@ import Panel from 'primevue/panel';
 import router from '@/router';
 import Toast from 'primevue/toast';
 import Tag from 'primevue/tag';
+import Checkbox from 'primevue/checkbox';
 import Dialog from 'primevue/dialog';
 import ConfirmDialog from 'primevue/confirmdialog';
 import RadioButton from 'primevue/radiobutton';
@@ -27,16 +28,40 @@ import InputGroupAddon from 'primevue/inputgroupaddon';
 import SplitButton from 'primevue/splitbutton';
 
 const pedidos = ref();
-import { formatearNumero, formatearFecha, getEstadoPedidoCompra } from '@/utils/utils'; 
+import { formatearNumero, formatearFecha, getEstadoPedidoCompra, getEstadoRecepcion } from '@/utils/utils'; 
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
-
-
-
+import NuevaFactura from './NuevaFactura.vue';
+import {RecepcionServices} from '@/services/RecepcionServices';
+const expandedRows = ref({});
+const seleccionarFacturaDialog = ref(false);
+const seleccionarRecepcionesDialog = ref(false);
+const classe = ref(' color: #dd128a !important; weight: bold ' );
 const confirm = useConfirm();
+const facturasPedido = ref();
+const selectedFactura = ref();
+const selectedRecepciones = ref();
+const recepcionesPedido = ref();
+const pedidoRecepcionar =ref();
+const pedidoFacturar =ref();
 const toast = useToast();
+
 const selectedOpcion = ref();
 const idPedidoSelected = ref();
+const rowClass = (data) => {
+  console.log(data);
+  if ( data.proveedor.tipo.descripcion === 'Extranjero') {
+        return [{ '!bg-primary ': true }];
+    }
+    //return [{ '!bg-secondary !text-primary-contrast': data.proveedor.tipo.descripcion === 'Extranjero' }];
+};
+const rowStyle = (data) => {
+  
+  console.log(data);
+    if ( data.proveedor.tipo.descripcion === 'Extranjero') {
+      return classe.value;
+    }
+};
 
 const cajaAbierta = ref({});
 const confirm2 = (id) => {
@@ -106,9 +131,71 @@ const filters = ref({
 
 
 
-const recepcionarPedidoCompra = (id) =>{
-    router.push({name: 'recepcionarPedido', params: {id}});
+async function recepcionarPedidoCompra(id) {
+   // let id = pedido.id;
+   //pedidoRecepcionar.value = pedido;
+   router.push({name: 'recepcionarPedido', params: {id}});
+  /*if ((pedidoRecepcionar.value.proveedor.tipo.descripcion == 'Extranjero') ) {
+    facturasPedido.value = (await CompraServices.obtenerComprasByPedido(id)).data;
+    console.log(facturasPedido.value);
+    seleccionarFacturaDialog.value = true;
     
+  } else{
+    router.push({name: 'recepcionarPedido', params: {id}});
+  }*/
+    
+}
+
+const recepcionarPedidoInternacional = () => {
+  let id = pedidoRecepcionar.value.id;
+  let facturaId = selectedFactura.value.compra.id;
+  console.log(facturaId);
+  router.push({name: 'recepcionarPedido', params: {id}, query: {facturaId: facturaId} });
+
+}
+
+async function facturarPedidoCompra(id) {
+  pedidoFacturar.value = id;
+  recepcionesPedido.value = (await RecepcionServices.getRecepcionesByPedido(id)).data;
+    console.log(recepcionesPedido.value);
+    seleccionarRecepcionesDialog.value = true;
+   // let id = pedido.id;
+  /*  pedidoFacturar.value = pedido;
+  if ((pedidoFacturar.value.proveedor.tipo.descripcion == 'Nacional') ) {
+    recepcionesPedido.value = (await RecepcionServices.getRecepcionesByPedido(id)).data;
+    console.log(recepcionesPedido.value);
+    seleccionarRecepcionesDialog.value = true;
+    
+  } else{
+    sessionStorage.removeItem('recepcionesFacturar');
+    nuevaFactura(id);
+  }*/
+    
+}
+
+const facturarPedidoNacional = () => {
+  let id = pedidoFacturar.value.id;
+  if (selectedRecepcionesIds.value!=null) {
+    sessionStorage.setItem('recepcionesFacturar', JSON.stringify(selectedRecepcionesIds.value) );
+    nuevaFactura(id);
+  } 
+
+}
+
+const facturarRecepciones = () => {
+  let id = pedidoFacturar.value;
+  if (selectedRecepcionesIds.value!=null) {
+    sessionStorage.setItem('recepcionesFacturar', JSON.stringify(selectedRecepcionesIds.value) );
+    nuevaFactura(id);
+  } 
+
+}
+
+
+
+const nuevaFactura = (id) => {
+  router.push({name: 'nueva_factura_compra', params: {id}});
+
 }
 
 const verAnticipo = (id) =>{
@@ -150,6 +237,52 @@ const getSeverity = (estado) => {
    }
 };
 
+const isRecepcionPermitida = (pedido) => {
+  let tipo = pedido.proveedor.tipo.descripcion;
+  let estado = pedido.estadoPedido;
+  switch (tipo) {
+        case 'Nacional':
+           return true;
+       case 'Extranjero':
+            return (estado == 'N' || estado == 'A') ?false:true;
+           /*if (estado == 'N' || estado == 'A') {
+            return false;
+           }
+            return true;*/
+       default:
+           return false;
+   }
+  
+  
+};
+
+const isFacturacionPermitida = (pedido) => {
+  let tipo = pedido.proveedor.tipo.descripcion;
+  let estado = pedido.estadoPedido;
+  switch (tipo) {
+        case 'Extranjero':
+           return true;
+       case 'Nacional':
+            return (estado == 'N' || estado == 'A') ?false:true;
+           /*if (estado == 'N' || estado == 'A') {
+            return false;
+           }
+            return true;*/
+       default:
+           return false;
+   }
+  
+};
+
+const isTotalFacturado = (estado) => {
+  switch (estado) {
+       case 'F':
+           return true;
+       default:
+           return false;
+   }
+};
+
 const isRecepcionCompleta = (estado) => {
   console.log(estado);
   switch (estado) {
@@ -172,6 +305,16 @@ const isNuevo = (estado) => {
 const nuevoPedido = () =>{
     router.push({name: 'nuevo_pedido_compra'});
 }
+
+const ver = (e) =>{
+    console.log(e);
+    console.log(selectedRecepciones.value);
+}
+
+const selectedRecepcionesIds = computed(() => 
+  selectedRecepciones.value.map(r => r.recepcion.id) // Solo guardamos los IDs
+);
+
 
 </script>
 
@@ -204,19 +347,23 @@ const nuevoPedido = () =>{
   
       <div >
         
-        <DataTable  :value="pedidos" scrollHeight="400px"  
+        <DataTable  :value="pedidos"  scrollHeight="400px"  
           :paginator="true" :rows="7" :filters="filters"
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 
           currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros" >
           <template #empty> No hay registros para mostrar. </template>
           <template #loading> Cargando. </template>
           <Column field="id" sortable header="N°" aria-sort="ascending" ></Column>
-          <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
+          <Column   field="fecha" sortable header="Fecha" aria-sort="ascending" >
             <template #body="slotProps">
                 {{ formatearFecha(slotProps.data.fecha) }}
             </template>
         </Column>
-          <Column field="proveedor.descripcion"  header="Proveedor" aria-sort="ascending" sortable>           
+          <Column field="proveedor.descripcion"  header="Proveedor" aria-sort="ascending" sortable> 
+            <template #body="slotProps">
+                
+                  {{ slotProps.data.proveedor.descripcion }}                
+            </template>           
         </Column>
           <Column field="total"  header="Total" aria-sort="ascending" sortable> 
             <template #body="slotProps">
@@ -232,13 +379,128 @@ const nuevoPedido = () =>{
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
                 <Button icon="pi pi-search" text rounded aria-label="Search" @click="verPedidoCompra(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
-                <Button :disabled="isRecepcionCompleta(slotProps.data.estadoPedido)" icon="pi pi-truck" severity="success" text rounded aria-label="Search" @click="recepcionarPedidoCompra(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
-                
+                <Button icon="pi pi-truck" severity="success" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="recepcionarPedidoCompra(slotProps.data.id)" />
+                <Button  icon="pi pi-receipt" severity="info" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="facturarPedidoCompra(slotProps.data.id)" />
+
                 <Button :disabled="!isNuevo(slotProps.data.estadoPedido)" icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                 
                 </template>
           </Column>
         </DataTable>
+      </div>
+
+      <div>
+        <!--Modal Seleccionar Factura-->
+        <Dialog v-model:visible="seleccionarFacturaDialog"  modal header="Edit Profile" >
+            <template #header>
+                <div class="flex align-items-center gap-2">
+                    <h3 class="font-bold">Seleccionar Factura</h3>
+                </div>
+            </template>
+    
+            <div class="contenedor" > 
+              <div>     
+              <DataTable v-model:selection="selectedFactura"  v-model:expandedRows="expandedRows" :value="facturasPedido" dataKey="compra.id" tableStyle="min-width: 50rem">
+                <Column selectionMode="single" headerStyle="width: 3rem"></Column>
+                <Column expander style="width: 5rem" />
+                <Column field="compra.id" header="Factura#">
+                  
+                </Column>
+                <template #expansion="slotProps">
+                  <div >
+                  <table width="100%" align="center" border="1" style="border-collapse: collapse;" >
+                    <thead>
+                      <tr>
+                        <th style="font-weight: bold;" >Producto</th>
+                        <th style="font-weight: bold;">Cantidad Facturada</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="d in slotProps.data.detalle" :key="d.id">
+                        <td>{{ d.producto.nombre  }}</td>
+                        <td>{{ d.cantidad  }}</td>
+                       
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                
+            </template>
+            </DataTable>
+          </div>
+            </div>
+            <template #footer>
+                <div class="card flex" style="justify-content: end;">  
+                    <Button  label="Cancelar"  style="margin-right: 1%;" />
+                    <Button  label="Aceptar" @click="recepcionarPedidoInternacional()" />
+                </div>
+            </template>
+        </Dialog>
+      </div>
+
+      <div>
+        <!--Modal Seleccionar Recepciones-->
+        <Dialog v-model:visible="seleccionarRecepcionesDialog"  modal header="Edit Profile" >
+            <template #header>
+                <div class="flex align-items-center gap-2">
+                    <h3 class="font-bold">Seleccionar Recepciones</h3>
+                </div>
+            </template>
+    
+            <div class="contenedor" > 
+              <div>     
+              <DataTable   v-model:expandedRows="expandedRows" :value="recepcionesPedido"  dataKey="recepcion.id" v-model:selection="selectedRecepciones" tableStyle="min-width: 50rem">
+                <Column selectionMode="multiple" headerStyle="width: 3rem">
+                  <template #body="slotProps">
+                  <div class="flex-auto p-fluid" style="max-width:20lvb  !important; " >
+                      <Checkbox :disabled="slotProps.data.recepcion.compra !== null" v-model="selectedRecepciones" :value="slotProps.data"  />
+                  </div> 
+              </template>
+                </Column>
+                <Column expander style="width: 5rem" />
+                <Column field="recepcion.id" header="Recepcion#"></Column>
+                <Column field="recepcion.fecha" header="Fecha">
+                  <template #body="slotProps">
+                      {{ formatearFecha(slotProps.data.recepcion.fecha) }}
+                  </template>
+                </Column>
+                <Column field="estado"  > 
+                    <template #body="slotProps">
+                        <Tag style=" font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ getEstadoRecepcion(slotProps.data.recepcion.estado)}}</Tag>
+                      </template> 
+                </Column> 
+                <template #expansion="slotProps">
+                <div >
+                  <table width="100%" align="center" border="1" style="border-collapse: collapse;" >
+                    <thead>
+                      <tr>
+                        <th style="font-weight: bold;" >Producto</th>
+                        <th style="font-weight: bold;">Cantidad Recepcionada</th>
+                        <th style="font-weight: bold;">Cantidad Aceptada</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="d in slotProps.data.detalle" :key="d.id">
+                        <td>{{ d.detallePedido.producto.nombre  }}</td>
+                        <td>{{ d.cantRecepcionado  }}</td>
+                        <td>{{ d.cantAceptada }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                
+            </template>
+            </DataTable>
+          </div>
+            </div>
+            <template #footer>
+                <div class="card flex" style="justify-content: end;">  
+                    <Button  label="Cancelar"  style="margin-right: 1%;" />
+                    <Button  label="Aceptar" @click="facturarRecepciones()" />
+                </div>
+            </template>
+        </Dialog>
       </div>
       
     </Panel>

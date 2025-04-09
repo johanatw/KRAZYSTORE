@@ -7,20 +7,29 @@ package com.krazystore.krazystore.ServiceImpl;
 
 import Utils.CambioExistenciasEvent;
 import Utils.PedidoFacturadoEvent;
+import Utils.PreciosCompraActualizadosEvent;
+import Utils.PreciosVentaEvent;
 import Utils.ProductosFacturadosEvent;
 import Utils.ProductosReservadosEvent;
 import static Utils.TipoAjusteExistencia.DISMINUIR;
 import Utils.TipoEvento;
 import com.krazystore.krazystore.DTO.ProductoDTO;
 import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
+import com.krazystore.krazystore.Entity.CostoEntity;
+import com.krazystore.krazystore.Entity.PrecioVentaEntity;
 import com.krazystore.krazystore.Entity.ProductoEntity;
+import com.krazystore.krazystore.Mapper.ProductoEntityMapper;
 import com.krazystore.krazystore.Repository.ProductoRepository;
 import com.krazystore.krazystore.Service.ProductoService;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -29,11 +38,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProductoServiceImpl implements ProductoService{
     private final ProductoRepository productorepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public ProductoServiceImpl(ProductoRepository productorepository) {
+    public ProductoServiceImpl(ProductoRepository productorepository, ApplicationEventPublisher eventPublisher) {
         this.productorepository = productorepository;
+        this.eventPublisher = eventPublisher;
     }
     
+    @Autowired
+    private ProductoEntityMapper productoMapper;
 
     @Override
     public List<ProductoDTO> findAll() {
@@ -41,32 +54,53 @@ public class ProductoServiceImpl implements ProductoService{
         return productorepository.findProductos();
     }
     
-    
 
     @Override
     public Optional<ProductoEntity> findById(Long id) {
         return productorepository.findById(id);
     }
 
+    @Transactional
     @Override
-    public ProductoEntity saveProducto(ProductoEntity productoEntity) {
-        return productorepository.save(productoEntity);
+    public ProductoEntity saveProducto(ProductoDTO productoDTO) {
+        
+        ProductoEntity producto = productoMapper.apply(productoDTO);
+        productorepository.save(producto);
+        if(productoDTO.getPrecio()>0){
+            PrecioVentaEntity precioVenta = new PrecioVentaEntity();
+            precioVenta.setFecha(new Date());
+            precioVenta.setProducto(producto);
+            precioVenta.setPrecio((long)productoDTO.getPrecio());
+            
+            guardarNuevoPrecioVenta(precioVenta);
+        }
+        
+        if(productoDTO.getCosto()>0){
+            CostoEntity precioCompra = new CostoEntity();
+            precioCompra.setFecha(new Date());
+            precioCompra.setProducto(producto);
+            precioCompra.setCosto((long)productoDTO.getCosto());
+            
+            guardarNuevoPrecioCompra(precioCompra);
+        }
+        return producto;
     }
 
+    
     @Override
     public ProductoEntity updateProducto(ProductoEntity productoEntity, Long id) {
         ProductoEntity updatedProducto = productorepository.findById(id).get();
         
         updatedProducto.setNombre(productoEntity.getNombre());
-        updatedProducto.setCategoria(productoEntity.getCategoria());
-        updatedProducto.setPrecio(productoEntity.getPrecio());
-        updatedProducto.setCosto(productoEntity.getCosto());
+        updatedProducto.setDescripcion(productoEntity.getDescripcion());
+        updatedProducto.setSubCategoria(productoEntity.getSubCategoria());
         updatedProducto.setEstado(productoEntity.getEstado());
-        updatedProducto.setPreVenta(productoEntity.getPreVenta());
-        updatedProducto.setCantPreVenta(productoEntity.getCantPreVenta());
+        updatedProducto.setBajoDemanda(productoEntity.getBajoDemanda());
+        updatedProducto.setCantLimBajoDemanda(productoEntity.getCantLimBajoDemanda());
         updatedProducto.setCantDisponible(productoEntity.getCantDisponible());
         updatedProducto.setCantStock(productoEntity.getCantStock());
         updatedProducto.setCantReservada(productoEntity.getCantReservada());
+        updatedProducto.setTipoIva(productoEntity.getTipoIva());
 
         return productorepository.save(updatedProducto);
     }
@@ -89,8 +123,8 @@ public class ProductoServiceImpl implements ProductoService{
     public ProductoEntity updatePreVenta (Long id,Integer cantPreVenta){
         ProductoEntity updatedProducto = productorepository.findById(id).get();
         System.out.println(cantPreVenta);
-        updatedProducto.setPreVenta(true);
-        updatedProducto.setCantPreVenta(cantPreVenta);
+        updatedProducto.setBajoDemanda(true);
+        updatedProducto.setCantLimBajoDemanda(cantPreVenta);
         
         
         
@@ -162,5 +196,26 @@ public class ProductoServiceImpl implements ProductoService{
         });
 
         productorepository.saveAll(productosActualizar);
+    }
+
+    @Override
+    public List<ProductoDTO> buscarPorNombre(String nombre) {
+        return productorepository.buscarPorNombre(nombre);
+    }
+    
+    public void guardarNuevoPrecioVenta(PrecioVentaEntity precio) {
+        List<PrecioVentaEntity> preciosActualizar = new ArrayList<>();
+        preciosActualizar.add(precio);
+        
+        PreciosVentaEvent evento = new PreciosVentaEvent(preciosActualizar);
+        eventPublisher.publishEvent(evento);
+    }
+    
+    public void guardarNuevoPrecioCompra(CostoEntity precioCompra) {
+        List<CostoEntity> preciosActualizar = new ArrayList<>();
+        preciosActualizar.add(precioCompra);
+        
+        PreciosCompraActualizadosEvent evento = new PreciosCompraActualizadosEvent(preciosActualizar);
+        eventPublisher.publishEvent(evento);
     }
 }

@@ -6,12 +6,17 @@ package com.krazystore.krazystore.ServiceImpl;
 
 import Utils.TipoAjusteExistencia;
 import Utils.TipoOperacionDetalle;
+import com.krazystore.krazystore.DTO.DetalleCompraDTO;
 import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
 import com.krazystore.krazystore.Entity.CompraEntity;
+import com.krazystore.krazystore.Entity.CostoEntity;
 import com.krazystore.krazystore.Entity.DetalleCompra;
 import com.krazystore.krazystore.Repository.DetalleCompraRepository;
 import com.krazystore.krazystore.Service.DetalleCompraService;
+import com.krazystore.krazystore.Service.PrecioCompraService;
 import com.krazystore.krazystore.exception.BadRequestException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -19,6 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +40,8 @@ public class DetCompraServiceImpl implements DetalleCompraService {
         this.detalleRepository = detalleRepository;
     }
     
+    @Autowired
+    private PrecioCompraService precioService;
 
     @Override
     public List<DetalleCompra> findByIdCompra(Long id) {
@@ -265,6 +273,210 @@ public class DetCompraServiceImpl implements DetalleCompraService {
         });
         
         return elementos;
+    }
+
+    @Override
+    public List<DetalleCompraDTO> findDetallesByIdCompra(Long idcompra) {
+        return detalleRepository.findDetallesByIdCompra(idcompra);
+    }
+    
+    @Override
+    public List<CostoEntity> getPreciosCompraActualizados(List<DetalleCompra> detalle, Long idCompra, Date fechaFactura, Date fechaAnteriorFactura){
+        System.out.print("ACTUALIZARCOSTO");
+        LocalDate soloFechaFactura = (fechaFactura != null) 
+            ? fechaFactura.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() 
+            : null;
+        LocalDate soloFechaAnteriorFactura = (fechaAnteriorFactura != null) 
+            ? fechaAnteriorFactura.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() 
+            : null;
+                 
+        List<DetalleCompra> detallesAnteriores = new ArrayList<>();
+        List<CostoEntity> preciosActualizar = new ArrayList<>();
+        List<CostoEntity> preciosCompraAnteriorFecha = new ArrayList<>();
+        if(null != idCompra){
+            detallesAnteriores = detalleRepository.findAllByIdCompra(idCompra); 
+            
+        }
+        
+        // Obtener los IDs de los productos en la factura
+        List<Long> productosIds = detalle.stream()
+                .map(det -> det.getProducto().getId())
+                .collect(Collectors.toList());
+        
+        if(!detallesAnteriores.isEmpty()){
+            preciosCompraAnteriorFecha = precioService.findPreciosByFechaAndProductos(fechaAnteriorFactura, productosIds);
+        }
+        List<CostoEntity> preciosCompra = precioService.findPreciosByFechaAndProductos(fechaFactura, productosIds);
+        
+        if(fechaAnteriorFactura == null ){
+            System.out.print("iff1");
+            for (DetalleCompra det : detalle) {
+                Long idProducto = det.getProducto().getId();
+                CostoEntity costo = preciosCompra.stream()
+                    .filter(c -> c.getProducto().getId().equals(idProducto))
+                    .findFirst()
+                    .orElse(null);
+                
+                
+                
+                if(costo != null){
+                    LocalDate fechaCosto = (costo.getFecha() != null) 
+                        ? costo.getFecha().toInstant().atZone(ZoneId.systemDefault()).toLocalDate() 
+                        : null;
+                 
+                    int precioCompra = (int)(long)costo.getCosto();
+                    if(soloFechaFactura.equals(fechaCosto)){
+                        if(det.getCostoCompra() != precioCompra){
+                            costo.setCosto((long)det.getCostoCompra());
+                            
+                            preciosActualizar.add(costo);
+                        }
+                    }else{
+                        if(det.getCostoCompra() != precioCompra){
+                            CostoEntity nuevoCosto = new CostoEntity();
+                            nuevoCosto.setFecha(fechaFactura);
+                            nuevoCosto.setCosto((long)det.getCostoCompra());
+                            nuevoCosto.setProducto(det.getProducto());
+                            
+                            preciosActualizar.add(nuevoCosto);
+                        }
+                    }
+                
+                }else{
+                    CostoEntity nuevoCosto = new CostoEntity();
+                        nuevoCosto.setFecha(fechaFactura);
+                        nuevoCosto.setCosto((long)det.getCostoCompra());
+                        nuevoCosto.setProducto(det.getProducto());
+
+                        preciosActualizar.add(nuevoCosto);
+                }
+                
+
+            }
+        }else if( soloFechaFactura.equals(soloFechaAnteriorFactura) ){
+             for (DetalleCompra det : detalle) {
+                Long idProducto = det.getProducto().getId();
+                CostoEntity costo = preciosCompra.stream()
+                    .filter(c -> c.getProducto().getId().equals(idProducto))
+                    .findFirst()
+                    .orElse(null);
+                                
+                if(costo != null){
+                    LocalDate fechaCosto = (costo.getFecha() != null) 
+                        ? costo.getFecha().toInstant().atZone(ZoneId.systemDefault()).toLocalDate() 
+                        : null;
+                 
+                    int precioCompra = (int)(long)costo.getCosto();
+                    if(soloFechaFactura.equals(fechaCosto)){
+                        if(det.getCostoCompra() != precioCompra){
+                            costo.setCosto((long)det.getCostoCompra());
+                            
+                            preciosActualizar.add(costo);
+                        }
+                    }else{
+                        if(det.getCostoCompra() != precioCompra){
+                            CostoEntity nuevoCosto = new CostoEntity();
+                            nuevoCosto.setFecha(fechaFactura);
+                            nuevoCosto.setCosto((long)det.getCostoCompra());
+                            nuevoCosto.setProducto(det.getProducto());
+                            
+                            preciosActualizar.add(nuevoCosto);
+                        }
+                    }
+                
+                }else{
+                    CostoEntity nuevoCosto = new CostoEntity();
+                        nuevoCosto.setFecha(fechaFactura);
+                        nuevoCosto.setCosto((long)det.getCostoCompra());
+                        nuevoCosto.setProducto(det.getProducto());
+
+                        preciosActualizar.add(nuevoCosto);
+                }
+
+            }   
+        
+        }
+        else if(!soloFechaFactura.equals(soloFechaAnteriorFactura)){
+            System.out.print("ifff2");
+            for (DetalleCompra det : detalle) {
+                Long idProducto = det.getProducto().getId();
+                CostoEntity costoAnteriorFecha = preciosCompraAnteriorFecha.stream()
+                    .filter(c -> c.getProducto().getId().equals(idProducto))
+                    .findFirst()
+                    .orElse(null);
+                
+                CostoEntity costoNuevaFecha = preciosCompra.stream()
+                    .filter(c -> c.getProducto().getId().equals(idProducto))
+                    .findFirst()
+                    .orElse(null);
+                
+                if(costoAnteriorFecha != null){
+                    System.out.print("ifff4");
+                    LocalDate fechaCostoAnterior = (costoAnteriorFecha.getFecha() != null) 
+                        ? costoAnteriorFecha.getFecha().toInstant().atZone(ZoneId.systemDefault()).toLocalDate() 
+                        : null;
+                    
+                    int precioCompraAnterior = (int)(long)costoAnteriorFecha.getCosto();
+                    
+                    if(soloFechaAnteriorFactura.equals(fechaCostoAnterior)){
+                        if(det.getCostoCompra() != precioCompraAnterior){
+                            System.out.print("ifff5");
+                            costoAnteriorFecha.setCosto((long)det.getCostoCompra());
+                        }
+                        costoAnteriorFecha.setFecha(fechaFactura);
+                            
+                        preciosActualizar.add(costoAnteriorFecha);
+                    }else if(costoNuevaFecha != null){
+                        System.out.print("iff6");
+                        LocalDate fechaCostoActual = (costoNuevaFecha.getFecha() != null) 
+                        ? costoNuevaFecha.getFecha().toInstant().atZone(ZoneId.systemDefault()).toLocalDate() 
+                        : null;
+                        int precioCompraActual = (int)(long)costoNuevaFecha.getCosto();
+                        if(soloFechaFactura.equals(fechaCostoActual)){
+                            if(det.getCostoCompra() != precioCompraActual ){
+                                System.out.print("ifff7");
+                                costoNuevaFecha.setCosto((long)det.getCostoCompra());
+                                costoNuevaFecha.setFecha(fechaFactura);
+                                preciosActualizar.add(costoNuevaFecha);
+                            }
+                            
+                        }else{
+                            if(det.getCostoCompra() != precioCompraActual){
+                                System.out.print("ifff8");
+                                CostoEntity nuevoCosto = new CostoEntity();
+                                nuevoCosto.setFecha(fechaFactura);
+                                nuevoCosto.setCosto((long)det.getCostoCompra());
+                                nuevoCosto.setProducto(det.getProducto());
+
+                                preciosActualizar.add(nuevoCosto);
+                            }
+                        
+                        }
+                        
+                    }else{
+                        System.out.print("ifff9");
+                        CostoEntity nuevoCosto = new CostoEntity();
+                        nuevoCosto.setFecha(fechaFactura);
+                        nuevoCosto.setCosto((long)det.getCostoCompra());
+                        nuevoCosto.setProducto(det.getProducto());
+
+                        preciosActualizar.add(nuevoCosto);
+                    }
+                
+                }else{
+                    System.out.print("ifff10");
+                    CostoEntity nuevoCosto = new CostoEntity();
+                        nuevoCosto.setFecha(fechaFactura);
+                        nuevoCosto.setCosto((long)det.getCostoCompra());
+                        nuevoCosto.setProducto(det.getProducto());
+
+                        preciosActualizar.add(nuevoCosto);
+                }
+                
+
+            }
+        }
+        return preciosActualizar;
     }
     
 }

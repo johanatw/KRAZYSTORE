@@ -34,7 +34,10 @@ public class RecepcionEntity {
     @Column
     private Date fecha;
     @Column
-    private char estado;
+    private Character estado;
+    @ManyToOne
+    @JoinColumn(name = "id_compra")
+    private CompraEntity compra;
 
     public RecepcionEntity(Long id) {
         this.id = id;
@@ -48,11 +51,11 @@ public class RecepcionEntity {
         this.id = id;
     }
 
-    public char getEstado() {
+    public Character getEstado() {
         return estado;
     }
 
-    public void setEstado(char estado) {
+    public void setEstado(Character estado) {
         this.estado = estado;
     }
     
@@ -62,6 +65,14 @@ public class RecepcionEntity {
 
     public void setFecha(Date fecha) {
         this.fecha = fecha;
+    }
+
+    public CompraEntity getCompra() {
+        return compra;
+    }
+
+    public void setCompra(CompraEntity compra) {
+        this.compra = compra;
     }
     
     

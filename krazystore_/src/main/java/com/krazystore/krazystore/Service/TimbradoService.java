@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.Service;
 
+import com.krazystore.krazystore.DTO.TimbradoDTO;
 import com.krazystore.krazystore.Entity.TimbradoEntity;
 import java.util.Optional;
 
@@ -15,4 +16,5 @@ public interface TimbradoService {
     Optional<TimbradoEntity> getTimbradoVigente();
     String getNroFactura(TimbradoEntity timbrado);
     TimbradoEntity updateTimbrado(TimbradoEntity timbrado);
+    TimbradoDTO getTimbradoDTOVigente();
 }

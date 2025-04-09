@@ -40,13 +40,19 @@ const ciudades = ref([]);
 const departamentos = ref([]);
 const documentos = ref([]);
 const visible = ref(false);
-const cliente = ref({});
+const proveedor = ref({});
 const selectedOp = ref('Casi');
 const productos= ref();
-const clientes=ref();
+const proveedores=ref();
 const filteredClientes = ref();
 const error = ref(false);
+const iva5 = ref(0);
+const iva10 = ref(0);
 const opciones = ref(['Casi','Entre']);
+const compraNacional = ref(false);
+const compraInternacional = ref(false);
+const pedidoAsociado = ref(false);
+const selectedProducts = ref();
 const infoEntrega = ref([{
     valor: "Retiro"
 }])
@@ -60,7 +66,10 @@ import PedidoCompraServices from "@/services/PedidoCompraServices";
 import DatePicker from 'primevue/datepicker';
 const confirm = useConfirm();
 const toast = useToast();
-
+const tiposProveedor = ref([
+  {id: 1, descripcion: 'Nacional'},
+  {id: 2, descripcion: 'Extranjero'}
+]);
 const message = (m) => {
     let id = m.id;
     let nro = m.nroFactura;
@@ -87,36 +96,43 @@ const detalleFacturar = ref([]);
 const subTotal = ref(0);
 const montoIva = ref(0);
 const detalle = ref({});
-const proveedor = ref({});
 const total = ref(0);
 const nroFactura = ref();
+const pedido = ref();
 const fechaCompra = ref(new Date());
 
 onMounted(() => {
     CompraServices.getCompra(router.currentRoute.value.params.id).then((data) => {
-        compra.value = data.data;
-        console.log(compra.value);
-        if (data.data.proveedor != null) {
-            proveedor.value = data.data.proveedor;
-            selectedCliente.value = data.data.proveedor;
+        compra.value = data.data.compra;
+        pedido.value = data.data.compra?.pedido;
+        console.log(data.data);
+        if (data.data.compra.proveedor != null) {
+            selectedCliente.value = data.data.compra.proveedor;
+            compraNacional.value = !esCompraInternacional(selectedCliente.value.tipo.descripcion) ;
         }
+
+        pedidoAsociado.value = (data.data.compra?.pedido !== null);
+        
+        detalleFacturar.value = data.data.detalle;
+        
+        if (pedidoAsociado.value) {
+            selectedProducts.value = data.data.detalle;
+        }
+
+        detalleFacturar.value.forEach(element => {
+            element.pendiente = element.detallePedido.cantSolicitada -  element.detallePedido.cantFacturada + element.cantidad;
+        });
+        
+
+        console.log(selectedProducts.value);
+        console.log(compraNacional.value);
        total.value = compra.value.total;
        fechaCompra.value = new Date(compra.value.fecha);
        nroFactura.value = compra.value.nroFactura;
+       calcularIva();
         mostrarCliente();
+        console.log("LLEGA AL FINAL");
    });
-
-   CompraServices.getDetalleCompra(router.currentRoute.value.params.id).then((response)=>{
-        console.log(response.data)
-        if (response.data.length > 0) {
-            detalleFacturar.value = response.data;
-
-            detalleFacturar.value.forEach(element => {
-                element.iva = { name: '10 %'};
-            }); 
-        }
-        
-    });
 
     ProductoServices.obtenerProductos().then((data) => {
      productos.value = data.data
@@ -125,9 +141,13 @@ onMounted(() => {
     });
     
    ProveedorServices.obtenerProveedores().then((data) => {
-       clientes.value = data.data;
+       proveedores.value = data.data;
    });
 
+   DepartamentoServices.obtenerDepartamentos().then((data) => {
+        departamentos.value=data.data;
+
+    });
 });
 
 const filters = ref({
@@ -143,15 +163,23 @@ const isFromRecepcion = () => {
 
   }
 
+const esCompraInternacional = (tipoProveedor) =>{
+
+    if (tipoProveedor == 'Extranjero') {
+        return true;
+    }
+
+    return false;
+}
 //Cliente
 const search = (event) => {
     
     setTimeout(() => {
         if (!event.query.trim().length) {
-            filteredClientes.value = [...clientes.value];
+            filteredClientes.value = [...proveedores.value];
         } else {
         
-            filteredClientes.value = clientes.value.filter((cliente) => {
+            filteredClientes.value = proveedores.value.filter((cliente) => {
                 if (isNaN(event.query)) {
                     return (cliente.descripcion).toLowerCase().startsWith(event.query.toLowerCase());
                 } else {
@@ -214,7 +242,7 @@ const eliminarClienteSelected = () =>{
 
 const registrarCliente = () =>{
     
-    cliente.value = {};
+    proveedor.value = {};
     clienteDialog.value = true;
 }
 
@@ -222,22 +250,32 @@ const modificarCliente = (cli) => {
     ProveedorServices.getProveedor(cli.id).then((data) => {
         console.log("data direccion");
        
-       cliente.value = data.data;
+       proveedor.value = data.data;
+       proveedor.value.departamento = data.data.ciudad?.departamento;
+       if (proveedor.value.departamento != null) {
+        obtenerCiudadesByDepartamento(proveedor.value.departamento?.id);
+       }
        clienteDialog.value = true;       
        
     });
     
 };
 
+const obtenerCiudadesByDepartamento = (id) =>{
+    CiudadServices.obtenerCiudadesByDepartamento(id).then((data) => {
+        ciudades.value = data.data;
+        console.log(ciudades.value);
+    });
+}
 
 const saveCliente = () => {
     submitted.value = true;
-    if (cliente?.value.descripcion?.trim() ) {
-        if (cliente.value.id) {
-            ProveedorServices.modificarProveedor(cliente.value.id, cliente.value).then((response)=>{
+    if (proveedor?.value.descripcion?.trim() ) {
+        if (proveedor.value.id) {
+            ProveedorServices.modificarProveedor(proveedor.value.id, proveedor.value).then((response)=>{
             console.log("mod");
                 eliminarClienteSelected();
-                clientes.value[findIndexById(cliente.value.id)] = cliente.value;
+                proveedores.value[findIndexById(proveedor.value.id)] = proveedor.value;
                 toast.add({severity:'success', summary: 'Successful', detail: 'Registro modificado', life: 3000});
                 selectedCliente.value = response.data;
                 
@@ -248,9 +286,9 @@ const saveCliente = () => {
             
         }
         else {
-            ProveedorServices.registrarProveedor(cliente.value).then((response)=>{
+            ProveedorServices.registrarProveedor(proveedor.value).then((response)=>{
             console.log("reg");
-                clientes.value.push(response.data);
+                proveedores.value.push(response.data);
                 toast.add({severity:'success', summary: 'Successful', detail: 'Registro creado', life: 3000});
                 selectedCliente.value = response.data;
                 mostrarCliente();
@@ -260,7 +298,7 @@ const saveCliente = () => {
         }
         submitted.value = false;
         clienteDialog.value = false;
-        cliente.value = {};
+        proveedor.value = {};
     }
 };
 
@@ -279,14 +317,73 @@ const hideDialog = () => {
 
 const findIndexById = (id) => {
     let index = -1;
-    for (let i = 0; i < clientes.value.length; i++) {
-        if (clientes.value[i].id === id) {
+    for (let i = 0; i < proveedores.value.length; i++) {
+        if (proveedores.value[i].id === id) {
             index = i;
             break;
         }
     }
 
     return index;
+};
+
+const calcularIva = () =>{
+   iva5.value = calcularIva5();
+   iva10.value = calcularIva10();
+   montoIva.value = iva5.value + iva10.value;
+    
+}
+
+
+const calcularIva5 = () => {
+    let detalle;
+    if(!pedidoAsociado.value){
+        detalle = detalleFacturar.value;
+    }else{
+        detalle = selectedProducts.value;
+    }
+
+    if (detalle == null) {
+        return 0;
+    }
+
+  return detalle
+  .filter(item => item.ivaAplicado.porcentaje === 5) // Filtra los productos con IVA 5%
+    .reduce((accu, item) => {
+        let porcentaje = item.ivaAplicado.porcentaje || 0;
+        let base = item.ivaAplicado.base || 0;
+        let factor_iva = porcentaje + base;
+
+        if (factor_iva === 0) return accu; // Evita división por 0
+        
+        let iva = item.subTotal * porcentaje / factor_iva;
+        if (!isFinite(iva)) return accu; // Evita errores matemáticos
+        return accu + iva;
+    }, 0); // Luego suma
+};
+
+const calcularIva10 = () => {
+    let detalle;
+    if(!pedidoAsociado.value){
+        detalle = detalleFacturar.value;
+    }else{
+        detalle = selectedProducts.value;
+    }
+
+    if (detalle == null) {
+        return 0;
+    }
+  return detalle
+    .filter(item => item.ivaAplicado.porcentaje === 10) // Filtra 
+    .reduce((acc, item) => {
+        let factor_iva = item.ivaAplicado.porcentaje + item.ivaAplicado.base;
+        return acc + ((item.subTotal * item.ivaAplicado.porcentaje / factor_iva) || 0)
+    }, 0); // Luego suma
+};
+
+
+const calcularIvaImportacion = () => {
+    return (compra.value.gastosImportacion !== 0)? compra.value.gastosImportacion /11 : 0;
 };
 
 
@@ -307,7 +404,9 @@ const validarForm = () => {
             mensaje.value.push("Debe seleccionar un proveedor");
     }
 
-    if (total.value <1) {
+    console.log(detalleFacturar.value);
+    console.log(detalleFacturar.value.length);
+    if (detalleFacturar.value == null || detalleFacturar.value?.length <1) {
         error.value = true;
         mensaje.value.push("Debe añadir productos");
     }
@@ -317,7 +416,27 @@ const validarForm = () => {
 
 }
 
+const calcularTotales = (event) => {
+    console.log(event);
+    if (selectedProducts.value?.length > 0) {
+        let monto= 0;
+        selectedProducts.value.forEach(e => {
+            e.subTotal = (e.costoCompra*e.cantidad);
+            monto += (e.costoCompra*e.cantidad);
+        });
+        subTotal.value = monto;
+        total.value = subTotal.value ;
+    } else{
+        subTotal.value = 0;
+        total.value = subTotal.value ;
+    }
+    calcularIva();
+}
 
+const ver = (event) => {
+    console.log(event);
+   
+}
 const addItem = (item) => {
 let index = detalleFacturar.value.findIndex((loopVariable) => loopVariable.producto.id === item.id);
 
@@ -335,7 +454,7 @@ console.log("holaaaitem",item);
   detalle.value.cantidad = 1;
   detalle.value.costoCompra = detalle.value.producto.costo;
    detalle.value.subTotal = detalle.value.costoCompra * detalle.value.cantidad;
-   detalle.value.iva = { name: '10 %'};
+   detalle.value.ivaAplicado = detalle.value.producto.tipoIva;
    detalleFacturar.value.push(detalle.value);
    detalle.value= {};
 }
@@ -375,13 +494,13 @@ const eliminar = (detalle) => {
        //e.cantReservada = e.producto.cantReservada + e.cantidad
        //e.cantDisponible = e.producto.cantDisponible - e.cantidad;
  
-     
- 
-       monto += (e.costoCompra*e.cantidad);
+       e.subTotal = e.costoCompra*e.cantidad
+       monto += e.subTotal;
        //e.costoCompra = e.producto.costo;
   });
   subTotal.value = monto;
-     total.value = subTotal.value ;
+  total.value = subTotal.value;
+     calcularIva();
  
   //emit("getSubTotal",total, detalles);
  
@@ -392,10 +511,20 @@ const eliminar = (detalle) => {
     if (!error.value){
 
     let fechaAnticipo = new Date();
-    let ant = {total: total.value, fecha: fechaCompra.value, proveedor: selectedCliente.value, nroFactura: nroFactura.value};
+   // let gravada = compra.value.total - montoIva.value;
+    let gravada = total.value - montoIva.value;
+    let ant = {total: total.value, fecha: fechaCompra.value,totalGravada: gravada, montoIva: montoIva.value, proveedor: selectedCliente.value, nroFactura: nroFactura.value, pedido: pedido.value};
 
+    //let ant = {total: compra.value.total, totalGravada: gravada ,gastosImportacion: compra.value.gastosImportacion, montoIva: montoIva.value ,fecha: fechaCompra.value, proveedor: selectedCliente.value, nroFactura: nroFactura.value};
 
-    let anticipoCreationDTO = {compra: ant, detalle: detalleFacturar.value};
+    let detalle;
+    if (!pedidoAsociado.value) {
+        detalle = detalleFacturar.value;
+    } else {
+        detalle = selectedProducts.value;
+    }
+
+    let anticipoCreationDTO = {compra: ant, detalle: detalle};
     CompraServices.modificarCompra(compra.value.id, anticipoCreationDTO).then((data)=> {
         console.log("saveanticipothen");
         console.log("data");
@@ -436,20 +565,37 @@ const eliminar = (detalle) => {
         <div class="formgrid">
         <div class="field">
             <label for="name">Nombre</label>
-            <InputText fluid id="name" v-model.trim="cliente.descripcion" required="true" autofocus :class="{'p-invalid': submitted && !cliente.descripcion}" />
-            <small class="p-error" v-if="submitted && !cliente.descripcion">Ingrese un Nombre</small>
+            <InputText fluid id="name" v-model.trim="proveedor.descripcion" required="true" autofocus :class="{'p-invalid': submitted && !proveedor.descripcion}" />
+            <small class="p-error" v-if="submitted && !proveedor.descripcion">Ingrese un Nombre</small>
+        </div>
+        <div class="field">
+            <label for="description">Tipo Proveedor</label>
+            <Select fluid v-model="proveedor.tipo" :options="tiposProveedor" optionLabel="descripcion" placeholder="Seleccione un tipo" class="w-full md:w-56" />
         </div>
         <div class="field">
             <label for="description">RUC</label>
-            <InputText fluid id="description" v-model="cliente.ruc" required="true"  />
+            <InputText fluid id="description" v-model="proveedor.ruc" required="true"  />
         </div>
+        
         <div class="field">
             <label for="description">Correo</label>
-            <InputText fluid id="description" v-model="cliente.correo" required="true"  />
+            <InputText fluid id="description" v-model="proveedor.correo" required="true"  />
         </div>
         <div class="field">
             <label for="description">Telefono</label>
-            <InputText fluid id="description" v-model="cliente.telefono" required="true"  />
+            <InputText fluid id="description" v-model="proveedor.telefono" required="true"  />
+        </div>
+        <div class="field">
+            <label for="description">Departamento</label>
+            <Select fluid v-model="proveedor.departamento" :options="departamentos" @change="obtenerCiudadesByDepartamento(proveedor.departamento.id)"  optionLabel="descripcion" placeholder="Seleccione un departamento" class="w-full md:w-56" />
+        </div>
+        <div class="field">
+            <label for="description">Ciudad</label>
+            <Select fluid v-model="proveedor.ciudad" :options="ciudades"  optionLabel="descripcion" placeholder="Seleccione una ciudad" class="w-full md:w-56" />
+        </div>
+        <div class="field">
+            <label for="description">Direccion</label>
+            <InputText fluid id="description" v-model="proveedor.direccion" required="true"  />
         </div>
     </div>
         <template #footer>
@@ -514,14 +660,15 @@ const eliminar = (detalle) => {
             <div class="flex justify-content-between ">
                 <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
                     Proveedor
-                </div>    
+                </div>  
+                <div v-if="!pedidoAsociado">
                 <div v-if="clienteSeleccionado">
                     <Button icon="pi pi-times" link @click="eliminarClienteSelected"/>
                 </div>   
                 <div v-else>
                     <Button icon="pi pi-plus" link @click="registrarCliente"/>
                 </div>             
-            
+            </div>  
             </div>
             
         </template>
@@ -551,110 +698,141 @@ const eliminar = (detalle) => {
             </div>  
             
             <div class="col-12" >
-                        <Card >
-                            <template #title>
-            <div class="flex justify-content-between ">
-                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
-                    Productos
-                </div>
-                <div v-if="!isFromRecepcion()">
-                    <Button label="+ Producto" link @click="visible = true" />
+                <div v-if="pedidoAsociado" class="col-12" >
+                    <Card >
+                        <template #title>
+                                                    <div class="flex justify-content-between ">
+                                                        <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                                                            Productos
+                                                        </div>
+
+                                                    </div>
+                                                    
+                                                </template>
+
+                    <template #content>
+                    <div>
+                    <DataTable :key="'table1'"  :value="detalleFacturar"  >
+                   
+                    <Column class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
+
+                    <Column class="col" header="Costo" aria-sort="none" >
+                    <template #body="slotProps">
+                    <div class="flex-auto p-fluid" >
+                    {{ formatearNumero(slotProps.data.costoCompra) }}
+                    </div> 
+                    </template>
+                    </Column>
+                    <Column  class="col" header="Recepcionado" aria-sort="none" >
+                    <template #body="slotProps">
+                    <div class="flex-auto p-fluid" >
+                    {{ slotProps.data.cantidad}}
+                    </div> 
+                    </template>
+                    </Column>
+                    <Column class="col" field="cantidad" header="Facturado" aria-sort="none">
+                    <template #body="slotProps">
+                    {{ slotProps.data.cantidad }}
+                    </template>
+                    </Column>
+                    <Column  class="col" field="cantidad" header="IVA" aria-sort="none">
+                        <template #body="slotProps">
+                            {{ slotProps.data.ivaAplicado.porcentaje}}%
+                        </template>
+                        
+                    </Column>
+                    <Column field="subTotal" header="Sub Total">
+                    <template #body="slotProps">
+                    <div class="flex-auto p-fluid" style="max-width: 20dvh;">
+                    <label for="subtotal"> {{ formatearNumero(slotProps.data.cantidad * slotProps.data.costoCompra) }}</label>
+                    </div>
+                    </template>
+                    </Column>
+
+                    </DataTable>
                     </div>
 
-            </div>
-            
-        </template>
-                    
+
+                    </template>  
+
+                    </Card>
+
+                </div>
+                 <div v-else class="col-12" >
+                        <Card >
+                            <template #title>
+                            <div class="flex justify-content-between ">
+                                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                                    Productos
+                                </div>
+                                <div>
+                                    <Button label="Agregar Producto" text @click="visible = true" />
+                                    </div>
+                            </div>
+                        </template>
                         <template #content>
                             <div>
                                 
                                 <div class="card" style="width: 100%;">
-    <div class="flex card-container" style="width: 100%;">
-        <DataTable class="tablaCarrito" ref="dt" :value="detalleFacturar" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
-         <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
-         <Column class="col" field="costoCompra"  header="Costo" aria-sort="none" >
-            <template #body="slotProps">
-            <div v-if="!isFromRecepcion()"  class="flex-auto p-fluid" >
-                  <InputNumber fluid class="inpCant" v-model="slotProps.data.costoCompra" mode="decimal"   @update:modelValue="sendSubTotal" />
-              </div> 
-              <div v-else class="flex-auto p-fluid" >
-                {{ formatearNumero(slotProps.data.costoCompra) }}
-              </div> 
-            </template>
-        </Column>         
-        <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
-            <template #body="slotProps">
-                <div v-if="!isFromRecepcion()" class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                  <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="1"  @update:modelValue="sendSubTotal" />
-              </div> 
-              <div v-else class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                  {{slotProps.data.cantidad}}
-              </div>
+                                <div class="flex card-container" style="width: 100%;">
+                                    <DataTable class="tablaCarrito" ref="dt" :value="detalleFacturar" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
+                                    <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
+                                    <Column class="col" field="costoCompra"  header="Costo" aria-sort="none" >
+                                        <template #body="slotProps">
+                                        <div  class="flex-auto p-fluid" >
+                                            <InputNumber fluid class="inpCant" v-model="slotProps.data.costoCompra" mode="decimal"   @update:modelValue="sendSubTotal" />
+                                        </div> 
+                                       
+                                        </template>
+                                    </Column>         
+                                    <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
+                                        <template #body="slotProps">
+                                            <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
+                                            <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="1"  @update:modelValue="sendSubTotal" />
+                                        </div> 
 
-            </template>
-             
-         </Column>
-         <Column  class="col" field="cantidad" header="IVA" aria-sort="none">
-            <template #body="slotProps">
-                <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
-                    <Select v-model="slotProps.data.iva" :options="impuestos" optionLabel="name" class="w-full md:w-56" />
-                  </div>  
-            </template>
-         </Column>
-         
-         <Column  class="col" field="subTotal" header="Total" aria-sort="none" >
-             <template #body="slotProps">
-                 <div class="flex-auto p-fluid" style="max-width: 20dvh;">
-                     <label for="subtotal"> {{  (slotProps.data.subTotal =  slotProps.data.cantidad * slotProps.data.costoCompra).toLocaleString("de-DE") }}</label>
-                  </div>
-            </template>
-         </Column>
-         <Column v-if="!isFromRecepcion()" class="col" :exportable="false" style="min-width:1rem">
-           <template #body="slotProps">
-             <Button icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="eliminar(slotProps.data)" />
-           </template>
-         </Column>
-     </DataTable>
-   </div>
- </div>
-                                <div class="grid" style="margin-top: 1rem;">
+
+                                        </template>
+                                        
+                                    </Column>
+                                    <Column  class="col" field="cantidad" header="IVA" aria-sort="none">
+                                        <template #body="slotProps">
+                                            <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
+                                                <label for="subtotal"> {{  (slotProps.data.ivaAplicado.porcentaje) }}%</label>
+                                            </div>  
+                                        </template>
+                                        
+                                    </Column>
                                     
-                                    
-                                    <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
-                                        <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; font-weight: bold; font-size: 16px;">
-                                            Total: 
-                                        </div>
-                                        <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; font-weight: bold; font-size: 16px;" >
-                                            {{ total.toLocaleString("de-DE") }}
-                                           
-                                        </div>
-
-                                    </div>   
-                                    <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
-                                        <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
-                                            IVA 10%: 
-                                        </div>
-                                        <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
-                                            {{ (montoIva = Math.round(total/11)).toLocaleString("de-DE") }}
-                                        </div>
-                                    </div>        
-
-                                </div>
+                                    <Column  class="col" field="subTotal" header="Sub Total" aria-sort="none" >
+                                        <template #body="slotProps">
+                                            <div class="flex-auto p-fluid" style="max-width: 20dvh;">
+                                                <label for="subtotal"> {{  (slotProps.data.subTotal =  slotProps.data.cantidad * slotProps.data.costoCompra).toLocaleString("de-DE") }}</label>
+                                            </div>
+                                        </template>
+                                    </Column>
+                                    <Column class="col" :exportable="false" style="min-width:1rem">
+                                    <template #body="slotProps">
+                                        <Button icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="eliminar(slotProps.data)" />
+                                    </template>
+                                    </Column>
+                                </DataTable>
+                            </div>
+                            </div>
+                                
                                 <div >
-                                    
-                       
-                                    <Dialog v-if="visible" v-model:visible="visible" modal header="Seleccionar productos" :closable="false" :draggable="false" :style="{ width: '40rem' }"  >
+                                    <Dialog v-if="visible" v-model:visible="visible" modal header="Seleccionar productos" :closable="false" :draggable="false"  >
                                     <template #footer>
                                         <div class="flex justify-content-end">
                                             <Button label="Cerrar" icon="pi pi-times" text @click="visible = false" />
                                         </div>
                                     </template> 
 
-                                    <div class="grid" style="row-gap: 2.5vh;">
+                                    <div class="grid" >
                                         <div class="card col-12" style="width: 100%;">
                                             <span class="p-input-icon-left" style="width: 100%; margin-top: 0.5rem;">
                                             
-                                                <InputText  class="buscador p-fluid" style="width: 100%;" v-model="filters['global'].value" placeholder="Buscar..." />
+                                                <InputText fluid class="buscador p-fluid" style="width: 100%;" v-model="filters['global'].value" placeholder="Buscar..." />
                                             </span>
     
                                             <div class="flex card-container col-12" style="width: 100%;">
@@ -694,9 +872,44 @@ const eliminar = (detalle) => {
                                 </div>
                             </div>
                         </template>    
-                    </Card>
-                        
+                        </Card>
                     </div>
+                    <div class="grid" style="margin-top: 1rem;">
+<div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
+<div class="flex field col-9 md:col-9" style="justify-content: end; margin: 0px; padding: 0px; font-weight: bold; font-size: 16px;">
+Total: 
+</div>
+<div class=" field col-3 md:col-3" style="margin: 0px; margin-left: 1rem; padding: 0px; font-weight: bold; font-size: 16px;" >
+{{ formatearNumero(total) }} Gs.
+</div>
+</div> 
+<div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
+<div class="flex field col-9 md:col-9" style="justify-content: end; margin: 0px; padding: 0px; ">
+IVA 5%: 
+</div>
+<div class=" field col-3 md:col-3" style="margin: 0px; margin-left: 1rem; padding: 0px; " >
+{{ ( Math.round(iva5)).toLocaleString("de-DE") }} Gs.
+</div>
+</div>  
+<div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
+<div class="flex field col-9 md:col-9" style="justify-content: end; margin: 0px; padding: 0px; ">
+IVA 10%: 
+</div>
+ <div class=" field col-3 md:col-3" style="margin: 0px; margin-left: 1rem; padding: 0px; " >
+ {{ ( Math.round(iva10)).toLocaleString("de-DE") }} Gs.
+ </div>
+ </div> 
+ <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
+ <div class="flex field col-9 md:col-9" style="justify-content: end; margin: 0px; padding: 0px; ">
+ Total IVA: 
+ </div>
+ <div class=" field col-3 md:col-3" style="margin: 0px; margin-left: 1rem; padding: 0px; " >
+ {{ ( Math.round(montoIva)).toLocaleString("de-DE") }} Gs.
+ </div>
+ </div> 
+
+    </div>
+                </div>
         </div>
       
     </Panel>

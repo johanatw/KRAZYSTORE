@@ -20,7 +20,7 @@ public class CostoEnvioEntity {
     
     @ManyToOne
     @JoinColumn(name = "id_envio")
-    private EnvioEntity envio;
+    private EmpresaTransporte envio;
     @ManyToOne
     @JoinColumn(name = "id_ciudad")
     private CiudadEntity ciudad;
@@ -30,7 +30,7 @@ public class CostoEnvioEntity {
     public CostoEnvioEntity() {
     }
 
-    public CostoEnvioEntity(Long id, EnvioEntity envio, CiudadEntity ciudad, int costo) {
+    public CostoEnvioEntity(Long id, EmpresaTransporte envio, CiudadEntity ciudad, int costo) {
         this.id = id;
         this.envio = envio;
         this.ciudad = ciudad;
@@ -45,11 +45,11 @@ public class CostoEnvioEntity {
         this.id = id;
     }
 
-    public EnvioEntity getEnvio() {
+    public EmpresaTransporte getEnvio() {
         return envio;
     }
 
-    public void setEnvio(EnvioEntity envio) {
+    public void setEnvio(EmpresaTransporte envio) {
         this.envio = envio;
     }
 

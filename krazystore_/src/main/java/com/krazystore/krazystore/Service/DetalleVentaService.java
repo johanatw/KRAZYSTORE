@@ -26,6 +26,7 @@ public interface DetalleVentaService {
     List<ProductoExistenciasDTO> saveDetalleVenta(VentaEntity venta, List<DetalleVentaEntity> detalle);
     List<DetalleVentaEntity> findByIdVenta(Long id);
     DetalleVentaEntity updateDetalleVenta(DetalleVentaEntity detalleVenta, Long id);
+    List<ProductoExistenciasDTO> updateDetVenta(List<DetalleVentaEntity> detalle, Long idVenta) throws Exception;
     void deleteDetalleVenta(Long id);
     List<ProductoExistenciasDTO> anularDetalleVenta(Long idVenta);
 }

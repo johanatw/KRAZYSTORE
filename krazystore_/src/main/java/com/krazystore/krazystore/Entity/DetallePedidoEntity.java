@@ -50,17 +50,7 @@ public class DetallePedidoEntity {
     @Column
     private int cantidad;
     @Column
-    private int subtotal;
-    @Column
-    private int montoIva;
-    @Column
-    private int pagado=0;
-    @Column
-    private int saldoPendiente;
-    @Column
-    private int cantidadPagado;
-    @Column
-    private int cantidadFacturada=0;
+    private int subTotal;
     @Column
     private int precio;
 
@@ -73,11 +63,7 @@ public class DetallePedidoEntity {
         this.pedido = pedido;
         this.producto = producto;
         this.cantidad = cantidad;
-        this.subtotal = subtotal;
-        this.montoIva = montoIva;
-        this.pagado = pagado;
-        this.saldoPendiente = saldoPendiente;
-        this.cantidadPagado = cantidadPagado;
+        this.subTotal = subtotal;
     }
     
     public DetallePedidoEntity(Long id, PedidoEntity pedido, ProductoEntity producto, 
@@ -86,11 +72,7 @@ public class DetallePedidoEntity {
         this.pedido = pedido;
         this.producto = producto;
         this.cantidad = cantidad;
-        this.subtotal = subtotal;
-        this.montoIva = montoIva;
-        this.pagado = pagado;
-        this.saldoPendiente = saldoPendiente;
-        this.cantidadPagado = cantidadPagado;
+        this.subTotal = subtotal;
         this.precio = precio;
     }
 
@@ -99,31 +81,23 @@ public class DetallePedidoEntity {
         this.pedido = detalle.getPedido();
         this.producto = detalle.getProducto();
         this.cantidad = detalle.getCantidad();
-        this.subtotal = detalle.getSubtotal();
-        this.saldoPendiente = detalle.getSaldoPendiente();
-        this.cantidadFacturada = detalle.getCantidadFacturada();
+        this.subTotal = detalle.getSubTotal();
+    }
+
+    public DetallePedidoEntity(Long id, ProductoEntity producto, int cantidad, int subtotal, int precio) {
+        this.id = id;
+        this.producto = producto;
+        this.cantidad = cantidad;
+        this.subTotal = subtotal;
+        this.precio = precio;
+    }
+
+    public DetallePedidoEntity(Long id, ProductoEntity producto, int cantidad) {
+        this.id = id;
+        this.producto = producto;
+        this.cantidad = cantidad;
     }
     
-    
-
-    public int getCantidadFacturada() {
-        return cantidadFacturada;
-    }
-
-    public void setCantidadFacturada(int cantidadFacturada) {
-        this.cantidadFacturada = cantidadFacturada;
-    }
-    
-    
-
-    public int getCantidadPagado() {
-        return cantidadPagado;
-    }
-
-    public void setCantidadPagado(int cantidadPagado) {
-        this.cantidadPagado = cantidadPagado;
-    }
-
     
     
     public Long getId() {
@@ -158,36 +132,12 @@ public class DetallePedidoEntity {
         this.cantidad = cantidad;
     }
 
-    public int getSubtotal() {
-        return subtotal;
+    public int getSubTotal() {
+        return subTotal;
     }
 
-    public void setSubtotal(int subtotal) {
-        this.subtotal = subtotal;
-    }
-
-    public int getMontoIva() {
-        return montoIva;
-    }
-
-    public void setMontoIva(int montoIva) {
-        this.montoIva = montoIva;
-    }
-
-    public int getPagado() {
-        return pagado;
-    }
-
-    public void setPagado(int pagado) {
-        this.pagado = pagado;
-    }
-
-    public int getSaldoPendiente() {
-        return saldoPendiente;
-    }
-
-    public void setSaldoPendiente(int saldoPendiente) {
-        this.saldoPendiente = saldoPendiente;
+    public void setSubTotal(int subTotal) {
+        this.subTotal = subTotal;
     }
 
     public int getPrecio() {

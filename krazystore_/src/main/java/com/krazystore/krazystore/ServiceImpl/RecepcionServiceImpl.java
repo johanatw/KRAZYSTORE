@@ -9,6 +9,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import Utils.ProductosPedidoRecepcionadosEvent;
 import Utils.ProductosRecepcionadosEvent;
 import Utils.RecepcionFacturada;
+import Utils.RecepcionesFacturadasEvent;
 import Utils.TipoEvento;
 import com.krazystore.krazystore.DTO.DetalleRecepcionDTO;
 import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
@@ -81,7 +82,13 @@ public class RecepcionServiceImpl implements RecepcionService {
         System.out.println("saveREcepcion");
         RecepcionEntity recepcion;
         recepcion = recepcionMapper.apply(recepcionDTO.getRecepcion());
-        recepcion.setEstado(Estado.PENDIENTEDEFACTURA.getCodigo());
+        //recepcion.setEstado(Estado.PENDIENTEDEFACTURA.getCodigo());
+        
+        if(recepcionDTO.getRecepcion().getCompra() == null){
+            recepcion.setEstado(Estado.PENDIENTEDEFACTURA.getCodigo());
+        }else{
+            recepcion.setEstado(Estado.FACTURADO.getCodigo());
+        }
         RecepcionEntity nuevaRecepcion = recepcionRepository.save(recepcion);
      
         List<DetalleRecepcion> detalle = recepcionDTO.getDetalle()
@@ -156,7 +163,7 @@ public class RecepcionServiceImpl implements RecepcionService {
     public void actualizarRecepcionPedidoCompra(Long idPedido) {
         
         // Publicar el evento
-        PedidoCompraEvent evento = new PedidoCompraEvent(idPedido, null);
+        PedidoCompraEvent evento = new PedidoCompraEvent(idPedido, TipoEvento.PEDIDO_RECEPCIONADO);
         eventPublisher.publishEvent(evento);
     }
     
@@ -180,4 +187,48 @@ public class RecepcionServiceImpl implements RecepcionService {
         eventPublisher.publishEvent(evento);
     }
     
+    @Override
+    public List<DetalleRecepcionDTO> obtenerDetalleFacturaRecepcionar(Long idCompra) {
+        return detalleService.obtenerDetalleFacturaRecepcionar(idCompra);
+    }
+    
+    @Override
+    public List<RecepcionCreationDTO> findByIdPedido(Long idPedido) {
+        List<RecepcionDTO> recepcionesDTO = recepcionRepository.findRecepcionesByIdPedido(idPedido);
+        
+        if(recepcionesDTO  == null){
+            return null;
+        }
+        List<RecepcionCreationDTO> recepcionesList = new ArrayList<>();
+        
+        
+        for (RecepcionDTO recepcion : recepcionesDTO) {
+            RecepcionCreationDTO recepcionDTO = new RecepcionCreationDTO();
+            List<DetalleRecepcionDTO> detalle = detalleService.findDetalleByIdRecepcion(recepcion.getId());
+            
+            recepcionDTO.setRecepcion(recepcion);
+            recepcionDTO.setDetalle(detalle);
+            
+            recepcionesList.add(recepcionDTO);
+        }
+        
+        
+        return recepcionesList;
+    }
+    
+    
+    @EventListener
+    public void handleRecepcionesFacturadas(RecepcionesFacturadasEvent event) {
+        List<Long> ids = event.getIdsRecepciones();
+        Long idCompra = event.getIdCompra();
+        char estado = Estado.FACTURADO.getCodigo();
+        System.out.println("handleRecepcionesFacturadas");
+        System.out.println(idCompra);
+        ids.forEach((i)->System.out.println(i));
+        
+        recepcionRepository.asociarRecepcionesFactura(idCompra, ids, estado);
+       
+    }
+
+
 }

@@ -176,6 +176,13 @@ const modificarPedido = (id) => {
                             <div  >
                                 Estado: {{getEstadoPedidoCompra(pedido.estadoPedido)}}
                             </div> 
+                            <div >
+                                Observaciones: 
+                                
+                                <p class="m-0">
+                                    {{ pedido.observaciones }}
+                                </p>
+                            </div>
 
                         </template>
                     </Card>
@@ -242,7 +249,7 @@ const modificarPedido = (id) => {
         <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
          </Column>
          
-         <Column  class="col" field="subTotal" header="Total" aria-sort="none" >
+         <Column  class="col" field="subTotal" header="Sub Total" aria-sort="none" >
              <template #body="slotProps">
                  <div class="flex-auto p-fluid" style="max-width: 20dvh;">
                      <label for="subtotal"> {{  (slotProps.data.subTotal).toLocaleString("de-DE") }}</label>
@@ -260,7 +267,7 @@ const modificarPedido = (id) => {
                                             Total: 
                                         </div>
                                         <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; font-weight: bold; font-size: 16px;" >
-                                            {{ formatearNumero(pedido.total) }}
+                                            {{ formatearNumero(pedido.total) }} Gs.
                                            
                                         </div>
 

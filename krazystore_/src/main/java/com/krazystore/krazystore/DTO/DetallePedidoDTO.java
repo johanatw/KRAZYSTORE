@@ -4,86 +4,73 @@
  */
 package com.krazystore.krazystore.DTO;
 
+import com.krazystore.krazystore.Entity.IvaEntity;
+
 /**
  *
  * @author HP
  */
 public class DetallePedidoDTO {
-    private long id;
-    private String nombre;
+    private Long id;
+    private ProductoDTO producto;
     private int precio;
-    private int cantidad;
-    private int subtotal;
-    private boolean preVenta;
-    private int cantLimBajoDemanda;
-    private int cantStock;
-    private int cantDisponible;
-    private int cantReservada;
+    private int cantSolicitado;
+    private int subTotal;
+    private int cantFacturada;
+    private int cantEntregada;
+  
 
     public DetallePedidoDTO() {
     }
 
-    public DetallePedidoDTO(long id, String producto, int precio, int cantidad, int subtotal, boolean preVenta, int cantLimBajoDemanda, int cantStock, int cantDisponible, int cantReservada) {
+    public DetallePedidoDTO(Long id, Long idProducto, String nombre, Integer cantStock, IvaEntity tipoIva, Integer precio, 
+            Integer cantSolicitada, Integer subtotal, Long cantFacturada) {
+        System.out.println("DetallePedidoDTO");
+        System.out.println(subtotal);
         this.id = id;
-        this.nombre = producto;
-        this.precio = precio;
-        this.cantidad = cantidad;
-        this.subtotal = subtotal;
-        this.preVenta = preVenta;
-        this.cantLimBajoDemanda = cantLimBajoDemanda;
-        this.cantStock = cantStock;
-        this.cantDisponible = cantDisponible;
-        this.cantReservada = cantReservada;
+        this.producto = new ProductoDTO(idProducto, nombre, cantStock, tipoIva);
+        this.precio = (int)precio;
+        this.cantSolicitado = (int)cantSolicitada;
+        this.subTotal = (int)subtotal;
+        this.cantFacturada = (int)(long)cantFacturada;
     }
-
-    public int getCantLimBajoDemanda() {
-        return cantLimBajoDemanda;
-    }
-
-    public void setCantLimBajoDemanda(int cantLimBajoDemanda) {
-        this.cantLimBajoDemanda = cantLimBajoDemanda;
-    }
-
-    public int getCantStock() {
-        return cantStock;
-    }
-
-    public void setCantStock(int cantStock) {
-        this.cantStock = cantStock;
-    }
-
-    public int getCantDisponible() {
-        return cantDisponible;
-    }
-
-    public void setCantDisponible(int cantDisponible) {
-        this.cantDisponible = cantDisponible;
-    }
-
-    public int getCantReservada() {
-        return cantReservada;
-    }
-
-    public void setCantReservada(int cantReservada) {
-        this.cantReservada = cantReservada;
-    }
-
     
+    public DetallePedidoDTO(Long id, Long idProducto, String nombre, Integer cantStock, IvaEntity tipoIva, Integer precio, 
+            Integer cantSolicitada, Integer subtotal, Long cantFacturada, Long cantEntregada) {
+        System.out.println("DetallePedidoDTO");
+        System.out.println(subtotal);
+        this.id = id;
+        this.producto = new ProductoDTO(idProducto, nombre, cantStock, tipoIva);
+        this.precio = (int)precio;
+        this.cantSolicitado = (int)cantSolicitada;
+        this.subTotal = (int)subtotal;
+        this.cantFacturada = (int)(long)cantFacturada;
+        this.cantEntregada = (int)(long)cantEntregada;
+    }
+    
+    public DetallePedidoDTO(Long id, Long idProducto, String nombre, 
+            Integer cantSolicitada, Long cantFacturada, Long cantEntregada) {
+        this.id = id;
+        this.producto = new ProductoDTO(idProducto, nombre);
+        this.cantSolicitado = (int)cantSolicitada;
+        this.cantFacturada = (int)(long)cantFacturada;
+        this.cantEntregada = (int)(long)cantEntregada;
+    }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getNombre() {
-        return nombre;
+    public ProductoDTO getProducto() {
+        return producto;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setProducto(ProductoDTO producto) {
+        this.producto = producto;
     }
 
     public int getPrecio() {
@@ -94,29 +81,37 @@ public class DetallePedidoDTO {
         this.precio = precio;
     }
 
-    public int getCantidad() {
-        return cantidad;
+    public int getCantSolicitado() {
+        return cantSolicitado;
     }
 
-    public void setCantidad(int cantidad) {
-        this.cantidad = cantidad;
+    public void setCantSolicitado(int cantSolicitado) {
+        this.cantSolicitado = cantSolicitado;
     }
 
-    public int getSubtotal() {
-        return subtotal;
+    public int getSubTotal() {
+        return subTotal;
     }
 
-    public void setSubtotal(int subtotal) {
-        this.subtotal = subtotal;
+    public void setSubTotal(int subTotal) {
+        this.subTotal = subTotal;
     }
 
-    public boolean isPreVenta() {
-        return preVenta;
+    public int getCantFacturada() {
+        return cantFacturada;
     }
 
-    public void setPreVenta(boolean preVenta) {
-        this.preVenta = preVenta;
+    public void setCantFacturada(int cantFacturada) {
+        this.cantFacturada = cantFacturada;
     }
-    
+
+    public int getCantEntregada() {
+        return cantEntregada;
+    }
+
+    public void setCantEntregada(int cantEntregada) {
+        this.cantEntregada = cantEntregada;
+    }
+
     
 }

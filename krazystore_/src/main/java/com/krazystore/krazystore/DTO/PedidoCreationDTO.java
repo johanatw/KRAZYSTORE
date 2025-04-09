@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class PedidoCreationDTO {
     private PedidoEntity pedido;
-    private List<DetallePedidoEntity> detalle;
+    private List<DetallePedidoDTO> detalle;
 
     public PedidoCreationDTO() {
     }
@@ -27,13 +27,17 @@ public class PedidoCreationDTO {
         this.pedido = pedido;
     }
 
-    public List<DetallePedidoEntity> getDetalle() {
+    
+
+    public List<DetallePedidoDTO> getDetalle() {
         return detalle;
     }
 
-    public void setDetalle(List<DetallePedidoEntity> detalle) {
+    public void setDetalle(List<DetallePedidoDTO> detalle) {
         this.detalle = detalle;
     }
+
+    
     
     
 }

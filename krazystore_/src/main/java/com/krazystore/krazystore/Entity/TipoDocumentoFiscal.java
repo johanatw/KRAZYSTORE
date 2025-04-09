@@ -4,26 +4,32 @@
  */
 package com.krazystore.krazystore.Entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 /**
  *
  * @author HP
  */
 @Entity
-@Table(name = "envios")
-public class EnvioEntity {
+@Table(name = "tipos_identificacion_fiscal")
+public class TipoDocumentoFiscal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-    @Column
+    @NotNull
     private String descripcion;
 
-    public EnvioEntity() {
+    public TipoDocumentoFiscal() {
     }
 
-    public EnvioEntity(Long id, String descripcion) {
+    public TipoDocumentoFiscal(Long id, String descripcion) {
         this.id = id;
         this.descripcion = descripcion;
     }
@@ -43,5 +49,6 @@ public class EnvioEntity {
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
+    
     
 }

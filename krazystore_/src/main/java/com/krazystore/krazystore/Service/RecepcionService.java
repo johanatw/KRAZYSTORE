@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.Service;
 
+import com.krazystore.krazystore.DTO.DetalleRecepcionDTO;
 import com.krazystore.krazystore.DTO.RecepcionCreationDTO;
 import com.krazystore.krazystore.DTO.RecepcionDTO;
 import com.krazystore.krazystore.Entity.RecepcionEntity;
@@ -21,4 +22,6 @@ public interface RecepcionService {
     RecepcionEntity updateRecepcion(RecepcionCreationDTO recepcion, Long id);
     void deleteRecepcion(Long id);
     int getTotalRecepcionadoPorProducto(Long pedidoId, Long productoId);
+    List<DetalleRecepcionDTO> obtenerDetalleFacturaRecepcionar(Long idCompra);
+    List<RecepcionCreationDTO> findByIdPedido(Long idPedido);
 }

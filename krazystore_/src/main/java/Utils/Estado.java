@@ -18,7 +18,7 @@ public enum Estado {
     PENDIENTEDEFACTURA('P'),
     RECEPCINADO('R'),
     PARCIALMENTERECEPCINADO('M'),
-    
+    PARCIALMENTEFACTURADO('P'),
     PENDIENTE('P'),
     FINALIZADO('F'),
     PENDIENTEAJUSTE('P'),
@@ -27,7 +27,10 @@ public enum Estado {
     
     CAJACERRADA('C'),
     CAJAABIERTA('A'),
-    ENCURSO('S');
+    ENCURSO('S'),
+    
+    ENTREGADO('E'),
+    NOENTREGADO('N');
     
     private final char codigo;
 

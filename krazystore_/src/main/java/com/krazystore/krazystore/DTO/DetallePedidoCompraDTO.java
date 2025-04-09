@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.DTO;
 
+import com.krazystore.krazystore.Entity.IvaEntity;
 import com.krazystore.krazystore.Entity.PedidoCompraEntity;
 
 /**
@@ -15,33 +16,106 @@ public class DetallePedidoCompraDTO {
     private ProductoDTO producto;
     private PedidoCompraEntity pedidoCompra;
     private int cantidad;
+    private int cantSolicitada;
     private int cantRecepcionada;
+    private int cantAceptada;
+    private int cantFacturada;
     private int subTotal;
     private int costoCompra;
 
     public DetallePedidoCompraDTO() {
     }
 
+    public DetallePedidoCompraDTO(Long id, Long cantSolicitada, Long cantRecepcionada,Long cantAceptada, Long cantFacturada) {
+        this.id = id;
+        this.cantSolicitada = (int)(long)cantSolicitada;
+        this.cantRecepcionada = (int)(long)cantRecepcionada;
+        this.cantFacturada = (int)(long)cantFacturada;
+        this.cantAceptada = (int)(long)cantAceptada;
+    }
+
+    
+    
     public DetallePedidoCompraDTO(Long id, Long idProducto, String producto, 
             PedidoCompraEntity pedidoCompra, int cantidad, int subTotal, int costoCompra, Long cantRecepcionada) {
         this.id = id;
         this.producto = new ProductoDTO(idProducto, producto);
         this.pedidoCompra = pedidoCompra;
-        this.cantidad = cantidad;
+        this.cantSolicitada = cantidad;
         this.cantRecepcionada = (int)(long) cantRecepcionada;
         this.subTotal = subTotal;
         this.costoCompra = costoCompra;
+        
+    }
+    
+    public DetallePedidoCompraDTO(Long id, Long idProducto, String producto, IvaEntity tipoIva,
+            PedidoCompraEntity pedidoCompra, int cantidad, int subTotal, int costoCompra, Long cantRecepcionada) {
+        this.id = id;
+        this.producto = new ProductoDTO(idProducto, producto, tipoIva);
+        this.pedidoCompra = pedidoCompra;
+        this.cantSolicitada = cantidad;
+        this.cantRecepcionada = (int)(long) cantRecepcionada;
+        this.subTotal = subTotal;
+        this.costoCompra = costoCompra;
+    }
+    
+    public DetallePedidoCompraDTO(Long id, Long idProducto, String producto) {
+        this.id = id;
+        this.producto = new ProductoDTO(idProducto, producto);
+    }
+    
+    public DetallePedidoCompraDTO(Long id, Long idProducto, String producto, int costoCompra) {
+        this.id = id;
+        this.producto = new ProductoDTO(idProducto, producto);
+        this.costoCompra = costoCompra;
+    }
+    
+    public DetallePedidoCompraDTO(Long id, Long idProducto, String producto, IvaEntity tipoIva,
+            PedidoCompraEntity pedidoCompra, int cantidad, int subTotal, int costoCompra, 
+            Long cantRecepcionada, Long cantFacturada, Long cantAceptada) {
+        this.id = id;
+        this.producto = new ProductoDTO(idProducto, producto, tipoIva);
+        this.pedidoCompra = pedidoCompra;
+        this.cantSolicitada = cantidad;
+        this.cantRecepcionada = (int)(long) cantRecepcionada;
+        this.cantAceptada = (int)(long) cantAceptada;
+        this.cantFacturada = (int)(long) cantFacturada;
+        this.subTotal = subTotal;
+        this.costoCompra = costoCompra;
+        this.cantidad = cantidad;
+    }
+    
+    public DetallePedidoCompraDTO(Long id, Long idProducto, String producto, IvaEntity tipoIva,
+            Integer costoCompra, Long cantAceptada, Long cantRecepcionada
+            ) {
+        this.id = id;
+        this.producto = new ProductoDTO(idProducto, producto, tipoIva);
+        this.cantRecepcionada = (int)(long) cantRecepcionada;
+        this.cantAceptada = (int)(long) cantAceptada;
+        this.costoCompra = costoCompra;
+        
     }
 
     public DetallePedidoCompraDTO(Long id, Long idProducto, String producto, 
             int cantidad, int costoCompra, Long cantRecepcionada) {
         this.id = id;
         this.producto = new ProductoDTO(idProducto, producto);
-        this.cantidad = cantidad;
+        this.cantSolicitada = cantidad;
         this.cantRecepcionada = (int)(long)cantRecepcionada;
         this.costoCompra = costoCompra;
     }
     
+    public DetallePedidoCompraDTO(Long id, Long idProducto, String producto,
+            int cantidadSolicitado, int costoCompra, 
+            Long cantAceptada, Long cantFacturada, Long cantRecepcionada) {
+        this.id = id;
+        this.producto = new ProductoDTO(idProducto, producto);
+        this.cantSolicitada = cantidadSolicitado;
+        this.cantAceptada = (int)(long) cantAceptada;
+        this.cantFacturada = (int)(long) cantFacturada;
+        this.costoCompra = costoCompra;
+        this.cantRecepcionada = (int)(long)cantRecepcionada;
+    }
     
 
     public Long getId() {
@@ -69,12 +143,12 @@ public class DetallePedidoCompraDTO {
     }
 
 
-    public int getCantidad() {
-        return cantidad;
+    public int getCantSolicitada() {
+        return cantSolicitada;
     }
 
-    public void setCantidad(int cantidad) {
-        this.cantidad = cantidad;
+    public void setCantSolicitada(int cantSolicitada) {
+        this.cantSolicitada = cantSolicitada;
     }
 
     public int getCantRecepcionada() {
@@ -99,6 +173,30 @@ public class DetallePedidoCompraDTO {
 
     public void setCostoCompra(int costoCompra) {
         this.costoCompra = costoCompra;
+    }
+
+    public int getCantFacturada() {
+        return cantFacturada;
+    }
+
+    public void setCantFacturada(int cantFacturada) {
+        this.cantFacturada = cantFacturada;
+    }
+
+    public int getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(int cantidad) {
+        this.cantidad = cantidad;
+    }
+
+    public int getCantAceptada() {
+        return cantAceptada;
+    }
+
+    public void setCantAceptada(int cantAceptada) {
+        this.cantAceptada = cantAceptada;
     }
     
     

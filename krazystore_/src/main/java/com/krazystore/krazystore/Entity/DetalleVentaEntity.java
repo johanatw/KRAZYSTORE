@@ -16,13 +16,16 @@ public class DetalleVentaEntity {
      @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_det_venta")
-    private long idDetVent;
+    private Long idDetVent;
      @ManyToOne
     @JoinColumn(name = "id_venta")
     private VentaEntity venta;
     @ManyToOne
     @JoinColumn(name = "id_producto")
     private ProductoEntity producto;
+    @ManyToOne
+    @JoinColumn(name = "iva_aplicado")
+    private IvaEntity ivaAplicado;
     @Column
     private int cantidad;
     @Column
@@ -41,6 +44,15 @@ public class DetalleVentaEntity {
         this.cantidad = cantidad;
         this.precio = precio;
         this.subTotal = sub_total;
+    }
+    
+    public DetalleVentaEntity(DetalleVentaEntity detalle) {
+        this.idDetVent = detalle.getIdDetVent();
+        this.venta = detalle.getVenta();
+        this.producto = detalle.getProducto();
+        this.cantidad = detalle.getCantidad();
+        this.precio = detalle.getPrecio();
+        this.subTotal = detalle.getSubTotal();
     }
 
     public long getIdDetVent() {
@@ -91,6 +103,16 @@ public class DetalleVentaEntity {
     public void setSubTotal(int subTotal) {
         this.subTotal = subTotal;
     }
+
+    public IvaEntity getIvaAplicado() {
+        return ivaAplicado;
+    }
+
+    public void setIvaAplicado(IvaEntity ivaAplicado) {
+        this.ivaAplicado = ivaAplicado;
+    }
+
+    
     
     
 }

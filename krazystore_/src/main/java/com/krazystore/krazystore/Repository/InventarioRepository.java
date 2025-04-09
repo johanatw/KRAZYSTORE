@@ -25,7 +25,7 @@ public interface InventarioRepository extends JpaRepository<InventarioEntity, Lo
         + "WHERE i.id = ?1")
     Optional<InventarioDTO> findInventario(Long id);
 
-    @Query("SELECT new com.krazystore.krazystore.DTO.DetalleInventarioDTO(d.id, p.id, p.nombre, p.categoria.id, p.categoria.descripcion, p.cantStock, d.cantContada, p.cantStock - d.cantContada) "
+    @Query("SELECT new com.krazystore.krazystore.DTO.DetalleInventarioDTO(d.id, p.id, p.nombre, p.subCategoria.id, p.subCategoria.descripcion, p.cantStock, d.cantContada, p.cantStock - d.cantContada) "
             + "FROM DetalleInventario d "
             + "JOIN d.producto p "
             + "WHERE d.inventario.id = ?1")
@@ -37,7 +37,7 @@ public interface InventarioRepository extends JpaRepository<InventarioEntity, Lo
     
     @Query("SELECT DISTINCT(c) "
             + "FROM DetalleInventario d "
-            + "JOIN CategoriaEntity c ON d.producto.categoria = c "
+            + "JOIN SubCategoriaEntity c ON d.producto.subCategoria = c "
             + "JOIN InventarioEntity i ON d.inventario = i "
             + "WHERE i.id = ?1 " )
     List<CategoriaEntity> obtenerFiltros(Long id);

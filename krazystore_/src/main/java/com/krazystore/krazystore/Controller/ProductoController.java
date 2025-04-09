@@ -46,10 +46,15 @@ public class ProductoController {
         return productoService.findById(id);
     }
     
+    @GetMapping("/nombre")
+    public List<ProductoDTO> findByNombre(@RequestParam(value="nombre") String nombre ){
+        return productoService.buscarPorNombre(nombre);
+    }
+    
 
     @PostMapping
-    public ProductoEntity saveProducto(@RequestBody ProductoEntity productoEntity) {
-        return productoService.saveProducto(productoEntity);
+    public ProductoEntity saveProducto(@RequestBody ProductoDTO productoDTO) {
+        return productoService.saveProducto(productoDTO);
     }
 
     @PutMapping("/{id}")

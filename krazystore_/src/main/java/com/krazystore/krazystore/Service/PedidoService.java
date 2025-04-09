@@ -18,7 +18,7 @@ import java.util.Optional;
 public interface PedidoService {
     List<PedidoDTO> findAll();
     PedidoCreationDTO findById(Long id);
-    PedidoEntity savePedido(PedidoEntity pedido, List<DetallePedidoEntity> detalle);
-    PedidoEntity updatePedido(PedidoEntity pedidoEntity, List<DetallePedidoEntity> detalle, Long id) throws Exception;
+    PedidoEntity savePedido(PedidoCreationDTO pedidoCreationDTO);
+    PedidoEntity updatePedido(PedidoCreationDTO pedidoCreationDTO, Long id) throws Exception;
     void deletePedido(Long id);
 }

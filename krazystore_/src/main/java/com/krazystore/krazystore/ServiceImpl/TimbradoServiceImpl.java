@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.ServiceImpl;
 
+import com.krazystore.krazystore.DTO.TimbradoDTO;
 import com.krazystore.krazystore.Entity.TimbradoEntity;
 import com.krazystore.krazystore.Repository.TimbradoRepository;
 import com.krazystore.krazystore.Service.TimbradoService;
@@ -67,6 +68,20 @@ public class TimbradoServiceImpl implements TimbradoService {
         Optional<TimbradoEntity> timbrado = timbradoRepository.findVigente();
         return timbrado;
     }
+    
+    @Override
+    public TimbradoDTO getTimbradoDTOVigente() {
+        TimbradoDTO timbradoDTO = new TimbradoDTO();
+        Optional<TimbradoEntity> timbrado = timbradoRepository.findVigente();
+        
+        if(timbrado.isPresent()){
+            timbradoDTO.setTimbrado(timbrado.get());
+            timbradoDTO.setNroFactura(this.getNroFactura(timbrado.get()));
+        }
+        
+        return timbradoDTO;
+    }
+    
     @Override
     public TimbradoEntity updateTimbrado(TimbradoEntity timbrado) {
         System.out.println(timbrado.getUltimoRemitido());

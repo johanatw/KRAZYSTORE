@@ -43,4 +43,25 @@ public interface DetallePedidoRepository extends JpaRepository<DetallePedidoEnti
   value = "SELECT * FROM detalle_pedidos u WHERE u.id_pedido = :idPedido AND u.id_producto = :id ", 
   nativeQuery = true)
     public DetallePedidoEntity findByProductoId(@Param("id")Long id, @Param("idPedido") Long idPedido);
+    
+    
+        @Query("SELECT new com.krazystore.krazystore.DTO.DetallePedidoDTO( " +
+           "d.id, d.producto.id, d.producto.nombre, d.producto.cantStock, d.producto.tipoIva, d.precio, d.cantidad, " +
+           "d.subTotal, " +
+           "(SELECT COALESCE(SUM(dv.cantidad), 0) " +
+           " FROM DetalleVentaEntity dv " +
+           " WHERE dv.venta.pedido.id = :idPedido AND dv.producto = d.producto AND dv.venta.estado <> 'A' ), " +
+           "COALESCE(de.cantidadEntregada, 0)) " +
+           "FROM DetallePedidoEntity d "
+            + "LEFT JOIN d.producto.tipoIva " +
+            "LEFT JOIN (SELECT te.id AS detalleId, te.detallePedido.id AS detallePedidoId,  " +
+       "                 SUM(te.cantidad) AS cantidadEntregada " +
+       "           FROM DetalleEntrega te " +
+       "           GROUP BY detalleId, detallePedidoId) de ON de.detallePedidoId = d.id " +
+           "WHERE d.pedido.id = :idPedido")
+    List<DetallePedidoDTO> findDetallesByIdPedido(@Param("idPedido") Long idPedido);
+    
+    
+    /* public DetallePedidoDTO(long id, Long idProducto, String nombre, int precio, 
+            int cantSolicitada, int subtotal, int cantFacturada) {*/
 }

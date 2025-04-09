@@ -97,8 +97,6 @@ const registradoEnCajaActualAbierta = (fechaRegistro) =>{
 };
 
 const getSeverity = (estado) => {
-  
-  
   switch (estado) {
     
        case 'N':
@@ -227,9 +225,7 @@ const nuevoPedido = () =>{
 </Column> 
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
-                <Button icon="pi pi-search" text rounded aria-label="Search" @click="verRecepcion(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
-                <Button :disabled="isFacturada(slotProps.data.estado)" icon="pi pi-receipt" severity="info" text rounded aria-label="Search" @click="nuevaFactura(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
-                
+                <Button icon="pi pi-search" text rounded aria-label="Search" @click="verRecepcion(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />              
                 <Button :disabled="isFacturada(slotProps.data.estado)" icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                 
                 </template>

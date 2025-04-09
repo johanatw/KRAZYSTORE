@@ -31,10 +31,8 @@ public class CostoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-    @Column(name = "fecha_inicio")
-    private Date fechaInicio;
-    @Column(name = "fecha_fin")
-    private Date fechaFin;
+    @Column(name = "fecha")
+    private Date fecha;
     @Column
     private Long costo;
     @ManyToOne
@@ -49,23 +47,13 @@ public class CostoEntity {
         this.id = id;
     }
 
-    public Date getFechaInicio() {
-        return fechaInicio;
+    public Date getFecha() {
+        return fecha;
     }
 
-    public void setFechaInicio(Date fechaInicio) {
-        this.fechaInicio = fechaInicio;
+    public void setFecha(Date fecha) {
+        this.fecha = fecha;
     }
-
-    public Date getFechaFin() {
-        return fechaFin;
-    }
-
-    public void setFechaFin(Date fechaFin) {
-        this.fechaFin = fechaFin;
-    }
-
-    
 
     public Long getCosto() {
         return costo;

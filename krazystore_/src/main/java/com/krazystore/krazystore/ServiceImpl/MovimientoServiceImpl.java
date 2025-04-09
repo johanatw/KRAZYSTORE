@@ -209,9 +209,21 @@ public class MovimientoServiceImpl implements MovimientoService {
     
     @Override
     public MovimientoEntity updateMovimiento(CompraEntity compra) {
+        System.out.println("9");
         MovimientoEntity movimiento = movimientoRepository.findByIdCompra(compra.getId());
+        System.out.println("10");
         movimiento.setMonto(compra.getTotal());
         movimiento.setNroDocumento(compra.getNroFactura());
+        System.out.println("11");
+        MovimientoEntity updatedMovimiento = movimientoRepository.save(movimiento);
+        
+        return updatedMovimiento;
+    }
+    
+    @Override
+    public MovimientoEntity updateMovimiento(VentaEntity venta) {
+        MovimientoEntity movimiento = movimientoRepository.findByIdVenta(venta.getId());
+        movimiento.setMonto(venta.getMontoTotal());
         MovimientoEntity updatedMovimiento = movimientoRepository.save(movimiento);
         
         return updatedMovimiento;

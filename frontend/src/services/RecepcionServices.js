@@ -67,6 +67,41 @@ export const RecepcionServices = {
   })
 
   },
+
+  getDetalleFacturaRecepcionar(id){
+    return axios.get(RECEPCION_API_BASE_URL+"/detalle_compra_recepcionar/"+id,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+
+  },
+
+  getRecepcionesByPedido(id){
+    return axios.get(RECEPCION_API_BASE_URL+"/pedido_compra/"+id,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+
+  },
+
+  
+  
   modificarRecepcion(id, pedido){
  
     return axios.put(RECEPCION_API_BASE_URL+ "/" + id, pedido,{

@@ -10,6 +10,7 @@ import com.krazystore.krazystore.Entity.ProductoEntity;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -19,19 +20,26 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductoRepository extends JpaRepository<ProductoEntity, Long>{
     
-    @Query(nativeQuery = true)
-        List<ProductoDTO> findProductosDTO();
+   
         
         @Query(
     "SELECT new com.krazystore.krazystore.DTO.ProductoDTO(p.id, p.nombre, c, COALESCE(pr.precio, 0), "
-            + "COALESCE(t.costo, 0), p.preVenta, COALESCE(p.cantPreVenta, 0), p.cantStock, p.cantDisponible, p.cantReservada ) "
+            + "COALESCE(t.costo, 0), p.bajoDemanda, COALESCE(p.cantLimBajoDemanda, 0), p.cantStock, p.cantDisponible, p.cantReservada, p.tipoIva ) "
             + "FROM ProductoEntity p "
-            + "LEFT JOIN CategoriaEntity c ON p.categoria = c "
-            + "LEFT JOIN CostoEntity t ON p.id = t.producto.id AND t.fechaInicio = " 
-            + " (SELECT MAX(tc.fechaInicio) FROM CostoEntity tc WHERE tc.producto.id = p.id)"
+            + "LEFT JOIN p.tipoIva "
+            + "LEFT JOIN SubCategoriaEntity c ON p.subCategoria = c "
+            + "LEFT JOIN CostoEntity t ON p.id = t.producto.id AND t.fecha = " 
+            + " (SELECT tc.fecha FROM CostoEntity tc WHERE tc.producto.id = p.id "
+            + "AND tc.fecha <= NOW() ORDER BY tc.fecha DESC LIMIT 1 ) "
             + "LEFT JOIN PrecioVentaEntity pr ON pr.producto.id = p.id AND pr.fecha = "
-            + " (SELECT MAX(pv.fecha) FROM PrecioVentaEntity pv WHERE pv.producto.id = p.id ) "
+            + " (SELECT pv.fecha FROM PrecioVentaEntity pv WHERE pv.producto.id = p.id "
+            + "AND pv.fecha <= NOW() ORDER BY pv.fecha DESC LIMIT 1 ) "
            )
+        
     public List<ProductoDTO> findProductos();
+    
+    @Query("SELECT new com.krazystore.krazystore.DTO.ProductoDTO(p.id, p.nombre ) "
+            + "FROM ProductoEntity p WHERE LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))")
+    List<ProductoDTO> buscarPorNombre(@Param("nombre") String nombre);
     
 }

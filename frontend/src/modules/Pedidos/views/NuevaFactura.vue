@@ -5,6 +5,7 @@ import InputText from "primevue/inputtext";
 import MapComponent from '@/modules/Pedidos/components/MapComponent.vue';
 import Dropdown from "primevue/dropdown";
 import AutoComplete from 'primevue/autocomplete';
+import MiCard from "../components/MiCard.vue";
 import Card from "primevue/card";
 import Button from 'primevue/button';
 import DataTable from 'primevue/datatable';
@@ -13,7 +14,9 @@ import { ProductoServices } from '@/services/ProductoServices';
 import { VentaServices } from '@/services/VentaServices';
 import {PedidoServices} from '@/services/PedidoServices';
 import { CiudadServices } from '@/services/CiudadServices';
+import { TimbradoServices } from "@/services/TimbradoServices";
 import { ref, onMounted } from "vue";
+import Checkbox from "primevue/checkbox";
 import InputNumber from 'primevue/inputnumber';
 import InputGroup from 'primevue/inputgroup';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
@@ -22,7 +25,7 @@ import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
 import { TipoDocServices } from "@/services/TipoDocServices";
 import {DepartamentoServices } from '@/services/DepartamentoServices';
-import { formatearNumero } from "@/utils/utils";
+import { formatearFecha, formatearNumero } from "@/utils/utils";
 const map = ref();
 const direccion = ref({});
 const selectedCliente = ref();
@@ -40,7 +43,10 @@ const selectedOp = ref('Casi');
 const productos= ref();
 const clientes=ref();
 const filteredClientes = ref();
+const iva5 = ref(0);
+const iva10 = ref(0);
 const pedido = ref();
+const infoFactura= ref([]);
 const error = ref(false);
 const opciones = ref(['Casi','Entre']);
 const infoEntrega = ref([{
@@ -52,6 +58,8 @@ import Toast from 'primevue/toast';
 
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
+
+const selectedProduct = ref();
 
 const confirm = useConfirm();
 const toast = useToast();
@@ -82,13 +90,25 @@ const subTotal = ref(0);
 const montoIva = ref(0);
 const detalle = ref({});
 const total = ref(0);
+const timbrado = ref();
+const nroFactura = ref();
 
 
 onMounted(() => {
 
     getPedido();
 
+    TimbradoServices.obtenerTimbradoVigente().then((data) => {
+        console.log(data.data);
+        if (data.data.timbrado!=null) {
+            timbrado.value = data.data.timbrado;
+            nroFactura.value = data.data.nroFactura;
+
+            getInfoFactura();
+        }
+        
     
+    });
 
     ProductoServices.obtenerProductos().then((data) => {
      productos.value = data.data
@@ -115,36 +135,21 @@ onMounted(() => {
 
 async function getPedido() {
     await PedidoServices.getPedido(router.currentRoute.value.params.id).then((data) => {
-        console.log(data.data);
+        console.log(data.data.detalle);
         selectedCliente.value = data.data.pedido.cliente;
         mostrarCliente();
        
         pedido.value = data.data.pedido;
-
-        data.data.detalle.forEach(element => {
-            if ( element.producto.cantStock > 0 ) {
+        detalleFacturar.value = data.data.detalle;
+        if (detalleFacturar.value.length > 0) {
+            detalleFacturar.value.forEach(e => {
+            e.pendiente= e.cantSolicitado - e.cantFacturada;
+            e.cantidad =  e.pendiente >= e.producto.cantStock ? e.producto.cantStock : e.pendiente;
             
-            switch (true) {
-              
-            case element.cantidad >= element.producto.cantStock:
-                element.cantidadSolicitada = element.cantidad;
-                element.cantidad = element.producto.cantStock - element.cantidadFacturada;
-                detalleFacturar.value.push(element);
-                
-                break;
 
-            case element.cantidad < element.producto.cantStock:
-            element.cantidadSolicitada = element.cantidad;
-            element.cantidad = element.cantidad - element.cantidadFacturada;
-                detalleFacturar.value.push(element);
-                    
-                break;
-            }
-
-            total.value += (element.cantidad * element.precio);
-
-        }
         })
+        }
+        
         
         
     });
@@ -208,6 +213,19 @@ const search = (event) => {
         }
     }, 10);
 }
+
+const getInfoFactura = () =>{
+    let valor;
+    valor = {valor: 'Timbrado: ' + timbrado.value.numeroTimbrado };
+    infoFactura.value.push(valor);
+
+    valor = {valor: 'Factura N°: ' + nroFactura.value };
+    infoFactura.value.push(valor);
+
+    valor = {valor: 'Fecha: ' + formatearFecha(new Date()) };
+    infoFactura.value.push(valor);
+}
+
 
 const mostrarCliente = () =>{
     console.log(selectedCliente.value);
@@ -397,7 +415,9 @@ const findIndexById = (id) => {
     return index;
 };
 
-
+const a= () => {
+    console.log(selectedProduct.value);
+};
 
 
 
@@ -420,7 +440,7 @@ const validarForm = () => {
 
     if (total.value <1) {
         error.value = true;
-        mensaje.value.push("Debe añadir productos");
+        mensaje.value.push("Debe seleccionar productos");
     }
     
   
@@ -455,6 +475,55 @@ sendSubTotal();
 
 }
 
+
+const calcularIva = () =>{
+   iva5.value = calcularIva5();
+   iva10.value = calcularIva10();
+   montoIva.value = iva5.value + iva10.value;
+    
+}
+
+const calcularIva5 = () => {
+    let detalle;
+
+        detalle = selectedProduct.value;
+
+    if (detalle == null) {
+        return 0;
+    }
+  return detalle
+  .filter(item => item.producto?.tipoIva?.porcentaje === 5) // Filtra los productos con IVA 5%
+    .reduce((accu, item) => {
+        let porcentaje = item.producto.tipoIva.porcentaje || 0;
+        let base = item.producto.tipoIva.base || 0;
+        let factor_iva = porcentaje + base;
+
+        if (factor_iva === 0) return accu; // Evita división por 0
+        
+        let iva = item.subTotal * porcentaje / factor_iva;
+        if (!isFinite(iva)) return accu; // Evita errores matemáticos
+        return accu + iva;
+    }, 0); // Luego suma
+};
+
+const calcularIva10 = () => {
+    let detalle;
+
+        detalle = selectedProduct.value;
+
+
+    if (detalle == null) {
+        return 0;
+    }
+  return detalle
+    .filter(item => item.producto.tipoIva.porcentaje === 10) // Filtra 
+    .reduce((acc, item) => {
+        let factor_iva = item.producto.tipoIva.porcentaje + item.producto.tipoIva.base;
+        return acc + ((item.subTotal * item.producto.tipoIva.porcentaje / factor_iva) || 0)
+    }, 0); // Luego suma
+};
+
+
 const eliminar = (detalle) => {
    const cantidad= 1;
   
@@ -470,6 +539,13 @@ const eliminar = (detalle) => {
    router.push({name: 'pedidos'});
   
   }
+
+  const handleSelectionChange = (event) => {
+    console.log(event);
+    selectedProduct.value = event.filter(item => item.producto.cantStock>0);
+    calcularTotales();
+  }
+
 
   const sendSubTotal = () => {
   
@@ -489,6 +565,28 @@ const eliminar = (detalle) => {
  
   //emit("getSubTotal",total, detalles);
  
+ }
+
+ const calcularTotales = () => {
+
+  if (selectedProduct.value?.length > 0) {
+    let monto= 0;
+  
+  selectedProduct.value.forEach(e => {
+        e.subTotal = e.precio*e.cantidad
+            monto += (e.subTotal);
+       
+       
+  });
+  subTotal.value = monto;
+     total.value = subTotal.value ;
+
+ 
+  } else{
+    subTotal.value = 0;
+     total.value = subTotal.value ;
+  }
+  calcularIva();
  }
 
 
@@ -523,7 +621,7 @@ const eliminar = (detalle) => {
     let ant = {montoTotal: total.value, fecha: fechaAnticipo, montoIva: montoIva.value, cliente: selectedCliente.value, pedido: pedido.value};
 
 
-    let anticipoCreationDTO = {venta: ant, detalle: detalleFacturar.value ,pagos: null};
+    let anticipoCreationDTO = {venta: ant, detalle: selectedProduct.value ,pagos: null};
     VentaServices.saveVenta(anticipoCreationDTO ).then((data)=> {
         console.log("saveanticipothen");
         console.log("data");
@@ -573,7 +671,7 @@ const eliminar = (detalle) => {
         </div>
         <div class="field">
             <label for="inventoryStatus" class="mb-3">Tipo Documento</label>
-            <Dropdown fluid id="inventoryStatus" v-model="cliente.tipoDoc" :options="documentos" optionLabel="descripcion" placeholder="Select a Status" />
+            <Dropdown fluid id="inventoryStatus" v-model="cliente.tipoDoc" :options="documentos" optionLabel="descripcion" placeholder="Seleccione el tipo de documento" />
         </div>
         <div class="field">
             <label for="description">Nro Documento</label>
@@ -613,10 +711,10 @@ const eliminar = (detalle) => {
             <Dropdown fluid v-model="direccion.ciudad" :options="ciudades" optionLabel="descripcion" placeholder="Seleccione una ciudad" :class="{'p-invalid': submitted && !validarDireccionCliente(direccion) && !direccion.ciudad}"  />
             <small class="p-error" v-if="submitted && !validarDireccionCliente(direccion) && !direccion.ciudad">Ingrese Ciudad</small>
         </div>
-        <div class="field">
+       <!--  <div class="field">
             <label for="description">Ubicar en el mapa</label>
             <MapComponent @getUbicacion="getUbicacion" ref="map" :lat="direccion.lat" :lng="direccion.lng" />
-        </div>
+        </div>-->
     </div>
         <template #footer>
             <Button label="Cancel" icon="pi pi-times" text @click="hideDialog"/>
@@ -660,7 +758,7 @@ const eliminar = (detalle) => {
                     Cliente
                 </div>    
                 <div v-if="clienteSeleccionado">
-                    <Button icon="pi pi-times"  link @click="eliminarClienteSelected"/>
+                    
                 </div>   
                 <div v-else>
                     <Button icon="pi pi-plus"  link @click="registrarCliente"/>
@@ -693,6 +791,26 @@ const eliminar = (detalle) => {
         </template>
     </Card>
             </div>  
+            <div class="field col-12 md:col-6">
+                <Card >
+        <template #title>
+            <div class="flex justify-content-between ">
+                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                    Detalle Factura
+                </div>            
+            </div>
+            
+        </template>
+        <template #content>
+            <p class="m-0">
+                <div v-for="v in infoFactura">
+                    {{ v.valor }}
+                </div>
+                
+            </p>
+        </template>
+    </Card>
+            </div> 
             
             <div class="col-12" >
                         <Card >
@@ -701,10 +819,6 @@ const eliminar = (detalle) => {
                 <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
                     Productos
                 </div>
-                <div >
-                    <Button label="+ Producto" link @click="visible = true" />
-                    </div>
-
             </div>
             
         </template>
@@ -714,47 +828,61 @@ const eliminar = (detalle) => {
                                 
                                 <div class="card" style="width: 100%;">
     <div class="flex card-container" style="width: 100%;">
-        <DataTable class="tablaCarrito" ref="dt" :value="detalleFacturar" scrollable scrollHeight="400px" dataKey="producto.id" style="width: 100%;">
-          
-         <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
-        <Column class="col" field="producto.precio"  header="Precio" aria-sort="none" >
-            <template #body="slotProps">
-            <div class="flex-auto p-fluid" style="max-width:20lvb  !important; " >
-                {{ formatearNumero(slotProps.data.precio) }}
-              </div> 
+        
+        <DataTable v-model:selection="selectedProduct" :value="detalleFacturar"  dataKey="id" style="width: 100%;" @update:selection="handleSelectionChange($event)" >
+            <Column selectionMode="multiple" headerStyle="width: 3rem">
+                <template #body="slotProps">
+                <div class="flex-auto p-fluid" style="max-width:20lvb  !important; " >
+                    <Checkbox :disabled="slotProps.data.producto.cantStock < 1" v-model="selectedProduct" :value="slotProps.data"  @change="calcularTotales()" />
+                </div> 
             </template>
-        </Column>
-        <Column  class="col" field="cantidadSolicitada" header="Solicitado" aria-sort="none">
+               
+            </Column>
             
-             
-        </Column>
-         <Column  class="col" field="cantidadFacturada" header="Facturada" aria-sort="none">
+            <Column field="producto.nombre" header="Producto"></Column>
             
-             
-         </Column>
-         
-        <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
-            <template #body="slotProps">
-                <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
-                  <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="1" :max="slotProps.data.cantidadSolicitada" @input="prueba(slotProps.data.producto,slotProps.data.cantDisponible,$event)" @update:modelValue="sendSubTotal" />
-              </div>  
+            <Column field="precio" header="Precio">
+                <template #body="slotProps">
+                <div class="flex-auto p-fluid" style="max-width:20lvb  !important; " >
+                    {{ formatearNumero(slotProps.data.precio) }}
+                </div> 
             </template>
-             
-         </Column>
-         
-         <Column  class="col" field="subTotal" header="Total" aria-sort="none" >
-             <template #body="slotProps">
+            </Column>
+            <Column field="cantSolicitado" header="Solicitado"></Column>
+            <Column field="cantidadFacturada" header="Pendiente">
+                <template #body="slotProps">
                  <div class="flex-auto p-fluid" style="max-width: 20dvh;">
-                     <label for="subtotal"> {{  (slotProps.data.subTotal =  slotProps.data.cantidad * slotProps.data.precio ).toLocaleString("de-DE") }}</label>
+                     <label for="subtotal"> {{  formatearNumero(slotProps.data.pendiente= slotProps.data.cantSolicitado - slotProps.data.cantFacturada) }}</label>
                   </div>
             </template>
-         </Column>
-         <Column class="col" :exportable="false" style="min-width:1rem">
-           <template #body="slotProps">
-             <Button icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="eliminar(slotProps.data)" />
-           </template>
-         </Column>
-     </DataTable>
+            </Column>
+            
+            <Column  class="col" field="cantidad" header="Facturar" aria-sort="none">
+                <template #body="slotProps">
+                    <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
+                    <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="0" :max="slotProps.data.pendiente >= slotProps.data.producto.cantStock?slotProps.data.producto.cantStock:slotProps.data.pendiente" @update:modelValue="calcularTotales" />
+                </div>  
+                </template>
+            </Column>
+            <Column  class="col" field="cantidad" header="IVA" aria-sort="none">
+                <template #body="slotProps">
+                    <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
+                        <label for="subtotal"> {{  (slotProps.data.producto.tipoIva.porcentaje) }}%</label>
+                    </div>  
+                </template>
+                
+            </Column>
+            <Column field="subTotal" header="Sub Total">
+                <template #body="slotProps">
+                 <div class="flex-auto p-fluid" style="max-width: 20dvh;">
+                     <label for="subtotal"> {{  formatearNumero(slotProps.data.subTotal =  slotProps.data.cantidad * slotProps.data.precio ) }}</label>
+                  </div>
+            </template>
+            </Column>
+        </DataTable>
+    
+
+       
    </div>
  </div>
                                 <div class="grid" style="margin-top: 1rem;">
@@ -765,73 +893,36 @@ const eliminar = (detalle) => {
                                             Total: 
                                         </div>
                                         <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; font-weight: bold; font-size: 16px;" >
-                                            {{ total.toLocaleString("de-DE") }}
+                                            {{ total.toLocaleString("de-DE") }} Gs.
                                         </div>
 
                                     </div>
                                     <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
                                         <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
+                                            IVA 5%: 
+                                        </div>
+                                        <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
+                                            {{ ( Math.round(iva5)).toLocaleString("de-DE") }} Gs.
+                                        </div>
+                                    </div>   
+                                    <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
+                                        <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
                                             IVA 10%: 
                                         </div>
                                         <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
-                                            {{ (montoIva = Math.round(total/11)).toLocaleString("de-DE") }}
+                                            {{ ( Math.round(iva10)).toLocaleString("de-DE") }} Gs.
                                         </div>
-                                    </div>
+                                    </div>  
+                                    <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
+                                        <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
+                                            Total IVA: 
+                                        </div>
+                                        <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
+                                            {{ ( Math.round(montoIva)).toLocaleString("de-DE") }} Gs.
+                                        </div>
+                                    </div>  
             
 
-                                </div>
-                                <div >
-                                    
-                       
-                                    <Dialog v-if="visible" v-model:visible="visible" modal header="Seleccionar productos" :closable="false" :draggable="false" :style="{ width: '40rem' }"  >
-                                    <template #footer>
-                                        <div class="flex justify-content-end">
-                                            <Button label="Cerrar" icon="pi pi-times" text @click="visible = false" />
-                                        </div>
-                                    </template> 
-
-                                    <div class="grid" style="row-gap: 2.5vh;">
-                                        <div class="card col-12" style="width: 100%;">
-                                            <span class="p-input-icon-left" style="width: 100%; margin-top: 0.5rem;">
-                                            
-                                                <InputText  class="buscador p-fluid" style="width: 100%;" v-model="filters['global'].value" placeholder="Buscar..." />
-                                            </span>
-    
-                                            <div class="flex card-container col-12" style="width: 100%;">
-        
-                                                <DataTable class="tabla" ref="dt"  :value="productos"  dataKey="producto.id"
-                                                    :paginator="true" :rows="7" :filters="filters"
-                                                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" >
-                                            
-                                                    <Column field="id"  header="ID" aria-sort="ascending" ></Column>
-                                                    <Column field="nombre" header="Nombre" aria-sort="none" ></Column>
-                                                    <Column field="cantDisponible" header="Disponible" aria-sort="none" >
-                                                    <template #body="slotProps">
-                                                        <h4 v-if="slotProps.data.cantStock < 1 && slotProps.data.bajoDemanda" style="color: tomato !important;">{{slotProps.data.cantDisponible }}</h4>
-                                                        <h4 v-else style="color: green !important;">{{slotProps.data.cantDisponible}}</h4>
-
-                                                    </template>
-
-                                                    </Column>
-                                                    
-                                                    <Column field="precio"  header="Precio" aria-sort="none" >
-                                                        <template #body="slotProps">
-                                                        <div>
-                                                            {{ slotProps.data.precio.toLocaleString("de-DE") }}
-                                                        </div>
-                                                        </template>
-                                                    </Column>
-                                                    <Column :exportable="false" style="min-width:8rem">
-                                                    <template #body="slotProps">
-                                                        <Button v-if=" slotProps.data.cantDisponible > 0 && slotProps.data.cantStock > 0" icon="pi pi-shopping-cart" class="mod_icono"  @click="addItem(slotProps.data)"/>
-                                                            <Button v-else disabled="true" icon="pi pi-shopping-cart" class="mod_icono" />
-                                                    </template>
-                                                    </Column>
-                                                </DataTable>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    </Dialog>  
                                 </div>
                             </div>
                         </template>    
@@ -855,68 +946,5 @@ const eliminar = (detalle) => {
     width: 1rem;
 }
 
-/*
 
-.p-accordion-tab{
-    margin: 2%;
-    
-    
-}
-.p-icon{
-    color: pink;
-    margin-right: 1%;
-}
-
-.p-accordion-header-link{
-    height: 7vh !important;
-}
-.p-accordion-header-text{
-    color: black;
-}
-
-
-.p-card-title{
-    font-size:medium;
-}
-.p-card .p-card-body {
-    padding: 1rem;
-}
-.p-card .p-card-content {
-    padding: 0.5rem 0;
-}
-
-.principal{
-    display: flex;
-    border: solid palevioletred 2px;
-    justify-content: center;
-    border-radius: 1vh;
-    margin-left: 4%;
-    margin-right: 4%;
-    padding: 1%;
-}
-
-h3 {
-    display: flex;
-    font-size: 1.17em;
-    margin-block-start: 0px;
-    margin-block-end: 0px;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-    font-weight: bold;
-    justify-content: center;
-}
-.p-button{
-    box-shadow: 0 0 0 0 !important; 
-    font-family:'primeicons' !important;
-}
-.p-button:hover{
-    box-shadow: 0 0 0 0 !important; 
-}
-.p-card{
-    box-shadow:none;
-    font-size:14px;
-}
-.p-dropdown-label{
-    padding: 0px !important;
-}*/
 </style>
