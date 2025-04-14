@@ -64,6 +64,7 @@
     try {
       const { data } = await PersonaServices.obtenerClientes();
       clientes.value = data;
+      console.log(clientes.value);
     } catch (error) {
       showError('Error al obtener clientes');
     }
@@ -119,7 +120,7 @@
         d = d + " y " + dir.calle3;
     }
 
-    dir.direccion = d;
+    return d;
 };
   
   // Funciones para CRUD
@@ -128,7 +129,7 @@
     direccion.value = {};
     clienteDialog.value = true;
   };
-  
+  /*
   const modificarCliente = (cli) => {
     cliente.value = { ...cli };
     direccion.value = cli.direccion ? { ...cli.direccion } : {};
@@ -139,6 +140,23 @@
     }
     
     clienteDialog.value = true;
+  };*/
+
+  async function modificarCliente(id) {
+    try {
+      const { data } = await PersonaServices.getPersona(id);
+      cliente.value = data.persona;
+      direccion.value = data.direccion ? { ...data.direccion } : {};
+      // Si hay ciudad, cargamos el departamento asociado
+      if (direccion.value.ciudad) {
+        direccion.value.departamento = direccion.value.ciudad.departamento;
+        getCiudades(direccion.value.departamento.id);
+      }
+      
+      clienteDialog.value = true;
+    } catch (error) {
+      showError('Error al obtener el cliente');
+    }
   };
   
   const eliminarCliente = (id) => {
@@ -161,19 +179,23 @@
     });
   };
   
-  const verCliente = (clienteData) => {
-  clienteView.value = { ...clienteData };
-  direccionView.value = clienteData.direccion ? { ...clienteData.direccion } : {};
-  
-  // Si hay ciudad, cargamos el departamento asociado
-  if (direccionView.value.ciudad) {
-    direccionView.value.departamento = direccionView.value.ciudad.departamento;
-  }
-  
-  viewClienteDialog.value = true;
-};
 
-  
+  async function verCliente(id) {
+    try {
+      const { data } = await PersonaServices.getPersona(id);
+      clienteView.value = data.persona;
+      console.log(clienteView.value);
+      direccionView.value = data.direccion ? { ...data.direccion } : {};
+      // Si hay ciudad, cargamos el departamento asociado
+      if (direccionView.value.ciudad) {
+        direccionView.value.departamento = direccionView.value.ciudad.departamento;
+      }
+      
+      viewClienteDialog.value = true;
+    } catch (error) {
+      showError('Error al obtener el cliente');
+    }
+  };
   
   const saveCliente = async () => {
     submitted.value = true;
@@ -195,10 +217,13 @@
   
     try {
       direccion.value.tipo = 'P';
+      console.log(cliente.value);
+      console.log(direccion.value);
       const direccionCompleta = generarDireccionCompleta(direccion.value);
+      direccion.value.direccion = direccionCompleta;
       const payload = {
         personaEntity: cliente.value,
-        direccion: direccionCompleta
+        direccion: direccion.value
       };
   
       if (cliente.value.id) {
@@ -314,45 +339,45 @@
       <!-- Diálogo para agregar/editar cliente -->
       <Dialog v-model:visible="clienteDialog" :style="{width: '450px'}" header="Datos del Cliente" :modal="true" class="p-fluid">
         <!-- Formulario del cliente -->
-        <div class="formgrid grid">
+        <div class="formgrid">
           <!-- Sección de datos personales -->
           <div class="field">
             <label for="nombre">Nombre</label>
-            <InputText id="nombre" v-model.trim="cliente.nombre" required 
+            <InputText fluid id="nombre" v-model.trim="cliente.nombre" required 
                       :class="{'p-invalid': submitted && !cliente.nombre}" />
             <small class="p-error" v-if="submitted && !cliente.nombre">Nombre es requerido</small>
           </div>
           
           <div class="field">
             <label for="apellido">Apellido</label>
-            <InputText id="apellido" v-model.trim="cliente.apellido" required 
+            <InputText fluid id="apellido" v-model.trim="cliente.apellido" required 
                       :class="{'p-invalid': submitted && !cliente.apellido}" />
             <small class="p-error" v-if="submitted && !cliente.apellido">Apellido es requerido</small>
           </div>
           
           <div class="field">
             <label for="tipoDoc">Tipo Documento</label>
-            <Dropdown id="tipoDoc" v-model="cliente.tipoDoc" :options="documentos" optionLabel="descripcion" 
+            <Dropdown fluid id="tipoDoc" v-model="cliente.tipoDoc" :options="documentos" optionLabel="descripcion" 
                      placeholder="Seleccione tipo" :class="{'p-invalid': submitted && !cliente.tipoDoc}" />
             <small class="p-error" v-if="submitted && !cliente.tipoDoc">Tipo documento es requerido</small>
           </div>
           
           <div class="field">
             <label for="nroDoc">Nro. Documento</label>
-            <InputText id="nroDoc" v-model.trim="cliente.nroDoc" required 
+            <InputText fluid id="nroDoc" v-model.trim="cliente.nroDoc" required 
                       :class="{'p-invalid': submitted && !cliente.nroDoc}" />
             <small class="p-error" v-if="submitted && !cliente.nroDoc">Nro. documento es requerido </small>
           </div>
           
           <div class="field">
             <label for="telefono">Teléfono</label>
-            <InputText id="telefono" v-model.trim="cliente.telefono" required="true" />
+            <InputText fluid id="telefono" v-model.trim="cliente.telefono" required="true" />
           </div>
           
           <!-- Sección de dirección -->
           <div class="field">
             <label for="calle1">Calle Principal</label>
-            <InputText id="calle1" v-model="direccion.calle1" 
+            <InputText fluid id="calle1" v-model="direccion.calle1" 
                       :class="{'p-invalid': submitted && algunCampoTieneValor(direccion) && !direccion.calle1}" />
             <small class="p-error" v-if="submitted && algunCampoTieneValor(direccion) && !direccion.calle1">Calle principal es requerida</small>
           </div>
@@ -367,17 +392,17 @@
           
           <div class="field" v-if="selectedOp=='Entre'">
             <label for="calle3">Calle Transversal</label>
-            <InputText id="calle3" v-model="direccion.calle3" required="true" />
+            <InputText fluid id="calle3" v-model="direccion.calle3" required="true" />
           </div>
           
           <div class="field">
             <label for="nroCasa">N° Casa</label>
-            <InputText id="nroCasa" v-model="direccion.nroCasa" required="true" />
+            <InputText fluid id="nroCasa" v-model="direccion.nroCasa" required="true" />
           </div>
           
           <div class="field">
             <label for="departamento">Departamento</label>
-            <Dropdown id="departamento" v-model="direccion.departamento" :options="departamentos" 
+            <Dropdown fluid id="departamento" v-model="direccion.departamento" :options="departamentos" 
                      optionLabel="descripcion" placeholder="Seleccione departamento"
                      @change="getCiudades(direccion.departamento.id)"
                      :class="{'p-invalid': submitted && algunCampoTieneValor(direccion) && !direccion.departamento}" />
@@ -386,7 +411,7 @@
           
           <div class="field">
             <label for="ciudad">Ciudad</label>
-            <Dropdown id="ciudad" v-model="direccion.ciudad" :options="ciudades" 
+            <Dropdown fluid id="ciudad" v-model="direccion.ciudad" :options="ciudades" 
                      optionLabel="descripcion" placeholder="Seleccione ciudad"
                      :class="{'p-invalid': submitted && algunCampoTieneValor(direccion) && !direccion.ciudad}" />
             <small class="p-error" v-if="submitted && algunCampoTieneValor(direccion) && !direccion.ciudad">Ciudad es requerida</small>
@@ -427,7 +452,7 @@
     
     <div class="field grid">
       <label class="col-4 font-bold">Dirección:</label>
-      <div class="col-8">{{ clienteView.direccion?.direccion || 'Sin dirección registrada' }}</div>
+      <div class="col-8">{{ direccionView.direccion || 'Sin dirección registrada' }}</div>
     </div>
     
     <div v-if="direccionView.departamento" class="field grid">
@@ -487,19 +512,14 @@
               </template>
             </Column>
             <Column field="telefono" header="Teléfono" aria-sort="ascending" sortable></Column>
-            <Column header="Dirección">
-              <template #body="slotProps">
-                {{ slotProps.data.direccion?.direccion || 'Sin dirección' }}
-              </template>
-            </Column>
             <Column :exportable="false" style="min-width:10rem">
               <template #body="slotProps">
-                <Button icon="pi pi-eye" text rounded severity="info" 
+                <Button icon="pi pi-eye" text rounded  
                         @click="verCliente(slotProps.data.id)" 
                         v-tooltip="'Ver detalles'"
                         class="p-button-sm mr-2" />
-                <Button icon="pi pi-pencil" text rounded severity="warning" 
-                        @click="modificarCliente(slotProps.data)" 
+                <Button icon="pi pi-pencil" text rounded severity="success" 
+                        @click="modificarCliente(slotProps.data.id)" 
                         v-tooltip="'Editar'"
                         class="p-button-sm mr-2" />
                 <Button icon="pi pi-trash" text rounded severity="danger" 

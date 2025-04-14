@@ -35,12 +35,12 @@ const visualizarProductoDialog = ref(false);
 const precio = ref({});
 const submitted = ref(false);
 const today = ref(new Date());
-const producto = ref();
+const producto = ref({});
 
 const confirm2 = (id) => {
    
     confirm.require({
-        message: 'Eliminar el reembolso #'+ id + '?',
+        message: 'Eliminar este precio?',
         header: 'Confirmacion',
         icon: 'pi pi-info-circle',
         rejectLabel: 'Cancelar',
@@ -192,7 +192,7 @@ const saveProducto = () => {
         else {
             PreciosVentaService.registrarPrecio(precio.value).then((response)=>{
             console.log(response.data);
-                precios.value.push(response.data);
+                precios.value.unshift(response.data);
                  toast.add({severity:'success', summary: 'Successful', detail: 'Registro creado', life: 3000});
             }).catch(
                 (error)=>messageError("error")
@@ -236,7 +236,7 @@ const saveProducto = () => {
     <Panel style=" position: relative; width: 100%;" >
       <template #header>
         <div class="flex align-items-center gap-2">
-            <h3 class="font-bold">Precios de venta</h3>
+            <h3 class="font-bold">Precios de venta: {{ producto.nombre }}</h3>
         </div>
       </template>
     
@@ -261,9 +261,6 @@ const saveProducto = () => {
           :paginator="true" :rows="7" :filters="filters"
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 
           currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros" >
-          <Column field="id" sortable header="N°" aria-sort="ascending" ></Column>
-          <Column field="producto.nombre"  header="Producto" aria-sort="ascending" sortable>           
-        </Column>
           <Column field="fecha"  header="Fecha" aria-sort="ascending" sortable> 
             <template #body="slotProps" >
                 {{ formatearFecha(slotProps.data.fecha) }}
@@ -278,7 +275,7 @@ const saveProducto = () => {
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
               <Button icon="pi pi-pencil" :disabled="isfechaPasada(slotProps.data.fecha)" text rounded aria-label="Search" @click="modificarProducto(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
-                <Button icon="pi pi-times" :disabled="isfechaPasada(slotProps.data.fecha)" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button icon="pi pi-trash" :disabled="isfechaPasada(slotProps.data.fecha)" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                 
                 </template>
           </Column>

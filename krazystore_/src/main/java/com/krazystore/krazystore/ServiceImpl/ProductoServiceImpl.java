@@ -133,7 +133,9 @@ public class ProductoServiceImpl implements ProductoService{
 
     @Override
     public void deleteProducto(Long id) {
-        productorepository.deleteById(id);
+        ProductoEntity deletedProducto = productorepository.findById(id).get();
+        deletedProducto.setActivo(Boolean.FALSE);
+        productorepository.save(deletedProducto);
     }
     
     

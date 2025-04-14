@@ -33,7 +33,8 @@ public interface ProductoRepository extends JpaRepository<ProductoEntity, Long>{
             + "AND tc.fecha <= NOW() ORDER BY tc.fecha DESC LIMIT 1 ) "
             + "LEFT JOIN PrecioVentaEntity pr ON pr.producto.id = p.id AND pr.fecha = "
             + " (SELECT pv.fecha FROM PrecioVentaEntity pv WHERE pv.producto.id = p.id "
-            + "AND pv.fecha <= NOW() ORDER BY pv.fecha DESC LIMIT 1 ) "
+            + "AND pv.fecha <= NOW() ORDER BY pv.fecha DESC LIMIT 1 )"
+            + "WHERE p.activo = TRUE ORDER BY p.id DESC"
            )
         
     public List<ProductoDTO> findProductos();

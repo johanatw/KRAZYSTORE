@@ -36,6 +36,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.domain.Sort;
 /**
  *
  * @author HP
@@ -62,7 +63,7 @@ public class CompraServiceImpl implements CompraService {
     
     @Override
     public List<CompraEntity> findAll() {
-        return compraRepository.findAll();
+        return compraRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
     }
 
     @Override
@@ -177,6 +178,7 @@ public class CompraServiceImpl implements CompraService {
         updatedCompra.setTotal(compra.getTotal());
         updatedCompra.setProveedor(compra.getProveedor());
         updatedCompra.setTotal(compra.getTotal());
+        updatedCompra.setTimbrado(compra.getTimbrado());
         compraRepository.save(updatedCompra);
 
         System.out.println("6");

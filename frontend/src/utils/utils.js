@@ -88,6 +88,20 @@ export function getEstadoRecepcion(estado) {
    }
 };
 
+export function getEstadoEntrega(estado) {
+    switch (estado) {
+         case 'P':
+             return 'Pendiente de Entrega';
+         case 'E':
+             return 'Entregado';
+        case 'N':
+             return 'No Entregado';
+  
+         default:
+             return null;
+     }
+  };
+
 export function getEstadoFacturaCompra(estado) {
   switch (estado) {
        case 'P':

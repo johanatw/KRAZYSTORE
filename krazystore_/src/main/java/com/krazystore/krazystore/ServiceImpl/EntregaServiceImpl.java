@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 /**
@@ -39,7 +40,7 @@ public class EntregaServiceImpl implements EntregaService {
 
     @Override
     public List<EntregaEntity> findAll() {
-        return entregaRepository.findAll();
+        return entregaRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
     }
 
     @Override
@@ -77,11 +78,52 @@ public class EntregaServiceImpl implements EntregaService {
 
     @Override
     public EntregaEntity updateEntrega(EntregaCreationDTO entrega, Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        EntregaEntity updatedEntrega = entregaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Entrega no encontrada"));
+        
+        updatedEntrega.setDireccionEnvio(entrega.getEntrega().getDireccionEnvio());
+        updatedEntrega.setEmpresaTransporte(entrega.getEntrega().getEmpresaTransporte());
+        updatedEntrega.setFecha(entrega.getEntrega().getFecha());
+        updatedEntrega.setModoEntrega(entrega.getEntrega().getModoEntrega());
+        updatedEntrega.setPuntoEntrega(entrega.getEntrega().getPuntoEntrega());
+        updatedEntrega.setObservaciones(entrega.getEntrega().getObservaciones());
+        
+        return entregaRepository.save(updatedEntrega);
+    }
+    
+    @Override
+    public EntregaEntity reprogramarEntrega(EntregaCreationDTO entrega, Long id) {
+        EntregaEntity updatedEntrega = entregaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Entrega no encontrada"));
+        
+        updatedEntrega.setDireccionEnvio(entrega.getEntrega().getDireccionEnvio());
+        updatedEntrega.setEmpresaTransporte(entrega.getEntrega().getEmpresaTransporte());
+        updatedEntrega.setFecha(entrega.getEntrega().getFecha());
+        updatedEntrega.setModoEntrega(entrega.getEntrega().getModoEntrega());
+        updatedEntrega.setPuntoEntrega(entrega.getEntrega().getPuntoEntrega());
+        updatedEntrega.setEstado(Estado.PENDIENTE.getCodigo());
+        
+        return entregaRepository.save(updatedEntrega);
     }
 
     @Override
     public void deleteEntrega(Long id) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public EntregaEntity marcarComoEntregado(Long id) {
+        EntregaEntity updatedEntrega = entregaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Entrega no encontrada"));
+        updatedEntrega.setEstado(Estado.ENTREGADO.getCodigo());
+        return entregaRepository.save(updatedEntrega);
+    }
+
+    @Override
+    public EntregaEntity marcarComoNoEntregado(Long id) {
+        EntregaEntity updatedEntrega = entregaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Entrega no encontrada"));
+        updatedEntrega.setEstado(Estado.NOENTREGADO.getCodigo());
+        return entregaRepository.save(updatedEntrega);
     }
 }

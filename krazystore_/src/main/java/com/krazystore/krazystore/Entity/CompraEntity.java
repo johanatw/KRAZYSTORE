@@ -36,6 +36,8 @@ public class CompraEntity {
     @Column(name="nro_factura")
     private String nroFactura;
     @Column
+    private String timbrado;
+    @Column
     private Date fecha;
     @ManyToOne
     @JoinColumn(name="id_proveedor")
@@ -135,4 +137,13 @@ public class CompraEntity {
         this.pedido = pedido;
     }
 
+    public String getTimbrado() {
+        return timbrado;
+    }
+
+    public void setTimbrado(String timbrado) {
+        this.timbrado = timbrado;
+    }
+
+    
 }

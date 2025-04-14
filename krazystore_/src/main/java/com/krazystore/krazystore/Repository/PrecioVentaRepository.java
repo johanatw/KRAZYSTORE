@@ -18,6 +18,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PrecioVentaRepository extends JpaRepository<PrecioVentaEntity, Long> {
     @Query("SELECT pv FROM PrecioVentaEntity pv " +
-       "WHERE pv.producto.id = :idProducto ")
+       "WHERE pv.producto.id = :idProducto ORDER BY pv.fecha DESC ")
     List<PrecioVentaEntity> findPreciosByIdProducto(@Param("idProducto") Long id);
 }

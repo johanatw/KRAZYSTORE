@@ -25,7 +25,7 @@ public interface PrecioCompraRepository extends JpaRepository<CostoEntity, Long>
                                               @Param("productosIds") List<Long> productosIds);
     
     @Query("SELECT pc FROM CostoEntity pc " +
-       "WHERE pc.producto.id = :idProducto ")
+       "WHERE pc.producto.id = :idProducto ORDER BY pc.fecha DESC ")
     List<CostoEntity> findPreciosByIdProducto(@Param("idProducto") Long id);
 }
 

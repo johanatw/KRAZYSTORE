@@ -36,7 +36,7 @@ public interface PersonaRepository extends JpaRepository<PersonaEntity, Long> {
    "SELECT p FROM PersonaEntity p LEFT JOIN FETCH p.tipoDoc WHERE p.telefono = ?1 ")
     public Optional<PersonaEntity> findByTelefono(String value);
     
-    @Query("SELECT p FROM PersonaEntity p LEFT JOIN FETCH p.tipoDoc ")
+    @Query("SELECT p FROM PersonaEntity p LEFT JOIN FETCH p.tipoDoc WHERE p.activo = TRUE ")
     List<PersonaEntity> findPersonas();
 
     public int countByTelefono(String telefono);

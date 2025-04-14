@@ -226,11 +226,14 @@ const getSeverity = (estado) => {
        case 'R':
            return 'background-color: rgb(202, 241, 216); color: rgb(24, 138, 66);';
 
-       case 'M':
+       case 'P':
            return 'background-color: rgb(254, 221, 199); color: rgb(174, 81, 15);';
 
-       case 'N':
+       case 'F':
            return 'background-color: rgb(215, 227, 552); color: rgb(50, 111, 252);';
+
+       case 'N':
+           return 'background-color: rgb(255, 210, 218); color: rgb(234, 85, 154);';
 
        default:
            return null;
@@ -293,6 +296,18 @@ const isRecepcionCompleta = (estado) => {
    }
 };
 
+const isRecepcionado = (estado) => {
+  console.log(estado);
+  switch (estado) {
+       case 'R':
+           return true;
+        case 'M':
+           return true;
+       default:
+           return false;
+   }
+};
+
 const isNuevo = (estado) => {
   switch (estado) {
        case 'N':
@@ -335,7 +350,7 @@ const selectedRecepcionesIds = computed(() =>
         <div class="flex align-items-center">
           <Button  icon="pi pi-plus " @click="nuevoPedido" style="margin-right: 1% ;"  />
           <InputGroup>
-            <InputText v-model="filters['global'].value" placeholder="Search..." />
+            <InputText v-model="filters['global'].value" placeholder="Buscar..." />
             <InputGroupAddon>
               <i class="pi pi-search" />
             </InputGroupAddon>
@@ -378,11 +393,11 @@ const selectedRecepcionesIds = computed(() =>
         
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
-                <Button icon="pi pi-search" text rounded aria-label="Search" @click="verPedidoCompra(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
-                <Button icon="pi pi-truck" severity="success" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="recepcionarPedidoCompra(slotProps.data.id)" />
-                <Button  icon="pi pi-receipt" severity="info" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="facturarPedidoCompra(slotProps.data.id)" />
+                <Button v-tooltip="'Ver detalles'" icon="pi pi-eye" text rounded aria-label="Search" @click="verPedidoCompra(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
+                <Button v-tooltip="'Recepcionar'" :disabled="isTotalFacturado(slotProps.data.estadoPedido) || isRecepcionCompleta(slotProps.data.estadoPedido)" icon="pi pi-truck" severity="success" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="recepcionarPedidoCompra(slotProps.data.id)" />
+                <Button v-tooltip="'Facturar'" :disabled="isTotalFacturado(slotProps.data.estadoPedido) || !isRecepcionado(slotProps.data.estadoPedido) " icon="pi pi-receipt" severity="info" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="facturarPedidoCompra(slotProps.data.id)" />
 
-                <Button :disabled="!isNuevo(slotProps.data.estadoPedido)" icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button v-tooltip="'Eliminar'" :disabled="!isNuevo(slotProps.data.estadoPedido)" icon="pi pi-trash" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                 
                 </template>
           </Column>

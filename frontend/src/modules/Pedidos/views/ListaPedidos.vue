@@ -84,19 +84,23 @@ const messageAviso = (msg) => {
 
 const getSeverity = (estado) => {
   
-  
+  console.log(estado);
   switch (estado) {
-       case 'C':
-           return 'background-color: rgb(202, 241, 216); color: rgb(24, 138, 66);';
+       case 'N':
+           return 'background-color: rgb(255, 210, 218); color: rgb(234, 85, 154);'+
+           'font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;';
 
-       case 'R':
-           return 'background-color: rgb(254, 221, 199); color: rgb(174, 81, 15);';
+       case 'F':
+           return 'background-color: rgb(215, 227, 552); color: rgb(50, 111, 252);'+
+           'font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;';
 
        case 'P':
-           return 'background-color: rgb(215, 227, 552); color: rgb(50, 111, 252);';
+           return 'background-color: rgb(254, 221, 199); color: rgb(174, 81, 15);'+
+           'font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;';
 
        default:
-           return null;
+           return 'background-color: rgb(215, 227, 552); color: rgb(50, 111, 252);'+
+           'font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;';
    }
 };
 
@@ -432,7 +436,7 @@ const reload = () =>{
         <div class="flex align-items-center">
           <Button  icon="pi pi-plus " @click="nuevoPedido" style="margin-right: 1% ;"  />
           <InputGroup>
-            <InputText v-model="filters['global'].value" placeholder="Search..." />
+            <InputText v-model="filters['global'].value" placeholder="Buscar..." />
             <InputGroupAddon>
               <i class="pi pi-search" />
             </InputGroupAddon>
@@ -467,7 +471,7 @@ const reload = () =>{
             </Column>
             <Column  field="estadoPedido" header="Estado Pedido" aria-sort="ascending" sortable >
               <template #body="slotProps">
-                <Tag style="background-color: rgb(215, 227, 552); color: rgb(50, 111, 252);font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;">{{ getEstadoPedidoVenta(slotProps.data.estadoPedido)}}</Tag>
+                <Tag :style="getSeverity(slotProps.data.estadoPedido)" >{{ getEstadoPedidoVenta(slotProps.data.estadoPedido)}}</Tag>
               </template>
               
             </Column>
@@ -490,11 +494,11 @@ const reload = () =>{
          </Column>
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
-                <Button icon="pi pi-search" text rounded aria-label="Search" @click="verPedido(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
-                <Button icon="pi pi-times" severity="danger" :disabled="!isNuevo(slotProps.data.estadoPedido)" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button icon="pi pi-eye" v-tooltip="'Ver detalles'" text rounded aria-label="Search" @click="verPedido(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
+                <Button icon="pi pi-trash" v-tooltip="'Eliminar'" severity="danger" :disabled="!isNuevo(slotProps.data.estadoPedido)" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
             
-                <Button :disabled="isTotalFacturado(slotProps.data.estadoPedido)" icon="pi pi-receipt" severity="info" text rounded aria-label="Cancel" @click="facturarPedido(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
-                <Button icon="pi pi-box" severity="success" :disabled="!existenProductosFacturados(slotProps.data.estadoPedido)" text rounded aria-label="Cancel" @click="prepararPedido(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button v-tooltip="'Facturar'" :disabled="isTotalFacturado(slotProps.data.estadoPedido)" icon="pi pi-receipt" severity="info" text rounded aria-label="Cancel" @click="facturarPedido(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button v-tooltip="'Preparar'" icon="pi pi-box" severity="success" :disabled="!existenProductosFacturados(slotProps.data.estadoPedido)" text rounded aria-label="Cancel" @click="prepararPedido(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
             
                 </template>
           </Column>

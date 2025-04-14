@@ -204,22 +204,25 @@ public class VentaServiceImpl implements VentaService{
     public int anularFactura(Long id) {
         
         VentaEntity facturaVenta = ventarepository.findById(id).get();
-            
+        PedidoEntity pedidoAsociado = facturaVenta.getPedido();
         facturaVenta.setEstado(Estado.ANULADO.getCodigo());
         List<DetalleVentaEntity> detalleVenta = detalleVentaService.findByIdVenta(id);
-
+        
+        if(pedidoAsociado != null){
+            facturaVenta.setPedido(null);
+        }
+        
         //Guardar factura
         ventarepository.save(facturaVenta);
         
         //Trae productos a actualizar existencias
         List<ProductoExistenciasDTO> productosActualizarExistencias = detalleVentaService.anularDetalleVenta(id);
         
-        if(facturaVenta.getPedido() != null){
-            PedidoEntity pedido = facturaVenta.getPedido();
+        if(pedidoAsociado != null){
             //actualiza existencias de los productos de la venta
             actualizarProductosPedidoFacturado(productosActualizarExistencias);
             //actualiza estado del pedido
-            actualizarEstadoPedido(pedido.getId(), TipoEvento.FACTURA_ANULADA);
+            actualizarEstadoPedido(pedidoAsociado.getId(), TipoEvento.FACTURA_ANULADA);
         }else{
             //actualiza existencias de los productos de la venta
             actualizarProductosFacturados(productosActualizarExistencias);

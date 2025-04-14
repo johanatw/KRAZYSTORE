@@ -18,5 +18,8 @@ public interface EntregaService {
     EntregaCreationDTO findById(Long id);
     EntregaEntity saveEntrega(EntregaCreationDTO entrega);
     EntregaEntity updateEntrega(EntregaCreationDTO entrega, Long id);
+    EntregaEntity reprogramarEntrega(EntregaCreationDTO entrega, Long id);
+    EntregaEntity marcarComoEntregado(Long id);
+    EntregaEntity marcarComoNoEntregado(Long id);
     void deleteEntrega(Long id);
 }

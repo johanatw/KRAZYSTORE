@@ -22,7 +22,7 @@ public interface DetalleEntregaRepository extends JpaRepository<DetalleEntrega, 
        "d.id, dp.id,dp.producto.id, dp.producto.nombre, " +
        "dp.cantidad, " +
        "COALESCE(dv.cantidadFacturada, 0), " +
-       "COALESCE(de.cantidadEntregada, 0)) " +
+       "COALESCE(de.cantidadEntregada, 0), d.cantidad) " +
        "FROM DetalleEntrega d " +
        "JOIN d.entrega e " +
        "LEFT JOIN d.detallePedido dp " +

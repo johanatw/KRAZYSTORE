@@ -22,9 +22,6 @@ import lombok.NoArgsConstructor;
  */
 @Entity
 @Table(name="proveedores")
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 public class ProveedorEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,7 +43,32 @@ public class ProveedorEntity {
     @ManyToOne
     @JoinColumn(name = "id_ciudad")
     private CiudadEntity ciudad;
+    @Column
+    private Boolean activo = true;
 
+    public ProveedorEntity() {
+    }
+
+    public ProveedorEntity(Long id, String descripcion, String ruc, String telefono, String correo, TipoProveedor tipo, String direccion, CiudadEntity ciudad) {
+        this.id = id;
+        this.descripcion = descripcion;
+        this.ruc = ruc;
+        this.telefono = telefono;
+        this.correo = correo;
+        this.tipo = tipo;
+        this.direccion = direccion;
+        this.ciudad = ciudad;
+    }
+
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
+    }
+
+    
     public Long getId() {
         return id;
     }

@@ -156,7 +156,7 @@ const saveProducto = () => {
         else {
             ProductoServices.saveProducto(producto.value).then((response)=>{
             console.log("reg");
-                productos.value.push(response.data);
+                productos.value.unshift(response.data);
                  toast.add({severity:'success', summary: 'Successful', detail: 'Registro creado', life: 3000});
             }).catch(
                 (error)=>messageError("error")
@@ -254,7 +254,7 @@ const saveProducto = () => {
         <div class="flex align-items-center">
           <Button  icon="pi pi-plus " @click="registrarProducto" style="margin-right: 1% ;"  />
           <InputGroup>
-            <InputText v-model="filters['global'].value" placeholder="Search..." />
+            <InputText v-model="filters['global'].value" placeholder="Buscar..." />
             <InputGroupAddon>
               <i class="pi pi-search" />
             </InputGroupAddon>
@@ -270,18 +270,18 @@ const saveProducto = () => {
           :paginator="true" :rows="7" :filters="filters"
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 
           currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros" >
-          <Column field="id" sortable header="N°" aria-sort="ascending" ></Column>
           <Column field="nombre"  header="Producto" aria-sort="ascending" sortable>           
         </Column>
-          <Column field="categoria.descripcion"  header="Categoría" aria-sort="ascending" sortable> 
+        <Column field="subCategoria.categoria.descripcion"  header="Categoría" aria-sort="ascending" sortable> 
         </Column>   
-        
+        <Column field="subCategoria.descripcion"  header="Subcategoría" aria-sort="ascending" sortable> 
+        </Column> 
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
-              <Button icon="pi pi-search" text rounded aria-label="Search" @click="verProducto(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
-              <Button icon="pi pi-pencil" severity="success" text rounded aria-label="Search" @click="modificarProducto(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
-                <Button icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
-                <Button icon="pi pi-money-bill" severity="info" text rounded aria-label="Cancel" @click="verHistorialPrecios(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" /> 
+              <Button icon="pi pi-eye" v-tooltip="'Ver detalles'" text rounded aria-label="Search" @click="verProducto(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
+              <Button icon="pi pi-pencil" v-tooltip="'Editar'" severity="success" text rounded aria-label="Search" @click="modificarProducto(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
+                <Button icon="pi pi-trash" v-tooltip="'Modificar'" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button icon="pi pi-money-bill" v-tooltip="'Ver precios'" severity="info" text rounded aria-label="Cancel" @click="verHistorialPrecios(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" /> 
                 </template>
           </Column>
         </DataTable>

@@ -172,6 +172,28 @@ const esCompraInternacional = (tipoProveedor) =>{
     return false;
 }
 
+const verPedidos = () =>{
+    router.push({name: 'pedidos_compras'});
+}
+
+const showError = (message) => {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: message,
+      life: 3000
+    });
+  };
+  
+  const showSuccess = (message) => {
+    toast.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: message,
+      life: 3000
+    });
+  };
+
 const modificarPedido = (id) => {
     if (!error.value){
 
@@ -188,7 +210,8 @@ const modificarPedido = (id) => {
         console.log("saveanticipothen");
         console.log("data");
         let id = data.data.id;
-        verRecepcion(id);
+        showSuccess('Recepcion creado correctamente');
+        verPedidos();
         //closeDialog();
         //emit('anticipoGuardado', data.data.id);
         

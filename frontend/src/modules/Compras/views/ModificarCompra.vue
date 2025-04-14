@@ -43,6 +43,7 @@ const visible = ref(false);
 const proveedor = ref({});
 const selectedOp = ref('Casi');
 const productos= ref();
+const timbrado= ref();
 const proveedores=ref();
 const filteredClientes = ref();
 const error = ref(false);
@@ -129,6 +130,7 @@ onMounted(() => {
        total.value = compra.value.total;
        fechaCompra.value = new Date(compra.value.fecha);
        nroFactura.value = compra.value.nroFactura;
+       timbrado.value = compra.value.timbrado;
        calcularIva();
         mostrarCliente();
         console.log("LLEGA AL FINAL");
@@ -199,6 +201,10 @@ const search = (event) => {
 const mostrarCliente = () =>{
     console.log(selectedCliente.value);
     let texto = selectedCliente.value.descripcion;
+    if (selectedCliente.value.tipo) {
+        texto = texto + "\nTipo: "+selectedCliente.value.tipo.descripcion;
+    }
+
     if (selectedCliente.value.ruc) {
         texto = texto + "\nRUC: "+selectedCliente.value.ruc;
     }
@@ -513,7 +519,7 @@ const eliminar = (detalle) => {
     let fechaAnticipo = new Date();
    // let gravada = compra.value.total - montoIva.value;
     let gravada = total.value - montoIva.value;
-    let ant = {total: total.value, fecha: fechaCompra.value,totalGravada: gravada, montoIva: montoIva.value, proveedor: selectedCliente.value, nroFactura: nroFactura.value, pedido: pedido.value};
+    let ant = {total: total.value, timbrado: timbrado.value, fecha: fechaCompra.value,totalGravada: gravada, montoIva: montoIva.value, proveedor: selectedCliente.value, nroFactura: nroFactura.value, pedido: pedido.value};
 
     //let ant = {total: compra.value.total, totalGravada: gravada ,gastosImportacion: compra.value.gastosImportacion, montoIva: montoIva.value ,fecha: fechaCompra.value, proveedor: selectedCliente.value, nroFactura: nroFactura.value};
 
@@ -647,6 +653,9 @@ const eliminar = (detalle) => {
                 Fecha: <DatePicker fluid dateFormat="dd/mm/yy" v-model="fechaCompra" showIcon iconDisplay="input" />
             </div> 
             <div class="field" >
+                Timbrado: <InputText fluid type="text" v-model="timbrado" />
+            </div> 
+            <div class="field" >
                 N° Factura: <InputText fluid type="text" v-model="nroFactura" />
             </div> 
         </template>
@@ -720,13 +729,6 @@ const eliminar = (detalle) => {
                     <template #body="slotProps">
                     <div class="flex-auto p-fluid" >
                     {{ formatearNumero(slotProps.data.costoCompra) }}
-                    </div> 
-                    </template>
-                    </Column>
-                    <Column  class="col" header="Recepcionado" aria-sort="none" >
-                    <template #body="slotProps">
-                    <div class="flex-auto p-fluid" >
-                    {{ slotProps.data.cantidad}}
                     </div> 
                     </template>
                     </Column>

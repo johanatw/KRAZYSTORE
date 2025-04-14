@@ -119,6 +119,21 @@ obtenerProductosByValor(valor) {
     return Promise.reject(error);
   })
   },
+  eliminar(id) {
+   
+    return axios.delete(PRODUCTO_API_BASE_URL + "/" + id,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+  },
   obtenerCategorias() {
 
       return axios.get(CATEGORIA_API_BASE_URL,{

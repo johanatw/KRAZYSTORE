@@ -149,6 +149,9 @@ const search = (event) => {
 const mostrarCliente = () =>{
     console.log(selectedProveedor.value);
     let texto = selectedProveedor.value.descripcion;
+    if (selectedProveedor.value.tipo) {
+        texto = texto + "\nTipo: "+selectedProveedor.value.tipo.descripcion;
+    }
     if (selectedProveedor.value.ruc) {
         texto = texto + "\nRUC: "+selectedProveedor.value.ruc;
     }
@@ -375,6 +378,27 @@ const eliminar = (detalle) => {
  
  }
 
+ const verPedidos = () =>{
+    router.push({name: 'pedidos_compras'});
+}
+
+const showError = (message) => {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: message,
+      life: 3000
+    });
+  };
+  
+  const showSuccess = (message) => {
+    toast.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: message,
+      life: 3000
+    });
+  };
 
   const guardarFactura = () =>{
     if (!error.value){
@@ -389,7 +413,8 @@ const eliminar = (detalle) => {
         console.log("saveanticipothen");
         console.log("data");
         let id = data.data.id;
-        verPedidoCompra(id);
+        showSuccess('Pedido registrado correctamente');
+        verPedidos();
         //closeDialog();
         //emit('anticipoGuardado', data.data.id);
         

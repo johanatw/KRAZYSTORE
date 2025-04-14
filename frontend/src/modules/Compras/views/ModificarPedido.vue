@@ -157,6 +157,9 @@ const search = (event) => {
 const mostrarCliente = () =>{
     console.log(selectedCliente.value);
     let texto = selectedCliente.value.descripcion;
+    if (selectedCliente.value.tipo) {
+        texto = texto + "\nTipo: "+selectedCliente.value.tipo.descripcion;
+    }
     if (selectedCliente.value.ruc) {
         texto = texto + "\nRUC: "+selectedCliente.value.ruc;
     }

@@ -664,12 +664,30 @@ const verPedido = (id) =>{
     router.push({name: 'VisualizarPedido', params: {id}});
 }
 
+const showError = (message) => {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: message,
+      life: 3000
+    });
+  };
+  
+  const showSuccess = (message) => {
+    toast.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: message,
+      life: 3000
+    });
+  };
+
 const submit = () =>{
 
     if (!error.value) {
 
         
-        
+        entrega.value.observaciones = observaciones.value;
         entrega.value.fecha = fecha.value ;
        entrega.value.pedido = pedido.value;
         
@@ -679,6 +697,7 @@ const submit = () =>{
         
         let entregaDTO = {entrega: entrega.value, detalle: detalles.value};
         EntregaServices.registrarEntrega(entregaDTO).then((response)=>{
+          showSuccess('Entrega registrado correctamente');
             verPedidos();
         }).catch(
         (error)=>console.log(error)
@@ -868,13 +887,13 @@ const validarForm = (event) => {
     <Panel style=" position: relative; width: 80%;" >
         <template #header>
      <div class="flex align-items-center gap-2">
-         <h3 class="font-bold">Modificar Pedido N° {{ pedido.id }}</h3>
+         <h3 class="font-bold">Preparar Pedido N° {{ pedido.id }}</h3>
      </div>
    </template>
    <template #icons>
         
     <div class="flex" style="justify-content: end;">  
-                    <Button  label="Cancelar"  style="margin-right: 1%;"  @click="verPedido(pedido.id)" />
+                    <Button  label="Cancelar"  style="margin-right: 1%;"  @click="verPedidos()" />
                     <Button  label="Guardar" @click="validarForm" />
                 </div>
         
@@ -906,7 +925,7 @@ const validarForm = (event) => {
                             </div> 
                             <div class="field">
                                 Observaciones: 
-                                <Textarea fluid v-model="pedido.observaciones" rows="3" cols="33" />
+                                <Textarea fluid v-model="observaciones" rows="3" cols="33" />
                             </div>
                         </template>
                     </Card>
@@ -928,8 +947,8 @@ const validarForm = (event) => {
                                 <Select fluid v-model="entrega.modoEntrega" :options="modalidadesEntrega" optionLabel="descripcion" placeholder="Seleccione una modalidad" class="w-full md:w-56" @change="cambiarModoEntrega(entrega.modoEntrega)" />
                             </div> 
                             <div class="field" v-if="isRetiro(entrega.modoEntrega?.descripcion)" >
-                                Punto de entrega: 
-                                <Select fluid v-model="entrega.puntoEntrega" :options="puntosEntrega" optionLabel="descripcion" placeholder="Seleccione un punto de entrega" class="w-full md:w-56" />
+                                Punto de retiro: 
+                                <Select fluid v-model="entrega.puntoEntrega" :options="puntosEntrega" optionLabel="descripcion" placeholder="Seleccione un punto de retiro" class="w-full md:w-56" />
                             </div>
                             <div class="field" v-else-if="isEnvio(entrega.modoEntrega?.descripcion)" >
                                 Delivery: 
@@ -938,14 +957,21 @@ const validarForm = (event) => {
                             <div class="field" v-if="isEnvio(entrega.modoEntrega?.descripcion)">
                               <div>
                               <label for="description">Dirección de envío:</label>
-                              <div v-for="d in direccionesCliente" :key="d.id">
-                                  <RadioButton v-model="entrega.direccionEnvio" :value="d" name="dynamic"/>
-                                  <label :for="d.id" class="ml-2">{{ d.direccion }} <br> 
-                                      <div style="font-size: small;">{{ d.ciudad.departamento.descripcion }} > {{ d.ciudad.descripcion }}</div></label>
-                              </div>
-                              <div v-if="direccionesCliente.length < 1" >
-                                El cliente no tiene direcciones
-                              </div>
+                              <Select fluid v-model="entrega.direccionEnvio" :options="direccionesCliente" optionLabel="descripcion" placeholder="Seleccione una dirección" class="w-full md:w-56">
+                                <template #value="slotProps">
+                                <div v-if="slotProps.value" class="flex items-center">
+                                    <div>{{ slotProps.value.direccion }}<br>{{ slotProps.value.ciudad?.descripcion }}-> {{ slotProps.value.ciudad?.departamento?.descripcion }}</div>
+                                </div>
+                                <span v-else>
+                                    {{ slotProps.placeholder }}
+                                </span>
+                            </template>
+                                <template fluid #option="slotProps">
+                              
+                                    {{ slotProps.option.direccion }}<br>{{ slotProps.option.ciudad?.descripcion }}<br>{{ slotProps.option.ciudad?.departamento?.descripcion }}
+                             
+                                </template>
+                            </Select>
                               <div style="justify-content: start;" >
                                   <Button label="+ Nueva Direccion" link @click="agregarNuevaDireccion()" style="justify-content: start; width: max-content;" />
                               </div>
@@ -988,21 +1014,22 @@ const validarForm = (event) => {
             <div class="field col-12 md:col-12">
               <div class="col-12" >
                 <Card >
-                    
-                    <template #title> 
-                        <div class="flex justify-content-between ">
+                  <template #title>
+            <div class="flex justify-content-between ">
                 <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
                     Productos
                 </div>
             </div>
-                         </template>
+            
+        </template>
+                    
                         <template #content>
                             <div>
                                 
                                 <div class="card" style="width: 100%;">
     <div class="flex card-container" style="width: 100%;">
         <DataTable class="tablaCarrito" ref="dt" :value="detalles" scrollable scrollHeight="400px" dataKey="producto.id" style="width: 100%;">
-         <Column  class="col" field="detallePedido.producto.nombre" header="Productos" aria-sort="none" ></Column>
+         <Column  class="col" field="detallePedido.producto.nombre" header="Nombre" aria-sort="none" ></Column>
          <Column class="col" field="producto.precio"  header="Solicitado" aria-sort="none" >
             <template #body="slotProps">
             <div class="flex-auto p-fluid" >
@@ -1010,10 +1037,24 @@ const validarForm = (event) => {
               </div> 
             </template>
         </Column>
-         <Column  class="col" field="cantidad" header="Disponible para entrega" aria-sort="none">
+        <Column class="col" field="producto.precio"  header="Facturado" aria-sort="none" >
+            <template #body="slotProps">
+            <div class="flex-auto p-fluid" >
+                  {{  formatearNumero(slotProps.data.detallePedido.cantFacturada) }}
+              </div> 
+            </template>
+        </Column>
+        <Column class="col" field="producto.precio"  header="Preparado" aria-sort="none" >
+            <template #body="slotProps">
+            <div class="flex-auto p-fluid" >
+                  {{  formatearNumero(slotProps.data.detallePedido.cantEntregada) }}
+              </div> 
+            </template>
+        </Column>
+         <Column  class="col" field="cantidad" header="Pendiente" aria-sort="none">
             <template #body="slotProps">
                 <div >
-                  {{ slotProps.data.cantDisponible }}
+                  {{ slotProps.data.detallePedido.cantFacturada - slotProps.data.detallePedido.cantEntregada}}
               </div>  
             </template>
              

@@ -14,12 +14,18 @@ import { AuthServices } from '@/services/AuthServices';
 import Panel from 'primevue/panel';
 import { EntregaServices } from '@/services/EntregaServices';
 import router from '@/router';
+import { DireccionServices } from '@/services/DireccionServices';
+import { ModosEntregaServices } from '@/services/ModosEntregaServices';
+import { EmpresasTransporteServices } from '@/services/EmpresasTransporteServices';
+import { PuntoEntregaServices } from '@/services/PuntoEntregaServices';
 import Toast from 'primevue/toast';
 import Tag from 'primevue/tag';
 import Dialog from 'primevue/dialog';
 import ConfirmDialog from 'primevue/confirmdialog';
 import RadioButton from 'primevue/radiobutton';
 const visible = ref(false);
+import Select from 'primevue/select';
+import DatePicker from 'primevue/datepicker';
 import Listbox from 'primevue/listbox';
 import InputGroup from 'primevue/inputgroup';
 import InputGroupAddon from 'primevue/inputgroupaddon';
@@ -30,19 +36,28 @@ const pedidos = ref();
 
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
-import { formatearNumero, formatearFecha, getEstadoFacturaCompra } from '@/utils/utils'; 
+import { formatearNumero, formatearFecha, getEstadoFacturaCompra, getEstadoEntrega } from '@/utils/utils'; 
 
-
+const indexRegistroActualizado = ref();
 const confirm = useConfirm();
 const toast = useToast();
 const selectedOpcion = ref();
 const idPedidoSelected = ref();
 const entregas = ref();
 const cajaAbierta = ref({});
+const direccion = ref({});
+const entrega = ref({});
+const cliente = ref({});
+const reprogramarDialog = ref(false);
+const direccionesCliente = ref([]);
+const puntosEntrega = ref([]);
+const empresasTransporte = ref([]);
+const clienteDialog = ref(false);
+const modalidadesEntrega = ref([]);
 const confirm2 = (id) => {
    
     confirm.require({
-        message: 'Eliminar compra #'+ id + '?',
+        message: 'Eliminar esta entrega?',
         header: 'Confirmacion',
         icon: 'pi pi-info-circle',
         rejectLabel: 'Cancelar',
@@ -69,6 +84,85 @@ const getCompras= () => {
     });
 };
 
+const reprogramarEntrega= (id, index) => {
+    indexRegistroActualizado.value = index;
+    getPuntosEntrega();
+    getModosEntrega();
+    getEmpresasTransporte();
+    getEntrega(id);
+  reprogramarDialog.value = true;
+};
+
+const getEntrega = async (id) => {
+    try {
+      const response = await EntregaServices.getEntrega(id);
+      entrega.value = response.data.entrega;
+      cliente.value = entrega.value.pedido?.cliente;
+      console.log(cliente.value);
+        getDireccionesCliente(cliente.value.id);
+    } catch (error) {
+       //alert(error);
+    }
+};
+
+const isRetiro = (modalidad) => {
+    let descripcion = modalidad?.descripcion;
+  switch (descripcion) {
+       case 'Retiro':
+           return true;
+       default:
+           return false;
+   }
+};
+
+const isEnvio = (modalidad) => {
+    let descripcion = modalidad?.descripcion;
+  switch (descripcion) {
+       case 'Envio':
+           return true;
+       default:
+           return false;
+   }
+};
+
+const getPuntosEntrega = async () => {
+    try {
+      const response = await PuntoEntregaServices.obtenerPuntosEntrega();
+      puntosEntrega.value = response.data;
+    } catch (error) {
+       //alert(error);
+    }
+};
+
+const getEmpresasTransporte = async () => {
+    try {
+      const response = await EmpresasTransporteServices.obtenerEmpresasTransporte();
+      empresasTransporte.value = response.data;
+    } catch (error) {
+       //alert(error);
+    }
+};
+
+const getDireccionesCliente = async (id) => {
+    try {
+      const response = await DireccionServices.getDireccionesCliente(id);
+      
+      direccionesCliente.value = response.data;
+      console.log(direccionesCliente.value);
+    } catch (error) {
+       //alert(error);
+    }
+};
+
+const getModosEntrega = async () => {
+    try {
+      const response = await ModosEntregaServices.obtenerModosEntrega();
+      modalidadesEntrega.value = response.data;
+    } catch (error) {
+       //alert(error);
+    }
+};
+
 const getEntregas = async () => {
     try {
       const response = await EntregaServices.obtenerEntregas();
@@ -85,6 +179,85 @@ const getCajaAbierta= () => {
     });
 };
 
+const guardarEntrega = () =>{
+
+
+    
+    let entregaDTO = {entrega: entrega.value, detalle: null};
+    EntregaServices.reprogramarEntrega(entrega.value.id ,entregaDTO).then((response)=>{
+        entregas.value[indexRegistroActualizado.value] = response.data;
+        hideReprogramarDialog();
+    }).catch(
+    (error)=>console.log(error)
+    );
+
+}
+
+const saveDireccion = () =>{
+  submitted.value = true;
+  if(direccionValida(direccion.value)){
+    direccion.value.tipo = 'E';
+    direccion.value.persona = cliente.value;
+    direccion.value.direccion = generarDireccion(direccion.value);
+    DireccionServices.saveDireccion(direccion.value).then((response)=>{
+      direccionesCliente.value.push(response.data);
+
+    });
+  }
+  //hideDialog();
+}
+const direccionValida = (dir) => {
+    console.log("valdirenvio");
+    console.log(dir);
+    if ((!dir.calle1 || !dir.ciudad)) {
+        console.log("val envio false");
+        return false;
+    }  
+    
+    return true;
+
+};
+
+const agregarNuevaDireccion = () =>{
+  clienteDialog.value = true;
+    //nuevaDireccion.value = val;
+    //direccionSelected.value = {};
+    //selectedEnvio.value = {};
+    //medios.value = null;
+}
+
+const hideReprogramarDialog = () => {
+    reprogramarDialog.value = false;
+    //clienteDialog.value = false;
+    //direccion.value = {};
+    //submitted.value = false;
+};
+
+const generarDireccion = (dir) => {
+  console.log(dir);
+    let d = dir.calle1;
+    if (dir.calle2?.trim()) {
+        d = d + " " +selectedOp.value + " "+ dir.calle2;
+    }
+    if (dir.calle3?.trim()) {
+        d = d + " y " + dir.calle3;
+    }
+
+    return d;
+};
+
+const cambiarModoEntrega= (modalidad) => {
+    let descripcion = modalidad?.descripcion;
+
+    if (descripcion == 'Retiro') {
+      entrega.value.empresaTransporte = null;
+      entrega.value.direccionEnvio = null;
+    } else {
+      entrega.value.puntoEntrega = null;
+    }
+};
+
+
 const deleteCompra = (id) =>{
     const cantidad= 1;
     const index = entregas.value.findIndex((loopVariable) => loopVariable.id === id);
@@ -100,6 +273,29 @@ const deleteCompra = (id) =>{
 
    
 }
+
+const marcarComoEntregado = (id,index) =>{
+    
+    let entregaDTO = {entrega: null, detalle: null};
+    EntregaServices.setEntregado(id ,entregaDTO).then((response)=>{
+        entregas.value[index] = (response.data);
+    }).catch(
+    (error)=>console.log(error)
+    );
+
+}
+
+const marcarComoNoEntregado = (id,index) =>{
+    
+    let entregaDTO = {entrega: null, detalle: null};
+    EntregaServices.setNoEntregado(id ,entregaDTO).then((response)=>{
+        entregas.value[index] = (response.data);
+    }).catch(
+    (error)=>console.log(error)
+    );
+
+}
+
 
 const registradoEnCajaActualAbierta = (fechaRegistro) =>{
     console.log("registradoEnCajaActualAbierta");
@@ -120,6 +316,16 @@ const isPagado = (estado) => {
    }
 };
 
+const isNoEntregado = (estado) => {
+  
+  switch (estado) {
+       case 'N':
+           return true;
+       default:
+           return false;
+   }
+};
+
 const filters = ref({
     'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
 });
@@ -129,13 +335,13 @@ const getSeverity = (estado) => {
   
   
   switch (estado) {
-       case 'C':
+       case 'E':
            return 'background-color: rgb(202, 241, 216); color: rgb(24, 138, 66);';
 
-       case 'P':
+       case 'N':
            return 'background-color: rgb(254, 221, 199); color: rgb(174, 81, 15);';
 
-       case 'F':
+       case 'P':
            return 'background-color: rgb(215, 227, 552); color: rgb(50, 111, 252);';
 
        default:
@@ -165,8 +371,8 @@ const cancelar = ()=>{
   selectedOpcion.value = null;
 }
 
-const verCompra = (id) =>{
-    router.push({name: 'ver_compra', params: {id}});
+const verEntrega = (id) =>{
+    router.push({name: 'entrega', params: {id}});
     
 }
 
@@ -201,6 +407,96 @@ const nuevoPedido = () =>{
 
     <ConfirmDialog ></ConfirmDialog>
     <Toast />
+    <!--Dialog Registrar Modificar Cliente-->
+    <Dialog v-model:visible="clienteDialog" :closable="false" :style="{width: '450px'}" header="Cliente" :modal="true" class="p-fluid">
+
+<div class="field">
+    <label for="description">Calle Principal</label>
+    <InputText fluid id="description" v-model="direccion.calle1" required="true" :class="{'p-invalid': submitted && !direccionValida(direccion) && !direccion.calle1}" />
+    <small class="p-error" v-if="submitted && !direccionValida(direccion) && !direccion.calle1">Ingrese Calle Principal</small>
+</div>
+
+<div class="field">
+    <label for="description">Calle 2</label>
+    <InputGroup fluid>
+        <Dropdown v-model="selectedOp" :options="opciones"  placeholder="Select a City" style="width: 0.1rem !important;" />
+        <InputText id="description" v-model="direccion.calle2" required="true"  />
+    </InputGroup>
+</div>
+<div class="field" v-if="selectedOp=='Entre'">
+    <label for="description">Calle 3</label>
+    <InputText fluid id="description" v-model="direccion.calle3" required="true"  />
+</div>
+<div class="field">
+    <label for="description">N° Casa</label>
+    <InputText fluid id="description" v-model="direccion.nroCasa" required="true"  />
+</div>
+<div class="field " >
+    <label for="nombreu">Departamento</label>
+    <Dropdown fluid v-model="direccion.departamento" :options="departamentos" optionLabel="descripcion" placeholder="Seleccione un departamento" @change="getCiudades(direccion.departamento.id)"  />
+</div>
+<div class="field " >
+    <label for="nombreu">Ciudad</label>
+    <Dropdown fluid v-model="direccion.ciudad" :options="ciudades" optionLabel="descripcion" placeholder="Seleccione una ciudad" :class="{'p-invalid': submitted && !direccionValida(direccion) && !direccion.ciudad}"  />
+    <small class="p-error" v-if="submitted && !direccionValida(direccion) && !direccion.ciudad">Ingrese Ciudad</small>
+</div>
+
+<!-- <div class="field">
+    <label for="description">Ubicar en el mapa</label>
+    <MapComponent @getUbicacion="getUbicacion" ref="map" :lat="direccion.lat" :lng="direccion.lng" />
+</div>-->
+
+<template #footer>
+    <Button label="Cancel" icon="pi pi-times" text @click="hideDialog"/>
+    <Button label="Save" icon="pi pi-check" text @click="saveDireccion" />
+</template>
+</Dialog>
+    <!--Dialog Registrar Modificar Cliente-->
+    <Dialog v-model:visible="reprogramarDialog" :closable="false" :style="{width: '450px'}" header="Reprogramar" :modal="true" class="p-fluid">
+        <div class="field" >
+            Fecha: <DatePicker fluid dateFormat="dd/mm/yy" v-model="entrega.fecha" showIcon iconDisplay="input" />
+        </div>
+        <div class="field" >
+            Modalidad: 
+            <Select fluid v-model="entrega.modoEntrega" :options="modalidadesEntrega" optionLabel="descripcion" placeholder="Seleccione una modalidad" class="w-full md:w-56" @change="cambiarModoEntrega(entrega.modoEntrega)" />
+        </div> 
+        <div class="field" v-if="isRetiro(entrega.modoEntrega)" >
+            Punto de entrega: 
+            <Select fluid v-model="entrega.puntoEntrega" :options="puntosEntrega" optionLabel="descripcion" placeholder="Seleccione un punto de entrega" class="w-full md:w-56" />
+        </div>
+        <div class="field" v-else-if="isEnvio(entrega.modoEntrega)" >
+            Delivery: 
+            <Select fluid v-model="entrega.empresaTransporte" :options="empresasTransporte" optionLabel="descripcion" placeholder="Seleccione un delivery" class="w-full md:w-56" />
+        </div>
+        <div class="field" v-if="isEnvio(entrega.modoEntrega)">
+            <div>
+            <label for="description">Dirección de envío:</label>
+            <Select fluid v-model="entrega.direccionEnvio" :options="direccionesCliente" optionLabel="descripcion" placeholder="Seleccione una dirección" class="w-full md:w-56">
+                                <template #value="slotProps">
+                                <div v-if="slotProps.value" class="flex items-center">
+                                    <div>{{ slotProps.value.direccion }}<br>{{ slotProps.value.ciudad?.descripcion }}-> {{ slotProps.value.ciudad?.departamento?.descripcion }}</div>
+                                </div>
+                                <span v-else>
+                                    {{ slotProps.placeholder }}
+                                </span>
+                            </template>
+                                <template fluid #option="slotProps">
+                              
+                                    {{ slotProps.option.direccion }}<br>{{ slotProps.option.ciudad?.descripcion }}<br>{{ slotProps.option.ciudad?.departamento?.descripcion }}
+                             
+                                </template>
+                            </Select>
+            <div style="justify-content: start;" >
+                <Button label="+ Nueva Direccion" link @click="agregarNuevaDireccion()" style="justify-content: start; width: max-content;" />
+            </div>
+        </div>
+        </div>
+
+<template #footer>
+    <Button label="Cancel" icon="pi pi-times" text @click="hideReprogramarDialog"/>
+    <Button label="Save" icon="pi pi-check" text @click="guardarEntrega" />
+</template>
+</Dialog>
     <Panel style=" position: relative; width: 100%;" >
       <template #header>
         <div class="flex align-items-center gap-2">
@@ -211,7 +507,7 @@ const nuevoPedido = () =>{
       <template #icons>
         <div class="flex align-items-center">
           <InputGroup>
-            <InputText v-model="filters['global'].value" placeholder="Search..." />
+            <InputText v-model="filters['global'].value" placeholder="Buscar..." />
             <InputGroupAddon>
               <i class="pi pi-search" />
             </InputGroupAddon>
@@ -223,7 +519,7 @@ const nuevoPedido = () =>{
   
       <div >
         
-        <DataTable  :value="entregas" scrollHeight="400px"  
+        <DataTable  :value="entregas"  scrollHeight="400px"  
           :paginator="true" :rows="7" :filters="filters"
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 
           currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros" >
@@ -243,9 +539,9 @@ const nuevoPedido = () =>{
           <Column field="proveedor.descripcion"  header="Cliente" aria-sort="ascending" sortable> 
             <template #body="slotProps">
                 <div>
-                    {{ slotProps.data.direccionEnvio?.persona?.nombre }}
-                    <label v-if="slotProps.data.direccionEnvio?.persona?.apellido" for="apellido">
-                        {{ slotProps.data.direccionEnvio?.persona?.apellido }}
+                    {{ slotProps.data.pedido?.cliente?.nombre }}
+                    <label v-if="slotProps.data.pedido?.cliente?.apellido" for="apellido">
+                        {{ slotProps.data.pedido?.cliente?.apellido }}
                     </label>
                 </div>
             </template>           
@@ -270,13 +566,16 @@ const nuevoPedido = () =>{
         </Column>
         <Column field="estado"  header="Estado" aria-sort="ascending" sortable>    
           <template #body="slotProps">
-                <Tag :style="getSeverity(slotProps.data.estado)" style=" font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ getEstadoFacturaCompra(slotProps.data.estado)}}</Tag>
+                <Tag :style="getSeverity(slotProps.data.estado)" style=" font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ getEstadoEntrega(slotProps.data.estado)}}</Tag>
               </template>          
         </Column>
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
-              <Button icon="pi pi-search" text rounded aria-label="Search" @click="verCompra(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
-              <Button  icon="pi pi-times" :disabled="isPagado(slotProps.data.estado)" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+              <Button icon="pi pi-eye" v-tooltip="'Ver detalles'" text rounded aria-label="Search" @click="verEntrega(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
+              <Button icon="pi pi-check" v-tooltip="'Entregado'" text rounded aria-label="Search" severity="success" @click="marcarComoEntregado(slotProps.data.id,slotProps.index )" style="height: 2rem !important; width: 2rem !important;" />
+              <Button icon="pi pi-times" v-tooltip="'No Entregado'" text rounded aria-label="Search" severity="warn" @click="marcarComoNoEntregado(slotProps.data.id, slotProps.index)" style="height: 2rem !important; width: 2rem !important;" />
+              <Button icon="pi pi-sync" v-tooltip="'Reprogramar'" :disabled="!isNoEntregado(slotProps.data.estado)" severity="info" text rounded aria-label="Search" @click="reprogramarEntrega(slotProps.data.id, slotProps.index)" style="height: 2rem !important; width: 2rem !important;" />
+              <Button  icon="pi pi-trash" v-tooltip="'Eliminar'" :disabled="isPagado(slotProps.data.estado)" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                 
                 </template>
           </Column>

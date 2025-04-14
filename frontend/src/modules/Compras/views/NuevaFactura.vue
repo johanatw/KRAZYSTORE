@@ -64,6 +64,7 @@ import {PedidoCompraServices} from "@/services/PedidoCompraServices";
 
 const confirm = useConfirm();
 const toast = useToast();
+const timbrado = ref();
 const tiposProveedor = ref([
   {id: 1, descripcion: 'Nacional'},
   {id: 2, descripcion: 'Extranjero'}
@@ -250,6 +251,9 @@ return (cliente.telefono).toString().startsWith(event.query);
 const mostrarCliente = () =>{
 console.log(selectedCliente.value);
 let texto = selectedCliente.value.descripcion;
+if (selectedCliente.value.tipo) {
+        texto = texto + "\nTipo: "+selectedCliente.value.tipo.descripcion;
+    }
 if (selectedCliente.value.ruc) {
 texto = texto + "\nRUC: "+selectedCliente.value.ruc;
 }
@@ -530,12 +534,34 @@ router.push({name: 'ver_compra', params: {id}});
 
 }
 
+const verPedidos = () =>{
+    router.push({name: 'pedidos_compras'});
+}
+
+const showError = (message) => {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: message,
+      life: 3000
+    });
+  };
+  
+  const showSuccess = (message) => {
+    toast.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: message,
+      life: 3000
+    });
+  };
+
   const guardarFactura = () =>{
 if (!error.value){
 
 let fechaAnticipo = new Date();
 let gravada = total.value - montoIva.value;
-let ant = {total: total.value, fecha: fechaCompra.value,totalGravada: gravada, montoIva: montoIva.value, proveedor: selectedCliente.value, nroFactura: nroFactura.value, pedido: pedido.value};
+let ant = {total: total.value, fecha: fechaCompra.value,totalGravada: gravada, montoIva: montoIva.value, proveedor: selectedCliente.value, nroFactura: nroFactura.value, timbrado: timbrado.value, pedido: pedido.value};
 
 let ids =  recepcionesFacturarIds.value;
 /*if (compraNacional.value) {
@@ -554,7 +580,8 @@ console.log("saveanticipothen");
 console.log("data");
 sessionStorage.removeItem('recepcionesFacturar');
 let id = data.data.id;
-verCompra(id);
+showSuccess('Factura guardado correctamente');
+verPedidos();
 //closeDialog();
 //emit('anticipoGuardado', data.data.id);
 
@@ -673,6 +700,9 @@ Información General
 Fecha: <DatePicker fluid dateFormat="dd/mm/yy" v-model="fechaCompra" showIcon iconDisplay="input" />
 </div> 
 <div class="field" >
+Timbrado: <InputText fluid type="text" v-model="timbrado" />
+</div> 
+<div class="field" >
 N° Factura: <InputText fluid type="text" v-model="nroFactura" />
 </div> 
 </template>
@@ -743,17 +773,9 @@ Proveedor
  <Column class="col" header="Costo" aria-sort="none" >
  <template #body="slotProps">
  <div class="flex-auto p-fluid" >
- {{ slotProps.data.costoCompra }}
+ {{ formatearNumero(slotProps.data.costoCompra) }}
  </div> 
  </template>
-</Column>
-<Column class="col" field="cantidad" header="Recepcionado" aria-sort="none">
- <template #body="slotProps">
- <div class="flex-auto p-fluid" >
- {{ formatearNumero(slotProps.data.cantRecepcionada) }}
- </div> 
- </template>
- 
 </Column>
 <Column class="col" field="cantidad" header="Facturar" aria-sort="none">
  <template #body="slotProps">

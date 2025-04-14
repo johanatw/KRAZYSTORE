@@ -13,6 +13,7 @@ import Column from 'primevue/column';
 import { ProductoServices } from '@/services/ProductoServices';
 import { VentaServices } from '@/services/VentaServices';
 import {PedidoServices} from '@/services/PedidoServices';
+import Tag from "primevue/tag";
 import { CiudadServices } from '@/services/CiudadServices';
 import { TimbradoServices } from "@/services/TimbradoServices";
 import { ref, onMounted } from "vue";
@@ -78,7 +79,7 @@ const message = (m) => {
             
         },
         reject: () => {
-            router.push({name: 'ventas'});
+            router.push({name: 'pedidos'});
             //verPedido(router.currentRoute.value.params.id);
             
         },
@@ -542,10 +543,31 @@ const eliminar = (detalle) => {
 
   const handleSelectionChange = (event) => {
     console.log(event);
-    selectedProduct.value = event.filter(item => item.producto.cantStock>0);
+    selectedProduct.value = event.filter(item => isFacturable(item) );
     calcularTotales();
   }
 
+  const isFacturable = (detalle) => {
+    let stockProducto = detalle.producto?.cantStock;
+    let pendienteFactura = detalle.pendiente;
+
+    if(stockProducto > 0 && pendienteFactura > 0 ){
+        return true;
+    }
+
+    return false;
+  }
+
+  const isPendienteYSinStock = (detalle) => {
+    let stockProducto = detalle.producto?.cantStock;
+    let pendienteFactura = detalle.pendiente;
+
+    if(stockProducto < 1 && pendienteFactura > 0 ){
+        return true;
+    }
+
+    return false;
+  }
 
   const sendSubTotal = () => {
   
@@ -651,7 +673,7 @@ const eliminar = (detalle) => {
                 
                 <div class="flex align-items-center gap-2 mt-4">
                     <Button label="Ver factura" @click="acceptCallback"></Button>
-                    <Button label="Ir a facturas" @click="rejectCallback"></Button>
+                    <Button label="Volver a pedidos" @click="rejectCallback"></Button>
                 </div>
             </div>
         </template>
@@ -688,14 +710,14 @@ const eliminar = (detalle) => {
         </div>
         
         <div class="field">
-            <label for="description">Calle 2</label>
+            <label for="description">Calle Secundaria</label>
             <InputGroup fluid>
                 <Dropdown fluid v-model="selectedOp" :options="opciones"  placeholder="Select a City" style="width: 0.1rem !important;" />
                 <InputText id="description" v-model="direccion.calle2" required="true"  />
             </InputGroup>
         </div>
         <div class="field" v-if="selectedOp=='Entre'">
-            <label for="description">Calle 3</label>
+            <label for="description">Calle Transversal</label>
             <InputText fluid id="description" v-model="direccion.calle3" required="true"  />
         </div>
         <div class="field">
@@ -748,7 +770,26 @@ const eliminar = (detalle) => {
             </div>
         </div>
         <div class="grid " >
+            <div class="field col-12 md:col-6">
+                <Card >
+        <template #title>
+            <div class="flex justify-content-between ">
+                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                    Detalle Factura
+                </div>            
+            </div>
             
+        </template>
+        <template #content>
+            <p class="m-0">
+                <div v-for="v in infoFactura">
+                    {{ v.valor }}
+                </div>
+                
+            </p>
+        </template>
+    </Card>
+            </div> 
            <div class="field col-12 md:col-6">
             
             <Card >
@@ -791,26 +832,7 @@ const eliminar = (detalle) => {
         </template>
     </Card>
             </div>  
-            <div class="field col-12 md:col-6">
-                <Card >
-        <template #title>
-            <div class="flex justify-content-between ">
-                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
-                    Detalle Factura
-                </div>            
-            </div>
             
-        </template>
-        <template #content>
-            <p class="m-0">
-                <div v-for="v in infoFactura">
-                    {{ v.valor }}
-                </div>
-                
-            </p>
-        </template>
-    </Card>
-            </div> 
             
             <div class="col-12" >
                         <Card >
@@ -833,13 +855,13 @@ const eliminar = (detalle) => {
             <Column selectionMode="multiple" headerStyle="width: 3rem">
                 <template #body="slotProps">
                 <div class="flex-auto p-fluid" style="max-width:20lvb  !important; " >
-                    <Checkbox :disabled="slotProps.data.producto.cantStock < 1" v-model="selectedProduct" :value="slotProps.data"  @change="calcularTotales()" />
+                    <Checkbox :disabled="!isFacturable(slotProps.data)" v-model="selectedProduct" :value="slotProps.data"  @change="calcularTotales()" />
                 </div> 
             </template>
                
             </Column>
             
-            <Column field="producto.nombre" header="Producto"></Column>
+            <Column field="producto.nombre" header="Nombre"></Column>
             
             <Column field="precio" header="Precio">
                 <template #body="slotProps">
@@ -849,6 +871,13 @@ const eliminar = (detalle) => {
             </template>
             </Column>
             <Column field="cantSolicitado" header="Solicitado"></Column>
+            <Column field="cantidadFacturada" header="Facturado">
+                <template #body="slotProps">
+                 <div class="flex-auto p-fluid" style="max-width: 20dvh;">
+                     <label for="subtotal"> {{  formatearNumero(slotProps.data.cantFacturada) }}</label>
+                  </div>
+            </template>
+            </Column>
             <Column field="cantidadFacturada" header="Pendiente">
                 <template #body="slotProps">
                  <div class="flex-auto p-fluid" style="max-width: 20dvh;">
@@ -859,9 +888,12 @@ const eliminar = (detalle) => {
             
             <Column  class="col" field="cantidad" header="Facturar" aria-sort="none">
                 <template #body="slotProps">
-                    <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
-                    <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="0" :max="slotProps.data.pendiente >= slotProps.data.producto.cantStock?slotProps.data.producto.cantStock:slotProps.data.pendiente" @update:modelValue="calcularTotales" />
-                </div>  
+                    <div v-if="isPendienteYSinStock(slotProps.data)" >
+                        <Tag value="SinStock"></Tag>
+                    </div>
+                    <div v-else class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
+                        <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="0" :max="slotProps.data.pendiente >= slotProps.data.producto.cantStock?slotProps.data.producto.cantStock:slotProps.data.pendiente" @update:modelValue="calcularTotales" />
+                    </div>  
                 </template>
             </Column>
             <Column  class="col" field="cantidad" header="IVA" aria-sort="none">

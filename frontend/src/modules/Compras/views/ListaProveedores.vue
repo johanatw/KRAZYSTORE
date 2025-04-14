@@ -144,7 +144,7 @@ const saveProveedor = () => {
         else {
             ProveedorServices.registrarProveedor(proveedor.value).then((response)=>{
             console.log("reg");
-                proveedores.value.push(response.data);
+                proveedores.value.unshift(response.data);
                  toast.add({severity:'success', summary: 'Successful', detail: 'Registro creado', life: 3000});
             }).catch(
                 (error)=>messageError("error")
@@ -219,7 +219,7 @@ const saveProveedor = () => {
         <div class="flex align-items-center">
           <Button  icon="pi pi-plus " @click="registrarProveedor" style="margin-right: 1% ;"  />
           <InputGroup>
-            <InputText v-model="filters['global'].value" placeholder="Search..." />
+            <InputText v-model="filters['global'].value" placeholder="Buscar..." />
             <InputGroupAddon>
               <i class="pi pi-search" />
             </InputGroupAddon>
@@ -238,14 +238,16 @@ const saveProveedor = () => {
           <Column field="id" sortable header="N°" aria-sort="ascending" ></Column>
           <Column field="descripcion"  header="Proveedor" aria-sort="ascending" sortable>           
         </Column>
+        <Column field="tipo.descripcion"  header="Tipo" aria-sort="ascending" sortable>           
+        </Column>
           <Column field="ruc"  header="Ruc" aria-sort="ascending" sortable> 
         </Column>   
         
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
-              <Button icon="pi pi-pencil" text rounded aria-label="Search" @click="modificarProveedor(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
+              <Button icon="pi pi-pencil" v-tooltip="'Editar'" severity="success" text rounded aria-label="Search" @click="modificarProveedor(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
 
-                <Button icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button icon="pi pi-trash" v-tooltip="'Eliminar'" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                 
                 </template>
           </Column>

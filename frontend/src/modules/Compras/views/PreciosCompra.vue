@@ -36,7 +36,7 @@ const visualizarProductoDialog = ref(false);
 const precio = ref({});
 const submitted = ref(false);
 const today = ref(new Date());
-const producto = ref();
+const producto = ref({});
 
 const confirm2 = (id) => {
    
@@ -238,7 +238,7 @@ const saveProducto = () => {
     <Panel style=" position: relative; width: 100%;" >
       <template #header>
         <div class="flex align-items-center gap-2">
-            <h3 class="font-bold">Precios de compra</h3>
+            <h3 class="font-bold">Precios de compra: {{ producto.nombre }}</h3>
         </div>
       </template>
     
@@ -263,9 +263,6 @@ const saveProducto = () => {
           :paginator="true" :rows="7" :filters="filters"
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 
           currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros" >
-          <Column field="id" sortable header="N°" aria-sort="ascending" ></Column>
-          <Column field="producto.nombre"  header="Producto" aria-sort="ascending" sortable>           
-        </Column>
           <Column field="fecha"  header="Fecha" aria-sort="ascending" sortable> 
             <template #body="slotProps" >
                 {{ formatearFecha(slotProps.data.fecha) }}

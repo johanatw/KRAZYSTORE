@@ -119,7 +119,9 @@ public class PersonaServiceImpl implements PersonaService{
 
     @Override
     public void deletePersona(Long id) {
-        personarepository.deleteById(id);
+        PersonaEntity deletedPersona = personarepository.findById(id).get();
+        deletedPersona.setActivo(Boolean.FALSE);
+        personarepository.save(deletedPersona);
     }
 
     @Override

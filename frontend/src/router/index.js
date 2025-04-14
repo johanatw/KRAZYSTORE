@@ -271,6 +271,22 @@ const router = createRouter({
       component: () => import('@/modules/Entregas/views/PrepararPedido.vue')
     },
     {
+      path: '/entrega/:id',
+      name: 'entrega',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Entregas/views/VerEntrega.vue')
+    },
+    {
+      path: '/modificar_entrega/:id',
+      name: 'modificar_entrega',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Entregas/views/ModificarEntrega.vue')
+    },
+    {
       path: '/existencias',
       name: 'existencias',
       // route level code-splitting

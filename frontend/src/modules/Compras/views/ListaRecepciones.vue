@@ -188,7 +188,7 @@ const nuevoPedido = () =>{
       <template #icons>
         <div class="flex align-items-center">
           <InputGroup>
-            <InputText v-model="filters['global'].value" placeholder="Search..." />
+            <InputText v-model="filters['global'].value" placeholder="Buscar..." />
             <InputGroupAddon>
               <i class="pi pi-search" />
             </InputGroupAddon>
@@ -225,8 +225,8 @@ const nuevoPedido = () =>{
 </Column> 
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
-                <Button icon="pi pi-search" text rounded aria-label="Search" @click="verRecepcion(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />              
-                <Button :disabled="isFacturada(slotProps.data.estado)" icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button icon="pi pi-eye" v-tooltip="'Ver detalles'" text rounded aria-label="Search" @click="verRecepcion(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />              
+                <Button v-tooltip="'Eliminar'" :disabled="isFacturada(slotProps.data.estado)" icon="pi pi-trash" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                 
                 </template>
           </Column>

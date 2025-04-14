@@ -597,14 +597,14 @@ const eliminar = (detalle) => {
         </div>
         
         <div class="field">
-            <label for="description">Calle 2</label>
+            <label for="description">Calle Secundaria</label>
             <InputGroup fluid>
                 <Dropdown v-model="selectedOp" :options="opciones"  placeholder="Select a City" style="width: 0.1rem !important;" />
                 <InputText id="description" v-model="direccion.calle2" required="true"  />
             </InputGroup>
         </div>
         <div class="field" v-if="selectedOp=='Entre'">
-            <label for="description">Calle 3</label>
+            <label for="description">Calle Transversal</label>
             <InputText fluid id="description" v-model="direccion.calle3" required="true"  />
         </div>
         <div class="field">

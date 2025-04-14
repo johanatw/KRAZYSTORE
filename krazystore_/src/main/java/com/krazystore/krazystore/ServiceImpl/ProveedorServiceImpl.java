@@ -9,6 +9,7 @@ import com.krazystore.krazystore.Repository.ProveedorRepository;
 import com.krazystore.krazystore.Service.ProveedorService;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +28,8 @@ public class ProveedorServiceImpl implements ProveedorService {
     
     @Override
     public List<ProveedorEntity> findAll() {
-        return proveedorRepository.findAll();
+        
+        return proveedorRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
     }
 
     @Override

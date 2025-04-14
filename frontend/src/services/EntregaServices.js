@@ -69,6 +69,54 @@ modificarEntrega(id, precio){
 })
 },
 
+reprogramarEntrega(id, precio){
+
+    return axios.put(ENTREGA_API_BASE_URL + "/reprogramar/" + id, precio,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+  },
+
+setEntregado(id, entrega){
+
+    return axios.put(ENTREGA_API_BASE_URL + "/marcar_como_entregado/" + id, entrega,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+  },
+
+  setNoEntregado(id, entrega){
+
+    return axios.put(ENTREGA_API_BASE_URL + "/marcar_como_no_entregado/" + id, entrega,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+  },
+
 
 eliminar(id) {
  

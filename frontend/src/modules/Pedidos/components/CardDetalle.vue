@@ -257,7 +257,7 @@ const eliminar = (detalle) => {
                 </div>  
             </template>  
          </Column> 
-         <Column  class="col" field="producto.nombre" header="Nombres" aria-sort="none" ></Column>
+         <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
          <Column class="col" field="producto.precio"  header="Precio" aria-sort="none" >
             <template #body="slotProps">
             <div class="flex-auto p-fluid" >

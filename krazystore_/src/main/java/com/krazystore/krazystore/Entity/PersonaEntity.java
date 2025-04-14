@@ -45,6 +45,8 @@ public class PersonaEntity {
     private String nroDoc;
     @Column
     private String telefono;
+    @Column
+    private Boolean activo = true;
 
     public PersonaEntity() {
     }
@@ -129,7 +131,13 @@ public class PersonaEntity {
     }
 
    
-    
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
+    }
     
     
 }

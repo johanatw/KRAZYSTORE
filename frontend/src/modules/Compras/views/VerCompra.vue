@@ -115,6 +115,11 @@ const mostrarCliente = (proveedor) =>{
         infoProveedor.value.push(valor);
     }
 
+    if(proveedor.tipo!=null){
+        valor={valor: 'Tipo: '+ proveedor.tipo.descripcion};
+        infoProveedor.value.push(valor);
+    }
+
     if(proveedor.ruc!=null){
         valor={valor: 'RUC: '+ proveedor.ruc};
         infoProveedor.value.push(valor);
@@ -239,6 +244,9 @@ const calcularIvaImportacion = () => {
             <div  >
                 
                 Fecha: {{ formatearFecha(pedido.fecha)}}
+            </div> 
+            <div  >
+                Timbrado: {{pedido.timbrado}}
             </div> 
             <div  >
                 N° Factura: {{pedido.nroFactura}}

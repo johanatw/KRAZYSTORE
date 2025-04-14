@@ -56,6 +56,21 @@ public class EntregaController {
         return entregaService.updateEntrega(entrega, id);
     }
     
+    @PutMapping("/reprogramar/{id}")
+    public EntregaEntity reprogramarEntrega(@PathVariable long id, @RequestBody EntregaCreationDTO entrega)throws Exception {
+        return entregaService.reprogramarEntrega(entrega, id);
+    }
+    
+    @PutMapping("/marcar_como_entregado/{id}")
+    public EntregaEntity marcarComoEntregado(@PathVariable long id, @RequestBody EntregaCreationDTO entrega)throws Exception {
+        return entregaService.marcarComoEntregado(id);
+    }
+    
+    @PutMapping("/marcar_como_no_entregado/{id}")
+    public EntregaEntity marcarComoNoEntregado(@PathVariable long id, @RequestBody EntregaCreationDTO entrega)throws Exception {
+        return entregaService.marcarComoNoEntregado(id);
+    }
+    
     @DeleteMapping("/{id}")
     public void deleteEntrega(@PathVariable("id") Long id) {
         entregaService.deleteEntrega(id);

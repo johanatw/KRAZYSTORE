@@ -52,6 +52,8 @@ public class ProductoEntity {
     private int cantDisponible = 0;
     @Column
     private int cantReservada = 0;
+    @Column
+    private Boolean activo = true;
 
     
     public ProductoEntity() {
@@ -189,6 +191,14 @@ public class ProductoEntity {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
     }
     
     

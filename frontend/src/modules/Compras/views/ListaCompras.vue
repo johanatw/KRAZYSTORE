@@ -202,7 +202,7 @@ const nuevoPedido = () =>{
         <div class="flex align-items-center">
           <Button  icon="pi pi-plus " @click="nuevoPedido" style="margin-right: 1% ;"  />
           <InputGroup>
-            <InputText v-model="filters['global'].value" placeholder="Search..." />
+            <InputText v-model="filters['global'].value" placeholder="Buscar..." />
             <InputGroupAddon>
               <i class="pi pi-search" />
             </InputGroupAddon>
@@ -220,7 +220,7 @@ const nuevoPedido = () =>{
           currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros" >
           <template #empty> No hay registros para mostrar. </template>
           <template #loading> Cargando. </template>
-          <Column field="id" sortable header="N°" aria-sort="ascending" ></Column>
+          <Column field="nroFactura" sortable header="N° Factura" aria-sort="ascending" ></Column>
           <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
             <template #body="slotProps">
                 {{ formatearFecha(slotProps.data.fecha) }}
@@ -246,8 +246,8 @@ const nuevoPedido = () =>{
         
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
-              <Button icon="pi pi-search" text rounded aria-label="Search" @click="verCompra(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
-              <Button  icon="pi pi-times" :disabled="isPagado(slotProps.data.estado)" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+              <Button icon="pi pi-eye" v-tooltip="'Ver detalles'" text rounded aria-label="Search" @click="verCompra(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
+              <Button  icon="pi pi-trash" v-tooltip="'Eliminar'" :disabled="isPagado(slotProps.data.estado)" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                 
                 </template>
           </Column>

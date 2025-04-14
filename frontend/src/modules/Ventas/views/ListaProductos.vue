@@ -22,7 +22,7 @@ import router from '@/router';
 import { TipoIvaServices } from '@/services/TipoIvaServices';
 import { CategoriaServices } from '@/services/CategoriaServices';
 
-const productos = ref();
+const productos = ref([]);
 const categorias = ref([]);
 const subCategorias = ref([]);
 const tiposIva = ref([]);
@@ -33,23 +33,50 @@ const visualizarProductoDialog = ref(false);
 const producto = ref({});
 const submitted = ref(false);
 
-const confirm2 = (id) => {
+const confirm2 = (id,index) => {
    
     confirm.require({
-        message: 'Eliminar el reembolso #'+ id + '?',
+        message: 'Eliminar este producto ?',
         header: 'Confirmacion',
         icon: 'pi pi-info-circle',
         rejectLabel: 'Cancelar',
         acceptLabel: 'Eliminar',
         rejectClass: 'p-button-secondary p-button-outlined',
         acceptClass: 'p-button-danger',
-        accept: () => {
-            deleteReembolso(id);
-            
-        },
+        accept: async () => {
+        try {
+          await ProductoServices.eliminar(id);
+          productos.value.splice(index,1);
+          showSuccess('Producto eliminado correctamente');
+          
+        } catch (error) {
+          showError('Error al eliminar el producto');
+        }
+      }
         
     });
 };
+
+const eliminarCliente = (id) => {
+    confirm.require({
+      message: '¿Está seguro de eliminar este cliente?',
+      header: 'Confirmación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, eliminar',
+      rejectLabel: 'Cancelar',
+    
+      accept: async () => {
+        try {
+          await PersonaServices.eliminar(id);
+          showSuccess('Cliente eliminado correctamente');
+          getClientes();
+        } catch (error) {
+          showError('Error al eliminar cliente');
+        }
+      }
+    });
+  };
+
 onMounted(() => {
     ProductoServices.obtenerProductos().then((data) => {
         productos.value = data.data;
@@ -78,6 +105,24 @@ const registrarProducto = () =>{
     producto.value = {};
     productoDialog.value = true;
 }
+
+const showError = (message) => {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: message,
+      life: 3000
+    });
+  };
+  
+  const showSuccess = (message) => {
+    toast.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: message,
+      life: 3000
+    });
+  };
 
 const obtenerSubCategoriasByCategoria = (id) => {
     CategoriaServices.obtenerSubCatByIdCat(id).then((data) => {
@@ -156,7 +201,7 @@ const saveProducto = () => {
         else {
             ProductoServices.saveProducto(producto.value).then((response)=>{
             console.log("reg");
-                productos.value.push(response.data);
+                productos.value.unshift(response.data);
                  toast.add({severity:'success', summary: 'Successful', detail: 'Registro creado', life: 3000});
             }).catch(
                 (error)=>messageError("error")
@@ -272,7 +317,7 @@ const saveProducto = () => {
         <div class="flex align-items-center">
           <Button  icon="pi pi-plus " @click="registrarProducto" style="margin-right: 1% ;"  />
           <InputGroup>
-            <InputText v-model="filters['global'].value" placeholder="Search..." />
+            <InputText v-model="filters['global'].value" placeholder="Buscar..." />
             <InputGroupAddon>
               <i class="pi pi-search" />
             </InputGroupAddon>
@@ -288,18 +333,18 @@ const saveProducto = () => {
           :paginator="true" :rows="7" :filters="filters"
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 
           currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros" >
-          <Column field="id" sortable header="N°" aria-sort="ascending" ></Column>
           <Column field="nombre"  header="Producto" aria-sort="ascending" sortable>           
         </Column>
-          <Column field="categoria.descripcion"  header="Categoría" aria-sort="ascending" sortable> 
+          <Column field="subCategoria.categoria.descripcion"  header="Categoría" aria-sort="ascending" sortable> 
         </Column>   
-        
+        <Column field="subCategoria.descripcion"  header="Subcategoría" aria-sort="ascending" sortable> 
+        </Column> 
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
-              <Button icon="pi pi-search" text rounded aria-label="Search" @click="verProducto(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
-              <Button icon="pi pi-pencil" severity="success" text rounded aria-label="Search" @click="modificarProducto(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
-                <Button icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
-                <Button icon="pi pi-money-bill" severity="info" text rounded aria-label="Cancel" @click="verHistorialPrecios(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" /> 
+              <Button icon="pi pi-eye" text rounded aria-label="Search" v-tooltip="'Ver detalles'" @click="verProducto(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
+              <Button icon="pi pi-pencil" severity="success" v-tooltip="'Editar'" text rounded aria-label="Search" @click="modificarProducto(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
+                <Button icon="pi pi-trash" severity="danger" v-tooltip="'Eliminar'" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id, slotProps.index)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button icon="pi pi-money-bill" severity="info" v-tooltip="'Ver precios'" text rounded aria-label="Cancel" @click="verHistorialPrecios(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" /> 
                 </template>
           </Column>
         </DataTable>

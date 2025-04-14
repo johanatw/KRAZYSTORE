@@ -29,6 +29,8 @@ public class EntregaEntity {
     private Date fecha;
     @Column
     private Character estado;
+    @Column
+    private String observaciones;
     @ManyToOne
     @JoinColumn(name = "id_pedido")
     private PedidoEntity pedido;
@@ -120,6 +122,14 @@ public class EntregaEntity {
 
     public void setPedido(PedidoEntity pedido) {
         this.pedido = pedido;
+    }
+
+    public String getObservaciones() {
+        return observaciones;
+    }
+
+    public void setObservaciones(String observaciones) {
+        this.observaciones = observaciones;
     }
     
     

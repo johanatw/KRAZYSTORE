@@ -11,6 +11,7 @@ import com.krazystore.krazystore.Service.PrecioVentaService;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +30,7 @@ public class PrecioVentaServiceImpl implements PrecioVentaService{
     
     @Override
     public List<PrecioVentaEntity> findAll() {
-        return precioVentaRepository.findAll();
+        return precioVentaRepository.findAll(Sort.by(Sort.Direction.DESC, "fecha"));
     }
 
     @Override

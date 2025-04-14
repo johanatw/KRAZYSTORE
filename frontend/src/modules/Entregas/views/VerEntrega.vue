@@ -16,12 +16,13 @@ import { CiudadServices } from '@/services/CiudadServices';
 import { ref, onMounted } from "vue";
 import InputNumber from 'primevue/inputnumber';
 import InputGroup from 'primevue/inputgroup';
-import { getEstadoPedidoCompra } from "@/utils/utils";
+import { getEstadoPedidoCompra, getEstadoEntrega } from "@/utils/utils";
 import Panel from 'primevue/panel';
 import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
 import { TipoDocServices } from "@/services/TipoDocServices";
 import {DepartamentoServices } from '@/services/DepartamentoServices';
+import { EntregaServices } from "@/services/EntregaServices";
 import DatePicker from 'primevue/datepicker';
 const fecha = ref(new Date());
 const map = ref();
@@ -29,6 +30,7 @@ const direccion = ref({});
 const selectedCliente = ref();
 const clienteDialog = ref(false);
 const personaCreationDTO = ref({});
+const entrega = ref({});
 const submitted = ref(false);
 const clienteSeleccionado = ref(false);
 const mensaje = ref([]);
@@ -91,18 +93,36 @@ const pedido = ref({});
 const proveedor = ref({});
 
 onMounted(() => {
-    PedidoCompraServices.getPedido(router.currentRoute.value.params.id).then((data) => {
-        pedido.value = data.data.pedido;
+    EntregaServices.getEntrega(router.currentRoute.value.params.id).then((data) => {
+        entrega.value = data.data.entrega
         detalle.value = data.data.detalle;
-       proveedor.value = pedido.value.proveedor;
-       mostrarCliente(proveedor.value);
    });
 
 });
 
-const vistaPedidos= () =>{
-    router.push({name: 'pedidos_compras'});
+const vistaEntregas= () =>{
+    router.push({name: 'entregas'});
 }
+
+const isRetiro = (modalidad) => {
+    let descripcion = modalidad?.descripcion;
+  switch (descripcion) {
+       case 'Retiro':
+           return true;
+       default:
+           return false;
+   }
+};
+
+const isEnvio = (modalidad) => {
+    let descripcion = modalidad?.descripcion;
+  switch (descripcion) {
+       case 'Envio':
+           return true;
+       default:
+           return false;
+   }
+};
 
 const mostrarCliente = (proveedor) =>{
     let valor;
@@ -111,11 +131,6 @@ const mostrarCliente = (proveedor) =>{
         infoProveedor.value.push(valor);
     }
 
-    if(proveedor.tipo!=null){
-        valor={valor: 'Tipo: '+ proveedor.tipo.descripcion};
-        infoProveedor.value.push(valor);
-    }
-    
     if(proveedor.ruc!=null){
         valor={valor: 'RUC: '+ proveedor.ruc};
         infoProveedor.value.push(valor);
@@ -130,7 +145,7 @@ const mostrarCliente = (proveedor) =>{
 }
 
 const modificarPedido = (id) => {
-    router.push({name: 'modificar_pedido_compra', params: {id}});
+    router.push({name: 'modificar_entrega', params: {id}});
   
   }
 
@@ -143,13 +158,13 @@ const modificarPedido = (id) => {
     <Panel style=" position: relative; width: 80%;" >
         <template #header>
                 <div class="flex align-items-center gap-2">
-                    <h3 class="font-bold">Pedido N° {{ pedido.id }}</h3>
+                    <h3 class="font-bold">Entrega N° {{ entrega.id }}</h3>
                 </div>
             </template>
             <template #icons>
                 <div class="flex" style="justify-content: end;">  
-                <Button  label="Atras"  style="margin-right: 1%;"  @click="vistaPedidos()" />
-                <Button  label="Modificar" @click="modificarPedido(pedido.id)" />
+                <Button  label="Atras"  style="margin-right: 1%;"  @click="vistaEntregas()" />
+                <Button  label="Modificar" @click="modificarPedido(entrega.id)" />
                 </div>
  
             </template>
@@ -176,16 +191,16 @@ const modificarPedido = (id) => {
                         </template>
                         <template #content>
                             <div >
-                                Fecha: {{ formatearFecha(pedido.fecha)}}
+                                Fecha: {{ formatearFecha(entrega.fecha)}}
                             </div> 
                             <div  >
-                                Estado: {{getEstadoPedidoCompra(pedido.estadoPedido)}}
+                                Estado: {{getEstadoEntrega(entrega.estado)}}
                             </div> 
                             <div >
                                 Observaciones: 
                                 
                                 <p class="m-0">
-                                    {{ pedido.observaciones }}
+                                    {{ entrega.observaciones }}
                                 </p>
                             </div>
 
@@ -194,34 +209,39 @@ const modificarPedido = (id) => {
                 </div>
             
            <div class="field col-12 md:col-6">
+            <Card>
+                        <template #title>
+                            <div class="flex justify-content-between ">
+                                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                                    Entrega
+                                </div>    
+                            </div>
+                        </template>
+                        <template #content>
+                            <div v-if="isRetiro(entrega.modoEntrega)" >
+                                <div>
+                                    Modalidad: {{ entrega.modoEntrega?.descripcion }}
+                                </div>
+                                <div>
+                                    Punto de Retiro: {{ entrega.puntoEntrega?.descripcion }}
+                                </div>
+                            </div>
+                            <div v-else-if="isEnvio(entrega.modoEntrega)"  >
+                                <div>
+                                    Modalidad: {{ entrega.modoEntrega?.descripcion }}
+                                </div>
+                                <div>
+                                    Delivery: {{ entrega.empresaTransporte?.descripcion }}
+                                </div>
+                                <div>
+                                    Dirección Envío: 
+                                    <label >{{ entrega.direccionEnvio.direccion }},  {{ entrega.direccionEnvio.ciudad.descripcion }}</label>
+                                       
+                                </div>
+                            </div>
+                           </template>
+                    </Card>
             
-            <Card >
-        <template #title>
-            <div class="flex justify-content-between ">
-                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
-                    Proveedor
-                </div>    
-            </div>
-            
-        </template>
-        <template #content>
-        
-            <div class="flex flex-column align-options-start">
-            
-                <div v-if="clienteSeleccionado" >
-                    <p class="m-0">
-                        <div v-for="v in infoProveedor">
-                            {{ v.valor }}
-                        </div>
-                        
-                    </p>
-                    
-                </div>
-            </div>
-           
-            
-        </template>
-    </Card>
             </div>  
             
             <div class="col-12" >
@@ -231,7 +251,6 @@ const modificarPedido = (id) => {
                 <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
                     Productos
                 </div>
-
             </div>
             
         </template>
@@ -242,43 +261,22 @@ const modificarPedido = (id) => {
                                 <div class="card" style="width: 100%;">
     <div class="flex card-container" style="width: 100%;">
         <DataTable class="tablaCarrito" ref="dt" :value="detalle" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
-         <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
-         <Column class="col" field="costoCompra"  header="Precio" aria-sort="none" >
+            <Column  class="col" field="detallePedido.producto.nombre" header="Nombre" aria-sort="none" ></Column>
+         <Column class="col" field="producto.precio"  header="Solicitado" aria-sort="none" >
             <template #body="slotProps">
             <div class="flex-auto p-fluid" >
-                {{  slotProps.data.costoCompra.toLocaleString("de-DE") }}
-                  </div> 
+                  {{  formatearNumero(slotProps.data.detallePedido.cantSolicitado) }}
+              </div> 
             </template>
         </Column>
          
-        <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
+        <Column  class="col" field="cantidad" header="Preparado" aria-sort="none">
          </Column>
          
-         <Column  class="col" field="subTotal" header="Sub Total" aria-sort="none" >
-             <template #body="slotProps">
-                 <div class="flex-auto p-fluid" style="max-width: 20dvh;">
-                     <label for="subtotal"> {{  (slotProps.data.subTotal).toLocaleString("de-DE") }}</label>
-                  </div>
-            </template>
-         </Column>
      </DataTable>
    </div>
  </div>
-                                <div class="grid" style="margin-top: 1rem;">
-                                    
-                                    
-                                    <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
-                                        <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; font-weight: bold; font-size: 16px;">
-                                            Total: 
-                                        </div>
-                                        <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; font-weight: bold; font-size: 16px;" >
-                                            {{ formatearNumero(pedido.total) }} Gs.
-                                           
-                                        </div>
-
-                                    </div>         
-
-                                </div>
+                              
                             </div>
                         </template>    
                     </Card>

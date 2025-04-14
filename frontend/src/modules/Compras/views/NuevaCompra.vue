@@ -51,7 +51,7 @@ const visible = ref(false);
 const pedidoExtranjero = ref(false);
 const pedido = ref();
 const existePedido = ref(false);
-
+const timbrado = ref();
 const selectedOp = ref('Casi');
 const productos= ref();
 
@@ -242,6 +242,9 @@ const calcularIvaImportacion = () => {
 const mostrarCliente = () =>{
     console.log(selectedCliente.value);
     let texto = selectedCliente.value.descripcion;
+    if (selectedCliente.value.tipo) {
+        texto = texto + "\nTipo: "+selectedCliente.value.tipo.descripcion;
+    }
     if (selectedCliente.value.ruc) {
         texto = texto + "\nRUC: "+selectedCliente.value.ruc;
     }
@@ -630,7 +633,7 @@ const eliminar = (detalle) => {
 
     let fechaAnticipo = new Date();
     let gravada = total.value - montoIva.value;
-    let ant = {total: total.value, pedido: pedido.value,totalGravada: gravada, montoIva: montoIva.value ,fecha: fechaCompra.value, proveedor: selectedCliente.value, nroFactura: nroFactura.value};
+    let ant = {total: total.value, timbrado:timbrado.value ,pedido: pedido.value,totalGravada: gravada, montoIva: montoIva.value ,fecha: fechaCompra.value, proveedor: selectedCliente.value, nroFactura: nroFactura.value};
     let detalle;
     if (compraIndependiente.value) {
         detalle = detalleFacturar.value;
@@ -643,7 +646,8 @@ const eliminar = (detalle) => {
         console.log("saveanticipothen");
         console.log("data");
         let id = data.data.id;
-        verCompra(id);
+        showSuccess('Factura guardado correctamente');
+        vistaFacturasCompras();
         //closeDialog();
         //emit('anticipoGuardado', data.data.id);
         
@@ -651,7 +655,23 @@ const eliminar = (detalle) => {
 }
 }
 
-
+const showError = (message) => {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: message,
+      life: 3000
+    });
+  };
+  
+  const showSuccess = (message) => {
+    toast.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: message,
+      life: 3000
+    });
+  };
 </script>
 <template>
     
@@ -760,6 +780,9 @@ const eliminar = (detalle) => {
             <div class="field" >
                 
                 Fecha: <DatePicker dateFormat="dd/mm/yy" fluid v-model="fechaCompra" showIcon iconDisplay="input" />
+            </div> 
+            <div class="field" >
+                Timbrado: <InputText fluid type="text" v-model="timbrado" />
             </div> 
             <div class="field" >
                 N° Factura: <InputText fluid type="text" v-model="nroFactura" />
