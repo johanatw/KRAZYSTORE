@@ -130,7 +130,7 @@ public class DetalleAjusteServiceImpl implements DetalleAjusteService {
             Optional<DetalleAjuste> actual = actualDetalle.stream().filter(act -> Objects.equals(act.getProducto().getId(), anterior.getProducto().getId())).findAny();
             // Si encuentra, y hay diferencia se intenta modificar
             if(actual.isPresent() ){
-                if(actual.get().getCantidadAjustada() != anterior.getCantidadAjustada()){
+            
                     // Lanza excepción si el producto ya fue facturado
                     /*if(anterior.getCantRecepcionada() > actual.get().getCantidad()){
                         throw new BadRequestException("No es posible modificar la cantidad del Producto: "+ anterior.getProducto().getNombre());
@@ -140,7 +140,7 @@ public class DetalleAjusteServiceImpl implements DetalleAjusteService {
                     actual.get().setProducto(anterior.getProducto());
                     
                     elementos.add(actual.get());
-                }
+                
             }
 
         });

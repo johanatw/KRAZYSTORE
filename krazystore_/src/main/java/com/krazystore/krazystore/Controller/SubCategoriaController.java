@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -37,4 +38,10 @@ public class SubCategoriaController {
     public List<SubCategoriaEntity> findByIdCategoria(@PathVariable("id") Long id) {
         return subCatService.findByIdCategoria(id);
     }
+    
+    @GetMapping("/categorias")
+    public List<SubCategoriaEntity> findByIdsCategoria(@RequestParam(value="ids") List<Long> ids) {
+        return subCatService.findByIdsCategoria(ids);
+    }
+    
 }

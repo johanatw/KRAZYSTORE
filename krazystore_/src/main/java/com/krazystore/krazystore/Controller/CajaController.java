@@ -5,10 +5,14 @@
 package com.krazystore.krazystore.Controller;
 
 import com.krazystore.krazystore.DTO.AnticipoCreationDTO;
+import com.krazystore.krazystore.DTO.EgresoVarioDTO;
 import com.krazystore.krazystore.DTO.EstadoPagoPedidoDTO;
+import com.krazystore.krazystore.DTO.IngresoVarioDTO;
 import com.krazystore.krazystore.DTO.MovimientoCreationDTO;
 import com.krazystore.krazystore.DTO.MovimientosDTO;
-import com.krazystore.krazystore.DTO.ReembolsoCreationDTO;
+import com.krazystore.krazystore.DTO.PagoPedidoCompraCreationDTO;
+import com.krazystore.krazystore.DTO.ReembolsoAnticipoCreationDTO;
+import com.krazystore.krazystore.DTO.ReembolsoPagoPedidoCompraCreationDTO;
 import com.krazystore.krazystore.DTO.VentaCreationDTO;
 import com.krazystore.krazystore.Entity.CajaEntity;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
@@ -84,23 +88,48 @@ public class CajaController {
     }
     
     @PostMapping("/reembolso")
-    public MovimientoEntity saveReembolso(@RequestBody ReembolsoCreationDTO reembolsoCreationDTO){
+    public MovimientoEntity saveReembolso(@RequestBody ReembolsoAnticipoCreationDTO reembolsoCreationDTO){
         return cajaService.saveMovimiento(reembolsoCreationDTO);
     }
     
-    @PostMapping("/movimiento")
-    public MovimientoEntity saveMovimiento(@RequestBody MovimientoCreationDTO movimiento) {
-        return cajaService.saveMovimiento(movimiento);
+    @PostMapping("/pago_pedido_compra")
+    public MovimientoEntity savePagoPedidoCompra(@RequestBody PagoPedidoCompraCreationDTO pagoPedidoCompraCreationDTO){
+        return cajaService.saveMovimiento(pagoPedidoCompraCreationDTO);
     }
     
-    @GetMapping("/pendientes")
-    public List<MovimientoEntity> getFacturasPendientes() {
-        return cajaService.getFacturasPendientes();
+    @PostMapping("/reembolso_pago_pedido_compra")
+    public MovimientoEntity saveReembolsoPagoPedidoCompra(@RequestBody ReembolsoPagoPedidoCompraCreationDTO reembolsoPagoPedidoCompraCreationDTO){
+        return cajaService.saveMovimiento(reembolsoPagoPedidoCompraCreationDTO);
     }
     
-    @PostMapping("/pagar_factura")
-    public MovimientoEntity savePagosFactura(@RequestBody MovimientoCreationDTO movimiento) {
-        return cajaService.savePagosFactura(movimiento);
+    @PostMapping("/ingreso_vario")
+    public MovimientoEntity saveMovimiento(@RequestBody IngresoVarioDTO ingreso) {
+        return cajaService.saveMovimiento(ingreso);
+    }
+    
+    @PostMapping("/egreso_vario")
+    public MovimientoEntity saveMovimiento(@RequestBody EgresoVarioDTO egreso) {
+        return cajaService.saveMovimiento(egreso);
+    }
+    
+    @GetMapping("/pendientes_pago")
+    public List<MovimientoEntity> getMovimientosPendientesDePago() {
+        return cajaService.getMovimientosPendientesDePago();
+    }
+    
+    @GetMapping("/pendientes_cobro")
+    public List<MovimientoEntity> getMovimientosPendientesDeCobro() {
+        return cajaService.getMovimientosPendientesDeCobro();
+    }
+    
+    @PostMapping("/pagos_pendientes")
+    public MovimientoEntity savePagosPendientes(@RequestBody MovimientoCreationDTO movimiento) {
+        return cajaService.savePagosPendientes(movimiento);
+    }
+    
+    @PostMapping("/cobros_pendientes")
+    public MovimientoEntity saveCobrosPendientes(@RequestBody MovimientoCreationDTO movimiento) {
+        return cajaService.saveCobrosPendientes(movimiento);
     }
     
     @DeleteMapping("/{id}")
@@ -116,6 +145,16 @@ public class CajaController {
     @DeleteMapping("/reembolso/{id}")
     public void deleteReembolso(@PathVariable("id") Long id) {
         cajaService.deleteReembolso(id);
+    }
+    
+    @DeleteMapping("/pago_pedido_compra/{id}")
+    public void deletePagoPedidoCompra(@PathVariable("id") Long id) {
+        cajaService.deletePagoPedidoCompra(id);
+    }
+    
+    @DeleteMapping("/reembolso_pago_pedido_compra/{id}")
+    public void deleteReembolsoPagoPedidoCompra(@PathVariable("id") Long id) {
+        cajaService.deleteReembolsoPagoPedidoCompra(id);
     }
     
     @GetMapping("/caja/{id}")

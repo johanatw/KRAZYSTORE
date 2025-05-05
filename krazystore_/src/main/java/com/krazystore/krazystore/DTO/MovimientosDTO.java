@@ -35,7 +35,15 @@ public class MovimientosDTO {
         this.tipo = tipo;
     }
     
-    
+    public MovimientosDTO(Long id, Date fecha, String concepto, String formaPago, Long total, String factura, char estado) {
+        this.id = id;
+        this.fecha = fecha;
+        this.concepto = concepto;
+        this.formaPago = formaPago;
+        this.total = total;
+        this.factura = factura;
+        this.estado = estado;
+    }
 
     public char getTipo() {
         return tipo;

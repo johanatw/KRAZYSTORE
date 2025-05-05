@@ -116,8 +116,11 @@ const modificarAjuste = (id) => {
                                 <div class="card" style="width: 100%;">
                                     <div class="flex card-container" style="width: 100%;">
                                         <DataTable class="tablaCarrito" ref="dt" :value="detalleAjuste" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
-                                            <Column  class="col" field="producto" header="Nombre" aria-sort="none" ></Column>         
-                                            <Column  class="col" field="cantidadAjustada" header="Ajuste +/-" aria-sort="none"></Column>
+                                            <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>     
+                                            <Column  class="col" field="cantidadAnterior" header="Cant. Anterior" aria-sort="none" ></Column>     
+                                            <Column  class="col" field="cantidadAjustada" header="Cant. Ajustada" aria-sort="none"></Column>
+                                            <Column  class="col" field="cantidadFinal" header="Cant. Final" aria-sort="none" ></Column> 
+                                            <Column  class="col" field="motivo" header="Motivo" aria-sort="none" ></Column> 
                                         </DataTable>
                                     </div>
                                 </div>

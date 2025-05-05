@@ -21,8 +21,7 @@ public interface InventarioService {
     InventarioEntity saveInventario (InventarioCreationDTO inventarioDTO) throws Exception;
     InventarioEntity updateInventario(InventarioCreationDTO inventarioDTO, Long id)throws Exception;
     void deleteInventario(Long id);
-    List<DetalleInventarioDTO> getDetallesInventarioIniciales();
-    InventarioCreationDTO obtenerDetallesCompletos(Long id);
+    List<DetalleInventarioDTO> getDetallesInventarioIniciales(List<Long> ids);
     InventarioEntity ajustarInventario(Long id);
     InventarioEntity finalizarInventario(InventarioCreationDTO inventarioDTO, Long id) throws Exception;
 }

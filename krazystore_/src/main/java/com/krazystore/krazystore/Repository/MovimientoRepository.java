@@ -75,7 +75,7 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
            )*/
     
 
-    @Query(
+    /*@Query(
     "SELECT new com.krazystore.krazystore.DTO.EstadoPagoPedidoDTO( " +
     "    p.id, p.total, " +
     "    SUM(CASE " +
@@ -88,62 +88,113 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
     "   END ) " +
     ") " +
     "FROM PedidoEntity p " +
-    "LEFT JOIN AnticipoEntity a ON a.idPedido = p.id AND a.tipoPedido = 'V' " +
-    "LEFT JOIN ReembolsoEntity r ON r.anticipo = a " +
+    "LEFT JOIN AnticipoEntity a ON a.pedido.id = p.id " +
+    "LEFT JOIN ReembolsoAnticipo r ON r.anticipo = a " +
     "LEFT JOIN MovimientoEntity m ON m.anticipo = a OR m.reembolso = r " +
     "LEFT JOIN ConceptoEntity c ON m.concepto = c " +
     "WHERE p.id = ?1 " +
     "GROUP BY p.id"
     )
-    public Optional<EstadoPagoPedidoDTO> getEstadoPagoPedidoVenta(Long id);
+    public Optional<EstadoPagoPedidoDTO> getEstadoPagoPedidoVenta(Long id);*/
+    @Query(
+    "SELECT new com.krazystore.krazystore.DTO.EstadoPagoPedidoDTO( " +
+    "    p.id, p.total, " +
+    "    (COALESCE(SUM(DISTINCT CASE WHEN c1.descripcion = 'Anticipo cliente' THEN m1.monto ELSE 0 END), 0) " +
+    "     - " +
+    "     COALESCE(SUM(DISTINCT CASE WHEN c2.descripcion = 'Reembolso cliente' THEN m2.monto ELSE 0 END), 0)) " +
+    ") " +
+    "FROM PedidoEntity p " +
+    "LEFT JOIN AnticipoEntity a ON a.pedido.id = p.id " +
+    "LEFT JOIN MovimientoEntity m1 ON m1.anticipo = a " +
+    "LEFT JOIN ConceptoEntity c1 ON m1.concepto = c1 " +
+    "LEFT JOIN ReembolsoAnticipo r ON r.anticipo = a " +
+    "LEFT JOIN MovimientoEntity m2 ON m2.reembolso = r " +
+    "LEFT JOIN ConceptoEntity c2 ON m2.concepto = c2 " +
+    "WHERE p.id = ?1 " +
+    "GROUP BY p.id"
+)
+public Optional<EstadoPagoPedidoDTO> getEstadoPagoPedidoVenta(Long id);
+
     
     @Query(
     "SELECT DISTINCT new com.krazystore.krazystore.DTO.EstadoPagoPedidoDTO( " +
     "    p.id, p.total, " +
-    "    SUM(CASE " +
-    "        WHEN c.descripcion = 'Anticipo proveedor' THEN COALESCE(m.monto, 0) " +
-    "        ELSE 0 " +
-    "    END) - " +
-    "   SUM(CASE " +
-    "       WHEN c.descripcion = 'Reembolso proveedor' THEN COALESCE(m.monto, 0) " +
-    "       ELSE 0 " +
-    "   END ) " +
+    "    SUM(COALESCE(a.total, 0)) - " +
+    "   COALESCE(r.totalReembolsado, 0) " +
     ") " +
     "FROM PedidoCompraEntity p " +
-    "LEFT JOIN AnticipoEntity a ON a.idPedido = p.id AND a.tipoPedido = 'C' " +
-    "LEFT JOIN ReembolsoEntity r ON r.anticipo = a " +
-    "LEFT JOIN MovimientoEntity m ON m.anticipo = a OR m.reembolso = r " +
-    "LEFT JOIN ConceptoEntity c ON m.concepto = c " +
+    "LEFT JOIN PagoPedidoCompra a ON a.pedidoCompra.id = p.id " +
+    "LEFT JOIN (SELECT pp.id AS idPagoPedidoCompra, SUM(t.monto) AS totalReembolsado" +
+    "           FROM ReembolsoPagoPedidoCompra t " +
+    "           JOIN t.pagoPedidoCompra pp " +
+    "           GROUP BY pp.id) r ON r.idPagoPedidoCompra = a.id " +
+    "WHERE p.id = ?1 " +
+    "GROUP BY p.id,r.totalReembolsado"
+    )
+    public Optional<EstadoPagoPedidoDTO> getEstadoPagoPedidoCompra(Long id);
+        
+    @Query(
+    "SELECT SUM(COALESCE(a.total, 0)) " +
+    "FROM PedidoCompraEntity p " +
+    "LEFT JOIN PagoPedidoCompra a ON a.pedidoCompra.id = p.id " +
     "WHERE p.id = ?1 " +
     "GROUP BY p.id"
     )
-    public Optional<EstadoPagoPedidoDTO> getEstadoPagoPedidoCompra(Long id);
-  
-    @Query(
-    "SELECT new com.krazystore.krazystore.DTO.MovimientosDTO(m.id, m.fecha, c.descripcion, f.descripcion"
-            + ", p.importe, CASE WHEN p.anticipo IS NULL AND c.tipo = 'I' THEN p.importe ELSE 0 END"
-            + ", CASE WHEN c.tipo = 'E' THEN p.importe ELSE 0 END, m.nroDocumento) FROM MovimientoEntity m "
-           + "LEFT JOIN m.concepto as c "
-            + "LEFT JOIN PagoEntity p "
-            + "ON p.movimiento = m "
-            + "LEFT JOIN p.formaPago f "
-            + "ORDER BY m.id DESC"
-           )
-    public List<MovimientosDTO> findMovimientosDTO();
+    public Long getTotalPagosPedidoCompra(Long id);
     
     @Query(
-    "SELECT new com.krazystore.krazystore.DTO.MovimientosDTO(m.id, m.fecha, c.descripcion, COALESCE(f.descripcion, '')"
-            + ", p.importe"
-            + ", m.nroDocumento, m.estado, c.tipo ) FROM MovimientoEntity m "
-           + "LEFT JOIN m.concepto as c "
-            + "LEFT JOIN m.caja as ca "
-            + "LEFT JOIN PagoEntity p "
-            + "ON p.movimiento = m "
-            + "LEFT JOIN p.formaPago f "
-            + "WHERE ca.id = ?1 AND p.anticipo IS NULL "
-            + "ORDER BY m.fecha DESC"
-           )
-    public List<MovimientosDTO> findByIdCaja(Long id);
+    "SELECT SUM(COALESCE(r.monto, 0) ) " +
+    "FROM PedidoCompraEntity p " +
+    "LEFT JOIN PagoPedidoCompra a ON a.pedidoCompra.id = p.id " +
+    "LEFT JOIN ReembolsoPagoPedidoCompra r ON r.pagoPedidoCompra = a " +
+    "WHERE p.id = ?1 " +
+    "GROUP BY p.id "
+    )
+    public Long getTotalReembolsosPagoPedidoCompra(Long id);
+     
+
+    
+    @Query(
+    "SELECT new com.krazystore.krazystore.DTO.MovimientosDTO(" +
+        "m.id, " +
+        "m.fecha, " +
+        "c.descripcion, " +
+        "COALESCE(f.descripcion, f1.descripcion, ''), " +
+        "COALESCE(p.importe, p1.importe, 0), " +
+        "m.nroDocumento, " +
+        "m.estado, " +
+        "c.tipo" +
+    ") " +
+    "FROM MovimientoEntity m " +
+    "LEFT JOIN m.concepto c " +
+    "LEFT JOIN m.caja caja " +
+    "LEFT JOIN FormaPagoEntity p ON p.movimiento = m " +
+    "LEFT JOIN p.medio f " +
+    "LEFT JOIN FormaCobroEntity p1 ON p1.movimiento = m " +
+    "LEFT JOIN p1.medio f1 " + // Ajustado: p1.medio en lugar de p.medio
+    "WHERE caja.id = ?1 " +
+    "ORDER BY m.fecha DESC"
+)
+public List<MovimientosDTO> findByIdCaja(Long id);
+
+@Query(
+    "SELECT new com.krazystore.krazystore.DTO.MovimientosDTO(" +
+        "m.id, " +
+        "m.fecha, " +
+        "c.descripcion, " +
+        "CONCAT('Anticipo #', aa.anticipo.id, ' Aplicado')," +
+        "COALESCE(aa.monto,0), " +
+        "m.nroDocumento, " +
+        "m.estado " +
+    ") " +
+    "FROM MovimientoEntity m " +
+    "LEFT JOIN m.concepto c " +
+    "LEFT JOIN m.caja caja " +
+    "JOIN AplicacionAnticipo aa ON aa.movimiento = m " +
+    "WHERE caja.id = ?1 " +
+    "ORDER BY m.fecha DESC"
+)
+public List<MovimientosDTO> findAnticiposAplicadosByIdCaja(Long id);
     
     @Query(
     "SELECT m FROM MovimientoEntity m "
@@ -174,7 +225,7 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
     public MovimientoEntity findByIdReembolso(Long id);
     
     @Query(
-  value = "SELECT m.id FROM movimientos m WHERE m.id_reembolso IN ?1 ", 
+  value = "SELECT m.id FROM movimientos m WHERE m.id_reembolso_anticipo IN ?1 ", 
   nativeQuery = true)
     List<Long> findByIdsReembolsos(List<Long> reembolsosIds);
     
@@ -202,11 +253,35 @@ public interface MovimientoRepository extends JpaRepository<MovimientoEntity, Lo
     Long validateOrderDeletion(Long idPedido);
     
     @Query(
-  value = """
-          SELECT * FROM movimientos m 
-          where m.estado = 'P' 
-          ORDER BY m.id DESC 
-          """, 
+        "SELECT m FROM MovimientoEntity m " +
+        "JOIN m.venta c " +
+        "WHERE m.estado = 'P' " +
+        "ORDER BY m.id DESC")
+    List<MovimientoEntity> getMovimientosPendientesDeCobro();
+    
+    @Query(
+        "SELECT m FROM MovimientoEntity m " +
+        "JOIN m.compra c " +
+        "WHERE m.estado = 'P' " +
+        "ORDER BY m.id DESC")
+      List<MovimientoEntity> getMovimientosPendientesDePago();
+
+      @Query(
+    "SELECT m FROM MovimientoEntity m "
+           + "LEFT JOIN FETCH m.pagoPedidoCompra p "
+            + "WHERE p.id = ?1 "
+           )
+    public MovimientoEntity findByIdPagoPedidoCompra(Long id);
+
+    @Query(
+  value = "SELECT m.id FROM movimientos m WHERE m.id_reembolso_pago_pedido_compra IN ?1 ", 
   nativeQuery = true)
-    List<MovimientoEntity> getFacturasPendientes();
+    public List<Long> findByIdsReembolsosPagoPedidoCompra(List<Long> ids);
+
+    @Query(
+    "SELECT m FROM MovimientoEntity m "
+           + "LEFT JOIN FETCH m.reembolsoPagoPedidoCompra r "
+            + "WHERE r.id = ?1 "
+           )
+    public MovimientoEntity findByIdReembolsoPagoPedidoCompra(Long id);
 }

@@ -4,7 +4,7 @@
  */
 package com.krazystore.krazystore.Repository;
 
-import com.krazystore.krazystore.Entity.ReembolsoEntity;
+import com.krazystore.krazystore.Entity.ReembolsoAnticipo;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,18 +18,18 @@ import org.springframework.transaction.annotation.Transactional;
  * @author HP
  */
 @Repository
-public interface ReembolsoRepository extends JpaRepository<ReembolsoEntity, Long> {
+public interface ReembolsoRepository extends JpaRepository<ReembolsoAnticipo, Long> {
     @Query(
-  value = "SELECT * FROM reembolsos r WHERE r.id_anticipo = ?1 ORDER BY r.fecha DESC ", 
+  value = "SELECT * FROM reembolsos_anticipo r WHERE r.id_anticipo = ?1 ORDER BY r.fecha DESC ", 
   nativeQuery = true)
-    public List<ReembolsoEntity> findByIdAnticipo(Long id);
+    public List<ReembolsoAnticipo> findByIdAnticipo(Long id);
     
-    public List<ReembolsoEntity> findAllByOrderByIdDesc();
+    public List<ReembolsoAnticipo> findAllByOrderByIdDesc();
     
     @Transactional
     @Modifying
     @Query(
-  value = "DELETE FROM reembolsos r WHERE r.id IN ?1 ", 
+  value = "DELETE FROM reembolsos_anticipo r WHERE r.id IN ?1 ", 
   nativeQuery = true)
     void deleteByIds(List<Long> ids);
 }

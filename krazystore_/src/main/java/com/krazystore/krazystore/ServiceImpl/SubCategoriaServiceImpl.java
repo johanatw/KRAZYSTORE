@@ -31,5 +31,10 @@ public class SubCategoriaServiceImpl implements SubCategoriaService {
     public List<SubCategoriaEntity> findByIdCategoria(Long id) {
         return subCategoriaRepository.findByIdCategoria(id);
     }
+
+    @Override
+    public List<SubCategoriaEntity> findByIdsCategoria(List<Long> ids) {
+        return subCategoriaRepository.findByIdsCategoria(ids);
+    }
     
 }

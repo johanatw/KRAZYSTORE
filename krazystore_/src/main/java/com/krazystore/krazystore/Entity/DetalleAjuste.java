@@ -21,9 +21,6 @@ import lombok.NoArgsConstructor;
  * @author HP
  */
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Table(name = "detalle_ajuste")
 public class DetalleAjuste {
     @Id
@@ -33,18 +30,41 @@ public class DetalleAjuste {
     @ManyToOne
     @JoinColumn(name = "id_ajuste")
     private AjusteStock ajuste;
+    @Column(name = "motivo_ajuste")
+    private String motivoAjuste;
     @ManyToOne
     @JoinColumn(name = "id_producto")
     private ProductoEntity producto;
     @Column(name = "cantidad_ajustada")
-    private int cantidadAjustada;
-    @Column(name = "stock_anterior")
-    private int stockAnterior;
-    @Column(name = "stock_posterior")
-    private int stockPosterior;
-    @Column
-    private String motivo;
+    private int cantidadAjustada=0;
+    @Column(name = "cantidad_anterior")
+    private int cantidadAnterior=0;
+    @Column(name = "cantidad_final")
+    private int cantidadFinal=0;
 
+    public DetalleAjuste() {
+    }
+
+    public DetalleAjuste(Long id, AjusteStock ajuste, String motivoAjuste, ProductoEntity producto, int cantidadAjustada, int cantidadAnterior, int cantidadFinal) {
+        this.id = id;
+        this.ajuste = ajuste;
+        this.motivoAjuste = motivoAjuste;
+        this.producto = producto;
+        this.cantidadAjustada = cantidadAjustada;
+        this.cantidadAnterior = cantidadAnterior;
+        this.cantidadFinal = cantidadFinal;
+    }
+
+    public DetalleAjuste(Long id, String motivoAjuste, ProductoEntity producto, int cantidadAjustada, int cantidadAnterior, int cantidadFinal) {
+        this.id = id;
+        this.motivoAjuste = motivoAjuste;
+        this.producto = producto;
+        this.cantidadAjustada = cantidadAjustada;
+        this.cantidadAnterior = cantidadAnterior;
+        this.cantidadFinal = cantidadFinal;
+    }
+
+    
     public Long getId() {
         return id;
     }
@@ -77,28 +97,28 @@ public class DetalleAjuste {
         this.cantidadAjustada = cantidadAjustada;
     }
 
-    public int getStockAnterior() {
-        return stockAnterior;
+    public int getCantidadAnterior() {
+        return cantidadAnterior;
     }
 
-    public void setStockAnterior(int stockAnterior) {
-        this.stockAnterior = stockAnterior;
+    public void setCantidadAnterior(int cantidadAnterior) {
+        this.cantidadAnterior = cantidadAnterior;
     }
 
-    public int getStockPosterior() {
-        return stockPosterior;
+    public int getCantidadFinal() {
+        return cantidadFinal;
     }
 
-    public void setStockPosterior(int stockPosterior) {
-        this.stockPosterior = stockPosterior;
+    public void setCantidadFinal(int cantidadFinal) {
+        this.cantidadFinal = cantidadFinal;
     }
 
-    public String getMotivo() {
-        return motivo;
+    public String getMotivoAjuste() {
+        return motivoAjuste;
     }
 
-    public void setMotivo(String motivo) {
-        this.motivo = motivo;
+    public void setMotivoAjuste(String motivoAjuste) {
+        this.motivoAjuste = motivoAjuste;
     }
     
     

@@ -6,7 +6,9 @@ package com.krazystore.krazystore.DTO;
 
 import com.krazystore.krazystore.Entity.AjusteStock;
 import com.krazystore.krazystore.Entity.CategoriaEntity;
+import com.krazystore.krazystore.Entity.MotivoAjusteEntity;
 import com.krazystore.krazystore.Entity.ProductoEntity;
+import com.krazystore.krazystore.Entity.SubCategoriaEntity;
 
 /**
  *
@@ -14,62 +16,45 @@ import com.krazystore.krazystore.Entity.ProductoEntity;
  */
 public class DetalleAjusteDTO {
     private Long id;
-    private AjusteStock ajuste;
-    private Long idProducto;
-    private String producto;
-    private Long idCategoria;
-    private String categoria;
+    private ProductoDTO producto;
     private int cantidadActual;
     private int cantidadAjustada;
-    private int stockAnterior;
-    private int stockPosterior;
+    private int cantidadAnterior;
+    private int cantidadFinal;
     private String motivo;
 
     public DetalleAjusteDTO() {
     }
 
-    
-    public DetalleAjusteDTO(Long id, AjusteStock ajuste, Long idProducto, String producto, Long idCategoria, String categoria, int cantidadActual, int cantidadAjustada) {
+    public DetalleAjusteDTO(Long id, Long idProducto, String producto, SubCategoriaEntity subCategoria, int cantidadActual, int cantidadAjustada, int cantidadAnterior, int cantidadFinal, String motivo) {
         this.id = id;
-        this.ajuste = ajuste;
-        this.idProducto = idProducto;
-        this.producto = producto;
-        this.idCategoria = idCategoria;
-        this.categoria = categoria;
+        this.producto = new ProductoDTO(idProducto, producto, subCategoria);
+        this.cantidadActual = cantidadActual;
+        this.cantidadAjustada = cantidadAjustada;
+        this.cantidadAnterior = cantidadAnterior;
+        this.cantidadFinal = cantidadFinal;
+        this.motivo = motivo;
+    }
+
+    
+    public DetalleAjusteDTO(Long id, Long idProducto, String producto, SubCategoriaEntity subCategoria, int cantidadActual, int cantidadAjustada) {
+        this.id = id;
+        this.producto = new ProductoDTO(idProducto, producto, subCategoria);
         this.cantidadActual = cantidadActual;
         this.cantidadAjustada = cantidadAjustada;
     }
 
-    public DetalleAjusteDTO(Long id, AjusteStock ajuste, Long idProducto, String producto, Long idCategoria, String categoria, int cantidadAjustada) {
+    public DetalleAjusteDTO(Long id, Long idProducto, String producto, SubCategoriaEntity subCategoria, int cantidadAjustada) {
         this.id = id;
-        this.ajuste = ajuste;
-        this.idProducto = idProducto;
-        this.producto = producto;
-        this.idCategoria = idCategoria;
-        this.categoria = categoria;
+        this.producto = new ProductoDTO(idProducto, producto, subCategoria);
         this.cantidadAjustada = cantidadAjustada;
     }
 
-    public DetalleAjusteDTO(Long idProducto, String producto, Long idCategoria, String categoria, int cantidadActual, int cantidadAjustada) {
-        this.idProducto = idProducto;
-        this.producto = producto;
-        this.idCategoria = idCategoria;
-        this.categoria = categoria;
+    public DetalleAjusteDTO(Long idProducto, String producto, SubCategoriaEntity subCategoria, int cantidadActual, int cantidadAjustada) {
+        this.producto = new ProductoDTO(idProducto, producto, subCategoria);
         this.cantidadActual = cantidadActual;
         this.cantidadAjustada = cantidadAjustada;
-    }
-
-    public DetalleAjusteDTO(Long id, Long idProducto, String producto, Long idCategoria, String categoria, int cantidadActual, int cantidadAjustada) {
-        this.id = id;
-        this.idProducto = idProducto;
-        this.producto = producto;
-        this.idCategoria = idCategoria;
-        this.categoria = categoria;
-        this.cantidadActual = cantidadActual;
-        this.cantidadAjustada = cantidadAjustada;
-    }
-    
-    
+    }    
 
     public Long getId() {
         return id;
@@ -77,46 +62,6 @@ public class DetalleAjusteDTO {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public AjusteStock getAjuste() {
-        return ajuste;
-    }
-
-    public void setAjuste(AjusteStock ajuste) {
-        this.ajuste = ajuste;
-    }
-
-    public Long getIdProducto() {
-        return idProducto;
-    }
-
-    public void setIdProducto(Long idProducto) {
-        this.idProducto = idProducto;
-    }
-
-    public String getProducto() {
-        return producto;
-    }
-
-    public void setProducto(String producto) {
-        this.producto = producto;
-    }
-
-    public Long getIdCategoria() {
-        return idCategoria;
-    }
-
-    public void setIdCategoria(Long idCategoria) {
-        this.idCategoria = idCategoria;
-    }
-
-    public String getCategoria() {
-        return categoria;
-    }
-
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
     }
 
     public int getCantidadActual() {
@@ -135,20 +80,28 @@ public class DetalleAjusteDTO {
         this.cantidadAjustada = cantidadAjustada;
     }
 
-    public int getStockAnterior() {
-        return stockAnterior;
+    public int getCantidadAnterior() {
+        return cantidadAnterior;
     }
 
-    public void setStockAnterior(int stockAnterior) {
-        this.stockAnterior = stockAnterior;
+    public void setCantidadAnterior(int cantidadAnterior) {
+        this.cantidadAnterior = cantidadAnterior;
     }
 
-    public int getStockPosterior() {
-        return stockPosterior;
+    public int getCantidadFinal() {
+        return cantidadFinal;
     }
 
-    public void setStockPosterior(int stockPosterior) {
-        this.stockPosterior = stockPosterior;
+    public void setCantidadFinal(int cantidadFinal) {
+        this.cantidadFinal = cantidadFinal;
+    }
+
+    public ProductoDTO getProducto() {
+        return producto;
+    }
+
+    public void setProducto(ProductoDTO producto) {
+        this.producto = producto;
     }
 
     public String getMotivo() {
@@ -158,6 +111,7 @@ public class DetalleAjusteDTO {
     public void setMotivo(String motivo) {
         this.motivo = motivo;
     }
-    
+
+
     
 }

@@ -110,7 +110,7 @@ public interface PedidoRepository extends JpaRepository<PedidoEntity, Long>{
     @Query(
     "SELECT a "
             + "FROM AnticipoEntity a "
-            + "WHERE a.idPedido = ?1 AND a.tipoPedido = 'V' "
+            + "WHERE a.pedido.id = ?1 "
            )
         List<AnticipoEntity> getAnticipos(Long id);
         

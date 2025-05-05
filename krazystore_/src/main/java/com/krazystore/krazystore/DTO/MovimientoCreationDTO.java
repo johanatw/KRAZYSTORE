@@ -4,6 +4,10 @@
  */
 package com.krazystore.krazystore.DTO;
 
+import com.krazystore.krazystore.Entity.AplicacionAnticipo;
+import com.krazystore.krazystore.Entity.AplicacionPagoPedidoCompra;
+import com.krazystore.krazystore.Entity.FormaCobroEntity;
+import com.krazystore.krazystore.Entity.FormaPagoEntity;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
 import com.krazystore.krazystore.Entity.PagoEntity;
 import java.util.List;
@@ -14,16 +18,15 @@ import java.util.List;
  */
 public class MovimientoCreationDTO {
     private MovimientoEntity movimiento;
-    private List<PagoEntity> pago;
+    private List<FormaPagoEntity> pagos;
+    private List<FormaCobroEntity> cobros;
+    private List<AplicacionAnticipo> anticiposAplicados;
+    private List<AplicacionPagoPedidoCompra> pagosPedidoCompraAplicados;
 
     public MovimientoCreationDTO() {
     }
 
-    public MovimientoCreationDTO(MovimientoEntity movimiento, List<PagoEntity> pago) {
-        this.movimiento = movimiento;
-        this.pago = pago;
-    }
-
+   
    
 
     public MovimientoEntity getMovimiento() {
@@ -34,14 +37,39 @@ public class MovimientoCreationDTO {
         this.movimiento = movimiento;
     }
 
-    public List<PagoEntity> getPago() {
-        return pago;
+    public List<FormaPagoEntity> getPagos() {
+        return pagos;
     }
 
-    public void setPago(List<PagoEntity> pago) {
-        this.pago = pago;
+    public void setPagos(List<FormaPagoEntity> pagos) {
+        this.pagos = pagos;
     }
 
+    public List<FormaCobroEntity> getCobros() {
+        return cobros;
+    }
+
+    public void setCobros(List<FormaCobroEntity> cobros) {
+        this.cobros = cobros;
+    }
+
+    public List<AplicacionAnticipo> getAnticiposAplicados() {
+        return anticiposAplicados;
+    }
+
+    public void setAnticiposAplicados(List<AplicacionAnticipo> anticiposAplicados) {
+        this.anticiposAplicados = anticiposAplicados;
+    }
+
+    public List<AplicacionPagoPedidoCompra> getPagosPedidoCompraAplicados() {
+        return pagosPedidoCompraAplicados;
+    }
+
+    public void setPagosPedidoCompraAplicados(List<AplicacionPagoPedidoCompra> pagosPedidoCompraAplicados) {
+        this.pagosPedidoCompraAplicados = pagosPedidoCompraAplicados;
+    }
+
+    
    
 
 

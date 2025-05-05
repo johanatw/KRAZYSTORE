@@ -5,10 +5,14 @@
 package com.krazystore.krazystore.Service;
 
 import com.krazystore.krazystore.DTO.AnticipoCreationDTO;
+import com.krazystore.krazystore.DTO.EgresoVarioDTO;
 import com.krazystore.krazystore.DTO.EstadoPagoPedidoDTO;
+import com.krazystore.krazystore.DTO.IngresoVarioDTO;
 import com.krazystore.krazystore.DTO.MovimientoCreationDTO;
 import com.krazystore.krazystore.DTO.MovimientosDTO;
-import com.krazystore.krazystore.DTO.ReembolsoCreationDTO;
+import com.krazystore.krazystore.DTO.PagoPedidoCompraCreationDTO;
+import com.krazystore.krazystore.DTO.ReembolsoAnticipoCreationDTO;
+import com.krazystore.krazystore.DTO.ReembolsoPagoPedidoCompraCreationDTO;
 import com.krazystore.krazystore.DTO.VentaCreationDTO;
 import com.krazystore.krazystore.Entity.CajaEntity;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
@@ -33,14 +37,21 @@ public interface CajaService {
     EstadoPagoPedidoDTO getEstadoPagoPedidoVenta(Long id);
     
     MovimientoEntity saveMovimiento(AnticipoCreationDTO anticipoCreationDTO);
-    MovimientoEntity saveMovimiento(ReembolsoCreationDTO reembolsoDTO);
-    MovimientoEntity saveMovimiento(MovimientoCreationDTO movimientoDTO);
+    MovimientoEntity saveMovimiento(ReembolsoAnticipoCreationDTO reembolsoDTO);
+    MovimientoEntity saveMovimiento(PagoPedidoCompraCreationDTO pagoPedidoCreationDTO);
+    MovimientoEntity saveMovimiento(ReembolsoPagoPedidoCompraCreationDTO reembolsoPagoPedidoCompraDTO);
+    MovimientoEntity saveMovimiento(IngresoVarioDTO ingresoDTO);
+    MovimientoEntity saveMovimiento(EgresoVarioDTO egresoDTO);
     
-    MovimientoEntity savePagosFactura(MovimientoCreationDTO movimientoDTO);
+    MovimientoEntity savePagosPendientes(MovimientoCreationDTO movimientoDTO);
+    MovimientoEntity saveCobrosPendientes(MovimientoCreationDTO movimientoDTO);
     
     void deleteAnticipo(Long id);
     void deleteReembolso(Long id);
+    void deletePagoPedidoCompra(Long id);
+    void deleteReembolsoPagoPedidoCompra(Long id);
     void deleteMovimiento(Long id);
     
-    List<MovimientoEntity> getFacturasPendientes();
+    List<MovimientoEntity> getMovimientosPendientesDePago();
+    List<MovimientoEntity> getMovimientosPendientesDeCobro();
 }

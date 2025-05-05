@@ -45,10 +45,40 @@ obtenerMovimientosByPedido(id) {
     return Promise.reject(error);
   })
   },
+  deletePagoPedidoCompra(id){
+
+    return axios.delete(CAJA_API_BASE_URL+"/pago_pedido_compra/"+id,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+  },
   
   deleteReembolso(id){
   
     return axios.delete(CAJA_API_BASE_URL+"/reembolso/"+id,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+  },
+  deleteReembolsoPagoPedidoCompra(id){
+  
+    return axios.delete(CAJA_API_BASE_URL+"/reembolso_pago_pedido_compra/"+id,{
       headers: {
         'Authorization': 'Bearer ' + localStorage.getItem('token')
       }
@@ -77,9 +107,9 @@ obtenerMovimientosByPedido(id) {
   })
   },
   
-  savePagosMovimiento(movimientoCreationDTO) {
+  savePagosPendiente(movimientoCreationDTO) {
 
-      return axios.post(CAJA_API_BASE_URL+'/pagar_factura',movimientoCreationDTO,{
+      return axios.post(CAJA_API_BASE_URL+'/pagos_pendientes',movimientoCreationDTO,{
         headers: {
           'Authorization': 'Bearer ' + localStorage.getItem('token')
         }
@@ -93,6 +123,22 @@ obtenerMovimientosByPedido(id) {
     })
     
   },
+  saveCobrosPendiente(movimientoCreationDTO) {
+
+    return axios.post(CAJA_API_BASE_URL+'/cobros_pendientes',movimientoCreationDTO,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+  
+},
   saveReembolso(reembolso) {
 
       return axios.post(CAJA_API_BASE_URL+"/reembolso", reembolso,{
@@ -110,9 +156,9 @@ obtenerMovimientosByPedido(id) {
     
   },
   
-  saveMovimiento(movimientoCreationDTO) {
+  saveIngresoVario(ingresoDTO) {
 
-      return axios.post(CAJA_API_BASE_URL+"/movimiento",movimientoCreationDTO,{
+      return axios.post(CAJA_API_BASE_URL+"/ingreso_vario",ingresoDTO,{
         headers: {
           'Authorization': 'Bearer ' + localStorage.getItem('token')
         }
@@ -126,6 +172,23 @@ obtenerMovimientosByPedido(id) {
     })
     
   },
+
+  saveEgresoVario(egresoDTO) {
+
+    return axios.post(CAJA_API_BASE_URL+"/egreso_vario",egresoDTO,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+  
+},
   saveAnticipo(anticipoCreationDTO) {
 
       return axios.post(CAJA_API_BASE_URL+"/anticipo",anticipoCreationDTO,{
@@ -142,6 +205,38 @@ obtenerMovimientosByPedido(id) {
     })
     
   },
+  savePagoPedidoCompra(pagoPedidoCompraCreationDTO) {
+
+    return axios.post(CAJA_API_BASE_URL+"/pago_pedido_compra",pagoPedidoCompraCreationDTO,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+  
+},
+saveReembolsoPagoPedidoCompra(pagoPedidoCompraCreationDTO) {
+
+  return axios.post(CAJA_API_BASE_URL+"/reembolso_pago_pedido_compra",pagoPedidoCompraCreationDTO,{
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
+  }).catch(error => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");  // Eliminar el token expirado
+      router.push({name: 'home'});
+      return Promise.reject(error);
+  }
+  return Promise.reject(error);
+})
+
+},
   getCajas() {
 
       return axios.get(CAJA_API_BASE_URL,{
@@ -224,9 +319,9 @@ obtenerMovimientosByPedido(id) {
   },
   
   
-  obtenerFacturasPendientes() {
+  obtenerMovimientosPendientesDePago() {
    
-      return axios.get(CAJA_API_BASE_URL+"/pendientes",{
+      return axios.get(CAJA_API_BASE_URL+"/pendientes_pago",{
         headers: {
           'Authorization': 'Bearer ' + localStorage.getItem('token')
         }
@@ -241,6 +336,23 @@ obtenerMovimientosByPedido(id) {
     })
     
   },
+  obtenerMovimientosPendientesDeCobro() {
+   
+    return axios.get(CAJA_API_BASE_URL+"/pendientes_cobro",{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+ 
+  })
+  
+},
   obtenerPagosPedido(id) {
 
       return axios.get(CAJA_API_BASE_URL+"/estado_pagos_pedido_venta/"+id,{

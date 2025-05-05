@@ -11,8 +11,7 @@
             <template #icons>
                 <div  class="flex" style="justify-content: end;">  
                     <Button label="Atras"  style="margin-right: 1%;" @click="vistaInventarios()" />
-                    <Button v-show="inventario?.estado == 'S' " label="Finalizar"  style="margin-right: 1%;" @click="finalizarInventario()" />
-                    <Button v-show="inventario?.estado == 'S' " label="Modificar" @click="modificarInventario()" />
+                    <Button v-show="isEnCurso(inventario?.estado)" label="Modificar" @click="modificarInventario()" />
                 </div>
             </template>
             
@@ -28,7 +27,7 @@
                         </template>
                         <template #content>
                             <div >
-                                Fecha: {{ formatearFecha(fecha) }}
+                                Fecha: {{ formatearFecha(inventario.fecha) }}
                             </div> 
                             <div  >
                                 Estado: {{getEstadoInventario(inventario.estado)}}
@@ -40,34 +39,45 @@
                 <div class="field col-12 md:col-12">
                     <Card>
                         <template #content>
-                            <DataTable v-model:filters="filters" :value="detalleInventario" paginator :rows="10" 
-                @filter="onFilter" dataKey="id" ref="dt" filterDisplay="row" :loading="loading">
-                    <template #empty> No customers found. </template>
-                    <template #loading> Loading customers data. Please wait. </template>
-                    <Column field="producto" sortable header="Producto" aria-sort="ascending" ></Column>
-                    <Column header="Categoría" filterField="categoria" :showFilterMenu="false" :filterMenuStyle="{ width: '14rem' }" style="min-width: 14rem">
-                        <template #body="{ data }">
-                            <div class="flex align-items-center gap-2">
-                                <span>{{ data.categoria.descripcion }}</span>
-                            </div>
-                        </template>
-                    </Column>
-                    <Column field="stockActual" sortable header="Stock Existente" aria-sort="ascending" >
-                        
-                        <template #body="{ data }">
-                            <div class="flex align-items-center gap-2">
-                                <span>{{ data.stockInicialInventario }}</span>
-                            </div>
-                        </template>
-                    </Column>
-                    <Column  class="col" field="cantContada" header="Cantidad Contada" aria-sort="none"></Column>
-                    <Column  class="col" field="diferencia" header="Diferencia" aria-sort="none" >
-                        <template #body="slotProps">
-                            <div class="flex-auto p-fluid" style="max-width: 20dvh;">
-                                <label for="diferencia"> {{  slotProps.data.diferencia }}</label>
-                            </div>
-                        </template>
-                    </Column>
+                            <DataTable :value="detalleInventario" paginator :rows="10" 
+                            dataKey="id" ref="dt" filterDisplay="row" :loading="loading">
+                                <template #empty> No hay registros para mostrar. </template>
+                                    <Column field="producto.nombre" sortable header="Producto" aria-sort="ascending" ></Column>
+                                    <Column header="Categoría" :showFilterMenu="false" :filterMenuStyle="{ width: '14rem' }" style="min-width: 14rem">
+                                        <template #body="{ data }">
+                                            <div class="flex align-items-center gap-2">
+                                                <span>{{ data.producto.subCategoria.categoria.descripcion }}</span>
+                                            </div>
+                                        </template>
+                                    </Column>
+                                    <Column header="Sub Categoría" :showFilterMenu="false" :filterMenuStyle="{ width: '14rem' }" style="min-width: 14rem">
+                                        <template #body="{ data }">
+                                            <div class="flex align-items-center gap-2">
+                                                <span>{{ data.producto.subCategoria.descripcion }}</span>
+                                            </div>
+                                        </template>
+                                    </Column>
+                                    <Column v-if="!isEnCurso(inventario.estado)" header="Stock anterior" >
+                                        <template #body="{ data }">
+                                            <div class="flex align-items-center gap-2">
+                                                <span>{{ data.stockInicialInventario }}</span>
+                                            </div>
+                                        </template>
+                                    </Column>
+                                    <Column v-if="!isEnCurso(inventario.estado)" header="Contado" >
+                                        <template #body="{ data }">
+                                            <div class="flex align-items-center gap-2">
+                                                <span>{{ data.cantContada }}</span>
+                                            </div>
+                                        </template>
+                                    </Column>
+                                    <Column v-if="!isEnCurso(inventario.estado)" header="Diferencia" >
+                                        <template #body="{ data }">
+                                            <div class="flex align-items-center gap-2" :style="getColor(data.diferencia)" >
+                                                <span>{{ data.diferencia }}</span>
+                                            </div>
+                                        </template>
+                                    </Column>
                 </DataTable>
 
                         </template>
@@ -147,18 +157,10 @@ const exportCSV = () => {
 };
 
 onMounted(() => {
-    InventarioServices.obtenerDetallesCompletos(router.currentRoute.value.params.id).then((data) => {
-        inventario.value = data.data.inventario;
-    });
-
     InventarioServices.getInventario(router.currentRoute.value.params.id).then((data) => {
+        inventario.value = data.data.inventario;
         detalleInventario.value = data.data.detalle;
     });
-
-    ProductoServices.obtenerCategorias().then((data) => {
-        categorias.value = data.data;
-    });
-
 });
 
 const getSeverity = (status) => {
@@ -180,6 +182,37 @@ const getSeverity = (status) => {
     }
 }
 
+const getColor = (diferencia) => {
+    console.log(diferencia);
+    if (diferencia < 0) {
+        return 'color: red;';
+    }
+
+    if (diferencia > 0) {
+        return 'color: green;';
+    }
+
+}
+
+const isFinalizado = (estado) => {
+    switch (estado) {
+        case 'P':
+            return true;
+        default:
+            return false;
+
+    }
+}
+
+const isEnCurso = (estado) => {
+    switch (estado) {
+        case 'S':
+            return true;
+        default:
+            return false;
+
+    }
+}
 
 const finalizarInventario = () =>{
     inventario.value.estado = 'F';

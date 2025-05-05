@@ -32,76 +32,69 @@
                         </template>
                     </Card>
                 </div> 
+                <!--Filtros -->
                 <div class="field col-12 md:col-12">
-                    <Card>
-                        <template #content>
-                            <div class="flex justify-content-between flex-wrap">
-                    <div >
-                        <div class="flex align-items-center gap-2 mb-3">
-                            <label for="categoria-filter">Filtrar por Categoría:</label>
-                            <MultiSelect fluid
-                                id="categoria-filter"
-                                v-model="filters.categoria.value"
-                                :options="categorias"
-                                optionLabel="descripcion"
-                                placeholder="Seleccione una categoría"
-                                style="min-width: 14rem"
-                                :maxSelectedLabels="1"
-                                @change="onFilterChange"
-                            >
-                                <template #option="slotProps">
-                                    <div class="flex align-items-center gap-2">
-                                        <span>{{ slotProps.option.descripcion }}</span>
+                        <Card>
+                            <template #content>
+                                <div class="flex justify-content-between flex-wrap">
+                                    <div >
+                                        <div class="flex align-items-center gap-2 mb-3">
+                                            <label for="categoria-filter">Categoría:</label>
+                                            <MultiSelect v-model="selectedCategorias" 
+                                            :options="categorias" optionLabel="descripcion" 
+                                            placeholder="Seleccione un valor"
+                                            :maxSelectedLabels="1"  
+                                            @change="getSubCategorias()" />
+                                        </div>
                                     </div>
-                                </template>
-                            </MultiSelect>
-                        </div>
+                                    <div >
+                                        <div class="flex align-items-center gap-2 mb-3">
+                                            <label for="categoria-filter">Sub Categoría:</label>
+                                            <MultiSelect v-model="selectedSubCategorias" 
+                                            :options="subCategorias" optionLabel="descripcion" 
+                                            placeholder="Seleccione un valor"
+                                            :maxSelectedLabels="1"   />
+                                        </div>
+                                    </div>
+                                    <div >
+                                        <Button icon="pi pi-search" label="Buscar" @click="getProductosByFiltros()" />
+                                    </div>
+                                </div>
+                            </template>
+                        </Card>
                     </div>
-                    <div >
-                        <Button icon="pi pi-external-link" label="Export" @click="exportCSV()" />
+                    <!--Lista de productos-->
+                    <div class="field col-12 md:col-12">
+                        <Card>
+                            <template #content>
+                                <div class="flex justify-content-end flex-wrap">
+                                    <div >
+                                        <Button icon="pi pi-external-link" label="Export" @click="exportCSV()" />
+                                    </div>
+                                </div>
+                                <DataTable v-model:filters="filters" 
+                                :value="productosFiltrados" paginator :rows="10" dataKey="id" ref="dt">
+                                    <template #empty> No hay registros para mostrar. </template>
+                                    <template #loading> Loading customers data. Please wait. </template>
+                                    <Column field="producto.nombre" sortable header="Producto" aria-sort="ascending" ></Column>
+                                    <Column header="Categoría" :showFilterMenu="false" :filterMenuStyle="{ width: '14rem' }" style="min-width: 14rem">
+                                        <template #body="{ data }">
+                                            <div class="flex align-items-center gap-2">
+                                                <span>{{ data.producto.subCategoria.categoria.descripcion }}</span>
+                                            </div>
+                                        </template>
+                                    </Column>
+                                    <Column header="Sub Categoría" :showFilterMenu="false" :filterMenuStyle="{ width: '14rem' }" style="min-width: 14rem">
+                                        <template #body="{ data }">
+                                            <div class="flex align-items-center gap-2">
+                                                <span>{{ data.producto.subCategoria.descripcion }}</span>
+                                            </div>
+                                        </template>
+                                    </Column>
+                                </DataTable>
+                            </template>
+                        </Card>
                     </div>
-                </div>
-                <DataTable v-model:filters="filters" :value="detalleInventario" paginator :rows="10" @filter="onFilter" dataKey="id" ref="dt" filterDisplay="row" :loading="loading"
-                >
-                    <template #empty> No customers found. </template>
-                    <template #loading> Loading customers data. Please wait. </template>
-                    <Column field="producto" sortable header="Producto" aria-sort="ascending" ></Column>
-                    <Column header="Categoría" filterField="categoria" :showFilterMenu="false" :filterMenuStyle="{ width: '14rem' }" style="min-width: 14rem">
-                        <template #body="{ data }">
-                            <div class="flex align-items-center gap-2">
-                                <span>{{ data.categoria.descripcion }}</span>
-                            </div>
-                        </template>
-                    </Column>
-                    <Column field="stockActual" sortable header="Stock Existente" aria-sort="ascending" >
-                        <template #body="slotProps">
-                            <div v-if="slotProps.data.id" class="flex-auto p-fluid" style="max-width: 20dvh;">
-                                <label for="diferencia"> {{  (slotProps.data.stockInicialInventario).toLocaleString("de-DE") }}</label>
-                            </div>
-                            <div v-else class="flex-auto p-fluid" style="max-width: 20dvh;">
-                                <label for="diferencia"> {{  (slotProps.data.stockInicialInventario = slotProps.data.stockActual).toLocaleString("de-DE") }}</label>
-                            </div>
-                        </template>
-                    </Column>
-                    <Column  class="col" field="cantContada" header="Cantidad Contada" aria-sort="none">
-                        <template #body="slotProps">
-                            <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
-                                <InputNumber fluid class="inpCant" v-model="slotProps.data.cantContada" inputId="minmax-buttons" mode="decimal" showButtons :min="0"  />
-                            </div>  
-                        </template>
-                    </Column>
-                    <Column  class="col" field="diferencia" header="Diferencia" aria-sort="none" >
-                        <template #body="slotProps">
-                            <div class="flex-auto p-fluid" style="max-width: 20dvh;">
-                                <label for="diferencia"> {{  (slotProps.data.diferencia = slotProps.data.cantContada - slotProps.data.stockInicialInventario).toLocaleString("de-DE") }}</label>
-                            </div>
-                        </template>
-                    </Column>
-                </DataTable>
-
-                        </template>
-                    </Card>
-                </div>
 
             </div>
         </Panel>
@@ -124,12 +117,19 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import {InventarioServices} from '@/services/InventarioServices';
 import { formatearNumero } from '@/utils/utils';
+import { CategoriaServices } from '@/services/CategoriaServices';
 import Card from 'primevue/card';
 import DatePicker from 'primevue/datepicker';
+import { useToast } from "primevue/usetoast";
+
+const toast = useToast();
+const categorias = ref();
+const subCategorias = ref([]);
+const selectedCategorias = ref([]);
+const selectedSubCategorias = ref([]);
 
 const detalleInventario = ref();
 const inventario = ref({});
-const categorias = ref();
 const filtros = ref();
 const fecha= ref();
 const filters = ref({
@@ -149,13 +149,12 @@ const exportCSV = () => {
     
     const doc = new jsPDF();
 
-    
       // Define the table headers and rows
-      const headers = [["Nombre","Categoria","Cantidad Contada"]];
+      const headers = [["Nombre","Categoria","Sub Categoria","Cantidad Contada"]];
       const data = productosFiltrados.value.map((c) => [
         c.producto.nombre,
-        c.producto.categoria.descripcion,
-        
+        c.producto.subCategoria.categoria.descripcion,
+        c.producto.subCategoria.descripcion,
  
       ]);
 
@@ -173,22 +172,49 @@ const exportCSV = () => {
 };
 
 onMounted(() => {
-    InventarioServices.obtenerDetallesCompletos(router.currentRoute.value.params.id).then((data) => {
-        console.log(data.data.inventario);
-        console.log(data.data.detalle);
-        console.log(data.data.filtrosInventario);
+    
+    InventarioServices.getInventario(router.currentRoute.value.params.id).then((data) => {
         inventario.value = data.data.inventario;
-        inventario.value.fecha = new Date(data.data.inventario.fecha);
-        detalleInventario.value = data.data.detalle;
-        filtros.value = data.data.filtrosInventario;
-        filters.value.categoria.value = filtros.value;
-       
+        productosFiltrados.value = data.data.detalle;
+        console.log(productosFiltrados.value);
     });
 
-    ProductoServices.obtenerCategorias().then((data) => {
+    CategoriaServices.obtenerCategorias().then((data) => {
+        console.log(data.data);
         categorias.value = data.data;
+        
     });
 });
+
+const getSubCategorias = async () => {
+    try {
+        let categoriasIds = getCategoriasIds();
+        const response = await CategoriaServices.obtenerSubCatByIdsCat(categoriasIds);
+        subCategorias.value= response.data;
+    } catch (error) {
+        
+    }
+};
+
+
+const getCategoriasIds = () => {
+   return selectedCategorias.value.map(c => c.id) // Solo guardamos los IDs
+}
+
+const getSubCategoriasIds = () => {
+   return selectedSubCategorias.value.map(c => c.id) // Solo guardamos los IDs
+}
+
+const getProductosByFiltros = async () => {
+    try {
+        let subCategoriasIds = getSubCategoriasIds();
+        const response = await InventarioServices.getDetallesInventarioIniciales(subCategoriasIds);
+        console.log(response.data);
+        productosFiltrados.value = response.data;
+    } catch (error) {
+        
+    }
+};
 
 const getSeverity = (status) => {
     switch (status) {

@@ -5,6 +5,9 @@
 package com.krazystore.krazystore.Service;
 
 import com.krazystore.krazystore.Entity.FormaPagoEntity;
+import com.krazystore.krazystore.Entity.MovimientoEntity;
+import com.krazystore.krazystore.Entity.PagoEntity;
+import com.krazystore.krazystore.Entity.VentaEntity;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,4 +21,8 @@ public interface FormaPagoService {
     FormaPagoEntity saveFormaPago(FormaPagoEntity formaPagoEntity);
     FormaPagoEntity updateFormaPago(FormaPagoEntity formaPagoEntity, Long id);
     void deleteFormaPago(Long id);
+    
+    List<FormaPagoEntity> saveFormasPagos(List<FormaPagoEntity> pagos);
+    void deleteFormasPagosByMovimientos(List<Long> ids);
+    void deleteFormasPagosByMovimiento(Long id);
 }

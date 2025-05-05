@@ -175,10 +175,10 @@ const items = ref([
                 }
             },
             {
-                label: 'Anticipos',
+                label: 'Anticipos Clientes',
                 icon: 'pi pi-star',
                 command: () => {
-                    router.push({name: 'anticipos'});
+                    router.push({name: 'anticipos_clientes'});
                 }
             },
             {
@@ -188,7 +188,20 @@ const items = ref([
                     router.push({name: 'reembolsos'});
                 }
             },
-            
+            {
+                label: 'Pagos de Pedidos de Compra',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'pagos_pedido_compra'});
+                }
+            },
+            {
+                label: 'Reembolsos de Pagos de Pedidos de Compra',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'reembolsos_pagos_pedido_compra'});
+                }
+            },
            
         ]
     },

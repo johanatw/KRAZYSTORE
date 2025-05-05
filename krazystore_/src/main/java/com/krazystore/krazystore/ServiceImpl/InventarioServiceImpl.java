@@ -129,24 +129,6 @@ public class InventarioServiceImpl implements InventarioService {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     
-    @Override
-    public InventarioCreationDTO obtenerDetallesCompletos(Long id) {
-        InventarioCreationDTO inventarioDTO = new InventarioCreationDTO();
-        Optional<InventarioEntity> inventario = inventarioRepository.findById(id);
-        if (inventario.isPresent()) {
-            List<DetalleInventarioDTO> detalles = detalleService.obtenerDetallesCompletos(id)
-                .stream()
-                .map(detalleDTOMapper)
-                .collect(Collectors.toList());
-            
-            List<CategoriaEntity> filtros = inventarioRepository.obtenerFiltros(id);
-            inventarioDTO.setInventario(inventario.get());
-            inventarioDTO.setDetalle(detalles);
-            inventarioDTO.setFiltrosInventario(filtros);
-        }
-        return inventarioDTO;
-        
-    }
     
     @Transactional
     @Override
@@ -169,8 +151,8 @@ public class InventarioServiceImpl implements InventarioService {
     }
 
     @Override
-    public List<DetalleInventarioDTO> getDetallesInventarioIniciales() {
-        return detalleService.getDetallesInventarioIniciales()
+    public List<DetalleInventarioDTO> getDetallesInventarioIniciales(List<Long> ids) {
+        return detalleService.getDetallesInventarioIniciales(ids)
                 .stream()
                 .map(detalleDTOMapper)
                 .collect(Collectors.toList());
@@ -193,6 +175,7 @@ public class InventarioServiceImpl implements InventarioService {
                 .collect(Collectors.toList());
             
         // Establecer la relación bidireccional si es necesario
+        detalle.forEach(det -> System.out.println(det.getDiferencia()));
         detalle.forEach(det -> det.setInventario(inventario));
 
         detalleService.updateDetInventario(detalle, id);

@@ -32,14 +32,13 @@ public class AnticipoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-    @Column(name = "tipo_pedido")
-    private char tipoPedido;
     @Column
     private int total;
     @Column
     private Date fecha;
-    @Column(name = "id_pedido")
-    private Long idPedido;
+    @ManyToOne
+    @JoinColumn(name="id_pedido")
+    private PedidoEntity pedido;
     @Column
     private int saldo;
     @Column
@@ -76,25 +75,7 @@ public class AnticipoEntity {
     public Long getId() {
         return id;
     }
-
-    public char getTipoPedido() {
-        return tipoPedido;
-    }
-
-    public void setTipoPedido(char tipoPedido) {
-        this.tipoPedido = tipoPedido;
-    }
-
-    public Long getIdPedido() {
-        return idPedido;
-    }
-
-    public void setIdPedido(Long idPedido) {
-        this.idPedido = idPedido;
-    }
-
     
-
     public int getTotal() {
         return total;
     }
@@ -109,6 +90,14 @@ public class AnticipoEntity {
 
     public void setFecha(Date fecha) {
         this.fecha = fecha;
+    }
+
+    public PedidoEntity getPedido() {
+        return pedido;
+    }
+
+    public void setPedido(PedidoEntity pedido) {
+        this.pedido = pedido;
     }
 
 

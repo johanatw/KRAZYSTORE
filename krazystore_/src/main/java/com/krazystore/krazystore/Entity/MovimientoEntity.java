@@ -37,8 +37,14 @@ public class MovimientoEntity {
     @JoinColumn(name = "id_anticipo")
     private AnticipoEntity anticipo;
     @ManyToOne
-    @JoinColumn(name = "id_reembolso")
-    private ReembolsoEntity reembolso;
+    @JoinColumn(name = "id_pago_pedido_compra")
+    private PagoPedidoCompra pagoPedidoCompra;
+    @ManyToOne
+    @JoinColumn(name = "id_reembolso_anticipo")
+    private ReembolsoAnticipo reembolso;
+    @ManyToOne
+    @JoinColumn(name = "id_reembolso_pago_pedido_compra")
+    private ReembolsoPagoPedidoCompra reembolsoPagoPedidoCompra;
     @ManyToOne
     @JoinColumn(name = "id_venta")
     private VentaEntity venta;
@@ -154,11 +160,11 @@ public class MovimientoEntity {
         this.anticipo = anticipo;
     }
 
-    public ReembolsoEntity getReembolso() {
+    public ReembolsoAnticipo getReembolso() {
         return reembolso;
     }
 
-    public void setReembolso(ReembolsoEntity reembolso) {
+    public void setReembolso(ReembolsoAnticipo reembolso) {
         this.reembolso = reembolso;
     }
 
@@ -185,7 +191,23 @@ public class MovimientoEntity {
     public void setConcepto(ConceptoEntity concepto) {
         this.concepto = concepto;
     }
+
+    public PagoPedidoCompra getPagoPedidoCompra() {
+        return pagoPedidoCompra;
+    }
+
+    public void setPagoPedidoCompra(PagoPedidoCompra pagoPedidoCompra) {
+        this.pagoPedidoCompra = pagoPedidoCompra;
+    }
+
+    public ReembolsoPagoPedidoCompra getReembolsoPagoPedidoCompra() {
+        return reembolsoPagoPedidoCompra;
+    }
+
+    public void setReembolsoPagoPedidoCompra(ReembolsoPagoPedidoCompra reembolsoPagoPedidoCompra) {
+        this.reembolsoPagoPedidoCompra = reembolsoPagoPedidoCompra;
+    }
     
     
-    
+
 }

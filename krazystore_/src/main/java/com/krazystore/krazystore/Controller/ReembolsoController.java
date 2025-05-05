@@ -4,8 +4,8 @@
  */
 package com.krazystore.krazystore.Controller;
 
-import com.krazystore.krazystore.DTO.ReembolsoCreationDTO;
-import com.krazystore.krazystore.Entity.ReembolsoEntity;
+import com.krazystore.krazystore.DTO.ReembolsoAnticipoCreationDTO;
+import com.krazystore.krazystore.Entity.ReembolsoAnticipo;
 import com.krazystore.krazystore.Service.ReembolsoService;
 import java.util.List;
 import java.util.Optional;
@@ -34,22 +34,22 @@ public class ReembolsoController {
     }
     
     @GetMapping
-    public List<ReembolsoEntity> findAll() {
+    public List<ReembolsoAnticipo> findAll() {
         return reembolsoService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Optional<ReembolsoEntity> findById(@PathVariable("id") Long id) {
+    public Optional<ReembolsoAnticipo> findById(@PathVariable("id") Long id) {
         return reembolsoService.findById(id);
     }
     
     @GetMapping("/reembolsos/{id}")
-    public List<ReembolsoEntity> findByIdAnticipo(@PathVariable("id") Long id) {
+    public List<ReembolsoAnticipo> findByIdAnticipo(@PathVariable("id") Long id) {
         return reembolsoService.findByIdAnticipo(id);
     }
 
     /*@PostMapping
-    public ReembolsoEntity saveReembolso(@RequestBody ReembolsoCreationDTO reembolsoCreationDTO) {
+    public ReembolsoAnticipo saveReembolso(@RequestBody ReembolsoAnticipoCreationDTO reembolsoCreationDTO) {
         
         return reembolsoService.saveReembolso(reembolsoCreationDTO.getReembolso(),reembolsoCreationDTO.getPagos() );
     }*/
@@ -57,12 +57,12 @@ public class ReembolsoController {
    
 
     @PutMapping("/{id}")
-    public ReembolsoEntity updateReembolso(@PathVariable long id, @RequestBody ReembolsoEntity reembolso) {
+    public ReembolsoAnticipo updateReembolso(@PathVariable long id, @RequestBody ReembolsoAnticipo reembolso) {
         return reembolsoService.updateReembolso(reembolso, id);
     }
 
     @DeleteMapping("/{id}")
     public void deleteReembolso(@PathVariable("id") Long id) {
-        reembolsoService.deleteReembolso(id);
+        reembolsoService.deleteReembolsoAnticipo(id);
     }
 }

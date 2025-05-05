@@ -9,7 +9,7 @@ import com.krazystore.krazystore.DTO.PedidoMontoPagadoDTO;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
 import com.krazystore.krazystore.Entity.PagoEntity;
-import com.krazystore.krazystore.Entity.ReembolsoEntity;
+import com.krazystore.krazystore.Entity.ReembolsoAnticipo;
 import com.krazystore.krazystore.Entity.VentaEntity;
 import java.util.List;
 import java.util.Optional;

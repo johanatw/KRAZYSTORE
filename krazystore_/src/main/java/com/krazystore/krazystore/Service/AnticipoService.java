@@ -7,6 +7,7 @@ package com.krazystore.krazystore.Service;
 import Utils.TipoEvento;
 import Utils.TipoPedido;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
+import com.krazystore.krazystore.Entity.AplicacionAnticipo;
 import com.krazystore.krazystore.Entity.PagoEntity;
 import com.krazystore.krazystore.Entity.PedidoEntity;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,12 +28,9 @@ public interface AnticipoService {
     AnticipoEntity updateAnticipo(AnticipoEntity asnticipoEntity, Long id);
     AnticipoEntity updateAnticipo(AnticipoEntity asnticipoEntity);
     List<AnticipoEntity> updateAnticipos(List<AnticipoEntity> anticipos);
-    void getAnticipoPdf(HttpServletResponse response, Long idAnticipo);
     int deleteAnticipo(Long id);
-    List<AnticipoEntity> findByIdPedido(Long id, TipoPedido tipoPedido);
-    List<AnticipoEntity> findByIdRecepcion(Long id);
+    List<AplicacionAnticipo> findAnticiposAplicarByIdPedidoVenta(Long id);
     boolean existsByPedido(PedidoEntity p);
-    int verificarAnticipoEstado(Long id);
     void deleteAnticipoReembolsos(Long id);
     AnticipoEntity actualizarSaldoAnticipo(Long idAnticipo, int montoReembolsado,TipoEvento evento);
 }

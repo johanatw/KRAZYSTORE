@@ -19,7 +19,7 @@ public class DetalleInventarioMapper implements Function<DetalleInventarioDTO, D
     @Override
     public DetalleInventario apply(DetalleInventarioDTO detalleDTO){
         ProductoEntity productoEntity = new ProductoEntity();
-        productoEntity.setId(detalleDTO.getIdProducto());
+        productoEntity.setId(detalleDTO.getProducto().getId());
         return new DetalleInventario(
                     detalleDTO.getId(),
                     null,

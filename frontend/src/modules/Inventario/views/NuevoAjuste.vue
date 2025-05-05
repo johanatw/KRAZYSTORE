@@ -33,6 +33,7 @@ import { useToast } from "primevue/usetoast";
 import PedidoCompraServices from "@/services/PedidoCompraServices";
 import {formatearNumero, formatearFecha} from '@/utils/utils';
 import DatePicker from "primevue/datepicker";
+import Textarea from "primevue/textarea";
 
 const mensaje = ref([]);
 const visible = ref(false);
@@ -69,6 +70,7 @@ const message = (m) => {
 onMounted(() => {
     AjusteStockServices.getProductosParaAjuste().then((data) => {
         productos.value = data.data
+        console.log(productos.value);
     });
 });
 
@@ -91,7 +93,7 @@ const validarForm = () => {
 
 
 const addItem = (item) => {
-    let index = detalleAjuste.value.findIndex((loopVariable) => loopVariable.idProducto === item.idProducto);
+    let index = detalleAjuste.value.findIndex((loopVariable) => loopVariable.producto.id === item.producto.id);
 
     if (index == -1) { detalleAjuste.value.push(item) }
 }
@@ -99,7 +101,7 @@ const addItem = (item) => {
 const eliminar = (detalle) => {
     const cantidad= 1;
     detalle.cantidadAjustada = 0;
-    let index = detalleAjuste.value.findIndex((loopVariable) => loopVariable.idProducto === detalle.idProducto);
+    let index = detalleAjuste.value.findIndex((loopVariable) => loopVariable.producto.id === detalle.producto.id);
     detalleAjuste.value.splice(index,cantidad);
 }
 
@@ -186,11 +188,12 @@ const guardarAjuste = () =>{
                         </template>
                         <template #content>
                             <div class="field" >
-                                Fecha: <DatePicker v-model="fechaAjuste" dateFormat="dd/mm/yy" showIcon iconDisplay="input" />
+                                Fecha: <DatePicker fluid v-model="fechaAjuste" dateFormat="dd/mm/yy" showIcon iconDisplay="input" />
                             </div> 
-                            <div class="field" >
-                                Observaciones: <InputText type="text" v-model="observaciones" />
-                            </div> 
+                            <div class="field">
+                                Observaciones: 
+                                <Textarea fluid v-model="observaciones" rows="3" cols="33" />
+                            </div>
                         </template>
                     </Card>
                 </div> 
@@ -213,12 +216,32 @@ const guardarAjuste = () =>{
                                 <div class="card" style="width: 100%;">
                                     <div class="flex card-container" style="width: 100%;">
                                         <DataTable class="tablaCarrito" ref="dt" :value="detalleAjuste" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
-                                            <Column  class="col" field="producto" header="Nombre" aria-sort="none" ></Column>
-                                            <Column class="col" field="cantidadActual"  header="Cantidad actual" aria-sort="none" ></Column>
-                                            <Column  class="col" field="cantidadAjustada" header="Ajuste +/-" aria-sort="none">
+                                            <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
+                                            <Column class="col" field="cantidadActual"  header="Cant. Actual" aria-sort="none" >
+                                                <template #body="slotProps">
+                                                    <div >
+                                                        {{ slotProps.data.cantidadAnterior = slotProps.data.cantidadActual }}
+                                                    </div>  
+                                                </template>
+                                            </Column>
+                                            <Column  class="col" field="cantidadAjustada" header="Ajustar +/-" aria-sort="none">
                                                 <template #body="slotProps">
                                                     <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
                                                         <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidadAjustada" inputId="minmax-buttons" mode="decimal" :min="-slotProps.data.cantidadActual" showButtons />
+                                                    </div>  
+                                                </template>
+                                            </Column>
+                                            <Column  class="col" field="cantidadFinal" header="Cant. Final" aria-sort="none">
+                                                <template #body="slotProps">
+                                                    <div>
+                                                        {{ slotProps.data.cantidadFinal = slotProps.data.cantidadActual + slotProps.data.cantidadAjustada }}
+                                                    </div>  
+                                                </template>
+                                            </Column>
+                                            <Column  class="col" field="motivo" header="Motivo" aria-sort="none">
+                                                <template #body="slotProps">
+                                                    <div>
+                                                        <InputText v-model="slotProps.data.motivo" type="text" size="small" placeholder="Motivo" />
                                                     </div>  
                                                 </template>
                                             </Column>
@@ -250,8 +273,8 @@ const guardarAjuste = () =>{
                                                         :paginator="true" :rows="7" :filters="filters"
                                                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" >
                                                 
-                                                        <Column field="idProducto"  header="ID" aria-sort="ascending" ></Column>
-                                                        <Column field="producto" header="Nombre" aria-sort="none" ></Column>
+                                                        <Column field="producto.id"  header="ID" aria-sort="ascending" ></Column>
+                                                        <Column field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
                                                         <Column field="cantidadActual" header="Cantidad actual" aria-sort="none" ></Column>
                                                         <Column :exportable="false" style="min-width:8rem">
                                                             <template #body="slotProps">

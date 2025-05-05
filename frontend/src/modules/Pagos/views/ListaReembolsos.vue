@@ -138,6 +138,21 @@ const verAnticipo = (id) =>{
     router.push({name: 'verAnticipo', params: {id}});
 }
 
+const getTipoAnticipo = (tipo) =>{
+
+switch (tipo) {
+    case 'V':
+        return 'Cliente'
+        break;
+    case 'C':
+        return 'Proveedor'
+        break;
+    default:
+        return ''
+        break;
+}
+}
+
 const deletePedido = (id) =>{
     const cantidad= 1;
     const index = pedidos.value.findIndex((loopVariable) => loopVariable.id === id);
@@ -211,7 +226,7 @@ const nuevoPedido = () =>{
           <Column field="anticipo"  header="N° Anticipo" aria-sort="ascending" sortable>  
             <template #body="slotProps">
                 <div >
-                    {{ slotProps.data.anticipo.id }}
+                    {{ slotProps.data.anticipo?.id }}
                 </div>
                
                 
@@ -236,7 +251,7 @@ const nuevoPedido = () =>{
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
                 
-                <Button :disabled="!registradoEnCajaActualAbierta(slotProps.data.fecha)"  icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button :disabled="!registradoEnCajaActualAbierta(slotProps.data.fecha)"  icon="pi pi-trash" severity="danger" v-tooltip="'Eliminar'" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                 
                 </template>
           </Column>

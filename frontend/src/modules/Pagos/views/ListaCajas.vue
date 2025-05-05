@@ -121,7 +121,7 @@ const verCaja = (caja) =>{
                     </Column>
                     <Column :exportable="false" style="min-width:8rem">
                         <template #body="slotProps">
-                            <Button icon="pi pi-search" text rounded aria-label="Search" style="height: 2rem !important; width: 2rem !important;" @click="verCaja(slotProps.data)" />
+                            <Button icon="pi pi-eye" v-tooltip="'Visualizar'" text rounded aria-label="Search" style="height: 2rem !important; width: 2rem !important;" @click="verCaja(slotProps.data)" />
                         </template>
                     </Column>
                 </DataTable>

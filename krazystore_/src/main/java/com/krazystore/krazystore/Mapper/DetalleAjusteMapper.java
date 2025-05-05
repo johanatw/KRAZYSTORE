@@ -19,15 +19,14 @@ public class DetalleAjusteMapper implements Function<DetalleAjusteDTO, DetalleAj
     @Override
     public DetalleAjuste apply(DetalleAjusteDTO detalleDTO){
         ProductoEntity productoEntity = new ProductoEntity();
-        productoEntity.setId(detalleDTO.getIdProducto());
+        productoEntity.setId(detalleDTO.getProducto().getId());
         return new DetalleAjuste(
                     detalleDTO.getId(),
-                    detalleDTO.getAjuste(),
+                    detalleDTO.getMotivo(),
                     productoEntity,
                     detalleDTO.getCantidadAjustada(),
-                    detalleDTO.getStockAnterior(),
-                    detalleDTO.getStockPosterior(),
-                                detalleDTO.getMotivo()
+                    detalleDTO.getCantidadAnterior(),
+                    detalleDTO.getCantidadFinal()
         );
         
     }

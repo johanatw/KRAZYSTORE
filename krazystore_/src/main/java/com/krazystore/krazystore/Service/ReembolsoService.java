@@ -5,7 +5,7 @@
 package com.krazystore.krazystore.Service;
 
 import com.krazystore.krazystore.Entity.PagoEntity;
-import com.krazystore.krazystore.Entity.ReembolsoEntity;
+import com.krazystore.krazystore.Entity.ReembolsoAnticipo;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,11 +14,12 @@ import java.util.Optional;
  * @author HP
  */
 public interface ReembolsoService {
-    List<ReembolsoEntity> findAll();
-    Optional<ReembolsoEntity> findById(Long id);
-    ReembolsoEntity saveReembolso(ReembolsoEntity reembolsoEntity);
-    ReembolsoEntity updateReembolso(ReembolsoEntity reembolsoEntity, Long id);
-    void deleteReembolso(Long id);
-    void deleteReembolsos(List<Long> ids);
-    List<ReembolsoEntity> findByIdAnticipo(Long id);
+    List<ReembolsoAnticipo> findAll();
+    Optional<ReembolsoAnticipo> findById(Long id);
+    ReembolsoAnticipo saveReembolso(ReembolsoAnticipo reembolsoEntity);
+    ReembolsoAnticipo updateReembolso(ReembolsoAnticipo reembolsoEntity, Long id);
+    void deleteReembolsoAnticipo(Long id);
+    void deleteReembolsosAnticipo(List<Long> ids);
+    List<ReembolsoAnticipo> findByIdAnticipo(Long id);
+    List<Long> getIdReembolsosByIdAnticipo(Long id);
 }

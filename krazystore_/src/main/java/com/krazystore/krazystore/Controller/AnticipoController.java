@@ -7,6 +7,7 @@ package com.krazystore.krazystore.Controller;
 import Utils.TipoPedido;
 import com.krazystore.krazystore.DTO.AnticipoCreationDTO;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
+import com.krazystore.krazystore.Entity.AplicacionAnticipo;
 import com.krazystore.krazystore.Entity.PagoEntity;
 import com.krazystore.krazystore.Service.AnticipoService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -51,40 +52,11 @@ public class AnticipoController {
         return anticipoService.findById(id);
     }
     
-    @GetMapping("/pedido_venta/{id}")
-    public List<AnticipoEntity> findByIdPedidoVenta(@PathVariable("id") Long id) {
-        return anticipoService.findByIdPedido(id, TipoPedido.PEDIDOVENTA);
+    @GetMapping("/pedido/{id}")
+    public List<AplicacionAnticipo> findAnticiposAplicarByIdPedidoVenta(@PathVariable("id") Long id) {
+        System.out.println("Anticipo controller");
+        return anticipoService.findAnticiposAplicarByIdPedidoVenta(id);
     }
-    
-    @GetMapping("/recepcion/{id}")
-    public List<AnticipoEntity> findByIdRecepcion(@PathVariable("id") Long id) {
-        return anticipoService.findByIdRecepcion(id);
-    }
-    
-    @GetMapping("/verificar/{id}")
-    public int verificarEstadoAnticipo(@PathVariable("id") Long id) {
-        return anticipoService.verificarAnticipoEstado(id);
-    }
-    
-    @GetMapping("/pdf")
-    public void getAnticipoPdf(@RequestParam(value="idAnticipo") Long id, HttpServletResponse response) {
-        response.setContentType("application/pdf");
-       
-        anticipoService.getAnticipoPdf(response, id);
-    }
-    /*
-    @GetMapping("/prueba/{id}")
-    public boolean prueba(@PathVariable("id") Long id) {
-        
-       
-        return anticipoService.verificarAnticipoEstado(id);
-    }*/
-    /*
-    @PostMapping
-    public AnticipoEntity saveAnticipo(@RequestBody AnticipoCreationDTO anticipoCreationDTO){
-        
-        return anticipoService.saveAnticipo(anticipoCreationDTO.getAnticipo(), anticipoCreationDTO.getPagos());
-    }*/
     
     @DeleteMapping("/{id}")
     public int deleteAnticipo(@PathVariable("id") Long id) {

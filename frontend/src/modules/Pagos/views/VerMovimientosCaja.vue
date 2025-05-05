@@ -30,7 +30,7 @@
                     </div>
                     <div class="flex align-items-center gap-3 mb-2">
                         <label for="email" class="font-semibold w-9rem">Medio de pago</label>
-                        <Dropdown v-model:model-value="movimiento.formaPago" :options="formasPago" optionLabel="descripcion"  placeholder="Seleccione un elemento" checkmark :highlightOnSelect="false" class="w-full md:w-14rem" />
+                        <Dropdown v-model:model-value="movimiento.medio" :options="formasPago" optionLabel="descripcion"  placeholder="Seleccione un elemento" checkmark :highlightOnSelect="false" class="w-full md:w-14rem" />
                     </div>
                     <div class="flex align-items-center gap-3 mb-2">
                         <label for="email" class="font-semibold w-9rem">Documento</label>
@@ -50,7 +50,7 @@
             </template>
         </Dialog>
 
-        <!--Registrar pago/cobro de facturas pendientes-->
+        <!--Registrar pago de facturas pendientes-->
         
         <Dialog v-model:visible="registrarPagoDialog" modal @update:visible="closeDialog($event)" header="Edit Profile" :style="{ width: '40rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
             <template #header>
@@ -62,21 +62,21 @@
 
             <div >
                 
-                        <div v-if="anticiposAsociados">
+                        <div v-if="pagosAsociados">
                             <Message severity="info" >El pedido asociado a esta factura tiene anticipos</Message>
                         </div>
                         TOTAL FACTURA: {{ total }}
-                        <div  v-if="anticiposAsociados">
+                        <div  v-if="pagosAsociados">
                             <h4>Usar Anticipos Disponibles:</h4>
-                            <div v-for="(anticipo, index) in anticipos" :key="index" class="formgrid grid">
+                            <div v-for="(aplicar, index) in pagosAplicar" :key="index" class="formgrid grid">
                                 <div class="field col-1 md:col-1 p-fluid" style="justify-content: start;  ">
-                                <Checkbox v-model="anticipo.seleccionado" name="anticipo" :binary="true" @change="actualizarSumaTotal()"  />
+                                <Checkbox v-model="aplicar.seleccionado" name="anticipo" :binary="true" @change="getPagosSeleccionados()"  />
                             </div>
                             <div class="field col-4 md:col-4 p-fluid" style="justify-content: start;  ">
-                                <label>Anticipo #{{ anticipo.id}} - {{ anticipo.saldo }} Gs.</label>
+                                <label>Anticipo #{{ aplicar.pagoPedidoCompra.id}} - {{ aplicar.pagoPedidoCompra.saldo }} Gs.</label>
                             </div>
                             <div class="field col-5 md:col-5 p-fluid" style="justify-content: start;  ">
-                                <InputNumber :disabled="!anticipo.seleccionado" v-model="anticipo.importe" :max="anticipo.saldo" @input="actualizarImporteAnticipo($event,index)" placeholder="Monto a usar" style="padding: 0rem !important; height: 100%;"/>
+                                <InputNumber :disabled="!aplicar.seleccionado" v-model="aplicar.monto" :max="aplicar.monto" @update:model-value="actualizarSumaTotal()" placeholder="Monto a usar" style="padding: 0rem !important; height: 100%;"/>
                             </div>
                             </div>
                         </div>
@@ -85,7 +85,7 @@
                             <div class="formgrid grid" v-for="(item, index) in pagos" :key="index" >
                                         
                                 <div class="field col-5 md:col-5 p-fluid" style="justify-content: start;  ">
-                                    <Select style="padding: 0rem !important;" v-model="item.formaPago" :options="formasPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   />
+                                    <Select style="padding: 0rem !important;" v-model="item.medio" :options="formasPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   />
                                 </div>
                                 <div  class="field col-5 md:col-5 p-fluid" style=" justify-content: start; " >
                                     <InputNumber :disabled=item.disabled name="input" style="padding: 0rem !important; height: 100%;" v-model="item.importe"  @input="actualizarImporte($event, index)"/>
@@ -118,7 +118,81 @@
              
                 <div class="card flex" style="justify-content: end;">  
                     <Button  label="Cancelar"  style="margin-right: 1%;" @click="closeDialog()" />
-                    <Button  label="Guardar" :disabled="disabledSubmit" @click="guardarPagosMovimiento()" />
+                    <Button  label="Guardar" :disabled="disabledSubmit" @click="guardarPagosPendientes()" />
+                </div>
+            </template>
+        </Dialog>
+
+        <!--Registrar cobro de facturas pendientes-->
+        
+        <Dialog v-model:visible="registrarCobroDialog" modal @update:visible="closeDialog($event)" header="Edit Profile" :style="{ width: '40rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+            <template #header>
+                <div class="flex align-items-center gap-2">
+                    <h3 class="font-bold">Registrar Cobro </h3>
+                    
+                </div>
+            </template>
+
+            <div >
+                
+                        <div v-if="anticiposAsociados">
+                            <Message severity="info" >El pedido asociado a esta factura tiene anticipos</Message>
+                        </div>
+                        TOTAL FACTURA: {{ total }}
+                        <div  v-if="anticiposAsociados">
+                            <h4>Usar Anticipos Disponibles:</h4>
+                            <div v-for="(aplicar, index) in anticiposAplicar" :key="index" class="formgrid grid">
+                                <div class="field col-1 md:col-1 p-fluid" style="justify-content: start;  ">
+                                <Checkbox v-model="aplicar.seleccionado" name="anticipo" :binary="true" @change="getAnticiposSeleccionados()" />
+                            </div>
+                            <div class="field col-4 md:col-4 p-fluid" style="justify-content: start;  ">
+                                <label>Anticipo #{{ aplicar.anticipo.id}} - {{ aplicar.anticipo.saldo }} Gs.</label>
+                            </div>
+                            <div class="field col-5 md:col-5 p-fluid" style="justify-content: start;  ">
+                                <InputNumber :disabled="!aplicar.seleccionado" v-model="aplicar.monto" :max="aplicar.anticipo.saldo" 
+                                @update:model-value="actualizarSumaTotal()" placeholder="Monto a usar" style="padding: 0rem !important; height: 100%;"/>
+                            </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="formgrid grid" v-for="(item, index) in pagos" :key="index" >
+                                        
+                                <div class="field col-5 md:col-5 p-fluid" style="justify-content: start;  ">
+                                    <Select style="padding: 0rem !important;" v-model="item.medio" :options="formasPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   />
+                                </div>
+                                <div  class="field col-5 md:col-5 p-fluid" style=" justify-content: start; " >
+                                    <InputNumber :disabled=item.disabled name="input" style="padding: 0rem !important; height: 100%;" v-model="item.importe"  @input="actualizarImporte($event, index)"/>
+                                    
+                                </div>
+                                <div v-if="index == 0" class=" field col-1 md:col-1 p-fluid" style=" justify-content: flex-end">
+                                    <Button style="background: none !important; border: none !important " icon="pi pi-plus" severity="danger" text rounded aria-label="Cancel" @click="addRow()" />
+                                </div>
+                                <div v-else class=" field col-1 md:col-1 p-fluid">
+                                    <Button style="background: none !important; border: none !important " icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="eliminarRow(index)" />
+                                </div>
+                                
+                            </div>
+                            
+                            
+                        </div>
+                        <div class="formgrid grid">
+                                <div class="flex field col-12 md:col-12" >     
+                                    <div class="flex field col-9 md:col-9 justify-content-start" >
+                                        <label for="totalPagos"> Total abonado: </label>
+                                    </div>
+                                    <div class="flex field col-3 md:col-3" style=" justify-content: center; " >
+                                        <span>{{ sumaTotal.toLocaleString('de-DE') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                    
+            </div>
+            <template #footer>
+             
+                <div class="card flex" style="justify-content: end;">  
+                    <Button  label="Cancelar"  style="margin-right: 1%;" @click="closeDialog()" />
+                    <Button  label="Guardar" :disabled="disabledSubmit" @click="guardarCobrosPendientes()" />
                 </div>
             </template>
         </Dialog>
@@ -149,8 +223,12 @@
                     <TabList>
                         <Tab value="0" >Movimientos</Tab>
                         <Tab v-if="cajaAbierta" value="1">
-                            <span class="font-bold white-space-nowrap">Pendientes</span>
-                                    <Badge :value="pendientes.length"></Badge>
+                            <span class="font-bold white-space-nowrap">Pendientes de pago</span>
+                                    <Badge :value="pendientesPago.length"></Badge>
+                        </Tab>
+                        <Tab v-if="cajaAbierta" value="2">
+                            <span class="font-bold white-space-nowrap">Pendientes de cobro</span>
+                                    <Badge :value="pendientesCobro.length"></Badge>
                         </Tab>
                     </TabList>
                     <TabPanels>
@@ -177,14 +255,14 @@
                                 <Column field="factura"  header="N° Factura" aria-sort="ascending" sortable></Column>
                                 <Column v-if="cajaAbierta" :exportable="false">
                                     <template #body="slotProps">
-                                        <Button :disabled="!puedeEliminarseEnCaja(slotProps.data.concepto)" icon="pi pi-times" severity="danger" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="confirm2(slotProps.data.id)"  />
+                                        <Button :disabled="!puedeEliminarseEnCaja(slotProps.data.concepto)" icon="pi pi-trash" severity="danger" v-tooltip="'Eliminar'" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="confirm2(slotProps.data.id)"  />
                                     </template>
                                 </Column>
                             </DataTable>
 
         </TabPanel>
         <TabPanel  value="1">
-            <DataTable  :value="pendientes" scrollHeight="400px"  
+            <DataTable  :value="pendientesPago" scrollHeight="400px"  
                             :paginator="true" :rows="7" 
                             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 
                             currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros" >
@@ -202,7 +280,31 @@
                                 <Column field="nroDocumento"  header="N° Factura" aria-sort="ascending" sortable></Column>
                                 <Column  :exportable="false">
                                     <template #body="slotProps">
-                                        <Button  icon="pi pi-money-bill" severity="danger" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="registrarPago(slotProps.data)"   />
+                                        <Button  icon="pi pi-money-bill" severity="info" v-tooltip="'Registrar pago'" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="registrarPago(slotProps.data)"   />
+                                    </template>
+                                </Column>
+                            </DataTable>
+        </TabPanel>
+        <TabPanel  value="2">
+            <DataTable  :value="pendientesCobro" scrollHeight="400px"  
+                            :paginator="true" :rows="7" 
+                            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 
+                            currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros" >
+                                <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
+                                    <template #body="slotProps">
+                                        {{ formatearFecha(slotProps.data.fecha) }}
+                                    </template>
+                                </Column>
+                                <Column field="concepto.descripcion"  header="Concepto" aria-sort="ascending" sortable></Column>
+                                <Column field="monto"  header="Monto" aria-sort="ascending" sortable>    
+                                    <template #body="slotProps">
+                                            {{ formatearNumero(slotProps.data.monto) }}
+                                    </template>        
+                                </Column>
+                                <Column field="nroDocumento"  header="N° Factura" aria-sort="ascending" sortable></Column>
+                                <Column  :exportable="false">
+                                    <template #body="slotProps">
+                                        <Button  icon="pi pi-money-bill" severity="info" v-tooltip="'Registrar pago'" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="registrarCobro(slotProps.data)"   />
                                     </template>
                                 </Column>
                             </DataTable>
@@ -237,6 +339,7 @@ import TabPanel from 'primevue/tabpanel';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import {formatearNumero, existeCajaAbierta, formatearFecha, formatearFechaHora} from '@/utils/utils';
+import { PagoPedidoCompraServices } from '@/services/PagoPedidoCompraServices';
 import {CajaServices} from '@/services/CajaServices';
 import router from '@/router';
 import ConfirmDialog from 'primevue/confirmdialog';
@@ -250,7 +353,7 @@ import Checkbox from 'primevue/checkbox';
 import Select from 'primevue/select';
 import InputGroup from 'primevue/inputgroup';
 import InputGroupAddon from 'primevue/inputgroupaddon';
-
+import { MedioPagoServices } from '@/services/MedioPagoCobroServices';
 import Tabs from 'primevue/tabs';
 import TabList from 'primevue/tablist';
 import Tab from 'primevue/tab';
@@ -262,11 +365,17 @@ const key = ref();
 const v = ref(0);
 const confirm = useConfirm();   
 const toast = useToast();
-const pendientes = ref([]);
+const pendientesPago = ref([]);
+const pendientesCobro = ref([]);
+const anticiposPedidos= ref([]);
+const anticiposAplicar= ref([]);
+const pagosAplicar= ref([]);
 const anticiposAplicados= ref([]);
+const pagosAplicados= ref([]);
 const cajaAbierta = ref(false);
 const caja = ref({});
 const registrarPagoDialog = ref(false);
+const registrarCobroDialog = ref(false);
 const pagos =ref([]);
 const pago =ref({});
 const disabled = ref(true);
@@ -280,10 +389,12 @@ const cambio = ref(0);
 const faltante = ref(0);
 const anticipos =ref([ ]);
 const anticiposAsociados = ref(false);
+const pagosAsociados = ref(false);
 const disabledSubmit = ref(false);
 const visible = ref(false);
 const movimiento = ref({});
 const movimientoPagar = ref({});
+const movimientoCobrar = ref({});
 const movimientos = ref([]);
 const options = ref(['Ingreso', 'Egreso']);
 const conceptos = ref();
@@ -292,7 +403,8 @@ const conceptos = ref();
 onMounted(() => {
     getCaja();
     getMovimientos();
-    getFacturasPendientes();
+    getMovimientosPendientesDePago();
+    getMovimientosPendientesDeCobro();
     inicializarCampos();
   
 
@@ -305,18 +417,45 @@ watch(() => sumaTotal.value, (newValue, oldValue) => {
     habilitarSubmit();
      
     });
+
+watch(() => anticiposAplicados.value, (newValue, oldValue) => {
+    console.log("watch anticipos aplicar");
+    console.log(anticiposAplicados.value);
+    actualizarSumaTotal();
+    });
+
+    watch(() => pagosAplicados.value, (newValue, oldValue) => {
+    
+    actualizarSumaTotal();
+    });
 // Función para actualizar el importe de un ítem al escribir
 const actualizarImporte = (event, index) => {
             pagos.value[index].importe = event.value || 0;
             actualizarSumaTotal();
         };
 
+
+
 // Función para actualizar la suma total
 const actualizarSumaTotal = () => {
     console.log("actualizarTotal");
     console.log(calcularImportePagos());
     console.log(calcularImporteAnticipos());
-    sumaTotal.value = calcularImportePagos() + calcularImporteAnticipos();
+    sumaTotal.value = calcularImportePagos() + calcularImporteAnticipos() + calcularImportePagosAplicados();
+};
+
+
+
+const getAnticiposSeleccionados = () => {
+    console.log(anticiposAplicar.value);
+    anticiposAplicados.value = anticiposAplicar.value.filter(e => e.seleccionado );
+            
+};
+
+const getPagosSeleccionados = () => {
+    console.log(pagosAplicar.value);
+    pagosAplicados.value = pagosAplicar.value.filter(e => e.seleccionado );
+            
 };
 
 const calcularImportePagos = () => {
@@ -324,12 +463,24 @@ const calcularImportePagos = () => {
 };
 
 const calcularImporteAnticipos = () => {
-  return anticipos.value.reduce((acc, item) => {
+  return anticiposAplicados.value.reduce((acc, item) => {
     console.log("calcularImporteAnticipos");
     console.log(item);
-  if (item.seleccionado && item.importe > 0) {  // Si esta checked
+  if ( item.monto > 0) {  // Si esta checked
     console.log("if");
-    return acc + item.importe;
+    return acc + item.monto;
+  }
+    return acc;
+    }, 0);
+};
+
+const calcularImportePagosAplicados = () => {
+  return pagosAplicados.value.reduce((acc, item) => {
+    console.log("calcularImporteAnticipos");
+    console.log(item);
+  if ( item.monto > 0) {  // Si esta checked
+    console.log("if");
+    return acc + item.monto;
   }
     return acc;
     }, 0);
@@ -338,9 +489,10 @@ const calcularImporteAnticipos = () => {
 const inicializarCampos = () => {
     movimiento.value.tipo = 'Ingreso';
     movimiento.value.concepto = {id: 7, descripcion: 'Ingresos varios', tipo: 'I'};
-    movimiento.value.formaPago = {id: 2, descripcion: 'Efectivo'};
+    movimiento.value.medio = {id: 2, descripcion: 'Efectivo'};
     disabledSubmit.value = true;
     sumaTotal.value = 0;
+
     getFormasPago();
 };
 
@@ -357,6 +509,11 @@ const closeDialog = (event) =>{
 
     visible.value = false;
     registrarPagoDialog.value = false;
+    registrarCobroDialog.value = false;
+    pagosAplicar.value = [];
+    anticiposAplicar.value = [];
+    anticiposAplicados.value = [];
+    pagosAplicados.value = [];
     reiniciarDialog();
     
 }
@@ -380,39 +537,73 @@ const guardarMovimiento = () =>{
     let fechaMovimiento = new Date();
     movimiento.value.fecha = fechaMovimiento;
     movimiento.value.caja = caja.value;
+
     let pago = {importe: movimiento.value.monto,
-                formaPago: movimiento.value.formaPago
+                medio: movimiento.value.medio
                 }
     let pagos = [pago];
-    let movimientoCreationDTO = {movimiento: movimiento.value, pago: pagos};
+
+    if (movimiento.value.tipo == 'Ingreso') {
+        let ingresoDTO = {movimiento: movimiento.value, cobros: pagos};
+        CajaServices.saveIngresoVario(ingresoDTO).then((data) => {
+            toast.add({ severity:"success", detail: movimiento.value.tipo + ' Registrado', life: 3000 });
+            getMovimientos();
+            closeDialog();
+            
+            console.log("ok");
+        });
+    } else {
+        let egresoDTO = {movimiento: movimiento.value, pagos: pagos};
+        CajaServices.saveEgresoVario(egresoDTO).then((data) => {
+            toast.add({ severity:"success", detail: movimiento.value.tipo + ' Registrado', life: 3000 });
+            getMovimientos();
+            closeDialog();
+            
+            console.log("ok");
+        });
+    }
+ 
     
-    CajaServices.saveMovimiento(movimientoCreationDTO).then((data) => {
+}
+
+const guardarPagosPendientes = () =>{
+    let fechaMovimiento = new Date();
+    movimientoPagar.value.fecha = fechaMovimiento;
+    movimientoPagar.value.caja = caja.value;
+    obtenerAnticiposAplicados();
+    
+    
+    console.log(pagos.value);
+    console.log(anticiposPedidos.value);
+    let movimientoCreationDTO = {movimiento: movimientoPagar.value, pagos: pagos.value};
+    
+    CajaServices.savePagosPendiente(movimientoCreationDTO).then((data) => {
         toast.add({ severity:"success", detail: movimiento.value.tipo + ' Registrado', life: 3000 });
         getMovimientos();
+        getMovimientosPendientesDePago();
         closeDialog();
         
         console.log("ok");
     });
 }
 
-const guardarPagosMovimiento = () =>{
+const guardarCobrosPendientes = () =>{
     let fechaMovimiento = new Date();
     movimientoPagar.value.fecha = fechaMovimiento;
     movimientoPagar.value.caja = caja.value;
     obtenerAnticiposAplicados();
     
-    /*let pago = {importe: movimientoPagar.value.monto,
-                formaPago: movimiento.value.formaPago
-          }
-    let pagos = [pago];*/
-    console.log(pagos.value);
-    console.log(anticiposAplicados.value);
-    let movimientoCreationDTO = {movimiento: movimientoPagar.value, pago: pagos.value};
     
-    CajaServices.savePagosMovimiento(movimientoCreationDTO).then((data) => {
+    console.log(pagos.value);
+    console.log(anticipos.value);
+    console.log(anticiposPedidos.value);
+    console.log(anticiposAplicados.value);
+    let movimientoCreationDTO = {movimiento: movimientoPagar.value, cobros: pagos.value, anticiposAplicados: anticiposAplicados.value};
+    
+    CajaServices.saveCobrosPendiente(movimientoCreationDTO).then((data) => {
         toast.add({ severity:"success", detail: movimiento.value.tipo + ' Registrado', life: 3000 });
         getMovimientos();
-        getFacturasPendientes();
+        getMovimientosPendientesDeCobro();
         closeDialog();
         
         console.log("ok");
@@ -426,7 +617,8 @@ const deleteMovimiento = (id) =>{
       console.log("response");
       console.log(response.data);
       getMovimientos();
-      getFacturasPendientes();
+      getMovimientosPendientesDePago();
+      getMovimientosPendientesDeCobro();
         movimientos.value.splice(index,cantidad);
             toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 5000 });
         })
@@ -482,30 +674,46 @@ const registrarPago = (movimiento) => {
         getAnticiposByIdPedidoVenta(movimiento.venta.pedido.id);
     } 
 
-    if(movimiento.compra != null && movimiento.compra.recepcion != null ){
-        getAnticiposByIdRecepcion(movimiento.compra.recepcion.id);
+    if(movimiento.compra != null && movimiento.compra.pedido != null ){
+        getPagosByIdPedidoCompra(movimiento.compra.pedido.id);
     }
+};
+
+const registrarCobro = (movimiento) => {
+    console.log("registrar pago");
+    registrarCobroDialog.value = true;
+    movimientoPagar.value = movimiento;
+    //total.value = movimiento.venta.montoTotal;
+    console.log(movimiento);
+    total.value = movimiento.monto;
+    /*if (movimiento.venta != null) {
+        total.value = movimiento.venta.montoTotal;
+    } */
+    if (movimiento.venta != null && movimiento.venta.pedido != null) {
+        getAnticiposByIdPedidoVenta(movimiento.venta.pedido.id);
+    } 
+
 };
 
 const getAnticiposByIdPedidoVenta = (idPedido) => {
 console.log("getAnticipos");
 AnticipoServices.getAnticiposByIdPedidoVenta(idPedido).then((data) => {
-    anticipos.value = data.data;
-    console.log(formasPago.value);
-    if (anticipos.value.length > 0) {
+    anticiposAplicar.value = data.data;
+    console.log(data.data);
+    if (anticiposAplicar.value.length > 0) {
         anticiposAsociados.value = true;
     }   
 
 });
 };
 
-const getAnticiposByIdRecepcion = (id) => {
+const getPagosByIdPedidoCompra = (id) => {
 console.log("getCompra");
-AnticipoServices.getAnticiposByIdRecepcion(id).then((data) => {
-    anticipos.value = data.data;
-    console.log(anticipos.value);
-    if (anticipos.value.length > 0) {
-        anticiposAsociados.value = true;
+PagoPedidoCompraServices.findPagosAplicarByIdPedidoCompra(id).then((data) => {
+    pagosAplicar.value = data.data;
+    console.log(pagosAplicar.value);
+    if (pagosAplicar.value.length > 0) {
+        pagosAsociados.value = true;
     }   
 
 });
@@ -559,7 +767,7 @@ const puedeEliminarseEnCaja = (concepto) =>{
 }
 
 const addRow = () => {
-    pagos.value.push({formaPago:null , importe: 0, disabled: true});
+    pagos.value.push({medio:null , importe: 0, disabled: true});
 };
 
 const eliminarRow = (index) => {
@@ -572,11 +780,11 @@ const eliminarRow = (index) => {
 
 
 const getFormasPago = () =>{
-    FormasPagoServices.obtenerFormasPago().then((data) => {
+    MedioPagoServices.obtenerMediosPago().then((data) => {
         formasPago.value=data.data;
         //selectedFormaPago.value=data.data[1];
         console.log(formasPago.value);
-        pago.value.formaPago = null;
+        pago.value.medio = null;
         pago.value.importe = 0;
         pago.value.disabled = true;
         pagos.value.push(pago.value);
@@ -586,7 +794,7 @@ const getFormasPago = () =>{
 
 
 const nuevoMovimiento = () =>{
-  FormasPagoServices.obtenerFormasPago().then((data) => {
+    MedioPagoServices.obtenerMediosPago().then((data) => {
         formasPago.value = data.data;
         //console.log(reembolsos.value);
     });
@@ -626,10 +834,21 @@ async function getMovimientos() {
 });
 }
 
-async function getFacturasPendientes() {
-    CajaServices.obtenerFacturasPendientes().then((data) => {
+async function getMovimientosPendientesDePago() {
+    console.log("getMovPagos");
+    CajaServices.obtenerMovimientosPendientesDePago().then((data) => {
         console.log(data.data);
-        pendientes.value = data.data;
+        pendientesPago.value = data.data;
+   
+
+});
+}
+
+async function getMovimientosPendientesDeCobro() {
+    console.log("getMovCobros");
+    CajaServices.obtenerMovimientosPendientesDeCobro().then((data) => {
+        console.log(data.data);
+        pendientesCobro.value = data.data;
    
 
 });

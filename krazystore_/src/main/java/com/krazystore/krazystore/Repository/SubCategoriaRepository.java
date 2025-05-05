@@ -18,4 +18,7 @@ import org.springframework.stereotype.Repository;
 public interface SubCategoriaRepository extends JpaRepository<SubCategoriaEntity, Long>{
     @Query("SELECT sc FROM SubCategoriaEntity sc WHERE sc.categoria.id = ?1 ")
     public List<SubCategoriaEntity> findByIdCategoria(Long id);
+    
+    @Query("SELECT sc FROM SubCategoriaEntity sc WHERE sc.categoria.id IN ?1 ")
+    public List<SubCategoriaEntity> findByIdsCategoria(List<Long> ids);
 }

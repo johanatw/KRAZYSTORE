@@ -5,6 +5,7 @@
 package com.krazystore.krazystore.DTO;
 
 import com.krazystore.krazystore.Entity.AnticipoEntity;
+import com.krazystore.krazystore.Entity.FormaCobroEntity;
 import com.krazystore.krazystore.Entity.PagoEntity;
 import java.util.List;
 
@@ -14,14 +15,14 @@ import java.util.List;
  */
 public class AnticipoCreationDTO {
     private AnticipoEntity anticipo;
-    private List<PagoEntity> pagos;
+    private List<FormaCobroEntity> cobros;
 
     public AnticipoCreationDTO() {
     }
 
-    public AnticipoCreationDTO(AnticipoEntity anticipo, List<PagoEntity> pagos) {
+    public AnticipoCreationDTO(AnticipoEntity anticipo, List<FormaCobroEntity> cobros) {
         this.anticipo = anticipo;
-        this.pagos = pagos;
+        this.cobros = cobros;
     }
 
     public AnticipoEntity getAnticipo() {
@@ -32,14 +33,15 @@ public class AnticipoCreationDTO {
         this.anticipo = anticipo;
     }
 
-
-    public List<PagoEntity> getPagos() {
-        return pagos;
+    public List<FormaCobroEntity> getCobros() {
+        return cobros;
     }
 
-    public void setPagos(List<PagoEntity> pagos) {
-        this.pagos = pagos;
+    public void setCobros(List<FormaCobroEntity> cobros) {
+        this.cobros = cobros;
     }
+
+    
     
     
 }

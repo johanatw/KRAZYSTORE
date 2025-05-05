@@ -50,7 +50,6 @@ public class ProductoController {
     public List<ProductoDTO> findByNombre(@RequestParam(value="nombre") String nombre ){
         return productoService.buscarPorNombre(nombre);
     }
-    
 
     @PostMapping
     public ProductoEntity saveProducto(@RequestBody ProductoDTO productoDTO) {

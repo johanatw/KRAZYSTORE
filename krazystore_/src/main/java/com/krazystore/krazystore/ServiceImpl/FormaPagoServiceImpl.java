@@ -4,9 +4,13 @@
  */
 package com.krazystore.krazystore.ServiceImpl;
 
+import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.FormaPagoEntity;
+import com.krazystore.krazystore.Entity.MovimientoEntity;
+import com.krazystore.krazystore.Entity.PagoEntity;
 import com.krazystore.krazystore.Repository.FormaPagoRepository;
 import com.krazystore.krazystore.Service.FormaPagoService;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -42,7 +46,7 @@ public class FormaPagoServiceImpl implements FormaPagoService {
     public FormaPagoEntity updateFormaPago(FormaPagoEntity formaPagoEntity, Long id) {
         FormaPagoEntity updatedFormaPago = formapagorepository.findById(id).get();
         
-        updatedFormaPago.setDescripcion(formaPagoEntity.getDescripcion());
+        //updatedFormaPago.setDescripcion(formaPagoEntity.getDescripcion());
     
         return formapagorepository.save(updatedFormaPago);
     }
@@ -51,5 +55,21 @@ public class FormaPagoServiceImpl implements FormaPagoService {
     public void deleteFormaPago(Long id) {
         formapagorepository.deleteById(id);
     }
+
+    @Override
+    public List<FormaPagoEntity> saveFormasPagos(List<FormaPagoEntity> pagos) {
+        return formapagorepository.saveAll(pagos); 
+    }
+
+    @Override
+    public void deleteFormasPagosByMovimientos(List<Long> ids) {
+        formapagorepository.deletePagosByMovimientos(ids);
+    }
+
+    @Override
+    public void deleteFormasPagosByMovimiento(Long id) {
+        formapagorepository.deletePagosByMovimiento(id);
+    }
+
     
 }

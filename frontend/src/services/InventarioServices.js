@@ -19,9 +19,9 @@ export const InventarioServices = {
     })
     
   },
-  getDetallesInventarioIniciales() {
+  getDetallesInventarioIniciales(ids) {
 
-      return axios.get(INVENTARIO_API_BASE_URL+"/detalles",{
+      return axios.get(INVENTARIO_API_BASE_URL+"/detalles?ids="+ids,{
         headers: {
           'Authorization': 'Bearer ' + localStorage.getItem('token')
         }

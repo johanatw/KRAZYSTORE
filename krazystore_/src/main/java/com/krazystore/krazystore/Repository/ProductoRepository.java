@@ -43,4 +43,5 @@ public interface ProductoRepository extends JpaRepository<ProductoEntity, Long>{
             + "FROM ProductoEntity p WHERE LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))")
     List<ProductoDTO> buscarPorNombre(@Param("nombre") String nombre);
     
+    
 }

@@ -34,6 +34,9 @@ public class PagoEntity {
     @JoinColumn(name = "id_anticipo")
     private AnticipoEntity anticipo;
  
+    @ManyToOne
+    @JoinColumn(name = "id_pago_adelantado_pedido_compra")
+    private PagoPedidoCompra pagoAdelantadoPedidoCompra;
  
 
     public PagoEntity() {
@@ -79,6 +82,14 @@ public class PagoEntity {
 
     public void setFormaPago(FormaPagoEntity formaPago) {
         this.formaPago = formaPago;
+    }
+
+    public PagoPedidoCompra getPagoAdelantadoPedidoCompra() {
+        return pagoAdelantadoPedidoCompra;
+    }
+
+    public void setPagoAdelantadoPedidoCompra(PagoPedidoCompra pagoAdelantadoPedidoCompra) {
+        this.pagoAdelantadoPedidoCompra = pagoAdelantadoPedidoCompra;
     }
     
     

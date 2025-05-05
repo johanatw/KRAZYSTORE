@@ -20,8 +20,8 @@ import java.util.Date;
  * @author HP
  */
 @Entity
-@Table(name = "reembolsos")
-public class ReembolsoEntity {
+@Table(name = "reembolsos_anticipo")
+public class ReembolsoAnticipo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -32,15 +32,15 @@ public class ReembolsoEntity {
     private Date fecha;
     @Column
     private String motivo;
-
     @ManyToOne
     @JoinColumn(name = "id_anticipo")
     private AnticipoEntity anticipo;
 
-    public ReembolsoEntity() {
+
+    public ReembolsoAnticipo() {
     }
 
-    public ReembolsoEntity(Long id, int monto, Date fecha, String motivo, AnticipoEntity anticipo) {
+    public ReembolsoAnticipo(Long id, int monto, Date fecha, String motivo, AnticipoEntity anticipo) {
         this.id = id;
         this.monto = monto;
         this.fecha = fecha;
@@ -90,6 +90,6 @@ public class ReembolsoEntity {
     public void setAnticipo(AnticipoEntity anticipo) {
         this.anticipo = anticipo;
     }
-    
+   
     
 }

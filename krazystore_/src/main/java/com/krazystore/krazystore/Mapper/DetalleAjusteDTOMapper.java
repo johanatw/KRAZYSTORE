@@ -19,13 +19,14 @@ public class DetalleAjusteDTOMapper implements Function<DetalleAjuste, DetalleAj
     public DetalleAjusteDTO apply(DetalleAjuste detalleEntity){
         return new DetalleAjusteDTO(
                     detalleEntity.getId(),
-                    detalleEntity.getAjuste(),
                     detalleEntity.getProducto().getId(),
                     detalleEntity.getProducto().getNombre(),
-                    detalleEntity.getProducto().getSubCategoria().getId(),
-                    detalleEntity.getProducto().getSubCategoria().getDescripcion(),
+                    detalleEntity.getProducto().getSubCategoria(),
                     detalleEntity.getProducto().getCantStock(),
-                    detalleEntity.getCantidadAjustada()
+                    detalleEntity.getCantidadAjustada(),
+                    detalleEntity.getCantidadAnterior(),
+                    detalleEntity.getCantidadFinal(),
+                    detalleEntity.getMotivoAjuste()
         );
         
     }

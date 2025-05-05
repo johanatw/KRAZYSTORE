@@ -47,12 +47,28 @@ const router = createRouter({
       component: () => import('@/modules/Pedidos/views/ModificarPedido.vue')
     },
     {
-      path: '/anticipos',
-      name: 'anticipos',
+      path: '/anticipos_clientes',
+      name: 'anticipos_clientes',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('@/modules/Pagos/views/ListaAnticipos.vue')
+    },
+    {
+      path: '/pagos_pedido_compra',
+      name: 'pagos_pedido_compra',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Pagos/views/ListaPagosPedidoCompra.vue')
+    },
+    {
+      path: '/reembolsos_pagos_pedido_compra',
+      name: 'reembolsos_pagos_pedido_compra',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Pagos/views/ListaReembolsosPagosPedidoCompra.vue')
     }
     ,
     {
@@ -341,6 +357,14 @@ const router = createRouter({
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('@/modules/Inventario/views/ListaAjustes.vue')
+    },
+    {
+      path: '/registrar_conteo/:id',
+      name: 'registrar_conteo',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Inventario/views/RegistrarConteo.vue')
     },
     {
       path: '/ajuste/:id',

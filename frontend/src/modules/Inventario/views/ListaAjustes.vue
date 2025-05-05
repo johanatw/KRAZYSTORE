@@ -68,6 +68,15 @@ const getEstado = (estado) => {
    }
 };
 
+const isPendienteDeAjuste = (estado) => {
+  switch (estado) {
+       case 'P':
+           return true;
+       default:
+           return false;
+   }
+};
+
 const vistaVerAjuste = (id) => {
     router.push({name: 'ver_ajuste', params: {id}});
   
@@ -129,8 +138,8 @@ const ajustarInventario = (id) =>{
                     </Column>
                     <Column :exportable="false" style="min-width:8rem">
                         <template #body="slotProps">
-                            <Button icon="pi pi-search" text rounded aria-label="Search" style="height: 2rem !important; width: 2rem !important;" @click="vistaVerAjuste(slotProps.data.id)" />
-                            <Button v-if="slotProps.data.estado == 'P'" icon="pi pi-cog" text rounded aria-label="Search" style="height: 2rem !important; width: 2rem !important;" @click="ajustarInventario(slotProps.data.id)" />
+                            <Button icon="pi pi-eye" v-tooltip="'Visualizar'" text rounded aria-label="Search" style="height: 2rem !important; width: 2rem !important;" @click="vistaVerAjuste(slotProps.data.id)" />
+                            <Button :disabled="!isPendienteDeAjuste(slotProps.data.estado)" v-tooltip="'Ajustar'" severity="info" icon="pi pi-cog" text rounded aria-label="Search" style="height: 2rem !important; width: 2rem !important;" @click="ajustarInventario(slotProps.data.id)" />
                         </template>
                     </Column>
                 </DataTable>

@@ -7,6 +7,7 @@ package com.krazystore.krazystore.Repository;
 import com.krazystore.krazystore.DTO.DetallePedidoRecepcionDTO;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.CompraEntity;
+import com.krazystore.krazystore.Entity.PagoPedidoCompra;
 import com.krazystore.krazystore.Entity.PedidoCompraEntity;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,10 +22,11 @@ import org.springframework.stereotype.Repository;
 public interface PedidoCompraRepository extends JpaRepository<PedidoCompraEntity, Long> {
     @Query(
     "SELECT a "
-            + "FROM AnticipoEntity a "
-            + "WHERE a.idPedido = ?1 AND a.tipoPedido = 'C' "
+            + "FROM PagoPedidoCompra a "
+            + "LEFT JOIN a.pedidoCompra p "
+            + "WHERE p.id = ?1 "
            )
-        List<AnticipoEntity> getAnticipos(Long id);
+        List<PagoPedidoCompra> getAnticipos(Long id);
         
         @Query(
     "SELECT c "

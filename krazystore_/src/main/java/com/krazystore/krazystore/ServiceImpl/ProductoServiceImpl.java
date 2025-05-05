@@ -220,4 +220,6 @@ public class ProductoServiceImpl implements ProductoService{
         PreciosCompraActualizadosEvent evento = new PreciosCompraActualizadosEvent(preciosActualizar);
         eventPublisher.publishEvent(evento);
     }
+
+
 }

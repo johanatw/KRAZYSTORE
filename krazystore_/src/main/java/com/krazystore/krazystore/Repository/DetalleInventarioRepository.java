@@ -23,14 +23,9 @@ public interface DetalleInventarioRepository extends JpaRepository<DetalleInvent
     List<DetalleInventario> findAllByIdInventario(Long idInventario); 
     
     @Query("SELECT new com.krazystore.krazystore.Entity.DetalleInventario(p) "
-            + "FROM ProductoEntity p " )
-    List<DetalleInventario> getDetallesInventarioIniciales();
+            + "FROM ProductoEntity p " 
+            + "LEFT JOIN p.subCategoria s "
+            + "WHERE s.id IN ?1 ")
+    List<DetalleInventario> getDetallesInventarioIniciales(List<Long> ids);
     
-    @Query("SELECT new com.krazystore.krazystore.Entity.DetalleInventario(d.id, i, p, COALESCE(d.cantStock, 0), COALESCE(d.cantContada, 0), COALESCE(d.diferencia, 0)) "
-            + "FROM ProductoEntity p "
-            + "LEFT JOIN InventarioEntity i ON i.id = ?1 "
-            + "LEFT JOIN DetalleInventario d ON d.producto = p AND d.inventario = i "
- 
-             )
-    List<DetalleInventario> obtenerDetallesCompletos(Long id);
 }

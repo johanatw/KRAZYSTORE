@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -41,8 +42,8 @@ public class InventarioController {
     }
     
     @GetMapping("/detalles")
-    public List<DetalleInventarioDTO> getDetallesInventarioIniciales(){
-        return inventarioService.getDetallesInventarioIniciales();
+    public List<DetalleInventarioDTO> getDetallesInventarioIniciales(@RequestParam(value="ids") List<Long> ids){
+        return inventarioService.getDetallesInventarioIniciales(ids);
     }
 
     @GetMapping("/{id}")
@@ -50,11 +51,6 @@ public class InventarioController {
         return inventarioService.findById(id);
     }
     
-    @GetMapping("/detalles/{id}")
-    public InventarioCreationDTO obtenerDetallesCompletos(@PathVariable("id") Long id) {
-        return inventarioService.obtenerDetallesCompletos(id);
-    }
-
     @PostMapping
     public InventarioEntity saveCompra(@RequestBody InventarioCreationDTO inventario)throws Exception {
         return inventarioService.saveInventario(inventario);

@@ -44,9 +44,37 @@ const nuevoInventario = () =>{
     router.push({name: 'nuevo_inventario'});
 }
 
+const verListaInventariar = (id) =>{
+    router.push({name: 'ver_inventario', params: {id}});
+}
+
 const verInventario = (id) =>{
     router.push({name: 'ver_inventario', params: {id}});
 }
+
+const registrarConteo = (id) =>{
+    router.push({name: 'registrar_conteo', params: {id}});
+}
+
+const isFinalizado = (estado) => {
+  switch (estado) {
+        case 'P':
+           return true;
+
+       default:
+           return false;
+   }
+};
+
+const isEnCurso = (estado) => {
+  switch (estado) {
+        case 'S':
+           return true;
+
+       default:
+           return false;
+   }
+};
 
 const getEstado = (estado) => {
   switch (estado) {
@@ -115,8 +143,9 @@ const ajustarInventario = (id) =>{
                     </Column>
                     <Column :exportable="false" style="min-width:8rem">
                         <template #body="slotProps">
-                            <Button icon="pi pi-search" text rounded aria-label="Search" style="height: 2rem !important; width: 2rem !important;" @click="verInventario(slotProps.data.id)" />
-                            <Button v-if="slotProps.data.estado == 'P'" icon="pi pi-cog" text rounded aria-label="Search" style="height: 2rem !important; width: 2rem !important;" @click="ajustarInventario(slotProps.data.id)" />
+                            <Button icon="pi pi-eye" v-tooltip="'Visualizar'" text rounded aria-label="Search" style="height: 2rem !important; width: 2rem !important;" @click="verInventario(slotProps.data.id)" />
+                            <Button :disabled="!isEnCurso(slotProps.data.estado)" icon="pi pi-pen-to-square" v-tooltip="'Registrar'" text rounded aria-label="Search" severity="success" style="height: 2rem !important; width: 2rem !important;" @click="registrarConteo(slotProps.data.id)" />
+                            <Button :disabled="!isFinalizado(slotProps.data.estado)" icon="pi pi-cog" v-tooltip="'Ajustar'" severity="info" text rounded aria-label="Search" style="height: 2rem !important; width: 2rem !important;" @click="ajustarInventario(slotProps.data.id)" />
                         </template>
                     </Column>
                 </DataTable>

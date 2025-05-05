@@ -18,14 +18,22 @@ public class FormaPagoEntity {
     @Column(name = "id")
     private Long id;
     @Column
-    private String descripcion;
+    private Long importe;
+    @ManyToOne
+    @JoinColumn(name = "id_medio_pago")
+    private MedioPagoEntity medio;
+    @ManyToOne
+    @JoinColumn(name = "id_movimiento")
+    private MovimientoEntity movimiento;
 
     public FormaPagoEntity() {
     }
 
-    public FormaPagoEntity(Long id, String descripcion) {
+    public FormaPagoEntity(Long id, Long importe, MedioPagoEntity medio, MovimientoEntity movimiento) {
         this.id = id;
-        this.descripcion = descripcion;
+        this.importe = importe;
+        this.medio = medio;
+        this.movimiento = movimiento;
     }
 
     public Long getId() {
@@ -36,14 +44,30 @@ public class FormaPagoEntity {
         this.id = id;
     }
 
-    public String getDescripcion() {
-        return descripcion;
+    public Long getImporte() {
+        return importe;
     }
 
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
+    public void setImporte(Long importe) {
+        this.importe = importe;
     }
-    
+
+    public MedioPagoEntity getMedio() {
+        return medio;
+    }
+
+    public void setMedio(MedioPagoEntity medio) {
+        this.medio = medio;
+    }
+
+    public MovimientoEntity getMovimiento() {
+        return movimiento;
+    }
+
+    public void setMovimiento(MovimientoEntity movimiento) {
+        this.movimiento = movimiento;
+    }
+
     
     
 }

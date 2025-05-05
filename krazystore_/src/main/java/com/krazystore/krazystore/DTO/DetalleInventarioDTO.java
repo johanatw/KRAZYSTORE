@@ -14,9 +14,7 @@ import com.krazystore.krazystore.Entity.SubCategoriaEntity;
  */
 public class DetalleInventarioDTO {
     private Long id;
-    private Long idProducto;
-    private String producto;
-    private SubCategoriaEntity subCategoria;
+    private ProductoDTO producto;
     private int stockActual;
     private int stockInicialInventario;
     private int cantContada;
@@ -28,9 +26,7 @@ public class DetalleInventarioDTO {
     public DetalleInventarioDTO(Long id, Long idProducto, String producto, SubCategoriaEntity categoria, 
             int stockActual, int stockInicialInventario, int cantContada, int diferencia) {
         this.id = id;
-        this.idProducto = idProducto;
-        this.producto = producto;
-        this.subCategoria = categoria;
+        this.producto = new ProductoDTO(idProducto, producto, categoria);
         this.stockActual = stockActual;
         this.stockInicialInventario = stockInicialInventario;
         this.cantContada = cantContada;
@@ -45,29 +41,15 @@ public class DetalleInventarioDTO {
         this.id = id;
     }
 
-    public Long getIdProducto() {
-        return idProducto;
-    }
-
-    public void setIdProducto(Long idProducto) {
-        this.idProducto = idProducto;
-    }
-
-    public String getProducto() {
+    public ProductoDTO getProducto() {
         return producto;
     }
 
-    public void setProducto(String producto) {
+    public void setProducto(ProductoDTO producto) {
         this.producto = producto;
     }
 
-    public SubCategoriaEntity getSubCategoria() {
-        return subCategoria;
-    }
-
-    public void setSubCategoria(SubCategoriaEntity subCategoria) {
-        this.subCategoria = subCategoria;
-    }
+    
 
     public int getStockActual() {
         return stockActual;

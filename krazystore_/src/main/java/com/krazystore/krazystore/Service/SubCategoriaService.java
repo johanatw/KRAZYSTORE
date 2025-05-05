@@ -14,4 +14,5 @@ import java.util.List;
 public interface SubCategoriaService {
     List<SubCategoriaEntity> findAll();
     List<SubCategoriaEntity> findByIdCategoria(Long id);
+    List<SubCategoriaEntity> findByIdsCategoria(List<Long> id);
 }

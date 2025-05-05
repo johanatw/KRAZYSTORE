@@ -7,7 +7,7 @@ package com.krazystore.krazystore.ServiceImpl;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
 import com.krazystore.krazystore.Entity.PagoEntity;
-import com.krazystore.krazystore.Entity.ReembolsoEntity;
+import com.krazystore.krazystore.Entity.ReembolsoAnticipo;
 import com.krazystore.krazystore.Repository.ReembolsoRepository;
 import com.krazystore.krazystore.Service.AnticipoService;
 
@@ -33,20 +33,20 @@ public class ReembolsoServiceImpl implements ReembolsoService {
   
 
     @Override
-    public List<ReembolsoEntity> findAll() {
+    public List<ReembolsoAnticipo> findAll() {
         return reembolsoRepository.findAllByOrderByIdDesc();
     }
 
     @Override
-    public Optional<ReembolsoEntity> findById(Long id) {
+    public Optional<ReembolsoAnticipo> findById(Long id) {
         return reembolsoRepository.findById(id);
     }
 
     @Override
-    public ReembolsoEntity saveReembolso(ReembolsoEntity reembolsoEntity) {
+    public ReembolsoAnticipo saveReembolso(ReembolsoAnticipo reembolsoEntity) {
         
 
-        ReembolsoEntity reembolso = reembolsoRepository.save(reembolsoEntity);
+        ReembolsoAnticipo reembolso = reembolsoRepository.save(reembolsoEntity);
         
         
         
@@ -57,27 +57,32 @@ public class ReembolsoServiceImpl implements ReembolsoService {
   
 
     @Override
-    public ReembolsoEntity updateReembolso(ReembolsoEntity reembolsoEntity, Long id) {
+    public ReembolsoAnticipo updateReembolso(ReembolsoAnticipo reembolsoEntity, Long id) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
-    public void deleteReembolso(Long id) {
+    public void deleteReembolsoAnticipo(Long id) {
 
         reembolsoRepository.deleteById(id);
         
     }
     
     @Override
-    public void deleteReembolsos(List<Long> ids) {
+    public void deleteReembolsosAnticipo(List<Long> ids) {
 
         reembolsoRepository.deleteByIds(ids);
         
     }
 
     @Override
-    public List<ReembolsoEntity> findByIdAnticipo(Long id) {
+    public List<ReembolsoAnticipo> findByIdAnticipo(Long id) {
         return reembolsoRepository.findByIdAnticipo(id);
+    }
+
+    @Override
+    public List<Long> getIdReembolsosByIdAnticipo(Long id) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     
 }

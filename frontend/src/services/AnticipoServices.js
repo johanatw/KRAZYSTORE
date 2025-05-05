@@ -21,6 +21,22 @@ export const AnticipoServices = {
     })
     
   },
+  obtenerAnticiposByTipoPedido(tipo) {
+   
+    return axios.get(ANTICIPO_API_BASE_URL+'/tipo_pedido?tipo='+tipo,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error); 
+    }
+    return Promise.reject(error); 
+  })
+  
+},
   saveAnticipo(anticipoCreationDTO) {
 
       return axios.post(ANTICIPO_API_BASE_URL,anticipoCreationDTO,{
@@ -109,8 +125,8 @@ getCantidadPagado(idPedido, idProducto) {
   },
   getAnticiposByIdPedidoVenta(idPedido) {
     //console.log("detalle", pedido);
-
-    return axios.get(ANTICIPO_API_BASE_URL+'/pedido_venta/'+idPedido,{
+    console.log(idPedido);
+    return axios.get(ANTICIPO_API_BASE_URL+'/pedido/'+idPedido,{
       headers: {
         'Authorization': 'Bearer ' + localStorage.getItem('token')
       }

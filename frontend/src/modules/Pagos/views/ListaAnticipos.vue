@@ -23,10 +23,11 @@ import { useToast } from "primevue/usetoast";
 import InputGroup from 'primevue/inputgroup';
 import {formatearNumero, formatearFecha, existeCajaAbierta, formatearFechaHora} from '@/utils/utils';
 import InputGroupAddon from 'primevue/inputgroupaddon';
+import { MedioPagoServices } from '@/services/MedioPagoCobroServices';
 import Select from 'primevue/select';
 import SelectButton from 'primevue/selectbutton';
 const visible = ref(false);
-const  formasPago = ref();
+const  mediosCobroPago = ref();
 const disabled = ref(true);
 const disabledSubmit = ref(true);
 const pedido = ref();
@@ -78,19 +79,13 @@ const buscarPedido= (id, e) => {
   
     var code = (e.keyCode ? e.keyCode : e.which);
     if (code == 13) { //Enter keycode   
-        if (tipoPedido.value.descripcion == 'Venta' ) {
-            CajaServices.obtenerPagosPedido(id).then((data) => {
-                pedido.value = data.data;
-                searched.value = true;
-                console.log(data.data);
-            });
-        } else {
-            CajaServices.obtenerPagosPedidoCompra(id).then((data) => {
-                pedido.value = data.data;
-                searched.value = true;
-                console.log(data.data);
-            });
-        }      
+    
+        CajaServices.obtenerPagosPedido(id).then((data) => {
+            pedido.value = data.data;
+            searched.value = true;
+            console.log(data.data);
+        });
+            
         actualizarSumaTotal();               
         
     }
@@ -118,9 +113,10 @@ async function guardarAnticipo() {
     console.log(d);
     if (d) {
         let fechaAnticipo = new Date();
-    let ant = {total: sumaTotal.value, fecha: fechaAnticipo, idPedido: pedido.value.id, tipoPedido: tipoPedido.value.cod};
+    let ant = {total: sumaTotal.value, fecha: fechaAnticipo, pedido: pedido.value};
 
-    let anticipoCreationDTO = {anticipo: ant, pagos: pagos.value};
+    let anticipoCreationDTO = {anticipo: ant, cobros: pagos.value};
+    console.log(pagos.value);
     CajaServices.saveAnticipo(anticipoCreationDTO ).then((data)=> {
         getAnticipos();
         closeDialog();
@@ -132,7 +128,7 @@ async function guardarAnticipo() {
 };
 
 const inicializarPagos= () => {
-    pago.value.formaPago = null;
+    pago.value.medio = null;
     pago.value.importe = 0;
     pago.value.disabled = true;
     pagos.value.push(pago.value);
@@ -144,7 +140,7 @@ const inicializarPagos= () => {
 //Funciones Registrar Reembolso
 
 const addRow = () => {
-    pagos.value.push({formaPago:null , importe: 0, disabled: true});
+    pagos.value.push({medio:null , importe: 0, disabled: true});
 };
 
 const eliminarRow = (index) => {
@@ -343,7 +339,7 @@ const filters = ref({
 
 onMounted(() => {
     getAnticipos();
-    getFormasPago();
+    getMediosCobro();
     getCajaAbierta();
 });
 
@@ -357,9 +353,9 @@ const getCajaAbierta= () => {
 
 
 
-const getFormasPago= () => {
-    FormasPagoServices.obtenerFormasPago().then((data) => {
-        formasPago.value=data.data;
+const getMediosCobro= () => {
+    MedioPagoServices.obtenerMediosPago().then((data) => {
+        mediosCobroPago.value=data.data;
     });
 };
 
@@ -460,7 +456,7 @@ const getFormasPago= () => {
                                         <div>
                                             <div class="formgrid grid" v-for="item, index in pagos" :key="item" >
                                                 <div class="field col-12 md:col-6" style="justify-content: start;  ">
-                                                    <Select class="flex flex-grow-1" style="padding: 0rem !important;" v-model="item.formaPago" :options="formasPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   /> 
+                                                    <Select class="flex flex-grow-1" style="padding: 0rem !important;" v-model="item.medio" :options="mediosCobroPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   /> 
                                                 </div>
                                     
                                                 <div class="flex field col-12 md:col-5" style=" justify-content: start; " >
@@ -523,13 +519,6 @@ const getFormasPago= () => {
                                 <template #title> Detalle del Pedido </template>
                                 <template #content>
                                     <div class="formgrid grid">
-                                        <div class="flex field col-12 md:col-6 " style="height: 1.5rem;" >
-                                            <label for="email" class="w-9rem" style="font-weight: 600;" >Tipo Pedido</label>
-                                        </div>
-                                        <div class="flex field col-12 md:col-6" style="height: 1.5rem;">
-                                            <SelectButton fluid v-model="tipoPedido" :options="optionsPedido" optionLabel="descripcion"/>
-                                        </div>
-
                                         <div class="flex field col-12 md:col-6 "style="height: 1.5rem;" >
                                             <label for="email" class="w-9rem" style="font-weight: 600;" >Pedido N°</label>
                                         </div>
@@ -577,7 +566,7 @@ const getFormasPago= () => {
                                     <div>
                                         <div class="formgrid grid" v-for="item, index in pagos" :key="item" >
                                             <div class="field col-12 md:col-6" style="justify-content: start;  ">
-                                                <Select class="flex flex-grow-1" style="padding: 0rem !important;" v-model="item.formaPago" :options="formasPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   /> 
+                                                <Select class="flex flex-grow-1" style="padding: 0rem !important;" v-model="item.medio" :options="mediosCobroPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   /> 
                                             </div>
                                             <div class="flex field col-12 md:col-5" style=" justify-content: start; " >
                                                 <InputNumber fluid :disabled="item.disabled" name="input" style="padding: 0rem !important;  " v-model="item.importe" @input="actualizarImporte($event, index)"  />
@@ -618,7 +607,7 @@ const getFormasPago= () => {
         <Panel style=" position: relative; width: 100%;" >
             <template #header>
                 <div class="flex align-items-center gap-2">
-                    <h3 class="font-bold">Anticipos</h3>
+                    <h3 class="font-bold">Anticipos Clientes</h3>
                 </div>
             </template>
       
@@ -649,14 +638,9 @@ const getFormasPago= () => {
                             {{ formatearFechaHora(slotProps.data.fecha) }}
                         </template>
                     </Column>
-                    <Column field="pedido.id" header="Tipo Pedido" aria-sort="ascending" sortable>
-                        <template #body="slotProps">
-                            {{ getTipoPedido(slotProps.data.tipoPedido)}}
-                        </template>
-                    </Column>
                     <Column field="pedido.id" header="Pedido N°" aria-sort="ascending" sortable>
                         <template #body="slotProps">
-                           {{ formatearNumero(slotProps.data.idPedido) }}
+                           {{ formatearNumero(slotProps.data.pedido?.id) }}
                         </template>
                     </Column>
                     <Column  field="total" header="Total" aria-sort="ascending" sortable >
@@ -681,8 +665,8 @@ const getFormasPago= () => {
                     </Column>
                     <Column :exportable="false" style="min-width:8rem">
                         <template #body="slotProps">
-                            <Button icon="pi pi-sync" severity="success" text rounded aria-label="Cancel" @click="showDialogReembolso(slotProps.data)"  style="height: 2rem !important; width: 2rem !important;" />
-                            <Button :disabled="!registradoEnCajaActualAbierta(slotProps.data.fecha) || isAnticipoUtilizado(slotProps.data.utilizado) "  icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                            <Button v-tooltip="'Reembolsar'" icon="pi pi-sync" severity="success" text rounded aria-label="Cancel" @click="showDialogReembolso(slotProps.data)"  style="height: 2rem !important; width: 2rem !important;" />
+                            <Button :disabled="!registradoEnCajaActualAbierta(slotProps.data.fecha) || isAnticipoUtilizado(slotProps.data.utilizado) "  icon="pi pi-trash" severity="danger" v-tooltip="'Eliminar'" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                             
                         </template>
                     </Column>

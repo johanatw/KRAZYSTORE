@@ -8,10 +8,14 @@ import Utils.Estado;
 import Utils.NuevaFacturaEvent;
 import Utils.TipoEvento;
 import com.krazystore.krazystore.DTO.AnticipoCreationDTO;
+import com.krazystore.krazystore.DTO.EgresoVarioDTO;
 import com.krazystore.krazystore.DTO.EstadoPagoPedidoDTO;
+import com.krazystore.krazystore.DTO.IngresoVarioDTO;
 import com.krazystore.krazystore.DTO.MovimientoCreationDTO;
 import com.krazystore.krazystore.DTO.MovimientosDTO;
-import com.krazystore.krazystore.DTO.ReembolsoCreationDTO;
+import com.krazystore.krazystore.DTO.PagoPedidoCompraCreationDTO;
+import com.krazystore.krazystore.DTO.ReembolsoAnticipoCreationDTO;
+import com.krazystore.krazystore.DTO.ReembolsoPagoPedidoCompraCreationDTO;
 import com.krazystore.krazystore.DTO.VentaCreationDTO;
 import com.krazystore.krazystore.Entity.CajaEntity;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
@@ -87,8 +91,13 @@ public class CajaServiceImpl implements CajaService{
     }
     
     @Override
-    public List<MovimientoEntity> getFacturasPendientes() {
-        return movimientoService.getFacturasPendientes();
+    public List<MovimientoEntity> getMovimientosPendientesDePago() {
+        return movimientoService.getMovimientosPendientesDePago();
+    }
+
+    @Override
+    public List<MovimientoEntity> getMovimientosPendientesDeCobro() {
+        return movimientoService.getMovimientosPendientesDeCobro();
     }
 
     @Override
@@ -100,20 +109,14 @@ public class CajaServiceImpl implements CajaService{
     }
 
     @Override
-    public MovimientoEntity saveMovimiento(ReembolsoCreationDTO reembolsoDTO) {
+    public MovimientoEntity saveMovimiento(ReembolsoAnticipoCreationDTO reembolsoDTO) {
         CajaEntity caja = cajaRepository.getCajaAbierta()
                 .orElseThrow(() -> new RuntimeException("Caja cerrada"));
         
         return movimientoService.saveMovimiento(reembolsoDTO, caja);
     }
 
-    @Override
-    public MovimientoEntity saveMovimiento(MovimientoCreationDTO movimientoDTO) {
-        CajaEntity caja = cajaRepository.getCajaAbierta()
-                .orElseThrow(() -> new RuntimeException("Caja cerrada"));
-        
-        return movimientoService.saveMovimiento(movimientoDTO, caja);
-    }
+    
     
     @EventListener
     public void handleNuevaFacturaEvent(NuevaFacturaEvent event) {
@@ -130,15 +133,7 @@ public class CajaServiceImpl implements CajaService{
         }
         
     }
-
-    @Override
-    public MovimientoEntity savePagosFactura(MovimientoCreationDTO movimientoDTO) {
-        CajaEntity caja = cajaRepository.getCajaAbierta()
-                .orElseThrow(() -> new RuntimeException("Caja cerrada"));
-        
-        return movimientoService.savePagosFactura(movimientoDTO, caja);
-    }
-
+    
     @Override
     public void deleteAnticipo(Long id) {
         movimientoService.deleteAnticipo(id);
@@ -158,5 +153,64 @@ public class CajaServiceImpl implements CajaService{
     public List<MovimientosDTO> findByIdCaja(Long id) {
         return movimientoService.findByIdCaja(id);
     }
+
+    @Override
+    public MovimientoEntity saveMovimiento(IngresoVarioDTO ingresoDTO) {
+        CajaEntity caja = cajaRepository.getCajaAbierta()
+                .orElseThrow(() -> new RuntimeException("Caja cerrada"));
+        
+        return movimientoService.saveMovimiento(ingresoDTO, caja);
+    }
+
+    @Override
+    public MovimientoEntity saveMovimiento(EgresoVarioDTO egresoDTO) {
+        CajaEntity caja = cajaRepository.getCajaAbierta()
+                .orElseThrow(() -> new RuntimeException("Caja cerrada"));
+        
+        return movimientoService.saveMovimiento(egresoDTO, caja);
+    }
+
+    @Override
+    public MovimientoEntity savePagosPendientes(MovimientoCreationDTO movimientoDTO) {
+        CajaEntity caja = cajaRepository.getCajaAbierta()
+                .orElseThrow(() -> new RuntimeException("Caja cerrada"));
+        
+        return movimientoService.savePagosPendientes(movimientoDTO, caja);
+    }
+
+    @Override
+    public MovimientoEntity saveCobrosPendientes(MovimientoCreationDTO movimientoDTO) {
+        CajaEntity caja = cajaRepository.getCajaAbierta()
+                .orElseThrow(() -> new RuntimeException("Caja cerrada"));
+        
+        return movimientoService.saveCobrosPendientes(movimientoDTO, caja);
+    }
+
+    @Override
+    public MovimientoEntity saveMovimiento(PagoPedidoCompraCreationDTO pagoPedidoCreationDTO) {
+        CajaEntity caja = cajaRepository.getCajaAbierta()
+                .orElseThrow(() -> new RuntimeException("Caja cerrada"));
+        
+        return movimientoService.saveMovimiento(pagoPedidoCreationDTO, caja);
+    }
+
+    @Override
+    public MovimientoEntity saveMovimiento(ReembolsoPagoPedidoCompraCreationDTO reembolsoPagoPedidoCompraDTO) {
+        CajaEntity caja = cajaRepository.getCajaAbierta()
+                .orElseThrow(() -> new RuntimeException("Caja cerrada"));
+        
+        return movimientoService.saveMovimiento(reembolsoPagoPedidoCompraDTO, caja);
+    }
+
+    @Override
+    public void deletePagoPedidoCompra(Long id) {
+        movimientoService.deletePagoPedidoCompra(id);
+    }
+
+    @Override
+    public void deleteReembolsoPagoPedidoCompra(Long id) {
+        movimientoService.deleteReembolsoPagoPedidoCompra(id);
+    }
+
 }
 
