@@ -20,6 +20,7 @@ public class RecepcionDTO {
     private Character estado;
     private ProveedorEntity proveedor;
     private CompraEntity compra;
+    
 
     public RecepcionDTO() {
     }
@@ -45,6 +46,8 @@ public class RecepcionDTO {
         this.estado = estado;
         this.compra = compra;
     }
+    
+    
 
     
     public RecepcionDTO(Long id, Date fecha, Long idPedido, ProveedorEntity proveedor) {

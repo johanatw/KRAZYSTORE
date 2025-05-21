@@ -45,6 +45,7 @@ const proveedores=ref();
 const filteredClientes = ref();
 const error = ref(false);
 const opciones = ref(['Casi','Entre']);
+const costoEnvio = ref();
 const infoEntrega = ref([{
     valor: "Retiro"
 }])
@@ -95,6 +96,7 @@ const total = ref(0);
 
 
 onMounted(() => {
+    getCostoEnvio();
     PedidoCompraServices.getPedido(router.currentRoute.value.params.id).then((data) => {
         console.log(data.data)
         pedido.value = data.data.pedido;
@@ -152,6 +154,11 @@ const search = (event) => {
             });
         }
     }, 10);
+}
+
+async function getCostoEnvio(){
+    costoEnvio.value = (await ProductoServices.obtenerCostoEnvio()).data;
+    console.log(costoEnvio.value);
 }
 
 const mostrarCliente = () =>{
@@ -287,7 +294,27 @@ const findIndexById = (id) => {
 
 
 
+const agregarCostoEnvio= () => {
+    let item = costoEnvio.value;
+let index = detalleFacturar.value.findIndex((loopVariable) => loopVariable.producto.id === item.id);
 
+if (index>-1) {
+    detalleFacturar.value[index].cantidad++;
+   console.log("holaaa");
+} else {
+console.log("holaaaitem",item);
+  detalle.value.producto = {};
+   detalle.value.producto = item;
+  detalle.value.cantidad = 1;
+   detalle.value.costoCompra = item.costo;
+   detalle.value.subTotal = detalle.value.costoCompra * detalle.value.cantidad;
+   detalleFacturar.value.push(detalle.value);
+   detalle.value= {};
+}
+
+sendSubTotal();
+
+}
 
 
 const validarForm = () => {
@@ -588,6 +615,7 @@ const isRecepcionado = (detalle) => {
                 </div>
                 <div >
                     <Button label="Agregar Producto" text @click="visible = true" />
+                    <Button label="Agregar Costo de Envio" text @click="agregarCostoEnvio()" />
                     </div>
 
             </div>

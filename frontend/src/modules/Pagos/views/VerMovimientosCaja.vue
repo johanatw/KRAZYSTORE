@@ -5,6 +5,26 @@
         
         <Toast />
         <ConfirmDialog ></ConfirmDialog>
+        <!--Visualizar observacion movimiento-->
+        <Dialog v-model:visible="observacionDialog" modal  header="Edit Profile" :style="{ width: '30rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+            <template #header>
+                <div class="flex align-items-center gap-2">
+                    <h3 class="font-bold">Observaciones</h3>
+                </div>
+            </template>
+    
+            <div >               
+                <div>
+                    {{ observacion || "Sin observaciones" }}
+                </div>  
+            </div>
+            <template #footer>
+                <div class="card flex" style="justify-content: end;">  
+                    <Button  label="Cerrar"  style="margin-right: 1%;" @click="observacionDialog=false" />
+                </div>
+            </template>
+        </Dialog>
+
         <!--Registrar movimiento-->
         <Dialog v-model:visible="visible" modal @update:visible="closeDialog($event)" header="Edit Profile" :style="{ width: '30rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
             <template #header>
@@ -15,12 +35,9 @@
     
             <div >               
                 <div>
+                  
                     <div class="flex align-items-center gap-3 mb-2">
                         <label for="username" class="font-semibold w-9rem">Tipo transacción</label>
-                        <Dropdown v-model:model-value="movimiento.tipo" :options="options" @update:model-value="getConceptos(movimiento.tipo)" placeholder="Seleccione un elemento" checkmark :highlightOnSelect="false" class="w-full md:w-14rem"  />
-                    </div>
-                    <div class="flex align-items-center gap-3 mb-2">
-                        <label for="username" class="font-semibold w-9rem">Concepto</label>
                         <Dropdown v-model:model-value="movimiento.concepto" :options="conceptos" optionLabel="descripcion" placeholder="Seleccione un elemento" checkmark :highlightOnSelect="false" class="w-full md:w-14rem"  />
                     </div>
 
@@ -62,18 +79,22 @@
 
             <div >
                 
-                        <div v-if="pagosAsociados">
+                        <div v-if="pagosAsociados" style="margin-bottom: 1rem; ">
                             <Message severity="info" >El pedido asociado a esta factura tiene anticipos</Message>
                         </div>
-                        TOTAL FACTURA: {{ total }}
+                        <div>
+                            <h3 style="font-weight: bolder;margin-bottom: 1rem; " >TOTAL FACTURA: {{ formatearNumero(total) }} Gs.</h3> 
+                        </div>
+                        
                         <div  v-if="pagosAsociados">
-                            <h4>Usar Anticipos Disponibles:</h4>
+                            <div> <h4 style="font-weight: bold; margin-bottom: 1rem; " >Anticipos Disponibles:</h4></div>
+                            
                             <div v-for="(aplicar, index) in pagosAplicar" :key="index" class="formgrid grid">
                                 <div class="field col-1 md:col-1 p-fluid" style="justify-content: start;  ">
                                 <Checkbox v-model="aplicar.seleccionado" name="anticipo" :binary="true" @change="getPagosSeleccionados()"  />
                             </div>
                             <div class="field col-4 md:col-4 p-fluid" style="justify-content: start;  ">
-                                <label>Anticipo #{{ aplicar.pagoPedidoCompra.id}} - {{ aplicar.pagoPedidoCompra.saldo }} Gs.</label>
+                                <label>Anticipo #{{ aplicar.pagoPedidoCompra.id}} - {{ formatearNumero(aplicar.pagoPedidoCompra.saldo) }} Gs.</label>
                             </div>
                             <div class="field col-5 md:col-5 p-fluid" style="justify-content: start;  ">
                                 <InputNumber :disabled="!aplicar.seleccionado" v-model="aplicar.monto" :max="aplicar.monto" @update:model-value="actualizarSumaTotal()" placeholder="Monto a usar" style="padding: 0rem !important; height: 100%;"/>
@@ -135,18 +156,20 @@
 
             <div >
                 
-                        <div v-if="anticiposAsociados">
+                        <div v-if="anticiposAsociados" style="margin-bottom: 1rem; ">
                             <Message severity="info" >El pedido asociado a esta factura tiene anticipos</Message>
                         </div>
-                        TOTAL FACTURA: {{ total }}
+                        <div>
+                            <h3 style="font-weight: bolder;margin-bottom: 1rem; " >TOTAL FACTURA: {{ formatearNumero(total) }} Gs.</h3> 
+                        </div>
                         <div  v-if="anticiposAsociados">
-                            <h4>Usar Anticipos Disponibles:</h4>
+                            <div> <h4 style="font-weight: bold; margin-bottom: 1rem; " >Anticipos Disponibles:</h4></div>
                             <div v-for="(aplicar, index) in anticiposAplicar" :key="index" class="formgrid grid">
                                 <div class="field col-1 md:col-1 p-fluid" style="justify-content: start;  ">
                                 <Checkbox v-model="aplicar.seleccionado" name="anticipo" :binary="true" @change="getAnticiposSeleccionados()" />
                             </div>
                             <div class="field col-4 md:col-4 p-fluid" style="justify-content: start;  ">
-                                <label>Anticipo #{{ aplicar.anticipo.id}} - {{ aplicar.anticipo.saldo }} Gs.</label>
+                                <label>Anticipo #{{ aplicar.anticipo.id}} - {{ formatearNumero(aplicar.anticipo.saldo) }} Gs.</label>
                             </div>
                             <div class="field col-5 md:col-5 p-fluid" style="justify-content: start;  ">
                                 <InputNumber :disabled="!aplicar.seleccionado" v-model="aplicar.monto" :max="aplicar.anticipo.saldo" 
@@ -198,7 +221,7 @@
         </Dialog>
       
         <!--Pantalla principal ver movimientos de caja-->
-        <Panel style=" position: relative; width: 100%;" >
+        <Panel style=" position: relative; width: 90%;" >
             <template #header>
                 <div class="flex align-items-center gap-2">
                     <h3 class="font-bold">Caja N° {{ caja.id }}</h3>
@@ -237,11 +260,20 @@
                             :paginator="true" :rows="7" 
                             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 
                             currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros" >
-        
+                                <Column field="id" sortable header="#" aria-sort="ascending" >
+                                    <template #body="slotProps">
+                                        {{ slotProps.data.id }}
+                                    </template>
+                                </Column>
                                 <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
                                     <template #body="slotProps">
                                         {{ formatearFechaHora(slotProps.data.fecha) }}
                                     </template>
+                                </Column>
+                                <Column field="total"  header="Cliente/Proveedor" aria-sort="ascending" sortable>    
+                                    <template #body="slotProps">
+                                        {{ slotProps.data.cliente?.persona?.nombre || slotProps.data.proveedor?.descripcion || ' ' }} {{ slotProps.data.cliente?.persona?.apellido }}
+                                    </template>        
                                 </Column>
                                 <Column field="concepto"  header="Concepto" aria-sort="ascending" sortable></Column>
                                 <Column field="formaPago"  header="Forma" aria-sort="ascending" sortable></Column>
@@ -253,9 +285,10 @@
                                     </template>        
                                 </Column>
                                 <Column field="factura"  header="N° Factura" aria-sort="ascending" sortable></Column>
-                                <Column v-if="cajaAbierta" :exportable="false">
+                                <Column  :exportable="false">
                                     <template #body="slotProps">
-                                        <Button :disabled="!puedeEliminarseEnCaja(slotProps.data.concepto)" icon="pi pi-trash" severity="danger" v-tooltip="'Eliminar'" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="confirm2(slotProps.data.id)"  />
+                                        <Button icon="pi pi-comment" v-tooltip="'Observaciones'" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="showObservacion(slotProps.data.observacion)" />
+                                        <Button v-if="cajaAbierta" :disabled="!puedeEliminarseEnCaja(slotProps.data.concepto)" icon="pi pi-trash" severity="danger" v-tooltip="'Eliminar'" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="confirm2(slotProps.data.id)"  />
                                     </template>
                                 </Column>
                             </DataTable>
@@ -272,6 +305,11 @@
                                     </template>
                                 </Column>
                                 <Column field="concepto.descripcion"  header="Concepto" aria-sort="ascending" sortable></Column>
+                                <Column field="total"  header="Proveedor" aria-sort="ascending" sortable>    
+                                    <template #body="slotProps">
+                                        {{ slotProps.data.proveedor?.descripcion || ' ' }}
+                                    </template>        
+                                </Column>
                                 <Column field="monto"  header="Monto" aria-sort="ascending" sortable>    
                                     <template #body="slotProps">
                                             {{ formatearNumero(slotProps.data.monto) }}
@@ -296,6 +334,11 @@
                                     </template>
                                 </Column>
                                 <Column field="concepto.descripcion"  header="Concepto" aria-sort="ascending" sortable></Column>
+                                <Column field="total"  header="Cliente" aria-sort="ascending" sortable>    
+                                    <template #body="slotProps">
+                                        {{ slotProps.data.cliente?.persona?.nombre || ' ' }} {{ slotProps.data.cliente?.persona?.apellido }}
+                                    </template>        
+                                </Column>
                                 <Column field="monto"  header="Monto" aria-sort="ascending" sortable>    
                                     <template #body="slotProps">
                                             {{ formatearNumero(slotProps.data.monto) }}
@@ -398,6 +441,8 @@ const movimientoCobrar = ref({});
 const movimientos = ref([]);
 const options = ref(['Ingreso', 'Egreso']);
 const conceptos = ref();
+const observacionDialog = ref(false);
+const observacion = ref();
 
 
 onMounted(() => {
@@ -405,6 +450,7 @@ onMounted(() => {
     getMovimientos();
     getMovimientosPendientesDePago();
     getMovimientosPendientesDeCobro();
+    getConceptosIngresoEgreso();
     inicializarCampos();
   
 
@@ -444,7 +490,15 @@ const actualizarSumaTotal = () => {
     sumaTotal.value = calcularImportePagos() + calcularImporteAnticipos() + calcularImportePagosAplicados();
 };
 
-
+async function getConceptosIngresoEgreso() {
+    try {
+      const { data } = await ConceptoServices.obtenerConceptosIngresoEgreso();
+      conceptos.value = data;
+      console.log(conceptos.value);
+    } catch (error) {
+      //showError('Error al obtener clientes');
+    }
+  }
 
 const getAnticiposSeleccionados = () => {
     console.log(anticiposAplicar.value);
@@ -455,6 +509,12 @@ const getAnticiposSeleccionados = () => {
 const getPagosSeleccionados = () => {
     console.log(pagosAplicar.value);
     pagosAplicados.value = pagosAplicar.value.filter(e => e.seleccionado );
+            
+};
+
+const showObservacion = (obs) => {
+    observacion.value = obs;
+    observacionDialog.value = true;
             
 };
 
@@ -487,7 +547,6 @@ const calcularImportePagosAplicados = () => {
 };
 
 const inicializarCampos = () => {
-    movimiento.value.tipo = 'Ingreso';
     movimiento.value.concepto = {id: 7, descripcion: 'Ingresos varios', tipo: 'I'};
     movimiento.value.medio = {id: 2, descripcion: 'Efectivo'};
     disabledSubmit.value = true;
@@ -570,12 +629,12 @@ const guardarPagosPendientes = () =>{
     let fechaMovimiento = new Date();
     movimientoPagar.value.fecha = fechaMovimiento;
     movimientoPagar.value.caja = caja.value;
-    obtenerAnticiposAplicados();
+    //obtenerAnticiposAplicados();
     
     
     console.log(pagos.value);
-    console.log(anticiposPedidos.value);
-    let movimientoCreationDTO = {movimiento: movimientoPagar.value, pagos: pagos.value};
+    console.log(pagosAplicados.value);
+    let movimientoCreationDTO = {movimiento: movimientoPagar.value, pagos: pagos.value, pagosPedidoCompraAplicados: pagosAplicados.value};
     
     CajaServices.savePagosPendiente(movimientoCreationDTO).then((data) => {
         toast.add({ severity:"success", detail: movimiento.value.tipo + ' Registrado', life: 3000 });
@@ -589,16 +648,14 @@ const guardarPagosPendientes = () =>{
 
 const guardarCobrosPendientes = () =>{
     let fechaMovimiento = new Date();
-    movimientoPagar.value.fecha = fechaMovimiento;
-    movimientoPagar.value.caja = caja.value;
-    obtenerAnticiposAplicados();
+    movimientoCobrar.value.fecha = fechaMovimiento;
+    movimientoCobrar.value.caja = caja.value;
+    //obtenerAnticiposAplicados();
     
-    
+    console.log(movimientoCobrar.value);
     console.log(pagos.value);
-    console.log(anticipos.value);
-    console.log(anticiposPedidos.value);
     console.log(anticiposAplicados.value);
-    let movimientoCreationDTO = {movimiento: movimientoPagar.value, cobros: pagos.value, anticiposAplicados: anticiposAplicados.value};
+    let movimientoCreationDTO = {movimiento: movimientoCobrar.value, cobros: pagos.value, anticiposAplicados: anticiposAplicados.value};
     
     CajaServices.saveCobrosPendiente(movimientoCreationDTO).then((data) => {
         toast.add({ severity:"success", detail: movimiento.value.tipo + ' Registrado', life: 3000 });
@@ -682,7 +739,7 @@ const registrarPago = (movimiento) => {
 const registrarCobro = (movimiento) => {
     console.log("registrar pago");
     registrarCobroDialog.value = true;
-    movimientoPagar.value = movimiento;
+    movimientoCobrar.value = movimiento;
     //total.value = movimiento.venta.montoTotal;
     console.log(movimiento);
     total.value = movimiento.monto;
@@ -799,17 +856,17 @@ const nuevoMovimiento = () =>{
         //console.log(reembolsos.value);
     });
 
-    ConceptoServices.obtenerConceptosByTipo('I').then((data) => {
+    /*ConceptoServices.obtenerConceptosByTipo('I').then((data) => {
         conceptos.value = data.data;
         console.log('conceptos');
         console.log(conceptos.value);
-    });
+    });*/
 
     visible.value = true;
 }
 
 const getConceptos = (tipo) =>{
-    let tipoChar;
+    /*let tipoChar;
     if(tipo == 'Ingreso'){
         tipoChar = 'I';
     }else{
@@ -820,7 +877,7 @@ const getConceptos = (tipo) =>{
         conceptos.value = data.data;
         console.log('conceptos');
         console.log(conceptos.value);
-    });
+    });*/
 
 }
 

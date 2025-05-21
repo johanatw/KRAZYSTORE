@@ -25,6 +25,7 @@ import com.krazystore.krazystore.Repository.CompraRepository;
 import com.krazystore.krazystore.Service.CompraService;
 import com.krazystore.krazystore.Service.DetalleCompraService;
 import com.krazystore.krazystore.Service.MovimientoService;
+import com.krazystore.krazystore.Service.RecepcionService;
 import com.krazystore.krazystore.exception.BadRequestException;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,9 @@ public class CompraServiceImpl implements CompraService {
     
     @Autowired
     private MovimientoService movimientoService;
+    
+    @Autowired
+    private RecepcionService recepcionService;
     
     @Autowired
     private DetalleCompraService detalleService;
@@ -109,13 +113,15 @@ public class CompraServiceImpl implements CompraService {
         }
         //System.out.println("entra savecompra");
         
-        List<Long> idRecepcionesAsociadas = compraDTO.getIdRecepciones();
+        //List<Long> idRecepcionesAsociadas = compraDTO.getIdRecepciones();
         
-        
+        Boolean recepcionAsociada = compraDTO.getCompra().getRecepcion() != null;
+        Boolean pedidoAsociado = compraDTO.getCompra().getPedido() != null;
         
         compraDTO.getCompra().setEstado(Estado.PENDIENTEDEPAGO.getCodigo());
         CompraEntity nuevaCompra;
         nuevaCompra = compraRepository.save(compraDTO.getCompra());
+        String tipoCompra = nuevaCompra.getProveedor().getTipo().getDescripcion();
         
         List<DetalleCompra> detalle = compraDTO.getDetalle()
                 .stream()
@@ -128,20 +134,34 @@ public class CompraServiceImpl implements CompraService {
         
         List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.saveDetCompra(detalle, nuevaCompra.getId());
         
-        if(idRecepcionesAsociadas != null && !idRecepcionesAsociadas.isEmpty()){
+        /*if(idRecepcionesAsociadas != null && !idRecepcionesAsociadas.isEmpty()){
             System.out.println("entra if recepcion");
             asociarRecepcionesFactura(nuevaCompra.getId(), idRecepcionesAsociadas);
-        }
+        }*/
             
         if(!preciosActualizados.isEmpty()){
             actualizarCostos(preciosActualizados);
         }
         
-        if(nuevaCompra.getPedido() != null){
-            actualizarEstadoPedido(nuevaCompra.getPedido().getId(), TipoEvento.PEDIDO_FACTURADO);
+        /*if(recepcionAsociada){
+            actualizarEstadoRecepcion(nuevaCompra.getRecepcion().getId(), Estado.FACTURADO);
+        }else if(pedidoAsociado && "Nacional".equals(tipoCompra)){
+            actualizarExistencias(productosActualizarExistencias);
+            actualizarEstadoPedido(nuevaCompra.getPedido().getId(), TipoEvento.ESTADO_FACTURACION);
+        }else if(pedidoAsociado){
+            actualizarEstadoPedido(nuevaCompra.getPedido().getId(), TipoEvento.ESTADO_FACTURACION);
+        }else{
+            actualizarExistencias(productosActualizarExistencias);
+        } */
+        if("Nacional".equals(tipoCompra)){
+            actualizarExistencias(productosActualizarExistencias);
         }
-        actualizarExistencias(productosActualizarExistencias);
         
+        if(recepcionAsociada){
+            actualizarEstadoRecepcion(nuevaCompra.getRecepcion().getId(), Estado.FACTURADO);
+        }else if(pedidoAsociado){
+            actualizarEstadoPedido(nuevaCompra.getPedido().getId(), TipoEvento.ESTADO_FACTURACION);
+        }
         
         
         notificarFacturaCompraPendiente(nuevaCompra);
@@ -192,9 +212,8 @@ public class CompraServiceImpl implements CompraService {
         System.out.println("7");
             List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.updateDetCompra(detalle, id);
             actualizarExistencias(productosActualizarExistencias);
-        if(updatedCompra.getPedido() != null){
-            actualizarEstadoPedido(updatedCompra.getPedido().getId(), TipoEvento.PEDIDO_MODIFICADO);
-        }
+        
+        
             System.out.println("8");
         //notificarFacturaCompraModificada(updatedCompra);
         return updatedCompra;
@@ -205,19 +224,22 @@ public class CompraServiceImpl implements CompraService {
     @Override
     public void deleteCompra(Long id) {
         CompraEntity compra = compraRepository.findById(id).get();
+        Long pedidoId = compra.getPedido()!=null?compra.getPedido().getId():null;
         //No puede eliminar una factura si ya esta pagado
         if(Estado.PAGADO.getCodigo() == compra.getEstado()){
             throw new BadRequestException("No se puede Eliminar " );
         }
-        if(compra.getPedido() != null){
-            actualizarEstadoPedido(compra.getPedido().getId(), TipoEvento.PEDIDO_MODIFICADO);
-        }
+        
         movimientoService.deleteCompra(id);
         
         List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.deleteDetCompra(id);
         compraRepository.deleteById(id);
         
         actualizarExistencias(productosActualizarExistencias);
+        
+        if(pedidoId != null){
+            actualizarEstadoPedido(pedidoId, TipoEvento.ESTADO_FACTURACION);
+        }
         
         
     }
@@ -240,6 +262,14 @@ public class CompraServiceImpl implements CompraService {
         // Publicar el evento
         // Publicar el evento
         PedidoCompraEvent evento = new PedidoCompraEvent(idPedido, tipoEvento);
+        eventPublisher.publishEvent(evento);
+    }
+    
+    public void actualizarEstadoRecepcion(Long idRecepcion, Estado estado) {
+        
+        // Publicar el evento
+        // Publicar el evento
+        RecepcionFacturada evento = new RecepcionFacturada(idRecepcion, estado.getCodigo());
         eventPublisher.publishEvent(evento);
     }
     

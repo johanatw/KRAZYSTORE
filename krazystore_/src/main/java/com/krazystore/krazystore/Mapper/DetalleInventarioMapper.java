@@ -26,7 +26,7 @@ public class DetalleInventarioMapper implements Function<DetalleInventarioDTO, D
                     productoEntity,
                     detalleDTO.getStockInicialInventario(),
                     detalleDTO.getCantContada(),
-                    detalleDTO.getDiferencia()
+                    detalleDTO.getCantContada()-detalleDTO.getStockInicialInventario()
         );
         
     }

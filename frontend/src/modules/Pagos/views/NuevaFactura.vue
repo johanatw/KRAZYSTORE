@@ -24,6 +24,7 @@ import { TipoDocServices } from "@/services/TipoDocServices";
 import {DepartamentoServices } from '@/services/DepartamentoServices';
 import { TimbradoServices } from "@/services/TimbradoServices";
 import { formatearNumero, formatearFecha } from "@/utils/utils";
+import { ClienteServices } from "@/services/ClienteServices";
 const map = ref();
 const timbrado = ref();
 const nroFactura = ref();
@@ -108,8 +109,7 @@ onMounted(() => {
     
     });
     
-   
-   PersonaServices.obtenerClientes().then((data) => {
+   ClienteServices.obtenerClientes().then((data) => {
        clientes.value = data.data;
    });
 
@@ -270,10 +270,10 @@ const registrarCliente = () =>{
 }
 
 const modificarCliente = (cli) => {
-    PersonaServices.getPersona(cli.id).then((data) => {
+    ClienteServices.getCliente(cli.id).then((data) => {
         console.log("data direccion");
         console.log(data.data.direccion);
-       cliente.value = data.data.persona;
+       cliente.value = data.data;
        clienteDialog.value = true;
        if (data.data.direccion) {
         direccion.value = data.data.direccion;
@@ -310,12 +310,13 @@ const saveCliente = () => {
     if (cliente?.value.nombre?.trim() && validarDireccionCliente(direccion.value) ) {
         direccion.value.tipo = 'P';
         generarDireccion(direccion.value);
-        personaCreationDTO.value = {personaEntity: cliente.value, direccion: direccion.value};
+        cliente.value.direccion = direccion.value;
+        //personaCreationDTO.value = {personaEntity: cliente.value, direccion: direccion.value};
         if (cliente.value.id) {
-            PersonaServices.modificarPersona(cliente.value.id, personaCreationDTO.value).then((response)=>{
+            ClienteServices.modificarCliente(cliente.value.id, cliente.value).then((response)=>{
             console.log("mod");
                 eliminarClienteSelected();
-                clientes.value[findIndexById(cliente.value.id)] = cliente.value;
+                clientes.value[findIndexById(response.data.id)] = response.data;
                 toast.add({severity:'success', summary: 'Successful', detail: 'Registro modificado', life: 3000});
                 selectedCliente.value = response.data;
                 
@@ -327,10 +328,8 @@ const saveCliente = () => {
             
         }
         else {
-         
-            PersonaServices.registrarPersona(personaCreationDTO.value).then((response)=>{
+            ClienteServices.registrarCliente(cliente.value).then((response)=>{
             console.log("reg");
-            console.log(personaCreationDTO.value);
                 clientes.value.push(response.data);
                 toast.add({severity:'success', summary: 'Successful', detail: 'Registro creado', life: 3000});
                 selectedCliente.value = response.data;

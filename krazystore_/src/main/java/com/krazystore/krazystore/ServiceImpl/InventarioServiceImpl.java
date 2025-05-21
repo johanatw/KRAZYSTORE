@@ -81,6 +81,7 @@ public class InventarioServiceImpl implements InventarioService {
         inventario.setEstado(Estado.ENCURSO.getCodigo());
         InventarioEntity nuevoInventario = inventarioRepository.save(inventario);
         if(!detalleDTO.isEmpty()){
+            detalleDTO.forEach(det -> det.setStockInicialInventario(det.getStockActual()));
             List<DetalleInventario> detalle = detalleDTO
                 .stream()
                 .map(detalleMapper)
@@ -169,6 +170,7 @@ public class InventarioServiceImpl implements InventarioService {
          // Actualizar detalles si existen
         List<DetalleInventarioDTO> detalleDTO = inventarioDTO.getDetalle();
         if(detalleDTO != null && !detalleDTO.isEmpty()){
+            detalleDTO.forEach(det -> det.setStockInicialInventario(det.getStockActual()));
             List<DetalleInventario> detalle = detalleDTO
                 .stream()
                 .map(detalleMapper)

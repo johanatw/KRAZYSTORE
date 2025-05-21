@@ -191,7 +191,7 @@ const nuevoPedido = () =>{
 
     <ConfirmDialog ></ConfirmDialog>
     <Toast />
-    <Panel style=" position: relative; width: 100%;" >
+    <Panel style=" position: relative; width: 90%;" >
       <template #header>
         <div class="flex align-items-center gap-2">
             <h3 class="font-bold">Compras</h3>
@@ -229,6 +229,11 @@ const nuevoPedido = () =>{
         <Column field="fecha" sortable header="N° Pedido" aria-sort="ascending" >
             <template #body="slotProps">
                 {{ slotProps.data.pedido?.id }}
+            </template>
+        </Column>
+        <Column field="fecha" sortable header="N° Recepción" aria-sort="ascending" >
+            <template #body="slotProps">
+                {{ slotProps.data.recepcion?.id }}
             </template>
         </Column>
           <Column field="proveedor.descripcion"  header="Proveedor" aria-sort="ascending" sortable>           

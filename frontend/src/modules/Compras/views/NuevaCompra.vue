@@ -54,7 +54,7 @@ const existePedido = ref(false);
 const timbrado = ref();
 const selectedOp = ref('Casi');
 const productos= ref();
-
+const servicioDialog = ref(false);
 const filteredClientes = ref();
 const error = ref(false);
 const opciones = ref(['Casi','Entre']);
@@ -85,10 +85,11 @@ const totalGravada = ref(0);
 const totalExentas = ref(0);
 const detalleFacturar = ref([]);
 const subTotal = ref(0);
-
+const iva0 = ({id: 3, base: 100, descripcion: 'IVA 0%', porcentaje: 0 });
 const searched = ref(false);
 const errorNoSePuedeFacturarPedido = ref(false);
 const mensajeError = ref([]);
+const servicios = ref([]);
 const iva5 = ref(0);
 const iva10 = ref(0);
 const montoIva = ref(0);
@@ -127,6 +128,7 @@ const message = (m) => {
 
 
 onMounted(() => {
+    getServicios();
     ProductoServices.obtenerProductos().then((data) => {
      productos.value = data.data
      console.log("productosssss",productos.value);
@@ -148,6 +150,11 @@ onMounted(() => {
 
 
 });
+
+async function getServicios(){
+    servicios.value = (await ProductoServices.obtenerServicios()).data;
+    console.log(servicios.value);
+}
 
 const filters = ref({
  'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
@@ -202,10 +209,10 @@ const calcularIva5 = () => {
         return 0;
     }
   return detalle
-  .filter(item => item.producto?.tipoIva?.porcentaje === 5) // Filtra los productos con IVA 5%
+  .filter(item => item.ivaAplicado.porcentaje === 5) // Filtra los productos con IVA 5%
     .reduce((accu, item) => {
-        let porcentaje = item.producto.tipoIva.porcentaje || 0;
-        let base = item.producto.tipoIva.base || 0;
+        let porcentaje = item.ivaAplicado.porcentaje || 0;
+        let base = item.ivaAplicado.base || 0;
         let factor_iva = porcentaje + base;
 
         if (factor_iva === 0) return accu; // Evita división por 0
@@ -228,10 +235,10 @@ const calcularIva10 = () => {
         return 0;
     }
   return detalle
-    .filter(item => item.producto.tipoIva.porcentaje === 10) // Filtra 
+    .filter(item => item.ivaAplicado.porcentaje === 10) // Filtra 
     .reduce((acc, item) => {
-        let factor_iva = item.producto.tipoIva.porcentaje + item.producto.tipoIva.base;
-        return acc + ((item.subTotal * item.producto.tipoIva.porcentaje / factor_iva) || 0)
+        let factor_iva = item.ivaAplicado.porcentaje + item.ivaAplicado.base;
+        return acc + ((item.subTotal * item.ivaAplicado.porcentaje / factor_iva) || 0)
     }, 0); // Luego suma
 };
 
@@ -271,7 +278,16 @@ const mostrarCliente = () =>{
     // Insertar el enlace en el div
     document.getElementById("clienteDiv").appendChild(enlace);
         
-
+    if (selectedCliente.value.tipo.descripcion == 'Extranjero') {
+        detalleFacturar.value.forEach(e => {
+                e.ivaAplicado = iva0;
+            });
+    } else {
+        detalleFacturar.value.forEach(e => {
+                e.ivaAplicado = e.producto.tipoIva;
+            });
+    }
+    sendSubTotal();
     clienteSeleccionado.value = true;
 }
 
@@ -376,91 +392,7 @@ const findIndexById = (id) => {
     return index;
 };
 
-const buscarPedido= (id, e) => {
-    
-    errorNoSePuedeFacturarPedido.value = false;
-    mensajeError.value = [];
-  var code = (e.keyCode ? e.keyCode : e.which);
-  
-  if (code == 13) { //Enter keycode   
-    if (id == null) {
-        selectedProducts.value = null;
-        compraIndependiente.value = true;
-        compraInternacional.value = false;
-        compraNacional.value = false;
-        pedido.value = null;
-        pedidoExtranjero.value = false;
-        detalleFacturar.value = [];
-        total.value = 0;
-        montoIva.value =0;
-        iva5.value =0;
-        iva10.value = 0;
-        eliminarClienteSelected();
-    } else {
-        PedidoCompraServices.getPedido(id).then((data) => {
-        total.value = 0;
-    montoIva.value =0;
-    iva5.value =0;
-    iva10.value = 0;
-        searched.value = true;
 
-        if (data.data.pedido == null) {
-            compraIndependiente.value = true;
-            compraInternacional.value = false;
-            compraNacional.value = false;
-            existePedido.value = false;
-            pedidoExtranjero.value = false;
-            pedido.value = null;
-            detalleFacturar.value = [];
-            selectedProducts.value = null;
-            eliminarClienteSelected();
-        }else{
-            existePedido.value = true;
-
-            if (puedeFacturarsePedido(data.data.pedido)) {
-                eliminarClienteSelected();
-
-                compraIndependiente.value = false;
-                compraInternacional.value = false;
-                compraNacional.value = true;
-                selectedProducts.value = null;
-
-                pedido.value = data.data.pedido;
-                detalleFacturar.value = data.data.detalle;
-                
-                if (pedido.value.proveedor != null) {
-                    selectedCliente.value = pedido.value.proveedor;
-                }
-                
-            
-                mostrarCliente();
-
-                if (data.data.pedido?.proveedor.tipo.descripcion == 'Extranjero') {
-                    pedidoExtranjero.value = true;
-                    compraIndependiente.value = false;
-                    compraInternacional.value = true;
-                    compraNacional.value = false;
-                }
-            }else{
-                mostrarError(data.data.pedido);
-                selectedProducts.value = null;
-                compraIndependiente.value = true;
-                compraInternacional.value = false;
-                compraNacional.value = false;
-                pedido.value = null;
-                pedidoExtranjero.value = false;
-                detalleFacturar.value = [];
-                eliminarClienteSelected();
-            }
-        }
-        
-   });  
-    }
-             
-      
-  }
-
-}
 
 const mostrarError = (pedido) =>{
     console.log(pedido);
@@ -556,12 +488,34 @@ console.log("holaaaitem",item);
   detalle.value.cantidad = 1;
   detalle.value.costoCompra = detalle.value.producto.costo;
    detalle.value.subTotal = detalle.value.costoCompra * detalle.value.cantidad;
-   detalle.value.ivaAplicado = detalle.value.producto.tipoIva;
+   detalle.value.ivaAplicado = (selectedCliente.value?.tipo.descripcion == 'Extranjero')?iva0:detalle.value.producto.tipoIva;
    detalleFacturar.value.push(detalle.value);
    detalle.value= {};
 }
 item.cantDisponible--;
 item.cantReservada++;
+sendSubTotal();
+
+}
+
+const addServicio= (item) => {
+let index = detalleFacturar.value.findIndex((loopVariable) => loopVariable.producto.id === item.id);
+
+if (index>-1) {
+    detalleFacturar.value[index].cantidad++;
+   console.log("holaaa");
+} else {
+console.log("holaaaitem",item);
+  detalle.value.producto = {};
+   detalle.value.producto = item;
+  detalle.value.cantidad = 1;
+   detalle.value.costoCompra = item.costo;
+   detalle.value.ivaAplicado = (selectedCliente.value?.tipo.descripcion == 'Extranjero')?iva0:detalle.value.producto.tipoIva;
+   detalle.value.subTotal = detalle.value.costoCompra * detalle.value.cantidad;
+   detalleFacturar.value.push(detalle.value);
+   detalle.value= {};
+}
+
 sendSubTotal();
 
 }
@@ -848,6 +802,7 @@ const showError = (message) => {
                                     </div>
                                     <div>
                                         <Button label="Agregar Producto" text @click="visible = true" />
+                                        <Button label="Agregar Servcio" text @click="servicioDialog = true" />
                                         </div>
 
                                 </div>
@@ -878,7 +833,7 @@ const showError = (message) => {
                             </Column>
                             <Column  class="col" field="cantidad" header="IVA" aria-sort="none">
                                 <template #body="slotProps">
-                                    {{ slotProps.data.producto.tipoIva.porcentaje}}%
+                                    {{ slotProps.data.ivaAplicado.porcentaje}}%
                                 </template>
                                 
                             </Column>
@@ -985,6 +940,38 @@ const showError = (message) => {
                                                     <Column :exportable="false" style="min-width:8rem">
                                                     <template #body="slotProps">
                                                         <Button icon="pi pi-shopping-cart" class="mod_icono"  @click="addItem(slotProps.data)"/>
+                                                        
+                                                    </template>
+                                                    </Column>
+                                                </DataTable>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </Dialog>  
+                                </div>
+                                 <div >
+                                    
+                       
+                                    <Dialog v-if="servicioDialog" v-model:visible="servicioDialog" modal header="Seleccionar servicios" :closable="false" :draggable="false"  >
+                                    <template #footer>
+                                        <div class="flex justify-content-end">
+                                            <Button label="Cerrar" icon="pi pi-times" text @click="servicioDialog = false" />
+                                        </div>
+                                    </template> 
+
+                                    <div class="grid">
+                                        <div class="card col-12" style="width: 100%;">
+                                         
+    
+                                            <div class="flex card-container col-12" style="width: 100%;">
+        
+                                                <DataTable class="tabla" ref="dt"  :value="servicios"  dataKey="producto.id"
+                                                     >
+                                    
+                                                    <Column field="nombre" header="Descripcion" aria-sort="none" style="min-width:30rem"></Column>
+                                                    <Column :exportable="false" >
+                                                    <template #body="slotProps">
+                                                        <Button icon="pi pi-shopping-cart" class="mod_icono"  @click="addServicio(slotProps.data)"/>
                                                         
                                                     </template>
                                                     </Column>

@@ -54,6 +54,9 @@ const compraNacional = ref(false);
 const compraInternacional = ref(false);
 const pedidoAsociado = ref(false);
 const selectedProducts = ref();
+const iva0 = ({id: 3, base: 100, descripcion: 'IVA 0%', porcentaje: 0 });
+const servicios = ref([]);
+const servicioDialog = ref(false);
 const infoEntrega = ref([{
     valor: "Retiro"
 }])
@@ -100,12 +103,16 @@ const detalle = ref({});
 const total = ref(0);
 const nroFactura = ref();
 const pedido = ref();
+const recepcion = ref();
 const fechaCompra = ref(new Date());
+const recepcionAsociado = ref();
 
 onMounted(() => {
+    getServicios();
     CompraServices.getCompra(router.currentRoute.value.params.id).then((data) => {
         compra.value = data.data.compra;
         pedido.value = data.data.compra?.pedido;
+        recepcion.value = data.data.compra?.recepcion;
         console.log(data.data);
         if (data.data.compra.proveedor != null) {
             selectedCliente.value = data.data.compra.proveedor;
@@ -113,7 +120,7 @@ onMounted(() => {
         }
 
         pedidoAsociado.value = (data.data.compra?.pedido !== null);
-        
+        recepcionAsociado.value = (recepcion.value !== null);
         detalleFacturar.value = data.data.detalle;
         
         if (pedidoAsociado.value) {
@@ -124,6 +131,7 @@ onMounted(() => {
             element.pendiente = element.detallePedido.cantSolicitada -  element.detallePedido.cantFacturada + element.cantidad;
         });
         
+        console.log(detalleFacturar.value);
 
         console.log(selectedProducts.value);
         console.log(compraNacional.value);
@@ -165,6 +173,11 @@ const isFromRecepcion = () => {
 
   }
 
+  async function getServicios(){
+    servicios.value = (await ProductoServices.obtenerServicios()).data;
+    console.log(servicios.value);
+}
+
 const esCompraInternacional = (tipoProveedor) =>{
 
     if (tipoProveedor == 'Extranjero') {
@@ -199,6 +212,7 @@ const search = (event) => {
 }
 
 const mostrarCliente = () =>{
+    console.log(detalleFacturar.value);
     console.log(selectedCliente.value);
     let texto = selectedCliente.value.descripcion;
     if (selectedCliente.value.tipo) {
@@ -230,8 +244,17 @@ const mostrarCliente = () =>{
 
     // Insertar el enlace en el div
     document.getElementById("clienteDiv").appendChild(enlace);
-        
-
+    console.log(detalleFacturar.value);
+    if (selectedCliente.value.tipo.descripcion == 'Extranjero') {
+        detalleFacturar.value.forEach(e => {
+                e.ivaAplicado = iva0;
+            });
+    } else {
+        detalleFacturar.value.forEach(e => {
+                e.ivaAplicado = e.producto.tipoIva;
+            });
+    }
+    sendSubTotal();
     clienteSeleccionado.value = true;
 }
 
@@ -342,6 +365,7 @@ const calcularIva = () =>{
 
 
 const calcularIva5 = () => {
+    console.log("IVA5");
     let detalle;
     if(!pedidoAsociado.value){
         detalle = detalleFacturar.value;
@@ -369,6 +393,7 @@ const calcularIva5 = () => {
 };
 
 const calcularIva10 = () => {
+    console.log("IVA10");
     let detalle;
     if(!pedidoAsociado.value){
         detalle = detalleFacturar.value;
@@ -460,7 +485,7 @@ console.log("holaaaitem",item);
   detalle.value.cantidad = 1;
   detalle.value.costoCompra = detalle.value.producto.costo;
    detalle.value.subTotal = detalle.value.costoCompra * detalle.value.cantidad;
-   detalle.value.ivaAplicado = detalle.value.producto.tipoIva;
+   detalle.value.ivaAplicado = (selectedCliente.value?.tipo.descripcion == 'Extranjero')?iva0:detalle.value.producto.tipoIva;
    detalleFacturar.value.push(detalle.value);
    detalle.value= {};
 }
@@ -470,6 +495,25 @@ sendSubTotal();
 
 }
 
+const addServicio= (item) => {
+let index = detalleFacturar.value.findIndex((loopVariable) => loopVariable.producto.id === item.id);
+
+if (index>-1) {
+    detalleFacturar.value[index].cantidad++;
+   console.log("holaaa");
+} else {
+console.log("holaaaitem",item);
+  detalle.value.producto = {};
+   detalle.value.producto = item;
+  detalle.value.cantidad = 1;
+   detalle.value.costoCompra = item.costo;
+   detalle.value.ivaAplicado = (selectedCliente.value?.tipo.descripcion == 'Extranjero')?iva0:detalle.value.producto.tipoIva;
+   detalle.value.subTotal = detalle.value.costoCompra * detalle.value.cantidad;
+   detalleFacturar.value.push(detalle.value);
+   detalle.value= {};
+}
+
+}
 const eliminar = (detalle) => {
    const cantidad= 1;
   
@@ -760,16 +804,14 @@ const eliminar = (detalle) => {
                     </Card>
 
                 </div>
-                 <div v-else class="col-12" >
+                <div v-else-if="recepcionAsociado" class="col-12" >
                         <Card >
                             <template #title>
                             <div class="flex justify-content-between ">
                                 <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
                                     Productos
                                 </div>
-                                <div>
-                                    <Button label="Agregar Producto" text @click="visible = true" />
-                                    </div>
+                  
                             </div>
                         </template>
                         <template #content>
@@ -801,6 +843,69 @@ const eliminar = (detalle) => {
                                         <template #body="slotProps">
                                             <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
                                                 <label for="subtotal"> {{  (slotProps.data.ivaAplicado.porcentaje) }}%</label>
+                                            </div>  
+                                        </template>
+                                        
+                                    </Column>
+                                    
+                                    <Column  class="col" field="subTotal" header="Sub Total" aria-sort="none" >
+                                        <template #body="slotProps">
+                                            <div class="flex-auto p-fluid" style="max-width: 20dvh;">
+                                                <label for="subtotal"> {{  (slotProps.data.subTotal =  slotProps.data.cantidad * slotProps.data.costoCompra).toLocaleString("de-DE") }}</label>
+                                            </div>
+                                        </template>
+                                    </Column>
+                       
+                                </DataTable>
+                            </div>
+                            </div>
+    
+                            </div>
+                        </template>    
+                        </Card>
+                    </div>
+                 <div v-else class="col-12" >
+                        <Card >
+                            <template #title>
+                            <div class="flex justify-content-between ">
+                                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                                    Productos
+                                </div>
+                                <div>
+                                    <Button label="Agregar Producto" text @click="visible = true" />
+                                    <Button label="Agregar Servicio" text @click="servicioDialog = true" />
+                                    </div>
+                            </div>
+                        </template>
+                        <template #content>
+                            <div>
+                                
+                                <div class="card" style="width: 100%;">
+                                <div class="flex card-container" style="width: 100%;">
+                                    <DataTable class="tablaCarrito" ref="dt" :value="detalleFacturar" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
+                                    <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
+                                    <Column class="col" field="costoCompra"  header="Costo" aria-sort="none" >
+                                        <template #body="slotProps">
+                                        <div  class="flex-auto p-fluid" >
+                                            <InputNumber fluid class="inpCant" v-model="slotProps.data.costoCompra" mode="decimal"   @update:modelValue="sendSubTotal" />
+                                        </div> 
+                                       
+                                        </template>
+                                    </Column>         
+                                    <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
+                                        <template #body="slotProps">
+                                            <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
+                                            <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="1"  @update:modelValue="sendSubTotal" />
+                                        </div> 
+
+
+                                        </template>
+                                        
+                                    </Column>
+                                    <Column  class="col" field="cantidad" header="IVA" aria-sort="none">
+                                        <template #body="slotProps">
+                                            <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
+                                                <label for="subtotal"> {{  (slotProps.data.ivaAplicado?.porcentaje) }}%</label>
                                             </div>  
                                         </template>
                                         
@@ -872,6 +977,38 @@ const eliminar = (detalle) => {
                                     </div>
                                     </Dialog>  
                                 </div>
+                                <div>
+                                    <Dialog v-if="servicioDialog" v-model:visible="servicioDialog" modal header="Seleccionar servicios" :closable="false" :draggable="false"  >
+                                    <template #footer>
+                                        <div class="flex justify-content-end">
+                                            <Button label="Cerrar" icon="pi pi-times" text @click="servicioDialog = false" />
+                                        </div>
+                                    </template> 
+
+                                    <div class="grid">
+                                        <div class="card col-12" style="width: 100%;">
+                                         
+    
+                                            <div class="flex card-container col-12" style="width: 100%;">
+        
+                                                <DataTable class="tabla" ref="dt"  :value="servicios"  dataKey="producto.id"
+                                                     >
+                                    
+                                                    <Column field="nombre" header="Descripcion" aria-sort="none" style="min-width:30rem"></Column>
+                                                    <Column :exportable="false" >
+                                                    <template #body="slotProps">
+                                                        <Button icon="pi pi-shopping-cart" class="mod_icono"  @click="addServicio(slotProps.data)"/>
+                                                        
+                                                    </template>
+                                                    </Column>
+                                                </DataTable>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </Dialog> 
+                                </div>
+
+
                             </div>
                         </template>    
                         </Card>

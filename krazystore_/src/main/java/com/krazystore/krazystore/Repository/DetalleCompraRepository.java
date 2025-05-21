@@ -35,7 +35,7 @@ public interface DetalleCompraRepository extends JpaRepository<DetalleCompra, Lo
     
     
     @Query("SELECT new com.krazystore.krazystore.DTO.DetalleCompraDTO( " +
-       "d.id, d.producto.id, d.producto.nombre, d.ivaAplicado, " +
+       "d.id, d.producto.id, d.producto.nombre, d.ivaAplicado, d.producto.tipoIva, " +
        "d.cantidad, d.subTotal, d.costoCompra, COALESCE(SUM(dp.id), 0), COALESCE(SUM(dp.cantidad), 0),  " +
        "COALESCE(SUM(dr.cantRecepcionada), 0), " +
         "COALESCE(SUM(dr.cantAceptada), 0), " +
@@ -44,7 +44,7 @@ public interface DetalleCompraRepository extends JpaRepository<DetalleCompra, Lo
         "LEFT JOIN d.compra c " +
         "LEFT JOIN c.pedido p " +
         "LEFT JOIN DetallePedidoCompra dp ON dp.pedidoCompra.id = p.id AND dp.producto.id = d.producto.id " +
-        "LEFT JOIN RecepcionEntity r ON r.compra.id = c.id " +
+        "LEFT JOIN RecepcionEntity r ON r.pedido.id = p.id " +
         "LEFT JOIN DetalleRecepcion dr ON dr.recepcion.id = r.id AND dr.detallePedido.id = dp.id " +
         "LEFT JOIN (SELECT dc.producto.id AS productoId, f.pedido.id AS pedidoId, " +
        "                 SUM(dc.cantidad) AS cantidadFacturada " +
@@ -53,6 +53,6 @@ public interface DetalleCompraRepository extends JpaRepository<DetalleCompra, Lo
       //  "           WHERE f.id = :idCompra " +
        "           GROUP BY dc.producto.id, f.pedido.id) dc ON dc.productoId = d.producto.id AND dc.pedidoId = p.id " +    
        "WHERE c.id = :idCompra " +
-        "GROUP BY d.id, d.producto.id, d.producto.nombre, d.ivaAplicado, d.cantidad, d.subTotal, d.costoCompra, dp.id, dp.cantidad, dc.cantidadFacturada ")
+        "GROUP BY d.id, d.producto.id, d.producto.nombre, d.ivaAplicado, d.producto.tipoIva, d.cantidad, d.subTotal, d.costoCompra, dp.id, dp.cantidad, dc.cantidadFacturada ")
     List<DetalleCompraDTO> findDetallesByIdCompra(@Param("idCompra") Long idcompra);
 }

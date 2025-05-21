@@ -84,11 +84,9 @@ public class RecepcionServiceImpl implements RecepcionService {
         recepcion = recepcionMapper.apply(recepcionDTO.getRecepcion());
         //recepcion.setEstado(Estado.PENDIENTEDEFACTURA.getCodigo());
         
-        if(recepcionDTO.getRecepcion().getCompra() == null){
-            recepcion.setEstado(Estado.PENDIENTEDEFACTURA.getCodigo());
-        }else{
-            recepcion.setEstado(Estado.FACTURADO.getCodigo());
-        }
+        
+        recepcion.setEstado(Estado.PENDIENTEDEFACTURA.getCodigo());
+        
         RecepcionEntity nuevaRecepcion = recepcionRepository.save(recepcion);
      
         List<DetalleRecepcion> detalle = recepcionDTO.getDetalle()
@@ -163,7 +161,7 @@ public class RecepcionServiceImpl implements RecepcionService {
     public void actualizarRecepcionPedidoCompra(Long idPedido) {
         
         // Publicar el evento
-        PedidoCompraEvent evento = new PedidoCompraEvent(idPedido, TipoEvento.PEDIDO_RECEPCIONADO);
+        PedidoCompraEvent evento = new PedidoCompraEvent(idPedido, TipoEvento.ESTADO_PEDIDO);
         eventPublisher.publishEvent(evento);
     }
     
@@ -215,20 +213,8 @@ public class RecepcionServiceImpl implements RecepcionService {
         
         return recepcionesList;
     }
-    
-    
-    @EventListener
-    public void handleRecepcionesFacturadas(RecepcionesFacturadasEvent event) {
-        List<Long> ids = event.getIdsRecepciones();
-        Long idCompra = event.getIdCompra();
-        char estado = Estado.FACTURADO.getCodigo();
-        System.out.println("handleRecepcionesFacturadas");
-        System.out.println(idCompra);
-        ids.forEach((i)->System.out.println(i));
-        
-        recepcionRepository.asociarRecepcionesFactura(idCompra, ids, estado);
-       
-    }
+
+
 
 
 }

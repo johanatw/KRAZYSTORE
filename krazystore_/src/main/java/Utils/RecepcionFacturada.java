@@ -8,13 +8,12 @@ package Utils;
  *
  * @author HP
  */
-import org.springframework.context.ApplicationEvent;
-public class RecepcionFacturada extends ApplicationEvent{
+
+public class RecepcionFacturada {
     private Long idRecepcion;
     private char estado;
 
-    public RecepcionFacturada(Long idRecepcion, char estado, Object source) {
-        super(source);
+    public RecepcionFacturada(Long idRecepcion, char estado) {
         this.idRecepcion = idRecepcion;
         this.estado = estado;
     }

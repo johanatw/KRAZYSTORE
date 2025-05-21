@@ -54,10 +54,10 @@ public interface DetallePedidoRepository extends JpaRepository<DetallePedidoEnti
            "COALESCE(de.cantidadEntregada, 0)) " +
            "FROM DetallePedidoEntity d "
             + "LEFT JOIN d.producto.tipoIva " +
-            "LEFT JOIN (SELECT te.id AS detalleId, te.detallePedido.id AS detallePedidoId,  " +
+            "LEFT JOIN (SELECT te.detallePedido.id AS detallePedidoId,  " +
        "                 SUM(te.cantidad) AS cantidadEntregada " +
        "           FROM DetalleEntrega te " +
-       "           GROUP BY detalleId, detallePedidoId) de ON de.detallePedidoId = d.id " +
+       "           GROUP BY detallePedidoId) de ON de.detallePedidoId = d.id " +
            "WHERE d.pedido.id = :idPedido")
     List<DetallePedidoDTO> findDetallesByIdPedido(@Param("idPedido") Long idPedido);
     

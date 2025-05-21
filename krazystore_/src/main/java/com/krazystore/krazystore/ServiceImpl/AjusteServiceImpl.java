@@ -79,7 +79,7 @@ public class AjusteServiceImpl implements AjusteService {
         ajuste.setEstado(Estado.PENDIENTEAJUSTE.getCodigo());
         AjusteStock nuevoAjuste = ajusteRepository.save(ajuste);
         
-        detalleDTO.forEach(det -> System.out.println(det.getProducto()));
+        detalleDTO.forEach(det -> det.setCantidadAnterior(det.getCantidadActual()));
         // Guardar los detalles si existen
         if(!detalleDTO.isEmpty()){
             List<DetalleAjuste> detalle = detalleDTO

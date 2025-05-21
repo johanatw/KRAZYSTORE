@@ -25,4 +25,10 @@ public interface ProductoService {
     ProductoEntity updatePreVenta (Long id,Integer cantPreVenta);
     void updateExistencias(List<ProductoEntity> productos);
     void deleteProducto(Long id);
+
+    public Optional<ProductoDTO> getServicioTransporte();
+
+    public List<ProductoDTO> getServicios();
+
+    public Optional<ProductoDTO> getCostoEnvio();
 }

@@ -224,6 +224,9 @@ const saveProducto = () => {
     <!--Dialog Registrar Producto-->
     <Dialog v-model:visible="productoDialog" :closable="false" :style="{width: '450px'}" header="Producto" :modal="true" class="p-fluid">
         <div class="formgrid">
+          <div>
+            <SelectButton v-model="value" :options="options" />
+          </div>
         <div class="field">
             <label for="name">Nombre</label>
             <InputText fluid id="name" v-model.trim="producto.nombre" required="true" autofocus :class="{'p-invalid': submitted && !producto.nombre}" />
@@ -305,7 +308,7 @@ const saveProducto = () => {
             <Button label="Cerrar" icon="pi pi-times" text @click="hideDialog"/>
         </template>
     </Dialog>
-    <Panel style=" position: relative; width: 100%;" >
+    <Panel style=" position: relative; width: 90%;" >
       <template #header>
         <div class="flex align-items-center gap-2">
             <h3 class="font-bold">Productos</h3>

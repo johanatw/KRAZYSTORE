@@ -189,7 +189,7 @@ const nuevoPedido = () =>{
 
     <ConfirmDialog ></ConfirmDialog>
     <Toast />
-    <Panel style=" position: relative; width: 100%;" >
+    <Panel style=" position: relative; width: 90%;" >
       <template #header>
         <div class="flex align-items-center gap-2">
             <h3 class="font-bold">Reembolsos</h3>
@@ -223,7 +223,7 @@ const nuevoPedido = () =>{
                 {{ formatearFechaHora(slotProps.data.fecha) }}
             </template>
         </Column>
-          <Column field="anticipo"  header="N° Pago Pedido Compra" aria-sort="ascending" sortable>  
+          <Column field="anticipo"  header="N° Anticipo" aria-sort="ascending" sortable>  
             <template #body="slotProps">
                 <div >
                     {{ slotProps.data.pagoPedidoCompra?.id }}

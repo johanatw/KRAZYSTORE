@@ -5,6 +5,8 @@
 package com.krazystore.krazystore.ServiceImpl;
 
 import Utils.Estado;
+import Utils.PedidoEvent;
+import Utils.TipoEvento;
 import com.krazystore.krazystore.DTO.DetalleEntregaDTO;
 import com.krazystore.krazystore.DTO.EntregaCreationDTO;
 import com.krazystore.krazystore.Entity.DetalleEntrega;
@@ -17,8 +19,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -27,10 +31,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class EntregaServiceImpl implements EntregaService {
 
-    public EntregaServiceImpl(EntregaRepository entregaRepository) {
+    public EntregaServiceImpl(EntregaRepository entregaRepository, org.springframework.context.ApplicationEventPublisher eventPublisher) {
         this.entregaRepository = entregaRepository;
+        this.eventPublisher = eventPublisher;
     }
     private final EntregaRepository entregaRepository;
+    private final ApplicationEventPublisher eventPublisher;
     
     @Autowired
     private DetalleEntregaMapper detalleEntregaMapper;
@@ -56,6 +62,7 @@ public class EntregaServiceImpl implements EntregaService {
         return entregaDTO;
     }
 
+    @Transactional
     @Override
     public EntregaEntity saveEntrega(EntregaCreationDTO entregaDTO) {
         
@@ -73,9 +80,12 @@ public class EntregaServiceImpl implements EntregaService {
         
         detalleService.saveDetalle(detalle);
         
+        actualizarEstadoPedido(entregaDTO.getEntrega().getPedido().getId(),TipoEvento.ESTADO_PEDIDO);
+        
         return entregaDTO.getEntrega();
     }
 
+    @Transactional
     @Override
     public EntregaEntity updateEntrega(EntregaCreationDTO entrega, Long id) {
         EntregaEntity updatedEntrega = entregaRepository.findById(id)
@@ -91,6 +101,7 @@ public class EntregaServiceImpl implements EntregaService {
         return entregaRepository.save(updatedEntrega);
     }
     
+    @Transactional
     @Override
     public EntregaEntity reprogramarEntrega(EntregaCreationDTO entrega, Long id) {
         EntregaEntity updatedEntrega = entregaRepository.findById(id)
@@ -102,7 +113,7 @@ public class EntregaServiceImpl implements EntregaService {
         updatedEntrega.setModoEntrega(entrega.getEntrega().getModoEntrega());
         updatedEntrega.setPuntoEntrega(entrega.getEntrega().getPuntoEntrega());
         updatedEntrega.setEstado(Estado.PENDIENTE.getCodigo());
-        
+        actualizarEstadoPedido(updatedEntrega.getPedido().getId(),TipoEvento.ESTADO_PEDIDO);
         return entregaRepository.save(updatedEntrega);
     }
 
@@ -111,19 +122,29 @@ public class EntregaServiceImpl implements EntregaService {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
+    @Transactional
     @Override
     public EntregaEntity marcarComoEntregado(Long id) {
         EntregaEntity updatedEntrega = entregaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Entrega no encontrada"));
         updatedEntrega.setEstado(Estado.ENTREGADO.getCodigo());
+        actualizarEstadoPedido(updatedEntrega.getPedido().getId(),TipoEvento.ESTADO_PEDIDO);
         return entregaRepository.save(updatedEntrega);
     }
 
+    @Transactional
     @Override
     public EntregaEntity marcarComoNoEntregado(Long id) {
         EntregaEntity updatedEntrega = entregaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Entrega no encontrada"));
         updatedEntrega.setEstado(Estado.NOENTREGADO.getCodigo());
+        actualizarEstadoPedido(updatedEntrega.getPedido().getId(),TipoEvento.ESTADO_PEDIDO);
         return entregaRepository.save(updatedEntrega);
+    }
+    
+    public void actualizarEstadoPedido(Long idPedido, TipoEvento tipoEvento) {
+        // Publicar el evento
+        PedidoEvent evento = new PedidoEvent(idPedido, tipoEvento);
+        eventPublisher.publishEvent(evento);
     }
 }

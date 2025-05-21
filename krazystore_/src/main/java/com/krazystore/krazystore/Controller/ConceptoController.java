@@ -32,6 +32,11 @@ public class ConceptoController {
     public List<ConceptoEntity> findAll(@PathVariable("tipo") char tipo) {
         return conceptoService.findByTipo(tipo);
     }
+    
+    @GetMapping("/conceptos_ingreso_egreso")
+    public List<ConceptoEntity> getConceptosIngresoEgreso() {
+        return conceptoService.getConceptosIngresoEgreso();
+    }
 
    
 }

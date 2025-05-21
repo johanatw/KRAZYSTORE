@@ -87,6 +87,14 @@ const router = createRouter({
       // which is lazy-loaded when the route is visited.
       component: () => import('@/modules/Pedidos/views/NuevaFactura.vue')
     },
+    {
+      path: '/nueva_factura_servicio/:id',
+      name: 'facturar_recepcion',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Compras/views/NuevaFacturaRecepcion.vue')
+    },
     {path: '/cajas',
       name: 'cajas',
       // route level code-splitting
@@ -340,7 +348,31 @@ const router = createRouter({
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Inventario/views/ModificarConteo.vue')
+    },
+    {
+      path: '/modificar_lista/:id',
+      name: 'modificar_lista',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
       component: () => import('@/modules/Inventario/views/ModificarInventario.vue')
+    },
+    {
+      path: '/ajuste_baja_stock/:id',
+      name: 'ajuste_baja_stock',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Inventario/views/AjusteBajaStock.vue')
+    },
+    {
+      path: '/ajustar_inventario/:id',
+      name: 'ajustar_inventario',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Inventario/views/AjustarInventario.vue')
     },
     {
       path: '/nuevo_ajuste',
@@ -389,6 +421,14 @@ const router = createRouter({
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('@/modules/Pedidos/views/Clientes.vue')
+    },
+    {
+      path: '/graficos',
+      name: 'graficos',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Graficos/Dashboard.vue')
     },
     
   ]

@@ -10,7 +10,7 @@ import { CajaServices } from '@/services/CajaServices';
 import Panel from 'primevue/panel';
 import InputIcon from 'primevue/inputicon';
 import Tooltip from 'primevue/tooltip';
-
+import { TimbradoServices } from '@/services/TimbradoServices';
 
 
 import router from '@/router';
@@ -84,17 +84,16 @@ const messageAviso = (msg) => {
 
 const getSeverity = (estado) => {
   
-  console.log(estado);
   switch (estado) {
-       case 'N':
+       case 'NUEVO':
            return 'background-color: rgb(255, 210, 218); color: rgb(234, 85, 154);'+
            'font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;';
 
-       case 'F':
+       case 'FACTURADO':
            return 'background-color: rgb(215, 227, 552); color: rgb(50, 111, 252);'+
            'font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;';
 
-       case 'P':
+       case 'PARCIALMENTE_FACTURADO':
            return 'background-color: rgb(254, 221, 199); color: rgb(174, 81, 15);'+
            'font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;';
 
@@ -116,9 +115,19 @@ const isNuevo = (estado) => {
 
 const existenProductosFacturados = (estado) => {
   switch (estado) {
-       case 'F':
+       case 'FACTURADO':
            return true;
-        case 'P':
+        case 'PARCIALMENTE_FACTURADO':
+           return true;
+       default:
+           return false;
+   }
+};
+
+const pedidoPreparado = (estado) => {
+  console.log(estado);
+  switch (estado) {
+       case 'PREPARADO':
            return true;
        default:
            return false;
@@ -127,7 +136,7 @@ const existenProductosFacturados = (estado) => {
 
 const isTotalFacturado = (estado) => {
   switch (estado) {
-       case 'F':
+       case 'FACTURADO':
            return true;
        default:
            return false;
@@ -220,6 +229,7 @@ const getPedidos = async () => {
       const response = await PedidoServices.getPedidos();
       
         pedidos.value = response.data;
+    
     } catch (error) {
        //alert(error);
     }
@@ -256,10 +266,26 @@ const verPedido = (id) =>{
     
 }
 
-const facturarPedido = (id) =>{
-    router.push({name: 'facturar', params: {id}});
+const facturarPedido = async (id) =>{
+    const response = await TimbradoServices.obtenerTimbradoVigente();
+    console.log(response.data);
+    if (response.data.timbrado != null) {
+        router.push({name: 'facturar', params: {id}});
+    } else {
+        showError('No existe timbrado vigente para la factura');
+    }
+    
     
 }
+
+const showError = (message) => {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: message,
+      life: 3000
+    });
+  };
 /*
 const deletePedido = (id) =>{
   
@@ -424,7 +450,7 @@ const reload = () =>{
 </template>
 </Dialog>
 
-    <Panel style=" position: relative; width: 100%;" >
+    <Panel style=" position: relative; width: 90%;" >
       <template #header>
         <div class="flex align-items-center gap-2">
             <h3 class="font-bold">Pedidos</h3>
@@ -475,6 +501,12 @@ const reload = () =>{
               </template>
               
             </Column>
+            <Column  field="estadoPedido" header="Estado Facturación" aria-sort="ascending" sortable >
+              <template #body="slotProps">
+                <Tag :style="getSeverity(slotProps.data.estadoFacturacion)" >{{ getEstadoPedidoVenta(slotProps.data.estadoFacturacion)}}</Tag>
+              </template>
+              
+            </Column>
            
           <Column field="total"  header="Total" aria-sort="ascending" sortable>
             <template #body="slotProps">
@@ -483,7 +515,7 @@ const reload = () =>{
           </Column>
           <Column  class="col"  aria-sort="none">
              <template #body="slotProps">
-                 <div class="flex-auto p-fluid" v-if="slotProps.data.cantPreVenta > 0" style="max-width:10lvb  !important; font-size: 12px; ">
+                 <div class="flex-auto p-fluid" v-if="slotProps.data.cantPreVenta > 0  "  style="max-width:10lvb  !important; font-size: 12px; ">
                    <Tag style="font-size: 10px;" value="SinStock" ></Tag>
                   {{ slotProps.data.cantPreVenta }}/{{ slotProps.data.totalItems }} item
                  
@@ -497,8 +529,8 @@ const reload = () =>{
                 <Button icon="pi pi-eye" v-tooltip="'Ver detalles'" text rounded aria-label="Search" @click="verPedido(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
                 <Button icon="pi pi-trash" v-tooltip="'Eliminar'" severity="danger" :disabled="!isNuevo(slotProps.data.estadoPedido)" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
             
-                <Button v-tooltip="'Facturar'" :disabled="isTotalFacturado(slotProps.data.estadoPedido)" icon="pi pi-receipt" severity="info" text rounded aria-label="Cancel" @click="facturarPedido(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
-                <Button v-tooltip="'Preparar'" icon="pi pi-box" severity="success" :disabled="!existenProductosFacturados(slotProps.data.estadoPedido)" text rounded aria-label="Cancel" @click="prepararPedido(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button v-tooltip="'Facturar'" :disabled="isTotalFacturado(slotProps.data.estadoFacturacion)" icon="pi pi-receipt" severity="info" text rounded aria-label="Cancel" @click="facturarPedido(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button v-tooltip="'Preparar'" icon="pi pi-box" severity="success" :disabled="pedidoPreparado(slotProps.data.estadoPedido) || !existenProductosFacturados(slotProps.data.estadoFacturacion) " text rounded aria-label="Cancel" @click="prepararPedido(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
             
                 </template>
           </Column>

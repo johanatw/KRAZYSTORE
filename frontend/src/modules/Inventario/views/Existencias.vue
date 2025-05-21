@@ -193,7 +193,7 @@ const nuevoPedido = () =>{
 
     <ConfirmDialog ></ConfirmDialog>
     <Toast />
-    <Panel style=" position: relative; width: 100%;" >
+    <Panel style=" position: relative; width: 90%;" >
       <template #header>
         <div class="flex align-items-center gap-2">
             <h3 class="font-bold">Existencias</h3>

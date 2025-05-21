@@ -9,6 +9,7 @@ import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import {PedidoServices} from '@/services/PedidoServices';
 import { AnticipoServices } from '@/services/AnticipoServices';
 import { VentaServices } from '@/services/VentaServices';
+import { TimbradoServices } from '@/services/TimbradoServices';
 import {ReembolsoServices} from '@/services/ReembolsoServices'
 import { CajaServices } from '@/services/CajaServices';
 import Panel from 'primevue/panel';
@@ -40,6 +41,7 @@ const selectedOpcion = ref();
 const idPedidoSelected = ref();
 const reembolsos = ref();
 const movimientos = ref();
+const existeTimbradoVigente = ref(false);
 const ventas= ref();
 
 const confirm2 = (id, nro) => {
@@ -63,7 +65,7 @@ onMounted(() => {
 
  
 getVentas();
-    
+
  
     
 });
@@ -72,6 +74,19 @@ const getVentas = (id) =>{
     VentaServices.getVentas().then((data) => {
         ventas.value = data.data;
         //console.log(reembolsos.value);
+    });
+   
+}
+
+const getTimbrado = () =>{
+    TimbradoServices.obtenerTimbradoVigente().then((data) => {
+        if (data.data.timbrado!=null) {
+            existeTimbradoVigente.value = true;
+        }else{
+            existeTimbradoVigente.value = false;
+        }
+        
+    
     });
    
 }
@@ -153,11 +168,27 @@ const reembolsar = (id) =>{
 
 }
 
-const nuevaFactura = () =>{
-    router.push({name: 'nueva_factura'});
+const nuevaFactura = async () =>{
+    const response = await TimbradoServices.obtenerTimbradoVigente();
+    console.log(response.data);
+    if (response.data.timbrado != null) {
+        router.push({name: 'nueva_factura'});
+    } else {
+        showError('No existe timbrado vigente para la factura');
+    }
+    
   
 
 }
+
+const showError = (message) => {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: message,
+      life: 3000
+    });
+  };
 
 const cancelar = ()=>{
   visible.value = false;
@@ -206,7 +237,7 @@ const nuevoPedido = () =>{
 
     <ConfirmDialog ></ConfirmDialog>
     <Toast />
-    <Panel style=" position: relative; width: 100%;" >
+    <Panel style=" position: relative; width: 90%;" >
       <template #header>
         <div class="flex align-items-center gap-2">
             <h3 class="font-bold">Facturas de Venta</h3>

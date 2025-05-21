@@ -57,13 +57,6 @@
                                             </div>
                                         </template>
                                     </Column>
-                                    <Column v-if="!isEnCurso(inventario.estado)" header="Stock anterior" >
-                                        <template #body="{ data }">
-                                            <div class="flex align-items-center gap-2">
-                                                <span>{{ data.stockInicialInventario }}</span>
-                                            </div>
-                                        </template>
-                                    </Column>
                                     <Column v-if="!isEnCurso(inventario.estado)" header="Contado" >
                                         <template #body="{ data }">
                                             <div class="flex align-items-center gap-2">
@@ -71,13 +64,7 @@
                                             </div>
                                         </template>
                                     </Column>
-                                    <Column v-if="!isEnCurso(inventario.estado)" header="Diferencia" >
-                                        <template #body="{ data }">
-                                            <div class="flex align-items-center gap-2" :style="getColor(data.diferencia)" >
-                                                <span>{{ data.diferencia }}</span>
-                                            </div>
-                                        </template>
-                                    </Column>
+                  
                 </DataTable>
 
                         </template>
@@ -227,7 +214,7 @@ const finalizarInventario = () =>{
 
 
 const modificarInventario = (id) =>{
-    router.push({name: 'modificar_inventario', params: {id}});
+    router.push({name: 'modificar_lista', params: {id}});
 }
 
 const vistaInventarios= () =>{

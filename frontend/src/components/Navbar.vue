@@ -1,6 +1,6 @@
 
 <template>
-    <div class="card" style="position: absolute; top: 0; left: 0; right: 0; width: 100%; align-self: start; ">
+    <div class="card" style=" width: 100%;  margin-bottom: 1rem; ">
         <Menubar :model="items">
             <template #start>
             
@@ -76,6 +76,13 @@ const username = localStorage.getItem('username');
 const nombre = localStorage.getItem('nombre').toUpperCase();
 const items = ref([
    
+{ 
+        label: 'Dashboard',
+        icon: 'pi pi-bill',
+        command: () => {
+                    router.push({name: 'graficos'});
+                }
+    },
     { 
         label: 'Ventas',
         icon: 'pi pi-bill',
@@ -182,26 +189,13 @@ const items = ref([
                 }
             },
             {
-                label: 'Reembolsos',
+                label: 'Reembolsos Clientes',
                 icon: 'pi pi-star',
                 command: () => {
                     router.push({name: 'reembolsos'});
                 }
             },
-            {
-                label: 'Pagos de Pedidos de Compra',
-                icon: 'pi pi-star',
-                command: () => {
-                    router.push({name: 'pagos_pedido_compra'});
-                }
-            },
-            {
-                label: 'Reembolsos de Pagos de Pedidos de Compra',
-                icon: 'pi pi-star',
-                command: () => {
-                    router.push({name: 'reembolsos_pagos_pedido_compra'});
-                }
-            },
+            
            
         ]
     },
@@ -224,7 +218,7 @@ const items = ref([
                 }
             },
             {
-                label: 'Ajustes de Stock',
+                label: 'Baja de Stock',
                 icon: 'pi pi-star',
                 command: () => {
                     router.push({name: 'ajustes'});

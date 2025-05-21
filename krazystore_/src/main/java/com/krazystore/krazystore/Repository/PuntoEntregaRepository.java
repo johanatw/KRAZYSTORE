@@ -4,8 +4,11 @@
  */
 package com.krazystore.krazystore.Repository;
 
+import com.krazystore.krazystore.Entity.MedioPagoEntity;
 import com.krazystore.krazystore.Entity.PuntoEntregaEntity;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -14,5 +17,11 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface PuntoEntregaRepository extends JpaRepository<PuntoEntregaEntity, Long>{
-    
+    @Query(
+    "SELECT p FROM PuntoEntregaEntity p "
+            + "WHERE p.activo = TRUE "
+            + "ORDER BY p.id DESC "
+           )
+    @Override
+    public List<PuntoEntregaEntity> findAll();
 }

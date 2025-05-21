@@ -26,6 +26,7 @@ public class ProductoDTO {
     private int cantDisponible;
     private int cantReservada;
     private IvaEntity tipoIva;
+    private Boolean esServicio;
 
     public ProductoDTO() {
     }
@@ -55,6 +56,13 @@ public class ProductoDTO {
         this.costo = costo;
     }
 
+    public ProductoDTO(Long id, String nombre, Long costo, IvaEntity tipoIva) {
+        this.id = id;
+        this.nombre = nombre;
+        this.costo = (int)(long)costo;
+        this.tipoIva = tipoIva;
+    }
+    
     public ProductoDTO(Long id, String nombre, int cantStock, IvaEntity tipoIva) {
         this.id = id;
         this.nombre = nombre;
@@ -78,6 +86,8 @@ public class ProductoDTO {
         this.cantReservada = cantReservada;
     }
     
+    
+    
     public ProductoDTO(Long id, String nombre, SubCategoriaEntity categoria, Long precio, 
             Long costo, Boolean bajoDemanda, int cantLimBajoDemanda, int cantStock, int cantDisponible, int cantReservada, IvaEntity tipoIva) {
         this.id = id;
@@ -91,6 +101,22 @@ public class ProductoDTO {
         this.cantDisponible = cantDisponible;
         this.cantReservada = cantReservada;
         this.tipoIva = tipoIva;
+    }
+    
+    public ProductoDTO(Long id, String nombre, SubCategoriaEntity categoria, Long precio, 
+            Long costo, Boolean bajoDemanda, int cantLimBajoDemanda, int cantStock, int cantDisponible, int cantReservada, IvaEntity tipoIva, Boolean esServicio) {
+        this.id = id;
+        this.nombre = nombre;
+        this.subCategoria = categoria;
+        this.precio = (int)(long)precio;
+        this.costo = (int)(long)costo;
+        this.bajoDemanda = bajoDemanda;
+        this.cantLimBajoDemanda = cantLimBajoDemanda;
+        this.cantStock = cantStock;
+        this.cantDisponible = cantDisponible;
+        this.cantReservada = cantReservada;
+        this.tipoIva = tipoIva;
+        this.esServicio = esServicio;
     }
 
     public ProductoDTO(Long id, String nombre, IvaEntity tipoIva) {
@@ -206,6 +232,14 @@ public class ProductoDTO {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public Boolean getEsServicio() {
+        return esServicio;
+    }
+
+    public void setEsServicio(Boolean esServicio) {
+        this.esServicio = esServicio;
     }
     
     

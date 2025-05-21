@@ -12,6 +12,7 @@ import Utils.PreciosVentaEvent;
 import Utils.ProductosFacturadosEvent;
 import Utils.ProductosReservadosEvent;
 import static Utils.TipoAjusteExistencia.DISMINUIR;
+import static Utils.TipoAjusteExistencia.INCREMENTAR;
 import Utils.TipoEvento;
 import com.krazystore.krazystore.DTO.ProductoDTO;
 import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
@@ -152,7 +153,8 @@ public class ProductoServiceImpl implements ProductoService{
             ProductoEntity producto = productorepository.findById(d.getIdProducto())
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
-            switch (d.getAccion()) {
+            if(!producto.getEsServicio()){
+                switch (d.getAccion()) {
                 case INCREMENTAR:                  
                     if (tipoEvento == TipoEvento.FACTURACION_PEDIDOS) {
                         producto.setCantStock(producto.getCantStock() - d.getCantidad());
@@ -193,8 +195,10 @@ public class ProductoServiceImpl implements ProductoService{
                         producto.setCantDisponible(producto.getCantDisponible() - d.getCantidad());
                     }
             }
-
+            
             productosActualizar.add(producto);
+            }
+            
         });
 
         productorepository.saveAll(productosActualizar);
@@ -219,6 +223,21 @@ public class ProductoServiceImpl implements ProductoService{
         
         PreciosCompraActualizadosEvent evento = new PreciosCompraActualizadosEvent(preciosActualizar);
         eventPublisher.publishEvent(evento);
+    }
+
+    @Override
+    public Optional<ProductoDTO> getServicioTransporte() {
+        return productorepository.getServicioTransporte();
+    }
+
+    @Override
+    public List<ProductoDTO> getServicios() {
+        return productorepository.getServicios();
+    }
+
+    @Override
+    public Optional<ProductoDTO> getCostoEnvio() {
+        return productorepository.getCostoEnvio();
     }
 
 

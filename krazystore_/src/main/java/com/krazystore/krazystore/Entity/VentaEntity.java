@@ -21,13 +21,12 @@ public class VentaEntity {
     private Long id;
     @ManyToOne
     @JoinColumn(name = "id_cliente")
-    private PersonaEntity cliente;
+    private ClienteEntity cliente;
     @ManyToOne
     @JoinColumn(name = "id_pedido")
     private PedidoEntity pedido;
-    @ManyToOne
-    @JoinColumn(name = "id_timbrado")
-    private TimbradoEntity timbrado;
+    @Column
+    private Integer timbrado;
     @Column
     private String nroFactura;
     @Column(name = "nombre_archivo")
@@ -48,7 +47,7 @@ public class VentaEntity {
     public VentaEntity() {
     }
 
-    public VentaEntity(Long id_venta, PersonaEntity cliente, Date fecha, int monto_iva, int monto_total) {
+    public VentaEntity(Long id_venta, ClienteEntity cliente, Date fecha, int monto_iva, int monto_total) {
         this.id = id_venta;
         this.cliente = cliente;
         this.fecha = fecha;
@@ -65,11 +64,11 @@ public class VentaEntity {
     }  
 
     
-    public TimbradoEntity getTimbrado() {
+    public Integer getTimbrado() {
         return timbrado;
     }
 
-    public void setTimbrado(TimbradoEntity timbrado) {
+    public void setTimbrado(Integer timbrado) {
         this.timbrado = timbrado;
     }
 
@@ -101,11 +100,11 @@ public class VentaEntity {
         this.id = id;
     }
 
-    public PersonaEntity getCliente() {
+    public ClienteEntity getCliente() {
         return cliente;
     }
 
-    public void setCliente(PersonaEntity cliente) {
+    public void setCliente(ClienteEntity cliente) {
         this.cliente = cliente;
     }
 

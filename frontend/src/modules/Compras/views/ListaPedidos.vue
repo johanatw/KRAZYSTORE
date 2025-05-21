@@ -156,7 +156,8 @@ const recepcionarPedidoInternacional = () => {
 
 async function facturarPedidoCompra(id) {
   pedidoFacturar.value = id;
-  recepcionesPedido.value = (await RecepcionServices.getRecepcionesByPedido(id)).data;
+  nuevaFactura(id);
+  /*recepcionesPedido.value = (await RecepcionServices.getRecepcionesByPedido(id)).data;
     console.log(recepcionesPedido.value);
     seleccionarRecepcionesDialog.value = true;
    // let id = pedido.id;
@@ -223,16 +224,16 @@ const getSeverity = (estado) => {
   
   
   switch (estado) {
-       case 'R':
+       case 'RECEPCIONADO':
            return 'background-color: rgb(202, 241, 216); color: rgb(24, 138, 66);';
 
-       case 'P':
+       case 'PARCIALMENTE_FACTURADO':
            return 'background-color: rgb(254, 221, 199); color: rgb(174, 81, 15);';
 
-       case 'F':
+       case 'FACTURADO':
            return 'background-color: rgb(215, 227, 552); color: rgb(50, 111, 252);';
 
-       case 'N':
+       case 'NUEVO':
            return 'background-color: rgb(255, 210, 218); color: rgb(234, 85, 154);';
 
        default:
@@ -339,7 +340,7 @@ const selectedRecepcionesIds = computed(() =>
 
     <ConfirmDialog ></ConfirmDialog>
     <Toast />
-    <Panel style=" position: relative; width: 100%;" >
+    <Panel style=" position: relative; width: 90%;" >
       <template #header>
         <div class="flex align-items-center gap-2">
             <h3 class="font-bold">Pedidos</h3>
@@ -385,17 +386,23 @@ const selectedRecepcionesIds = computed(() =>
                 {{ formatearNumero(slotProps.data.total) }}
             </template> 
         </Column>   
-        <Column field="estado"  header="Estado" aria-sort="ascending" sortable>  
+        <Column field="estado"  header="Estado Pedido" aria-sort="ascending" sortable>  
           <template #body="slotProps">
                 <Tag :style="getSeverity(slotProps.data.estadoPedido)" style=" font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ getEstadoPedidoCompra(slotProps.data.estadoPedido)}}</Tag>
+              </template>         
+        </Column>
+        <Column field="estado"  header="Estado Facturacion" aria-sort="ascending" sortable>  
+          <template #body="slotProps">
+                <Tag :style="getSeverity(slotProps.data.estadoFacturacion)" style=" font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ getEstadoPedidoCompra(slotProps.data.estadoFacturacion)}}</Tag>
               </template>         
         </Column>
         
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
                 <Button v-tooltip="'Ver detalles'" icon="pi pi-eye" text rounded aria-label="Search" @click="verPedidoCompra(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
-                <Button v-tooltip="'Recepcionar'" :disabled="isTotalFacturado(slotProps.data.estadoPedido) || isRecepcionCompleta(slotProps.data.estadoPedido)" icon="pi pi-truck" severity="success" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="recepcionarPedidoCompra(slotProps.data.id)" />
-                <Button v-tooltip="'Facturar'" :disabled="isTotalFacturado(slotProps.data.estadoPedido) || !isRecepcionado(slotProps.data.estadoPedido) " icon="pi pi-receipt" severity="info" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="facturarPedidoCompra(slotProps.data.id)" />
+                
+                <Button v-tooltip="'Facturar'" :disabled="isTotalFacturado(slotProps.data.estadoPedido) " icon="pi pi-receipt" severity="info" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="facturarPedidoCompra(slotProps.data.id)" />
+                <Button v-if="slotProps.data.proveedor?.tipo.descripcion == 'Extranjero'" v-tooltip="'Recepcionar'" :disabled="isRecepcionCompleta(slotProps.data.estadoPedido)" icon="pi pi-truck" severity="success" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="recepcionarPedidoCompra(slotProps.data.id)" />
 
                 <Button v-tooltip="'Eliminar'" :disabled="!isNuevo(slotProps.data.estadoPedido)" icon="pi pi-trash" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                 

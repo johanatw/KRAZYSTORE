@@ -5,10 +5,13 @@
 package com.krazystore.krazystore.ServiceImpl;
 
 import Utils.Estado;
+import Utils.EstadoPedido;
+import Utils.PedidoEntregaEvent;
 import Utils.PedidoEvent;
 import Utils.ProductosReservadosEvent;
 import Utils.TipoEvento;
 import com.krazystore.krazystore.DTO.DetallePedidoDTO;
+import com.krazystore.krazystore.DTO.EntregasPedidoDTO;
 import com.krazystore.krazystore.DTO.Pedido;
 import com.krazystore.krazystore.DTO.PedidoCreationDTO;
 import com.krazystore.krazystore.DTO.PedidoDTO;
@@ -89,10 +92,8 @@ public class PedidoServiceImpl implements PedidoService {
             throw new BadRequestException("Falta cliente " );
         }
         
-        PersonaCreationDTO personaDTO = new PersonaCreationDTO();
-        personaDTO.setPersonaEntity(pedidoCreationDTO.getPedido().getCliente());
-        
-        pedidoCreationDTO.getPedido().setEstadoPedido(Estado.NUEVO.getCodigo());
+        pedidoCreationDTO.getPedido().setEstadoPedido(EstadoPedido.NUEVO);
+        pedidoCreationDTO.getPedido().setEstadoFacturacion(EstadoPedido.PENDIENTE_DE_FACTURA);
         
         PedidoEntity nuevoPedido = pedidorepository.save(pedidoCreationDTO.getPedido());
         
@@ -119,9 +120,6 @@ public class PedidoServiceImpl implements PedidoService {
         updatedPedido.setFecha(pedidoCreationDTO.getPedido().getFecha());
         updatedPedido.setTotal(pedidoCreationDTO.getPedido().getTotal());
         updatedPedido.setObservaciones(pedidoCreationDTO.getPedido().getObservaciones());
-        
-        PersonaCreationDTO personaDTO = new PersonaCreationDTO();
-        personaDTO.setPersonaEntity(pedidoCreationDTO.getPedido().getCliente());
 
         
         PedidoEntity pedido = pedidorepository.save(updatedPedido);
@@ -138,7 +136,9 @@ public class PedidoServiceImpl implements PedidoService {
         
         actualizarExistencias(productosActualizarExistencias);
         
-        actualizarEstadoPedido(pedido.getId(), TipoEvento.PEDIDO_MODIFICADO);
+        this.updateEstadoFacturacionPedido(pedido);
+        this.updateEstadoPedido(pedido);
+
         return pedido;
         
     }
@@ -149,54 +149,33 @@ public class PedidoServiceImpl implements PedidoService {
         eventPublisher.publishEvent(evento);
     }
     
-   @EventListener
-    public void updateEstadoPedido(PedidoEvent evento) {
-        PedidoEntity pedido = pedidorepository.findById(evento.getPedidoId())
-                .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado"));
-
+    public void updateEstadoPedido(PedidoEntity pedido) {
         Long pedidoId = pedido.getId();
 
-        boolean tieneFacturacion = hasFacturacion(pedidoId);
         boolean tieneAnticipos = hasAnticipos(pedidoId);
-        boolean esTotalmenteFacturado = pedidorepository.esPedidoTotalmenteFacturado(pedidoId);
         
-        Character nuevoEstado = pedido.getEstadoPedido();
+        EstadoPedido nuevoEstado = pedido.getEstadoPedido();
+        EntregasPedidoDTO entregasAsociados = pedidorepository.findEstadoEntregasPedido(pedidoId);
+        
+        Long totalProductosPedidos = pedidorepository.totalProductosPedido(pedidoId);
+        Long totalPreparado = entregasAsociados.getPreparados();
+        
+        boolean hasEntregasPendientes = entregasAsociados.getPendientes()>0;
+        boolean isTotalPreparado = totalPreparado == totalProductosPedidos;
+        boolean hasEntregados = entregasAsociados.getEntregados() > 0;
+        boolean isTotalEntregado = entregasAsociados.getEntregados() == totalProductosPedidos;
+        boolean noEntregado = entregasAsociados.getNoEntregados() == totalProductosPedidos;
 
-        switch (evento.getTipoEvento()) {
-            case PEDIDO_MODIFICADO:
-                if (tieneFacturacion) {
-                    nuevoEstado = esTotalmenteFacturado ? Estado.FACTURADO.getCodigo() : Estado.PARCIALMENTEFACTURADO.getCodigo();
-                }else{
-                    nuevoEstado = tieneAnticipos?Estado.CONANTICIPO.getCodigo() : Estado.NUEVO.getCodigo();
-                }
-                
-                break;
-            case FACTURA_ANULADA:
-                if (tieneFacturacion) {
-                    nuevoEstado = esTotalmenteFacturado ? Estado.FACTURADO.getCodigo() : Estado.PARCIALMENTEFACTURADO.getCodigo();
-                }else{
-                    nuevoEstado = tieneAnticipos?Estado.CONANTICIPO.getCodigo() : Estado.NUEVO.getCodigo();
-                }
-                
-                break;
-            case PEDIDO_FACTURADO:
-                nuevoEstado = esTotalmenteFacturado ? Estado.FACTURADO.getCodigo() : Estado.PARCIALMENTEFACTURADO.getCodigo();
-                break;
-
-            case ANTICIPO_CREADO:
-                if (!tieneFacturacion) {
-                    nuevoEstado = Estado.CONANTICIPO.getCodigo();
-                }
-                break;
-
-            case ANTICIPO_ELIMINADO:
-                if (!tieneFacturacion && !tieneAnticipos) {
-                    nuevoEstado = Estado.NUEVO.getCodigo();
-                }
-                break;
-
-            default:
-                throw new IllegalArgumentException("Evento no reconocido: " + evento.getTipoEvento());
+        if(noEntregado){
+            nuevoEstado = EstadoPedido.NO_ENTREGADO;
+        }else if(hasEntregados){
+            nuevoEstado = isTotalEntregado?EstadoPedido.ENTREGADO:EstadoPedido.PARCIALMENTE_ENTREGADO;
+        }else if(hasEntregasPendientes){
+            nuevoEstado = isTotalPreparado?EstadoPedido.PREPARADO:EstadoPedido.PARCIALMENTE_PREPARADO;
+        }else if(tieneAnticipos){
+            nuevoEstado = EstadoPedido.CON_ANTICIPO;
+        }else{
+            nuevoEstado = EstadoPedido.NUEVO;
         }
 
         if (!Objects.equals(nuevoEstado, pedido.getEstadoPedido())) { 
@@ -206,6 +185,49 @@ public class PedidoServiceImpl implements PedidoService {
         
     }
 
+    public void updateEstadoFacturacionPedido(PedidoEntity pedido) {
+    
+        Long pedidoId = pedido.getId();
+
+        boolean tieneFacturacion = hasFacturacion(pedidoId);
+        boolean esTotalmenteFacturado = pedidorepository.esPedidoTotalmenteFacturado(pedidoId);
+        
+        EstadoPedido nuevoEstado = pedido.getEstadoFacturacion();
+        
+        if (tieneFacturacion) {
+            nuevoEstado = esTotalmenteFacturado ? EstadoPedido.FACTURADO : EstadoPedido.PARCIALMENTE_FACTURADO;
+        }else{
+            nuevoEstado = EstadoPedido.PENDIENTE_DE_FACTURA;
+        }
+
+        if (!Objects.equals(nuevoEstado, pedido.getEstadoPedido())) { 
+            pedido.setEstadoFacturacion(nuevoEstado);
+            pedidorepository.save(pedido);
+        }
+        
+    }
+    
+    @EventListener
+    public void handlePedidoEvents(PedidoEvent evento) {
+        PedidoEntity pedido = pedidorepository.findById(evento.getPedidoId())
+                .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado"));
+
+        TipoEvento tipoEvento = evento.getTipoEvento();
+        switch (tipoEvento) {
+            case ESTADO_PEDIDO:
+                updateEstadoPedido(pedido);
+                break;
+
+            case ESTADO_FACTURACION:
+                updateEstadoFacturacionPedido(pedido);
+                break;
+
+            default:
+                throw new IllegalArgumentException("Evento no reconocido: " + evento.getTipoEvento());
+        }
+        
+    }
+    
     @Override
     public void deletePedido(Long id) {       
         if(puedeEliminarsePedido(id)){
@@ -224,7 +246,7 @@ public class PedidoServiceImpl implements PedidoService {
         PedidoEntity pedido = pedidorepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pedido no existe"));
                 
-        return pedido.getEstadoPedido() == Estado.NUEVO.getCodigo();
+        return pedido.getEstadoPedido() == EstadoPedido.NUEVO;
     }
     
     private boolean hasFacturacion(Long id) {

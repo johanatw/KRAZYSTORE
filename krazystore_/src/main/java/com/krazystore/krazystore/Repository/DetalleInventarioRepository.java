@@ -25,7 +25,7 @@ public interface DetalleInventarioRepository extends JpaRepository<DetalleInvent
     @Query("SELECT new com.krazystore.krazystore.Entity.DetalleInventario(p) "
             + "FROM ProductoEntity p " 
             + "LEFT JOIN p.subCategoria s "
-            + "WHERE s.id IN ?1 ")
+            + "WHERE s.id IN ?1 AND p.activo = TRUE AND p.esServicio <> TRUE  ")
     List<DetalleInventario> getDetallesInventarioIniciales(List<Long> ids);
     
 }

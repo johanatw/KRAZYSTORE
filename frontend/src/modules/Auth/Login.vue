@@ -478,37 +478,51 @@ const onFormSubmit = ({ valid, values }) => {
 
 </script>
 <template>
-    <div class="card flex" style="justify-content: center; " >
-    <Card style="width: 25rem; overflow: hidden; border: solid, pink; " >
- 
-        <template #title>
-            <div class="flex" style="justify-content: center; font-weight: bolder; ">
-                Log in
-            </div>
-           
-        </template>
-        <template #content>
-            <div class="card flex justify-center" style="flex-direction: column;" >
+    <div class="fondo-login">
+        <div class="login-wrapper">
+    <div class="login-box">
+      <img src="@/assets/logo.png" alt="Krazy Store" class="logo" />
+      <!-- inputs aquí -->
+       <div class="card flex justify-center" style="flex-direction: column; padding-right: 2rem; padding-left: 2rem; padding-bottom: 2rem;" >
         <Form :resolver @submit="onFormSubmit" class="flex flex-col gap-4 w-full sm:w-56" style="flex-direction: column;" >
             <FormField v-slot="$field" as="section" name="username" initialValue="" class="flex flex-col gap-2" style="justify-content: center;" >
-                <InputText type="text" placeholder="Username" />
+                <InputText fluid type="text" placeholder="Username" />
                 <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
             </FormField>
-            <FormField v-slot="$field" asChild name="password" initialValue="" class="flex flex-col gap-2" >
-                <section class="flex flex-col gap-2" style="justify-content: center;">
+            <FormField v-slot="$field" asChild name="password" initialValue="" class="flex flex-col gap-2 " style="justify-content: center;"  >
+                
                     <Password type="text" placeholder="Password" :feedback="false" toggleMask fluid />
                     <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">{{ $field.error?.message }}</Message>
-                </section>
+                
             </FormField>
-            <Button type="submit" severity="secondary" label="Submit" class="flex flex-col gap-2"/>
+            <Button fluid type="submit" severity="secondary" label="Iniciar sesión" class="flex flex-col gap-2"/>
         </Form>
     </div>
-        </template>
-   
-    </Card>
-</div>
+    </div>
+  </div>
+    </div>
+    
     
 </template>
-<style>
+<style scoped>
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(to right, #f8c4ec, #e0c3fc); /* aquí puedes probar las otras opciones */
+}
 
+.login-box {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f8c4ec;
+}
+.logo {
+  max-width: 150px;
+  margin: 0 auto 1rem auto;
+  display: block;
+}
 </style>

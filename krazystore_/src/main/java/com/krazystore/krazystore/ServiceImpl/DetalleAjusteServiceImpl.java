@@ -188,7 +188,7 @@ public class DetalleAjusteServiceImpl implements DetalleAjusteService {
                 ProductoExistenciasDTO productoActualizar = new ProductoExistenciasDTO(
                     d.getProducto().getId(),
                     d.getCantidadAjustada(),
-                    TipoAjusteExistencia.INCREMENTAR
+                    TipoAjusteExistencia.DISMINUIR
                 );
             
                 productosActualizarExistencias.add(productoActualizar);

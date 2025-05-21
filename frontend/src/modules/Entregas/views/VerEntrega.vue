@@ -16,7 +16,7 @@ import { CiudadServices } from '@/services/CiudadServices';
 import { ref, onMounted } from "vue";
 import InputNumber from 'primevue/inputnumber';
 import InputGroup from 'primevue/inputgroup';
-import { getEstadoPedidoCompra, getEstadoEntrega } from "@/utils/utils";
+import { getEstadoPedidoCompra, getEstadoEntrega, formatearFechaHora } from "@/utils/utils";
 import Panel from 'primevue/panel';
 import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
@@ -191,7 +191,7 @@ const modificarPedido = (id) => {
                         </template>
                         <template #content>
                             <div >
-                                Fecha: {{ formatearFecha(entrega.fecha)}}
+                                Fecha: {{ formatearFechaHora(entrega.fecha)}}
                             </div> 
                             <div  >
                                 Estado: {{getEstadoEntrega(entrega.estado)}}

@@ -39,6 +39,7 @@ const mensaje = ref([]);
 const visible = ref(false);
 const productos= ref();
 const error = ref(false);
+const showDiferencia = ref(false);
 const confirm = useConfirm();
 const toast = useToast();
 const detalleAjuste = ref([]);
@@ -153,7 +154,7 @@ const guardarAjuste = () =>{
         <Panel style=" position: relative; width: 80%;" >
             <template #header>
                 <div class="flex align-items-center gap-2">
-                    <h3 class="font-bold">Nuevo Ajuste</h3>
+                    <h3 class="font-bold">Nueva Baja de Stock</h3>
                 </div>
             </template>
             <template #icons>
@@ -217,24 +218,11 @@ const guardarAjuste = () =>{
                                     <div class="flex card-container" style="width: 100%;">
                                         <DataTable class="tablaCarrito" ref="dt" :value="detalleAjuste" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
                                             <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
-                                            <Column class="col" field="cantidadActual"  header="Cant. Actual" aria-sort="none" >
-                                                <template #body="slotProps">
-                                                    <div >
-                                                        {{ slotProps.data.cantidadAnterior = slotProps.data.cantidadActual }}
-                                                    </div>  
-                                                </template>
-                                            </Column>
-                                            <Column  class="col" field="cantidadAjustada" header="Ajustar +/-" aria-sort="none">
+                                   
+                                            <Column  class="col" field="cantidadAjustada" header="Cantidad" aria-sort="none">
                                                 <template #body="slotProps">
                                                     <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
-                                                        <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidadAjustada" inputId="minmax-buttons" mode="decimal" :min="-slotProps.data.cantidadActual" showButtons />
-                                                    </div>  
-                                                </template>
-                                            </Column>
-                                            <Column  class="col" field="cantidadFinal" header="Cant. Final" aria-sort="none">
-                                                <template #body="slotProps">
-                                                    <div>
-                                                        {{ slotProps.data.cantidadFinal = slotProps.data.cantidadActual + slotProps.data.cantidadAjustada }}
+                                                        <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidadAjustada" inputId="minmax-buttons" mode="decimal" :min="1" showButtons />
                                                     </div>  
                                                 </template>
                                             </Column>
@@ -275,7 +263,7 @@ const guardarAjuste = () =>{
                                                 
                                                         <Column field="producto.id"  header="ID" aria-sort="ascending" ></Column>
                                                         <Column field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
-                                                        <Column field="cantidadActual" header="Cantidad actual" aria-sort="none" ></Column>
+            
                                                         <Column :exportable="false" style="min-width:8rem">
                                                             <template #body="slotProps">
                                                                 <Button icon="pi pi-shopping-cart" class="mod_icono"  @click="addItem(slotProps.data)"/>

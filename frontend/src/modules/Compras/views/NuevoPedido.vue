@@ -80,7 +80,7 @@ const message = (m) => {
         },
     });
 };
-
+const costoEnvio = ref();
 const detalleFacturar = ref([]);
 const subTotal = ref(0);
 const montoIva = ref(0);
@@ -98,6 +98,8 @@ onMounted(() => {
      console.log("productosssss",productos.value);
     
     });
+
+    getCostoEnvio();
     
    ProveedorServices.obtenerProveedores().then((data) => {
        proveedores.value = data.data;
@@ -119,6 +121,11 @@ const filters = ref({
  'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
 });
 
+
+async function getCostoEnvio(){
+    costoEnvio.value = (await ProductoServices.obtenerCostoEnvio()).data;
+    console.log(costoEnvio.value);
+}
 
 
 //Cliente
@@ -309,6 +316,27 @@ const validarForm = () => {
 
 }
 
+const agregarCostoEnvio= () => {
+    let item = costoEnvio.value;
+let index = detalleFacturar.value.findIndex((loopVariable) => loopVariable.producto.id === item.id);
+
+if (index>-1) {
+    detalleFacturar.value[index].cantidad++;
+   console.log("holaaa");
+} else {
+console.log("holaaaitem",item);
+  detalle.value.producto = {};
+   detalle.value.producto = item;
+  detalle.value.cantidad = 1;
+   detalle.value.costoCompra = item.costo;
+   detalle.value.subTotal = detalle.value.costoCompra * detalle.value.cantidad;
+   detalleFacturar.value.push(detalle.value);
+   detalle.value= {};
+}
+
+sendSubTotal();
+
+}
 
 const addItem = (item) => {
 let index = detalleFacturar.value.findIndex((loopVariable) => loopVariable.producto.id === item.id);
@@ -590,6 +618,7 @@ const showError = (message) => {
                 </div>
                 <div >
                     <Button label="Agregar Producto" text @click="visible = true" />
+                    <Button label="Agregar Costo de Envio" text @click="agregarCostoEnvio()" style="margin-left: 1%;" />
                     </div>
 
             </div>

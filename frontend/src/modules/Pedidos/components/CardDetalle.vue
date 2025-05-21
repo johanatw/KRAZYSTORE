@@ -349,7 +349,7 @@ const eliminar = (detalle) => {
                                                     </Column>
                                                     <Column :exportable="false" style="min-width:8rem">
                                                     <template #body="slotProps">
-                                                        <Button v-if=" slotProps.data.cantDisponible > 0 || (slotProps.data.cantStock < 1 && slotProps.data.bajoDemanda && slotProps.data.cantLimBajoDemanda>0)" icon="pi pi-shopping-cart" class="mod_icono"  @click="addItem(slotProps.data)"/>
+                                                        <Button v-if=" slotProps.data.cantDisponible > 0 || (slotProps.data.cantStock < 1 && slotProps.data.bajoDemanda && slotProps.data.cantLimBajoDemanda>0) || (slotProps.data.esServicio)" icon="pi pi-shopping-cart" class="mod_icono"  @click="addItem(slotProps.data)"/>
                                                             <Button v-else disabled="true" icon="pi pi-shopping-cart" class="mod_icono" />
                                                     </template>
                                                     </Column>

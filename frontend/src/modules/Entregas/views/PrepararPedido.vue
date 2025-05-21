@@ -921,7 +921,7 @@ const validarForm = (event) => {
                         </template>
                         <template #content>
                             <div class="field" >
-                                Fecha: <DatePicker fluid dateFormat="dd/mm/yy" v-model="fecha" showIcon iconDisplay="input" />
+                                Fecha: <DatePicker fluid dateFormat="dd/mm/yy" v-model="fecha"showTime hourFormat="24" showIcon iconDisplay="input" />
                             </div> 
                             <div class="field">
                                 Observaciones: 

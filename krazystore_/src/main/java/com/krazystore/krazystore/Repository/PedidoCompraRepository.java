@@ -52,4 +52,22 @@ public interface PedidoCompraRepository extends JpaRepository<PedidoCompraEntity
             + "WHERE p.id = ?1  "
            )
         boolean esPedidoTotalmenteFacturado(Long idPedido);
+        
+    @Query(
+    "SELECT COALESCE(SUM(dr.cantRecepcionada),0) "
+            + "FROM PedidoCompraEntity p "
+            + "LEFT JOIN DetallePedidoCompra d ON d.pedidoCompra = p "
+            + "LEFT JOIN DetalleRecepcion dr ON dr.detallePedido = d "
+            + "WHERE p.id = ?1 "
+           )
+        Long totalProductosRecepcionados(Long id);
+        
+        @Query(
+    "SELECT COALESCE(SUM(d.cantidad),0) "
+            + "FROM PedidoCompraEntity p "
+            + "LEFT JOIN DetallePedidoCompra d ON d.pedidoCompra = p "
+            + "LEFT JOIN d.producto o ON o.esServicio = false "
+            + "WHERE p.id = ?1 "
+           )
+        Long totalProductosPedido(Long id);
 }

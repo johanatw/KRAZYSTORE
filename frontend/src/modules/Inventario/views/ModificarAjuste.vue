@@ -16,6 +16,7 @@ import { ProductoServices } from '@/services/ProductoServices';
 import { CompraServices } from "@/services/CompraServices";
 import { VentaServices } from '@/services/VentaServices';
 import { CiudadServices } from '@/services/CiudadServices';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { ref, onMounted } from "vue";
 import InputNumber from 'primevue/inputnumber';
 import InputGroup from 'primevue/inputgroup';
@@ -106,6 +107,10 @@ const eliminar = (detalle) => {
     detalleAjuste.value.splice(index,cantidad);
 }
 
+const filters = ref({
+ 'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
+});
+
 const vistaVerAjuste = (id) => {
     router.push({name: 'ver_ajuste', params: {id}});
 }
@@ -117,12 +122,18 @@ const guardarAjuste = () =>{
 
         AjusteStockServices.modificarAjuste(ajuste.value.id, ajusteCreationDTO).then((data)=> {
             let id = data.data.id;
-            vistaVerAjuste(id);        
+            ajustarInventario(id);
+                  
         });
     }
 }
 
-
+const ajustarInventario = (id) =>{
+    router.push({name: 'ajuste_baja_stock', params: {id}});
+    /*InventarioServices.ajustarInventario(id).then((data)=> {
+        getInventarios();
+    } );*/
+}
 </script>
 <template>
     
@@ -155,7 +166,7 @@ const guardarAjuste = () =>{
             <template #icons>
                 <div class="card flex" style="justify-content: end;">   
                     <div class="card flex" style="justify-content: end;">  
-                        <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaVerAjuste(ajuste.id)" />
+                        <Button  label="Cancelar"  style="margin-right: 1%;" @click="ajustarInventario(ajuste.id)" />
                         <Button  label="Guardar" @click="validarForm()" />
                     </div>  
                 </div>
@@ -214,17 +225,17 @@ const guardarAjuste = () =>{
                                         <DataTable class="tablaCarrito" ref="dt" :value="detalleAjuste" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
                                             <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
                                             <Column class="col" field="cantidadAnterior"  header="Cant. Anterior" aria-sort="none" ></Column>
-                                            <Column  class="col" field="cantidadAjustada" header="Cant. Ajustada" aria-sort="none">
+                                            <Column  class="col" field="cantidadAjustada" header="Cant. Disminuida" aria-sort="none">
                                                 <template #body="slotProps">
                                                     <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
-                                                        <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidadAjustada" inputId="minmax-buttons" mode="decimal" :min="-slotProps.data.cantidadAnterior" showButtons />
+                                                        <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidadAjustada" inputId="minmax-buttons" mode="decimal" :min="1" :max="slotProps.data.cantidadAnterior" showButtons />
                                                     </div>  
                                                 </template>
                                             </Column>
                                             <Column  class="col" field="cantidadFinal" header="Cant. Final" aria-sort="none">
                                                 <template #body="slotProps">
                                                     <div>
-                                                        {{ slotProps.data.cantidadFinal = slotProps.data.cantidadAnterior + slotProps.data.cantidadAjustada }}
+                                                        {{ slotProps.data.cantidadFinal = slotProps.data.cantidadAnterior - slotProps.data.cantidadAjustada }}
                                                     </div>  
                                                 </template>
                                             </Column>
@@ -266,7 +277,6 @@ const guardarAjuste = () =>{
                                                 
                                                         <Column field="producto.id"  header="ID" aria-sort="ascending" ></Column>
                                                         <Column field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
-                                                        <Column field="cantidadActual" header="Cantidad actual" aria-sort="none" ></Column>
                                                         <Column :exportable="false" style="min-width:8rem">
                                                             <template #body="slotProps">
                                                                 <Button icon="pi pi-shopping-cart" class="mod_icono"  @click="addItem(slotProps.data)"/>

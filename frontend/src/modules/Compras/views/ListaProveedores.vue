@@ -57,11 +57,6 @@ onMounted(() => {
         console.log(proveedores.value);
     });
 
-    TipoDocServices.obtenerTiposDocFiscal().then((data) => {
-        tiposDoc.value = data.data;
-        console.log(tiposDoc.value);
-    });
-
     DepartamentoServices.obtenerDepartamentos().then((data) => {
         departamentos.value = data.data;
         console.log(departamentos.value);
@@ -207,7 +202,7 @@ const saveProveedor = () => {
             <Button label="Save" icon="pi pi-check" text @click="saveProveedor" />
         </template>
     </Dialog>
-    <Panel style=" position: relative; width: 100%;" >
+    <Panel style=" position: relative; width: 90%;" >
       <template #header>
         <div class="flex align-items-center gap-2">
             <h3 class="font-bold">Proveedores</h3>

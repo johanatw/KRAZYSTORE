@@ -52,7 +52,11 @@ public class EmpresaTransporteServiceImpl implements EmpresaTransporteService {
 
     @Override
     public void deleteEnvio(Long id) {
-        enviorepository.deleteById(id);
+        EmpresaTransporte deletedEmpresa = enviorepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Empresa no existe"));
+        
+        deletedEmpresa.setActivo(Boolean.FALSE);
+        enviorepository.save(deletedEmpresa);
     }
     
 }

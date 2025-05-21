@@ -24,4 +24,5 @@ public interface RecepcionService {
     int getTotalRecepcionadoPorProducto(Long pedidoId, Long productoId);
     List<DetalleRecepcionDTO> obtenerDetalleFacturaRecepcionar(Long idCompra);
     List<RecepcionCreationDTO> findByIdPedido(Long idPedido);
+
 }

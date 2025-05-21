@@ -12,14 +12,15 @@ import Utils.PedidoEvent;
 import Utils.PedidoFacturadoEvent;
 import Utils.ProductosFacturadosEvent;
 import Utils.TipoEvento;
+import com.krazystore.krazystore.DTO.CategoriaVentasDTO;
 import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
+import com.krazystore.krazystore.DTO.ProductoVentasDTO;
 import com.krazystore.krazystore.DTO.VentaCreationDTO;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.ConceptoEntity;
 import com.krazystore.krazystore.Entity.DetallePedidoEntity;
 import com.krazystore.krazystore.Entity.DetalleVentaEntity;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
-import com.krazystore.krazystore.Entity.PagoEntity;
 import com.krazystore.krazystore.Entity.PedidoEntity;
 import com.krazystore.krazystore.Entity.PersonaEntity;
 import com.krazystore.krazystore.Entity.TimbradoEntity;
@@ -111,10 +112,10 @@ public class VentaServiceImpl implements VentaService{
 
     @Transactional
     @Override
-    public VentaEntity saveVenta(VentaEntity ventaEntity, List<DetalleVentaEntity> detalle, List<PagoEntity> pagos) {
+    public VentaEntity saveVenta(VentaEntity ventaEntity, List<DetalleVentaEntity> detalle) {
         //Trae timbrado para factura
         TimbradoEntity timbrado = timbradoService.getTimbradoVigente().get();
-        ventaEntity.setTimbrado(timbrado);
+        ventaEntity.setTimbrado(timbrado.getNumeroTimbrado());
         ventaEntity.setNroFactura(timbradoService.getNroFactura(timbrado));
         //Guarda venta
         ventaEntity.setEstado(Estado.PENDIENTEDEPAGO.getCodigo());
@@ -122,7 +123,7 @@ public class VentaServiceImpl implements VentaService{
         //actualiza cantidad utilizado de timbrado
         timbrado.setCantUtilizada(timbrado.getCantUtilizada() + 1);
         timbrado.setUltimoRemitido(timbrado.getUltimoRemitido()+1);
-        timbradoService.updateTimbrado(timbrado);
+        timbradoService.updateTimbrado(timbrado.getId(),timbrado);
 
         //Guarda detalles y trae productos a actualizar existencias
         List<ProductoExistenciasDTO> productosActualizarExistencias = detalleVentaService.saveDetalleVenta(venta, detalle);
@@ -137,7 +138,7 @@ public class VentaServiceImpl implements VentaService{
             //actualiza existencias de los productos del pedido
             actualizarProductosPedidoFacturado(productosActualizarExistencias);
             //actualiza estado del pedido
-            actualizarEstadoPedido(pedido.getId(), TipoEvento.PEDIDO_FACTURADO);
+            actualizarEstadoPedido(pedido.getId(), TipoEvento.ESTADO_FACTURACION);
         }else{
             //actualiza existencias de los productos de la venta
             actualizarProductosFacturados(productosActualizarExistencias);
@@ -222,7 +223,7 @@ public class VentaServiceImpl implements VentaService{
             //actualiza existencias de los productos de la venta
             actualizarProductosPedidoFacturado(productosActualizarExistencias);
             //actualiza estado del pedido
-            actualizarEstadoPedido(pedidoAsociado.getId(), TipoEvento.FACTURA_ANULADA);
+            actualizarEstadoPedido(pedidoAsociado.getId(), TipoEvento.ESTADO_FACTURACION);
         }else{
             //actualiza existencias de los productos de la venta
             actualizarProductosFacturados(productosActualizarExistencias);
@@ -371,7 +372,7 @@ public class VentaServiceImpl implements VentaService{
     public void generarDatosEmision(VentaEntity venta, Document document) throws BadElementException {
         
             
-            PersonaEntity persona = venta.getCliente();
+            PersonaEntity persona = venta.getCliente().getPersona();
             // Crear una tabla principal con 2 columnas
             PdfPTable mainTable = new PdfPTable(2);
             float secondcolWidth2[]= {50f,50f};
@@ -510,8 +511,8 @@ public class VentaServiceImpl implements VentaService{
                 table.addCell(new PdfPCell(new Paragraph(Integer.toString(d.getCantidad()),font2)));
                 table.addCell(new PdfPCell(new Paragraph(d.getProducto().getNombre(),font2)));
                 table.addCell(new PdfPCell(new Paragraph(formatter.format(d.getPrecio()),font2)));
-                table.addCell(new PdfPCell(new Paragraph(" ",font2)));
-                table.addCell(new PdfPCell(new Paragraph(" ",font2)));
+                table.addCell(new PdfPCell(new Paragraph((d.getIvaAplicado() != null && d.getIvaAplicado().getPorcentaje() == 5 ? formatter.format(d.getSubTotal()) : " "),font2)));
+                 table.addCell(new PdfPCell(new Paragraph((d.getIvaAplicado() != null && d.getIvaAplicado().getPorcentaje() == 10 ? formatter.format(d.getSubTotal()) : " "),font2)));
                 table.addCell(new PdfPCell(new Paragraph(formatter.format(d.getSubTotal()),font2)));
             }
             PdfPCell cell = new PdfPCell();
@@ -592,7 +593,8 @@ public class VentaServiceImpl implements VentaService{
     }
     
     public void getDatosTimbrado(VentaEntity venta, PdfPTable table){
-        TimbradoEntity timbrado = venta.getTimbrado();
+        TimbradoEntity timbrado = timbradoService.getTimbradoByNroTimbrado(venta.getTimbrado())
+                .orElseThrow(() -> new RuntimeException("Timbrado no encontrado"));
         
        // Formato sin hora
         SimpleDateFormat formatoFecha = new SimpleDateFormat("dd-MM-yyyy");
@@ -699,5 +701,17 @@ public class VentaServiceImpl implements VentaService{
         ventarepository.save(venta);
 
         System.out.println("Estado de la factura actualizado a 'Pagado'");
+    }
+
+    @Override
+    public List<CategoriaVentasDTO> obtenerVentasPorCategoriaMes(String mes) {
+        String mes_= "2025-05";
+        return ventarepository.obtenerVentasPorCategoriaMes(mes_);
+    }
+
+    @Override
+    public List<ProductoVentasDTO> obtenerTopProductosVendidos(String mes) {
+        String mes_= "2025-05";
+        return ventarepository.obtenerTopProductosVendidos(mes_);
     }
 }

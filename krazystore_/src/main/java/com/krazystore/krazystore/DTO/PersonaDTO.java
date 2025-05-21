@@ -5,6 +5,8 @@
  */
 package com.krazystore.krazystore.DTO;
 
+import com.krazystore.krazystore.Entity.DireccionEntity;
+import com.krazystore.krazystore.Entity.PersonaEntity;
 import com.krazystore.krazystore.Entity.TipoDocEntity;
 
 /**
@@ -16,10 +18,10 @@ public class PersonaDTO {
     private String nombre;
     private String apellido;
     private String nombreCompleto;
-    private String direccion;
     private TipoDocEntity tipoDoc;
     private String nroDoc;
     private String telefono;
+    private DireccionEntity direccion;
 
     public PersonaDTO() {
     }
@@ -28,16 +30,32 @@ public class PersonaDTO {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
-        this.nombreCompleto = nombreCompleto;
-        this.direccion = direccion;
+        this.nombreCompleto = apellido != null ? (nombre + " " + apellido) : nombre;
         this.tipoDoc = tipoDoc;
         this.nroDoc = nroDoc;
         this.telefono = telefono;
     }
 
-    
+    public PersonaDTO(PersonaEntity persona, DireccionEntity direccion) {
+        this.id = persona.getId();
+        this.nombre = persona.getNombre();
+        this.apellido = persona.getApellido();
+        this.nombreCompleto = this.apellido != null ? (this.nombre + " " + this.apellido) : this.nombre;
+        this.tipoDoc = persona.getTipoDoc();
+        this.nroDoc = persona.getNroDoc();
+        this.telefono = persona.getTelefono();
+        this.direccion = direccion;
+    }
 
-    
+    public PersonaDTO(PersonaEntity persona) {
+        this.id = persona.getId();
+        this.nombre = persona.getNombre();
+        this.apellido = persona.getApellido();
+        this.nombreCompleto = this.apellido != null ? (this.nombre + " " + this.apellido) : this.nombre;
+        this.tipoDoc = persona.getTipoDoc();
+        this.nroDoc = persona.getNroDoc();
+        this.telefono = persona.getTelefono();
+    }
 
 
     public Long getIdPersona() {
@@ -72,16 +90,6 @@ public class PersonaDTO {
         this.id = id;
     }
 
-    public String getDireccion() {
-        return direccion;
-    }
-
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
-    }
-
-   
-
     public String getTelefono() {
         return telefono;
     }
@@ -112,6 +120,14 @@ public class PersonaDTO {
 
     public void setNroDoc(String nroDoc) {
         this.nroDoc = nroDoc;
+    }
+
+    public DireccionEntity getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(DireccionEntity direccion) {
+        this.direccion = direccion;
     }
 
    

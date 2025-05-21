@@ -106,11 +106,32 @@ const compraInternacional = ref(false);
 const recepcionesFacturarIds = ref();
 
 onMounted(() => {
-    console.log(sessionStorage.getItem('recepcionesFacturar'));
+    //console.log(sessionStorage.getItem('recepcionesFacturar'));
     let idPedido = router.currentRoute.value.params.id;
-    recepcionesFacturarIds.value =JSON.parse(sessionStorage.getItem('recepcionesFacturar'));
+    PedidoCompraServices.getPedido(router.currentRoute.value.params.id).then((data) => {
+        pedido.value = data.data.pedido;
+        detalleFacturar.value = data.data.detalle;  
+        
+        selectedCliente.value = data.data.pedido.proveedor;
+        compraInternacional.value = esCompraInternacional(selectedCliente.value.tipo.descripcion)?true:false;
+        mostrarCliente(); 
+        console.log(compraInternacional.value);
+        
+        detalleFacturar.value.forEach(e => {
+            e.id = null;
+            console.log(e.cantSolicitada);
+            e.cantidad = e.cantSolicitada - e.cantFacturada;
+            e.ivaAplicado = compraInternacional.value?iva0.value:e.producto.tipoIva;
+          
+        });
+
+
+        calcularTotales();
+
+   });
+    //recepcionesFacturarIds.value =JSON.parse(sessionStorage.getItem('recepcionesFacturar'));
     //if (recepcionesFacturarIds.value) {
-        compraNacional.value = true;
+       /* compraNacional.value = true;
         PedidoCompraServices.getDetalleRecepcionesFacturar(idPedido,recepcionesFacturarIds.value).then((data)=>{
             console.log(data.data);
             pedido.value = data.data.pedido;
@@ -808,7 +829,7 @@ Proveedor
 </Card>
 
     </div>
-    <!--<div v-else class="col-12" >
+    <div v-else class="col-12" >
 <Card >
     <template #title>
                                 <div class="flex justify-content-between ">
@@ -879,7 +900,7 @@ Proveedor
 
 </Card>
 
-    </div>-->
+    </div>
     <div class="grid" style="margin-top: 1rem;">
 <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
 <div class="flex field col-9 md:col-9" style="justify-content: end; margin: 0px; padding: 0px; font-weight: bold; font-size: 16px;">

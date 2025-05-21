@@ -41,16 +41,27 @@ export async function existeCajaAbierta() {
 }
 
 export function getEstadoPedidoVenta(estado) {
-  console.log(estado);
   switch (estado) {
-       case 'N':
+       case 'NUEVO':
            return 'Nuevo';
-       case 'F':
+       case 'FACTURADO':
            return 'Facturado';
-        case 'P':
+        case 'PARCIALMENTE_FACTURADO':
            return 'Fact. Parcial';
-        case 'A':
+        case 'CON_ANTICIPO':
            return 'Con Anticipo';
+        case 'PENDIENTE_DE_FACTURA':
+           return 'Pendiente';
+        case 'PREPARADO':
+           return 'Preparado';
+        case 'PARCIALMENTE_PREPARADO':
+           return 'Prep. Parcial';
+        case 'PARCIALMENTE_ENTREGADO':
+           return 'Entrega Parcial';
+        case 'ENTREGADO':
+           return 'Entregado';
+        case 'NO_ENTREGADO':
+           return 'No Entregado';
 
        default:
            return null;
@@ -59,18 +70,18 @@ export function getEstadoPedidoVenta(estado) {
 
 export function getEstadoPedidoCompra(estado) {
   switch (estado) {
-       case 'N':
+       case 'NUEVO':
            return 'Nuevo';
-        case 'A':
-           return 'Pagado';
-       case 'R':
+       case 'RECEPCIONADO':
            return 'Recepcionado';
-        case 'M':
+        case 'PARCIALMENTE_RECEPCIONADO':
            return 'Recepcion parcial';
-        case 'F':
+        case 'FACTURADO':
             return 'Facturado';
-            case 'P':
-                return 'Fact. Parcial';
+        case 'PARCIALMENTE_FACTURADO':
+            return 'Fact. Parcial';
+        case 'PENDIENTE_DE_FACTURA':
+            return 'Pendiente';
        default:
            return null;
    }

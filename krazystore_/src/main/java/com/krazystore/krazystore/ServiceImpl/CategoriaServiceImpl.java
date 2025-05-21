@@ -51,7 +51,11 @@ public class CategoriaServiceImpl implements CategoriaService{
 
     @Override
     public void deleteCategoria(Long id) {
-        categoriarepository.deleteById(id);
+        CategoriaEntity deletedCategoria = categoriarepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Categoria no existe"));
+        
+        deletedCategoria.setActivo(Boolean.FALSE);
+        categoriarepository.save(deletedCategoria);
     }
     
     

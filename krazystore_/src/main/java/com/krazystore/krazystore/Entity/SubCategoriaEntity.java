@@ -30,6 +30,8 @@ public class SubCategoriaEntity {
     @ManyToOne
     @JoinColumn(name = "id_categoria")
     private CategoriaEntity categoria;
+    @Column
+    private Boolean activo = true;
 
     public SubCategoriaEntity() {
     }
@@ -62,6 +64,14 @@ public class SubCategoriaEntity {
 
     public void setCategoria(CategoriaEntity categoria) {
         this.categoria = categoria;
+    }
+
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
     }
     
     

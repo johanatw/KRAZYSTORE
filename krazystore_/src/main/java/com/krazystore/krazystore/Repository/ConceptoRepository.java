@@ -21,4 +21,10 @@ public interface ConceptoRepository extends JpaRepository<ConceptoEntity, Long> 
             + "WHERE c.tipo = ?1 and c.descripcion <> 'Venta' and c.descripcion <> 'Compra' and c.descripcion <> 'Anticipo cliente' and c.descripcion <> 'Reembolso cliente' and c.descripcion <> 'Anticipo proveedor' and c.descripcion <> 'Reembolso proveedor' and c.descripcion <> 'Anulación de Factura'"
            )
     public List<ConceptoEntity> getConceptosByTipo(char tipo);
+
+    @Query(
+    "SELECT c FROM ConceptoEntity c "
+            + "WHERE c.descripcion = 'Ingresos varios' or c.descripcion = 'Egresos varios' "
+           )
+    public List<ConceptoEntity> getConceptosIngresoEgreso();
 }

@@ -7,6 +7,7 @@
   import InputText from 'primevue/inputtext';
   import Dropdown from 'primevue/dropdown';
   import { PersonaServices } from '@/services/PersonaServices';
+  import { ClienteServices } from '@/services/ClienteServices';
   import { FilterMatchMode } from '@primevue/core/api';
   import Button from 'primevue/button';
   import Dialog from 'primevue/dialog';
@@ -62,7 +63,7 @@
   // Funciones para obtener datos
   async function getClientes() {
     try {
-      const { data } = await PersonaServices.obtenerClientes();
+      const { data } = await ClienteServices.obtenerClientes();
       clientes.value = data;
       console.log(clientes.value);
     } catch (error) {
@@ -144,8 +145,8 @@
 
   async function modificarCliente(id) {
     try {
-      const { data } = await PersonaServices.getPersona(id);
-      cliente.value = data.persona;
+      const { data } = await ClienteServices.getCliente(id);
+      cliente.value = data;
       direccion.value = data.direccion ? { ...data.direccion } : {};
       // Si hay ciudad, cargamos el departamento asociado
       if (direccion.value.ciudad) {
@@ -169,7 +170,7 @@
     
       accept: async () => {
         try {
-          await PersonaServices.eliminar(id);
+          await ClienteServices.eliminar(id);
           showSuccess('Cliente eliminado correctamente');
           getClientes();
         } catch (error) {
@@ -182,8 +183,8 @@
 
   async function verCliente(id) {
     try {
-      const { data } = await PersonaServices.getPersona(id);
-      clienteView.value = data.persona;
+      const { data } = await ClienteServices.getCliente(id);
+      clienteView.value = data;
       console.log(clienteView.value);
       direccionView.value = data.direccion ? { ...data.direccion } : {};
       // Si hay ciudad, cargamos el departamento asociado
@@ -221,18 +222,15 @@
       console.log(direccion.value);
       const direccionCompleta = generarDireccionCompleta(direccion.value);
       direccion.value.direccion = direccionCompleta;
-      const payload = {
-        personaEntity: cliente.value,
-        direccion: direccion.value
-      };
+      cliente.value.direccion = direccion.value;
   
       if (cliente.value.id) {
         // Actualizar cliente existente
-        const { data } = await PersonaServices.modificarPersona(cliente.value.id, payload);
+        const { data } = await ClienteServices.modificarCliente(cliente.value.id, cliente.value);
         showSuccess('Cliente actualizado correctamente');
       } else {
         // Crear nuevo cliente
-        const { data } = await PersonaServices.registrarPersona(payload);
+        const { data } = await ClienteServices.registrarCliente(cliente.value);
         showSuccess('Cliente creado correctamente');
       }
   
@@ -472,7 +470,7 @@
 </Dialog>
   
       <!-- Panel principal -->
-      <Panel style="position: relative; width: 100%;">
+      <Panel style="position: relative; width: 90%;">
         <template #header>
           <div class="flex align-items-center gap-2">
             <h3 class="font-bold">Clientes</h3>

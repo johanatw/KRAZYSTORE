@@ -17,6 +17,14 @@ import org.springframework.stereotype.Service;
 public class ProductoEntityMapper implements Function<ProductoDTO, ProductoEntity>{
     @Override
     public ProductoEntity apply(ProductoDTO productoDTO){
+        System.out.println("PRODUCTOMAPPER");
+        Boolean esServicio;
+        if(productoDTO.getEsServicio()!=null){
+            esServicio = productoDTO.getEsServicio();
+        }else{
+            esServicio = false;
+        }
+        
         return new ProductoEntity(
                     productoDTO.getId(),
                 productoDTO.getNombre(),
@@ -24,7 +32,8 @@ public class ProductoEntityMapper implements Function<ProductoDTO, ProductoEntit
                 productoDTO.getSubCategoria(),
                 productoDTO.getTipoIva(),
                 productoDTO.getBajoDemanda(),
-                productoDTO.getCantLimBajoDemanda()
+                productoDTO.getCantLimBajoDemanda(),
+                esServicio
         );
         
     }

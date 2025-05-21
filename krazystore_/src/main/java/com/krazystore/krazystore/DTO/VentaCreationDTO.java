@@ -5,7 +5,6 @@
 package com.krazystore.krazystore.DTO;
 
 import com.krazystore.krazystore.Entity.DetalleVentaEntity;
-import com.krazystore.krazystore.Entity.PagoEntity;
 import com.krazystore.krazystore.Entity.VentaEntity;
 import java.util.List;
 
@@ -16,7 +15,6 @@ import java.util.List;
 public class VentaCreationDTO {
     private VentaEntity venta;
     private List<DetalleVentaEntity> detalle;
-    private List<PagoEntity> pagos;
 
     public VentaCreationDTO() {
     }
@@ -36,14 +34,5 @@ public class VentaCreationDTO {
     public void setDetalle(List<DetalleVentaEntity> detalle) {
         this.detalle = detalle;
     }
-
-    public List<PagoEntity> getPagos() {
-        return pagos;
-    }
-
-    public void setPagos(List<PagoEntity> pagos) {
-        this.pagos = pagos;
-    }
-    
     
 }

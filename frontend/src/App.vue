@@ -1,21 +1,28 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-import Navbar from './components/Navbar.vue';
-import router from '@/router';
+import { useRoute } from 'vue-router'
+import Navbar from './components/Navbar.vue'
+import { computed } from 'vue'
 
+// Obtener la ruta actual
+const route = useRoute()
 
-const showNavbar = () =>{
-  // Ocultar el navbar si la ruta es /login
-  console.log(router.currentRoute.value.path);
-  return router.currentRoute.value.path !== '/';
-}
+// Computed para mostrar el navbar solo si la ruta no es "/"
+const showNavbar = computed(() => route.path !== '/')
 </script>
 
 <template>
-
-<Navbar v-if="showNavbar()" style="margin-bottom: 2% !important"/>
-  <RouterView style="margin-top: 3% !important;"/>
+  <Navbar v-if="showNavbar"  />
+  <RouterView />
 </template>
 
-
+<style scoped>
+/* Alternativa si no usas Tailwind */
+.mb-6 {
+  margin-bottom: 1rem;
+}
+.mt-8 {
+  margin-top: 3%;
+}
+</style>
 

@@ -13,9 +13,7 @@ import com.krazystore.krazystore.DTO.EstadoPagoPedidoDTO;
 import com.krazystore.krazystore.DTO.IngresoVarioDTO;
 import com.krazystore.krazystore.DTO.MovimientoCreationDTO;
 import com.krazystore.krazystore.DTO.MovimientosDTO;
-import com.krazystore.krazystore.DTO.PagoPedidoCompraCreationDTO;
 import com.krazystore.krazystore.DTO.ReembolsoAnticipoCreationDTO;
-import com.krazystore.krazystore.DTO.ReembolsoPagoPedidoCompraCreationDTO;
 import com.krazystore.krazystore.DTO.VentaCreationDTO;
 import com.krazystore.krazystore.Entity.CajaEntity;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
@@ -78,11 +76,6 @@ public class CajaServiceImpl implements CajaService{
     @Override
     public List<CajaEntity> findAll() {
         return cajaRepository.findAllByOrderByIdDesc();
-    }
-
-    @Override
-    public EstadoPagoPedidoDTO getEstadoPagoPedidoCompra(Long id) {
-        return movimientoService.getEstadoPagoPedidoCompra(id);
     }
     
     @Override
@@ -184,32 +177,6 @@ public class CajaServiceImpl implements CajaService{
                 .orElseThrow(() -> new RuntimeException("Caja cerrada"));
         
         return movimientoService.saveCobrosPendientes(movimientoDTO, caja);
-    }
-
-    @Override
-    public MovimientoEntity saveMovimiento(PagoPedidoCompraCreationDTO pagoPedidoCreationDTO) {
-        CajaEntity caja = cajaRepository.getCajaAbierta()
-                .orElseThrow(() -> new RuntimeException("Caja cerrada"));
-        
-        return movimientoService.saveMovimiento(pagoPedidoCreationDTO, caja);
-    }
-
-    @Override
-    public MovimientoEntity saveMovimiento(ReembolsoPagoPedidoCompraCreationDTO reembolsoPagoPedidoCompraDTO) {
-        CajaEntity caja = cajaRepository.getCajaAbierta()
-                .orElseThrow(() -> new RuntimeException("Caja cerrada"));
-        
-        return movimientoService.saveMovimiento(reembolsoPagoPedidoCompraDTO, caja);
-    }
-
-    @Override
-    public void deletePagoPedidoCompra(Long id) {
-        movimientoService.deletePagoPedidoCompra(id);
-    }
-
-    @Override
-    public void deleteReembolsoPagoPedidoCompra(Long id) {
-        movimientoService.deleteReembolsoPagoPedidoCompra(id);
     }
 
 }

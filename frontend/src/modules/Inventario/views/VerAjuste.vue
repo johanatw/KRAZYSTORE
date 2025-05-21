@@ -62,14 +62,13 @@ const modificarAjuste = (id) => {
         <Panel style=" position: relative; width: 80%;" >
             <template #header>
                 <div class="flex align-items-center gap-2">
-                    <h3 class="font-bold">Ajuste de Stock N° {{ router.currentRoute.value.params.id }} </h3>
+                    <h3 class="font-bold">Baja de Stock N° {{ router.currentRoute.value.params.id }} </h3>
                 </div>
             </template>
             <template #icons>
                 <div class="card flex" style="justify-content: end;">   
                     <div class="card flex" style="justify-content: end;">  
                         <Button label="Atras"  style="margin-right: 1%;" @click="vistaListaAjustes()" />
-                        <Button v-show="ajuste?.estado == 'P'" label="Modificar" @click="modificarAjuste(router.currentRoute.value.params.id)" />
                     </div>  
                 </div>
             </template>
@@ -116,10 +115,8 @@ const modificarAjuste = (id) => {
                                 <div class="card" style="width: 100%;">
                                     <div class="flex card-container" style="width: 100%;">
                                         <DataTable class="tablaCarrito" ref="dt" :value="detalleAjuste" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
-                                            <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>     
-                                            <Column  class="col" field="cantidadAnterior" header="Cant. Anterior" aria-sort="none" ></Column>     
-                                            <Column  class="col" field="cantidadAjustada" header="Cant. Ajustada" aria-sort="none"></Column>
-                                            <Column  class="col" field="cantidadFinal" header="Cant. Final" aria-sort="none" ></Column> 
+                                            <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>         
+                                            <Column  class="col" field="cantidadAjustada" header="Cantidad" aria-sort="none"></Column>
                                             <Column  class="col" field="motivo" header="Motivo" aria-sort="none" ></Column> 
                                         </DataTable>
                                     </div>

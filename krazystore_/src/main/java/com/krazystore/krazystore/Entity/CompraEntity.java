@@ -53,6 +53,9 @@ public class CompraEntity {
     private int totalExentas;
     @Column
     private char estado;
+    @ManyToOne
+    @JoinColumn(name="id_recepcion")
+    private RecepcionEntity recepcion;
 
     public char getEstado() {
         return estado;
@@ -143,6 +146,14 @@ public class CompraEntity {
 
     public void setTimbrado(String timbrado) {
         this.timbrado = timbrado;
+    }
+
+    public RecepcionEntity getRecepcion() {
+        return recepcion;
+    }
+
+    public void setRecepcion(RecepcionEntity recepcion) {
+        this.recepcion = recepcion;
     }
 
     

@@ -15,6 +15,7 @@ import Column from 'primevue/column';
 import Card from "primevue/card";
 import { formatearFecha } from "@/utils/utils";
 import Tag from 'primevue/tag';
+import { ClienteServices } from "@/services/ClienteServices";
 import { getEstadoPedidoVenta } from "@/utils/utils";
 
 import Fieldset from 'primevue/fieldset';
@@ -68,7 +69,7 @@ async function getPedido() {
     PedidoServices.getPedido(router.currentRoute.value.params.id).then((data) => {
         console.log(data.data);
     detalle.value.setDetalle(data.data.detalle, data.data.pedido.total, data.data.pedido.costoEnvio);
-    getCliente(data.data.pedido.cliente);
+    getCliente(data.data.pedido.cliente?.persona);
     //getEntrega(data.data.pedido.modoEntrega, data.data.pedido.costoEnvio);
     pedido.value = data.data.pedido;
 

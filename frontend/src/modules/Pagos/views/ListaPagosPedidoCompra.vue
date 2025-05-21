@@ -258,6 +258,7 @@ const guardarReembolso = () =>{
 const getAnticipos = () => {
     PagoPedidoCompraServices.obtenerPagosPedidoCompra().then((data) => {
        anticipos.value = data.data;
+       console.log(anticipos.value);
    });
  
 }
@@ -642,7 +643,7 @@ const getFormasPago= () => {
                     </Column>
                     <Column field="pedido.id" header="Pedido de Compra N°" aria-sort="ascending" sortable>
                         <template #body="slotProps">
-                           {{ formatearNumero(slotProps.data.idPedido) }}
+                           {{ formatearNumero(slotProps.data.pedidoCompra.id) }}
                         </template>
                     </Column>
                     <Column  field="total" header="Total" aria-sort="ascending" sortable >

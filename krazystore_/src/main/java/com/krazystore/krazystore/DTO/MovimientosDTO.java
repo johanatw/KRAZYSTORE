@@ -4,6 +4,8 @@
  */
 package com.krazystore.krazystore.DTO;
 
+import com.krazystore.krazystore.Entity.ClienteEntity;
+import com.krazystore.krazystore.Entity.ProveedorEntity;
 import java.util.Date;
 import java.util.List;
 
@@ -20,6 +22,9 @@ public class MovimientosDTO {
     private String factura;
     private char estado;
     private char tipo;
+    private ClienteEntity cliente;
+    private ProveedorEntity proveedor;
+    private String observacion;
 
     public MovimientosDTO() {
     }
@@ -35,6 +40,34 @@ public class MovimientosDTO {
         this.tipo = tipo;
     }
     
+    public MovimientosDTO(Long id, Date fecha, String concepto, String formaPago, Long total, String factura, char estado, char tipo, ClienteEntity cliente,ProveedorEntity proveedor ) {
+        this.id = id;
+        this.fecha = fecha;
+        this.concepto = concepto;
+        this.formaPago = formaPago;
+        this.total = total;
+        this.factura = factura;
+        this.estado = estado;
+        this.tipo = tipo;
+        this.cliente = cliente;
+        this.proveedor = proveedor;
+    }
+    
+    public MovimientosDTO(Long id, Date fecha, String concepto, String formaPago, Long total, String factura, 
+            char estado, char tipo, ClienteEntity cliente,ProveedorEntity proveedor, String observacion ) {
+        this.id = id;
+        this.fecha = fecha;
+        this.concepto = concepto;
+        this.formaPago = formaPago;
+        this.total = total;
+        this.factura = factura;
+        this.estado = estado;
+        this.tipo = tipo;
+        this.cliente = cliente;
+        this.proveedor = proveedor;
+        this.observacion = observacion;
+    }
+    
     public MovimientosDTO(Long id, Date fecha, String concepto, String formaPago, Long total, String factura, char estado) {
         this.id = id;
         this.fecha = fecha;
@@ -43,6 +76,18 @@ public class MovimientosDTO {
         this.total = total;
         this.factura = factura;
         this.estado = estado;
+    }
+    
+    public MovimientosDTO(Long id, Date fecha, String concepto, String formaPago, Long total, String factura, char estado, ClienteEntity cliente,ProveedorEntity proveedor) {
+        this.id = id;
+        this.fecha = fecha;
+        this.concepto = concepto;
+        this.formaPago = formaPago;
+        this.total = total;
+        this.factura = factura;
+        this.estado = estado;
+        this.cliente = cliente;
+        this.proveedor = proveedor;
     }
 
     public char getTipo() {
@@ -119,6 +164,30 @@ public class MovimientosDTO {
 
     public void setEstado(char estado) {
         this.estado = estado;
+    }
+
+    public ClienteEntity getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(ClienteEntity cliente) {
+        this.cliente = cliente;
+    }
+
+    public ProveedorEntity getProveedor() {
+        return proveedor;
+    }
+
+    public void setProveedor(ProveedorEntity proveedor) {
+        this.proveedor = proveedor;
+    }
+
+    public String getObservacion() {
+        return observacion;
+    }
+
+    public void setObservacion(String observacion) {
+        this.observacion = observacion;
     }
 
     

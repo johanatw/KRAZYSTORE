@@ -61,7 +61,7 @@ public interface DetalleRecepcionRepository extends JpaRepository<DetalleRecepci
        "JOIN dc.compra c " +
        "JOIN c.pedido p " +  // Asegura que la compra tenga su pedido
        "JOIN DetallePedidoCompra dp ON dp.pedidoCompra.id = p.id AND dp.producto.id = dc.producto.id " + // Relación por producto
-       "LEFT JOIN RecepcionEntity r ON r.compra.id = c.id " +
+       "LEFT JOIN RecepcionEntity r ON r.pedido.id = p.id " +
        "LEFT JOIN DetalleRecepcion dr ON dr.detallePedido.id = dp.id AND dr.recepcion.id = r.id " +
        "WHERE c.id = :idCompra " +
        "GROUP BY dp.id, dc.producto.id, dc.producto.nombre, dc.cantidad")

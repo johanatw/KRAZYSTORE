@@ -47,6 +47,8 @@ public class TimbradoEntity {
     private Date fecha_creacion;
     @Column
     private char estado;
+    @Column
+    private Boolean activo = true;
 
     public TimbradoEntity() {
     }
@@ -153,6 +155,14 @@ public class TimbradoEntity {
 
     public void setEstado(char estado) {
         this.estado = estado;
+    }
+
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
     }
     
     

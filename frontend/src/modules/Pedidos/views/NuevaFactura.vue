@@ -11,6 +11,7 @@ import Button from 'primevue/button';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import { ProductoServices } from '@/services/ProductoServices';
+import { ClienteServices } from "@/services/ClienteServices";
 import { VentaServices } from '@/services/VentaServices';
 import {PedidoServices} from '@/services/PedidoServices';
 import Tag from "primevue/tag";
@@ -117,8 +118,7 @@ onMounted(() => {
     
     });
     
-   
-   PersonaServices.obtenerClientes().then((data) => {
+   ClienteServices.obtenerClientes().then((data) => {
        clientes.value = data.data;
    });
 
@@ -137,7 +137,8 @@ onMounted(() => {
 async function getPedido() {
     await PedidoServices.getPedido(router.currentRoute.value.params.id).then((data) => {
         console.log(data.data.detalle);
-        selectedCliente.value = data.data.pedido.cliente;
+        selectedCliente.value = data.data.pedido.cliente.persona;
+        selectedCliente.value.id = data.data.pedido.cliente.id;
         mostrarCliente();
        
         pedido.value = data.data.pedido;
@@ -283,10 +284,10 @@ const registrarCliente = () =>{
 }
 
 const modificarCliente = (cli) => {
-    PersonaServices.getPersona(cli.id).then((data) => {
+    ClienteServices.getCliente(cli.id).then((data) => {
         console.log("data direccion");
-        console.log(data.data.direccion);
-       cliente.value = data.data.persona;
+       // console.log(data.data.direccion);
+       cliente.value = data.data;
        clienteDialog.value = true;
        if (data.data.direccion) {
         direccion.value = data.data.direccion;
@@ -323,15 +324,15 @@ const saveCliente = () => {
     if (cliente?.value.nombre?.trim() && validarDireccionCliente(direccion.value) ) {
         direccion.value.tipo = 'P';
         generarDireccion(direccion.value);
-        personaCreationDTO.value = {personaEntity: cliente.value, direccion: direccion.value};
+        //personaCreationDTO.value = {personaEntity: cliente.value, direccion: direccion.value};
+        cliente.value.direccion = direccion.value;
         if (cliente.value.id) {
-            PersonaServices.modificarPersona(cliente.value.id, personaCreationDTO.value).then((response)=>{
+            ClienteServices.modificarCliente(cliente.value.id, cliente.value).then((response)=>{
             console.log("mod");
                 eliminarClienteSelected();
-                clientes.value[findIndexById(cliente.value.id)] = cliente.value;
+                clientes.value[findIndexById(response.data.id)] = response.data;
                 toast.add({severity:'success', summary: 'Successful', detail: 'Registro modificado', life: 3000});
                 selectedCliente.value = response.data;
-                
                 mostrarCliente();
                 direccion.value.tipo = null;
             }).catch(
@@ -340,10 +341,9 @@ const saveCliente = () => {
             
         }
         else {
-         
-            PersonaServices.registrarPersona(personaCreationDTO.value).then((response)=>{
+            ClienteServices.registrarCliente(cliente.value).then((response)=>{
             console.log("reg");
-            console.log(personaCreationDTO.value);
+            //console.log(personaCreationDTO.value);
                 clientes.value.push(response.data);
                 toast.add({severity:'success', summary: 'Successful', detail: 'Registro creado', life: 3000});
                 selectedCliente.value = response.data;
@@ -819,7 +819,7 @@ const eliminar = (detalle) => {
                     <AutoComplete v-model="selectedCliente" optionLabel="nombre" forceSelection :suggestions="filteredClientes" @complete="search" @item-select="mostrarCliente">
                     <template #option="slotProps">
                         <div class="flex flex-column align-options-start">
-                            <div>{{ slotProps.option.nombre }}</div>
+                            <div>{{ slotProps.option.nombre }}{{ slotProps.option.apellido || '' }}</div>
                             <div v-if="slotProps.option.telefono">{{ slotProps.option.telefono }}</div>
                             <div v-if="slotProps.option.nroDoc">{{ slotProps.option.tipoDoc.descripcion }} - {{ slotProps.option.nroDoc }}</div>
                         </div>

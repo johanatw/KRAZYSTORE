@@ -36,7 +36,7 @@ const pedidos = ref();
 
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
-import { formatearNumero, formatearFecha, getEstadoFacturaCompra, getEstadoEntrega } from '@/utils/utils'; 
+import { formatearNumero, formatearFecha, getEstadoFacturaCompra, getEstadoEntrega, formatearFechaHora } from '@/utils/utils'; 
 
 const indexRegistroActualizado = ref();
 const confirm = useConfirm();
@@ -497,7 +497,7 @@ const nuevoPedido = () =>{
     <Button label="Save" icon="pi pi-check" text @click="guardarEntrega" />
 </template>
 </Dialog>
-    <Panel style=" position: relative; width: 100%;" >
+    <Panel style=" position: relative; width: 90%;" >
       <template #header>
         <div class="flex align-items-center gap-2">
             <h3 class="font-bold">Entregas</h3>
@@ -532,16 +532,16 @@ const nuevoPedido = () =>{
         </Column>
           <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
             <template #body="slotProps">
-                {{ formatearFecha(slotProps.data.fecha) }}
+                {{ formatearFechaHora(slotProps.data.fecha) }}
             </template>
         </Column>
        
           <Column field="proveedor.descripcion"  header="Cliente" aria-sort="ascending" sortable> 
             <template #body="slotProps">
                 <div>
-                    {{ slotProps.data.pedido?.cliente?.nombre }}
-                    <label v-if="slotProps.data.pedido?.cliente?.apellido" for="apellido">
-                        {{ slotProps.data.pedido?.cliente?.apellido }}
+                    {{ slotProps.data.pedido?.cliente?.persona.nombre }}
+                    <label v-if="slotProps.data.pedido?.cliente?.persona.apellido" for="apellido">
+                        {{ slotProps.data.pedido?.cliente?.persona.apellido }}
                     </label>
                 </div>
             </template>           

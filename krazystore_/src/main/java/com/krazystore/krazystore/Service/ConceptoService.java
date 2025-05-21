@@ -13,4 +13,6 @@ import java.util.List;
  */
 public interface ConceptoService {
     List<ConceptoEntity> findByTipo(char tipo);
+
+    public List<ConceptoEntity> getConceptosIngresoEgreso();
 }

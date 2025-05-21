@@ -46,6 +46,21 @@ public class ProductoController {
         return productoService.findById(id);
     }
     
+    @GetMapping("/servicio_entrega")
+    public Optional<ProductoDTO> getServicioTransporte() {
+        return productoService.getServicioTransporte();
+    }
+    
+    @GetMapping("/costo_envio")
+    public Optional<ProductoDTO> getCostoEnvio() {
+        return productoService.getCostoEnvio();
+    }
+    
+    @GetMapping("/servicios")
+    public List<ProductoDTO> getServicios() {
+        return productoService.getServicios();
+    }
+    
     @GetMapping("/nombre")
     public List<ProductoDTO> findByNombre(@RequestParam(value="nombre") String nombre ){
         return productoService.buscarPorNombre(nombre);

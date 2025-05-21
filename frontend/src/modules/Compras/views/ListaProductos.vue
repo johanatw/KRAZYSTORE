@@ -242,7 +242,7 @@ const saveProducto = () => {
             <Button label="Cerrar" icon="pi pi-times" text @click="hideDialog"/>
         </template>
     </Dialog>
-    <Panel style=" position: relative; width: 100%;" >
+    <Panel style=" position: relative; width: 90%;" >
       <template #header>
         <div class="flex align-items-center gap-2">
             <h3 class="font-bold">Productos</h3>

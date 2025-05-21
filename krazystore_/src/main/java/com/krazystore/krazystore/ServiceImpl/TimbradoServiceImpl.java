@@ -8,6 +8,7 @@ import com.krazystore.krazystore.DTO.TimbradoDTO;
 import com.krazystore.krazystore.Entity.TimbradoEntity;
 import com.krazystore.krazystore.Repository.TimbradoRepository;
 import com.krazystore.krazystore.Service.TimbradoService;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
@@ -83,8 +84,37 @@ public class TimbradoServiceImpl implements TimbradoService {
     }
     
     @Override
-    public TimbradoEntity updateTimbrado(TimbradoEntity timbrado) {
+    public TimbradoEntity updateTimbrado(Long id,TimbradoEntity timbrado) {
         System.out.println(timbrado.getUltimoRemitido());
         return timbradoRepository.save(timbrado);
+    }
+
+    @Override
+    public Optional<TimbradoEntity> getTimbradoByNroTimbrado(Integer timbrado) {
+        return timbradoRepository.getTimbradoByNroTimbrado(timbrado);
+    }
+
+    @Override
+    public Optional<TimbradoEntity> findById(Long id) {
+        return timbradoRepository.findById(id);
+    }
+
+    @Override
+    public TimbradoEntity saveTimbrado(TimbradoEntity timbrado) {
+        return timbradoRepository.save(timbrado);
+    }
+
+    @Override
+    public void deleteTimbrado(Long id) {
+        TimbradoEntity deletedTimbrado = timbradoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Timbrado no existe"));
+        
+        deletedTimbrado.setActivo(Boolean.FALSE);
+        timbradoRepository.save(deletedTimbrado);
+    }
+
+    @Override
+    public List<TimbradoEntity> findAll() {
+        return timbradoRepository.findAll();
     }
 }

@@ -41,13 +41,20 @@ public class MedioPagoServiceImpl implements MedioPagoService {
 
     @Override
     public MedioPagoEntity updateMedioPago(MedioPagoEntity medioPagoEntity, Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        MedioPagoEntity updatedMedio = medioPagoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Medio de pago no existe"));
+        
+        updatedMedio.setDescripcion(medioPagoEntity.getDescripcion());
+        return medioPagoRepository.save(updatedMedio);
     }
 
     @Override
     public void deleteMedioPago(Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        MedioPagoEntity deletedMedio = medioPagoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Medio de pago no existe"));
+        
+        deletedMedio.setActivo(Boolean.FALSE);
+        medioPagoRepository.save(deletedMedio);
     }
-    
     
 }

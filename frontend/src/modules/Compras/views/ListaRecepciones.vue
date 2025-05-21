@@ -130,8 +130,8 @@ const filters = ref({
 
 
 
-const recepcionarPedidoCompra = (id) =>{
-    router.push({name: 'recepcionarPedido', params: {id}});
+const facturarRecepcion = (id) =>{
+    router.push({name: 'facturar_recepcion', params: {id}});
     
 }
 
@@ -178,7 +178,7 @@ const nuevoPedido = () =>{
 
     <ConfirmDialog ></ConfirmDialog>
     <Toast />
-    <Panel style=" position: relative; width: 100%;" >
+    <Panel style=" position: relative; width: 90%;" >
       <template #header>
         <div class="flex align-items-center gap-2">
             <h3 class="font-bold">Recepciones</h3>
@@ -227,7 +227,7 @@ const nuevoPedido = () =>{
             <template #body="slotProps">
                 <Button icon="pi pi-eye" v-tooltip="'Ver detalles'" text rounded aria-label="Search" @click="verRecepcion(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />              
                 <Button v-tooltip="'Eliminar'" :disabled="isFacturada(slotProps.data.estado)" icon="pi pi-trash" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
-                
+                <Button v-tooltip="'Facturar'" :disabled="isFacturada(slotProps.data.estado)" icon="pi pi-receipt" severity="info" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="facturarRecepcion(slotProps.data.id)" />
                 </template>
           </Column>
         </DataTable>

@@ -6,7 +6,6 @@ package com.krazystore.krazystore.DTO;
 
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.FormaCobroEntity;
-import com.krazystore.krazystore.Entity.PagoEntity;
 import java.util.List;
 
 /**

@@ -6,7 +6,6 @@ package com.krazystore.krazystore.DTO;
 
 import com.krazystore.krazystore.Entity.AjusteStock;
 import com.krazystore.krazystore.Entity.CategoriaEntity;
-import com.krazystore.krazystore.Entity.MotivoAjusteEntity;
 import com.krazystore.krazystore.Entity.ProductoEntity;
 import com.krazystore.krazystore.Entity.SubCategoriaEntity;
 

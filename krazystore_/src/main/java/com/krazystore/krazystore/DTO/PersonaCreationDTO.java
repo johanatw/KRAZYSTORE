@@ -18,6 +18,11 @@ public class PersonaCreationDTO {
     public PersonaCreationDTO() {
     }
 
+    public PersonaCreationDTO(PersonaEntity personaEntity, DireccionEntity direccion) {
+        this.personaEntity = personaEntity;
+        this.direccion = direccion;
+    }
+
     public PersonaEntity getPersonaEntity() {
         return personaEntity;
     }

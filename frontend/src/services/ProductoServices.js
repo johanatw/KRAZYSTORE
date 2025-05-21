@@ -71,6 +71,51 @@ export const ProductoServices = {
     return Promise.reject(error);
   })
   },
+  obtenerServicioTransporte(){
+
+    return axios.get(PRODUCTO_API_BASE_URL + "/servicio_entrega",{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+  },
+  obtenerCostoEnvio(){
+
+    return axios.get(PRODUCTO_API_BASE_URL + "/costo_envio",{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+  },
+  obtenerServicios(){
+
+    return axios.get(PRODUCTO_API_BASE_URL + "/servicios",{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+  },
   saveProducto(producto) {
    
     return axios.post(PRODUCTO_API_BASE_URL, producto,{

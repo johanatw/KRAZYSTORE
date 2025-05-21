@@ -43,6 +43,7 @@ const searched =ref(false);
 const abonado = ref(0);
 const dialogRegistrar = ref(false);
 const disabledSubmitRegistrar = ref(true);
+const detallePagosPedido= ref({});
 const anticipoToDelete = ref();
 const color = ref('#4b5563');
 const id = ref();
@@ -81,7 +82,8 @@ const buscarPedido= (id, e) => {
     if (code == 13) { //Enter keycode   
     
         CajaServices.obtenerPagosPedido(id).then((data) => {
-            pedido.value = data.data;
+            detallePagosPedido.value = data.data;
+            pedido.value = data.data.pedido;
             searched.value = true;
             console.log(data.data);
         });
@@ -113,7 +115,7 @@ async function guardarAnticipo() {
     console.log(d);
     if (d) {
         let fechaAnticipo = new Date();
-    let ant = {total: sumaTotal.value, fecha: fechaAnticipo, pedido: pedido.value};
+    let ant = {total: sumaTotal.value, fecha: fechaAnticipo, pedido: pedido.value, cliente: pedido.value.cliente};
 
     let anticipoCreationDTO = {anticipo: ant, cobros: pagos.value};
     console.log(pagos.value);
@@ -168,7 +170,7 @@ const habilitarSubmit = () =>{
     if (visible.value && sumaTotal.value > anticipo.value.saldo || sumaTotal.value<1) {
         disabledSubmit.value = true;
         color.value = 'red';
-    } else if (dialogRegistrar.value && (sumaTotal.value == 0 || !pedido.value || sumaTotal.value > (pedido.value.total - pedido.value.totalPagos))) {
+    } else if (dialogRegistrar.value && (sumaTotal.value == 0 || !pedido.value || sumaTotal.value > (detallePagosPedido.value.total - detallePagosPedido.value.totalPagos))) {
         disabledSubmit.value = true;
         color.value = 'red';
     }else{
@@ -178,7 +180,7 @@ const habilitarSubmit = () =>{
 }
 
 const showDialogReembolso = (ant) =>{
-
+    console.log(ant);
     anticipo.value = ant;
         
     montoReembolsar.value = ant.saldo;
@@ -235,7 +237,9 @@ const guardarReembolso = () =>{
         let reembolso = {monto: montoReembolsar.value,
         fecha: fecha,
         motivo: motivo.value,
-        anticipo: anticipo.value};
+        anticipo: anticipo.value,
+        cliente: anticipo.value.cliente
+    };
         
         let reembolsoCreationDTO = {reembolso: reembolso, pagos: pagos.value};
         CajaServices.saveReembolso(reembolsoCreationDTO).then((data)=> {
@@ -534,21 +538,21 @@ const getMediosCobro= () => {
                                             <label   style="font-weight: 600;" >Total pedido:</label>
                                         </div>
                                         <div class="flex field col-12 md:col-6 "style="height: 1.5rem;" >
-                                            <label v-if="pedido"  >{{formatearNumero(pedido.total)}} Gs.</label>
+                                            <label v-if="pedido"  >{{formatearNumero(detallePagosPedido.total)}} Gs.</label>
                                             <label v-else   > 0 Gs.</label>
                                         </div>
                                         <div class="flex field col-12 md:col-6 " style="height: 1.5rem;">
                                             <label  style="font-weight: 600;" >Total anticipos:</label>
                                         </div>
                                         <div class="flex field col-12 md:col-6 " style="height: 1.5rem;">
-                                            <label v-if="pedido"   >{{formatearNumero(pedido.totalPagos)}} Gs.</label>
+                                            <label v-if="pedido"   >{{formatearNumero(detallePagosPedido.totalPagos)}} Gs.</label>
                                             <label v-else  > 0 Gs.</label>
                                         </div>
                                         <div class="flex field col-12 md:col-6 " style="height: 1.5rem;">
                                             <label style="font-weight: 600;" >Restante:</label>
                                         </div>
                                         <div class="flex field col-12 md:col-6 " style="height: 1.5rem;">
-                                            <label v-if="pedido"  >{{ formatearNumero(pedido.total - pedido.totalPagos)}} Gs.</label>
+                                            <label v-if="pedido"  >{{ formatearNumero(detallePagosPedido.total - detallePagosPedido.totalPagos)}} Gs.</label>
                                             <label v-else > 0 Gs.</label>
                                         </div>
                                     </div>
@@ -604,7 +608,7 @@ const getMediosCobro= () => {
 
 
         <!--Pantalla Principal Lista de Anticipos-->
-        <Panel style=" position: relative; width: 100%;" >
+        <Panel style=" position: relative; width: 90%;" >
             <template #header>
                 <div class="flex align-items-center gap-2">
                     <h3 class="font-bold">Anticipos Clientes</h3>
@@ -638,6 +642,11 @@ const getMediosCobro= () => {
                             {{ formatearFechaHora(slotProps.data.fecha) }}
                         </template>
                     </Column>
+                    <Column field="total"  header="Cliente" aria-sort="ascending" sortable>    
+                                    <template #body="slotProps">
+                                        {{ slotProps.data.cliente?.persona?.nombre || ' ' }}
+                                    </template>        
+                                </Column>
                     <Column field="pedido.id" header="Pedido N°" aria-sort="ascending" sortable>
                         <template #body="slotProps">
                            {{ formatearNumero(slotProps.data.pedido?.id) }}

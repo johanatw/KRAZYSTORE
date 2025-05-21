@@ -30,7 +30,7 @@ public interface DetalleAjusteRepository extends JpaRepository<DetalleAjuste,Lon
             + "FROM ProductoEntity p "
             + "LEFT JOIN DetalleAjuste d ON d.producto = p " )*/
     @Query("SELECT new com.krazystore.krazystore.DTO.DetalleAjusteDTO(p.id, p.nombre, p.subCategoria, p.cantStock, 0) "
-            + "FROM ProductoEntity p " )
+            + "FROM ProductoEntity p WHERE p.activo = TRUE AND p.esServicio <> TRUE " )
     List<DetalleAjusteDTO> obtenerProductosParaAjuste();
     
 }

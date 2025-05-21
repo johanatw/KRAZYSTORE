@@ -30,7 +30,9 @@ public enum Estado {
     ENCURSO('S'),
     
     ENTREGADO('E'),
-    NOENTREGADO('N');
+    NOENTREGADO('N'),
+    PARCIALMENTE_PREPARADO('R'),
+    PREPARADO('P');
     
     private final char codigo;
 

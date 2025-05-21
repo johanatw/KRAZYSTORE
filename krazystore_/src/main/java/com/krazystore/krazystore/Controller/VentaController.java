@@ -52,7 +52,7 @@ public class VentaController {
 
     @PostMapping
     public VentaEntity saveVenta(@RequestBody VentaCreationDTO ventaCreationDTO) {
-        return ventaService.saveVenta(ventaCreationDTO.getVenta(), ventaCreationDTO.getDetalle(), ventaCreationDTO.getPagos());
+        return ventaService.saveVenta(ventaCreationDTO.getVenta(), ventaCreationDTO.getDetalle());
     }
 
     @PutMapping("/{id}")

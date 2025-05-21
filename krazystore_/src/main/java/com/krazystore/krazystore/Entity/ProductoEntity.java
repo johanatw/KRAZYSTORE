@@ -54,6 +54,9 @@ public class ProductoEntity {
     private int cantReservada = 0;
     @Column
     private Boolean activo = true;
+    
+    @Column(name = "es_servicio")
+    private Boolean esServicio = false;
 
     
     public ProductoEntity() {
@@ -90,12 +93,24 @@ public class ProductoEntity {
         this.bajoDemanda = bajoDemanda;
         this.cantLimBajoDemanda = cantLimBajoDemanda;
     }
+    
+    public ProductoEntity(Long id, String nombre, String descripcion, SubCategoriaEntity subCategoria, IvaEntity tipoIva, Boolean bajoDemanda, Integer cantLimBajoDemanda, Boolean esServicio) {
+        this.id = id;
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+        this.subCategoria = subCategoria;
+        this.tipoIva = tipoIva;
+        this.bajoDemanda = bajoDemanda;
+        this.cantLimBajoDemanda = cantLimBajoDemanda;
+        this.esServicio = esServicio;
+    }
 
     public ProductoEntity(Long id, String nombre) {
         this.id = id;
         this.nombre = nombre;
     }
 
+    
    
     
     public int getCantStock() {
@@ -199,6 +214,14 @@ public class ProductoEntity {
 
     public void setActivo(Boolean activo) {
         this.activo = activo;
+    }
+
+    public Boolean getEsServicio() {
+        return esServicio;
+    }
+
+    public void setEsServicio(Boolean esServicio) {
+        this.esServicio = esServicio;
     }
     
     

@@ -93,9 +93,10 @@ const getEstado = (estado) => {
 };
 
 const ajustarInventario = (id) =>{
-    InventarioServices.ajustarInventario(id).then((data)=> {
+    router.push({name: 'ajustar_inventario', params: {id}});
+    /*InventarioServices.ajustarInventario(id).then((data)=> {
         getInventarios();
-    } );
+    } );*/
 }
 
 </script>
@@ -110,7 +111,7 @@ const ajustarInventario = (id) =>{
     <div class=" flex p-fluid justify-content-center " >
         <Toast />
         <!--Pantalla Principal Lista de Cajas-->
-        <Panel style=" position: relative; width: 100%;" >
+        <Panel style=" position: relative; width: 90%;" >
             <template #header>
                 <div class="flex align-items-center gap-2">
                     <h3 class="font-bold">Inventarios</h3>

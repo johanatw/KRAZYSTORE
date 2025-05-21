@@ -35,6 +35,9 @@ public class ReembolsoAnticipo {
     @ManyToOne
     @JoinColumn(name = "id_anticipo")
     private AnticipoEntity anticipo;
+    @ManyToOne
+    @JoinColumn(name="id_cliente")
+    private ClienteEntity cliente;
 
 
     public ReembolsoAnticipo() {
@@ -89,6 +92,14 @@ public class ReembolsoAnticipo {
 
     public void setAnticipo(AnticipoEntity anticipo) {
         this.anticipo = anticipo;
+    }
+
+    public ClienteEntity getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(ClienteEntity cliente) {
+        this.cliente = cliente;
     }
    
     

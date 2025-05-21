@@ -55,13 +55,7 @@
                                             </div>
                                         </template>
                                     </Column>
-                                    <Column header="Stock actual" >
-                                        <template #body="{ data }">
-                                            <div class="flex align-items-center gap-2">
-                                                <span>{{ data.stockInicialInventario = data.stockActual }}</span>
-                                            </div>
-                                        </template>
-                                    </Column>
+                      
                                     <Column header="Contado" >
                                         <template #body="{ data }">
                                             <div class="flex align-items-center gap-2">
@@ -71,13 +65,7 @@
                                             </div>
                                         </template>
                                     </Column>
-                                    <Column header="Diferencia" >
-                                        <template #body="{ data }">
-                                            <div class="flex align-items-center gap-2">
-                                                <span>{{ data.diferencia = data.cantContada - data.stockActual }}</span>
-                                            </div>
-                                        </template>
-                                    </Column>
+                                  
                                 </DataTable>
                             </template>
                         </Card>
@@ -122,7 +110,7 @@ const fecha= ref();
 const filters = ref({
     categoria: { value: null, matchMode: FilterMatchMode.IN },
 });
-
+const showDiferencia = ref(false);
 const loading = ref(false);
 const dt = ref();
 const productosFiltrados = ref([]);

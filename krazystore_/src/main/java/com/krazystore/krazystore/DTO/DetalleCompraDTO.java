@@ -19,14 +19,14 @@ public class DetalleCompraDTO {
     private IvaEntity ivaAplicado;
     private DetallePedidoCompraDTO detallePedido;
 
-    public DetalleCompraDTO(Long id, Long idProducto, String producto, IvaEntity iva,
+    public DetalleCompraDTO(Long id, Long idProducto, String producto, IvaEntity ivaAplicado, IvaEntity iva,
             int cantidad, int subTotal, int costoCompra,Long idDetallePedidoCompra, 
             Long cantSolicitada, Long cantRecepcionada, Long cantAceptada, Long cantFacturada) {
         this.id = id;
-        this.ivaAplicado = iva;
+        this.ivaAplicado = ivaAplicado;
         this.cantidad = cantidad;
         this.subTotal = subTotal;
-        this.producto = new ProductoDTO(idProducto,producto);
+        this.producto = new ProductoDTO(idProducto,producto, iva);
         this.costoCompra = costoCompra;
         this.detallePedido = new DetallePedidoCompraDTO(idDetallePedidoCompra,cantSolicitada,cantRecepcionada,cantAceptada,cantFacturada);
     }

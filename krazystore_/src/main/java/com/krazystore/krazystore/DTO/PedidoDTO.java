@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.DTO;
 
+import Utils.EstadoPedido;
 import java.util.Date;
 
 /**
@@ -17,7 +18,8 @@ public class PedidoDTO {
     private int costoEnvio =0;
     private String cliente;
     private String telefono;
-    private Character estadoPedido;
+    private EstadoPedido estadoPedido;
+    private EstadoPedido estadoFacturacion;
     private Long cantPreVenta;
     private Long totalItems;         
 
@@ -46,7 +48,7 @@ public class PedidoDTO {
         this.totalItems = totalItems;
     }
 
-    public PedidoDTO(long id, Date fecha, int total, String cliente, String telefono, Character estadoPedido, Long cantPreVenta, Long totalItems) {
+    public PedidoDTO(long id, Date fecha, int total, String cliente, String telefono, EstadoPedido estadoPedido, Long cantPreVenta, Long totalItems) {
         this.id = id;
         this.fecha = fecha;
         this.total = total;
@@ -55,6 +57,18 @@ public class PedidoDTO {
         this.estadoPedido = estadoPedido;
         this.cantPreVenta = cantPreVenta;
         this.totalItems = totalItems;
+    }
+    
+    public PedidoDTO(long id, Date fecha, int total, String cliente, String telefono, EstadoPedido estadoPedido, EstadoPedido estadoFacturacion,Long cantPreVenta, Long totalItems) {
+        this.id = id;
+        this.fecha = fecha;
+        this.total = total;
+        this.cliente = cliente;
+        this.telefono = telefono;
+        this.estadoPedido = estadoPedido;
+        this.cantPreVenta = cantPreVenta;
+        this.totalItems = totalItems;
+        this.estadoFacturacion = estadoFacturacion;
     }
 
     
@@ -70,15 +84,17 @@ public class PedidoDTO {
         this.totalItems = totalItems;
     }
 
-    
-
-    public Character getEstadoPedido() {
+    public EstadoPedido getEstadoPedido() {
         return estadoPedido;
     }
 
-    public void setEstadoPedido(Character estadoPedido) {
+    public void setEstadoPedido(EstadoPedido estadoPedido) {
         this.estadoPedido = estadoPedido;
     }
+
+    
+
+    
 
     public Long getCantPreVenta() {
         return cantPreVenta;
@@ -137,6 +153,14 @@ public class PedidoDTO {
 
     public void setTelefono(String telefono) {
         this.telefono = telefono;
+    }
+
+    public EstadoPedido getEstadoFacturacion() {
+        return estadoFacturacion;
+    }
+
+    public void setEstadoFacturacion(EstadoPedido estadoFacturacion) {
+        this.estadoFacturacion = estadoFacturacion;
     }
     
     

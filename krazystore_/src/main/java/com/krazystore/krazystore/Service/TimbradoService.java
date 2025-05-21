@@ -6,6 +6,7 @@ package com.krazystore.krazystore.Service;
 
 import com.krazystore.krazystore.DTO.TimbradoDTO;
 import com.krazystore.krazystore.Entity.TimbradoEntity;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -14,7 +15,16 @@ import java.util.Optional;
  */
 public interface TimbradoService {
     Optional<TimbradoEntity> getTimbradoVigente();
+    Optional<TimbradoEntity> getTimbradoByNroTimbrado(Integer timbrado);
     String getNroFactura(TimbradoEntity timbrado);
-    TimbradoEntity updateTimbrado(TimbradoEntity timbrado);
+    TimbradoEntity updateTimbrado(Long id, TimbradoEntity timbrado);
     TimbradoDTO getTimbradoDTOVigente();
+
+    public Optional<TimbradoEntity> findById(Long id);
+
+    public TimbradoEntity saveTimbrado(TimbradoEntity timbrado);
+
+    public void deleteTimbrado(Long id);
+
+    public List<TimbradoEntity> findAll();
 }

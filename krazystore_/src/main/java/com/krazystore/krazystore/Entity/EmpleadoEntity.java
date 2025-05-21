@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.util.Date;
 
 /**
@@ -19,7 +20,7 @@ import java.util.Date;
  * @author HP
  */
 @Entity
-@Table(name = "empleados")
+@Table(name = "empleados", uniqueConstraints = { @UniqueConstraint(columnNames = { "id_persona"})} )
 public class EmpleadoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +29,8 @@ public class EmpleadoEntity {
     @ManyToOne
     @JoinColumn(name="id_persona")
     private PersonaEntity persona;
+    @Column
+    private Boolean activo = true;
 
     public EmpleadoEntity() {
     }
@@ -51,6 +54,14 @@ public class EmpleadoEntity {
 
     public void setPersona(PersonaEntity persona) {
         this.persona = persona;
+    }
+
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
     }
     
     

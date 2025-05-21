@@ -4,12 +4,14 @@
  */
 package com.krazystore.krazystore.DTO;
 
+import com.krazystore.krazystore.Entity.PedidoEntity;
+
 /**
  *
  * @author HP
  */
 public class EstadoPagoPedidoDTO {
-    private Long id;
+    private PedidoEntity pedido;
     private int total;
     private int totalAnticipos;
     private int totalPagos;
@@ -17,16 +19,9 @@ public class EstadoPagoPedidoDTO {
     public EstadoPagoPedidoDTO() {
     }
 
-    public EstadoPagoPedidoDTO(Long id, int total, long totalPagos) {
-        this.id = id;
-        this.total = total;
-        this.totalPagos = (int)(long)totalPagos;
-    }
-
-    public EstadoPagoPedidoDTO(Long id, int total, long totalAnticipos, long totalPagos) {
-        this.id = id;
-        this.total = total;
-        this.totalAnticipos = (int)(long)totalAnticipos;
+    public EstadoPagoPedidoDTO(PedidoEntity pedido, long total, long totalPagos) {
+        this.pedido = pedido;
+        this.total = (int)(long)total;
         this.totalPagos = (int)(long)totalPagos;
     }
 
@@ -38,16 +33,17 @@ public class EstadoPagoPedidoDTO {
     public void setTotalAnticipos(int totalAnticipos) {
         this.totalAnticipos = totalAnticipos;
     }
+
+    public PedidoEntity getPedido() {
+        return pedido;
+    }
+
+    public void setPedido(PedidoEntity pedido) {
+        this.pedido = pedido;
+    }
     
     
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public int getTotal() {
         return total;

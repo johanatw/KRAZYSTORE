@@ -39,6 +39,9 @@ public class AnticipoEntity {
     @ManyToOne
     @JoinColumn(name="id_pedido")
     private PedidoEntity pedido;
+    @ManyToOne
+    @JoinColumn(name="id_cliente")
+    private ClienteEntity cliente;
     @Column
     private int saldo;
     @Column
@@ -98,6 +101,14 @@ public class AnticipoEntity {
 
     public void setPedido(PedidoEntity pedido) {
         this.pedido = pedido;
+    }
+
+    public ClienteEntity getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(ClienteEntity cliente) {
+        this.cliente = cliente;
     }
 
 

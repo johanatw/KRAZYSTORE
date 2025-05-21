@@ -50,6 +50,10 @@ public class PuntoEntregaServiceImpl implements PuntoEntregaService{
 
     @Override
     public void deletePuntoEntrega(Long id) {
-        puntoEntregaRepository.deleteById(id);
+        PuntoEntregaEntity deletedPuntoEntrega = puntoEntregaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Punto de Entrega no existe"));
+        
+        deletedPuntoEntrega.setActivo(Boolean.FALSE);
+        puntoEntregaRepository.save(deletedPuntoEntrega);
     }
 }

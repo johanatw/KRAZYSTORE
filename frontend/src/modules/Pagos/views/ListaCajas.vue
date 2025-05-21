@@ -78,7 +78,7 @@ const verCaja = (caja) =>{
     <div class=" flex p-fluid justify-content-center " >
         <Toast />
         <!--Pantalla Principal Lista de Cajas-->
-        <Panel style=" position: relative; width: 100%;" >
+        <Panel style=" position: relative; width: 90%;" >
             <template #header>
                 <div class="flex align-items-center gap-2">
                     <h3 class="font-bold">Cajas</h3>

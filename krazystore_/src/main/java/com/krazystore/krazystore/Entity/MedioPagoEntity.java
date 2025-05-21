@@ -24,6 +24,8 @@ public class MedioPagoEntity {
     private Long id;
     @Column
     private String descripcion;
+    @Column
+    private Boolean activo = true;
 
     public MedioPagoEntity() {
     }
@@ -47,6 +49,14 @@ public class MedioPagoEntity {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
     }
     
     

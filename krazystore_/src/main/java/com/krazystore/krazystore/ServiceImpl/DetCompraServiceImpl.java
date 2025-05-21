@@ -11,6 +11,7 @@ import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
 import com.krazystore.krazystore.Entity.CompraEntity;
 import com.krazystore.krazystore.Entity.CostoEntity;
 import com.krazystore.krazystore.Entity.DetalleCompra;
+import com.krazystore.krazystore.Entity.ProductoEntity;
 import com.krazystore.krazystore.Repository.DetalleCompraRepository;
 import com.krazystore.krazystore.Service.DetalleCompraService;
 import com.krazystore.krazystore.Service.PrecioCompraService;
@@ -18,6 +19,7 @@ import com.krazystore.krazystore.exception.BadRequestException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -280,7 +282,7 @@ public class DetCompraServiceImpl implements DetalleCompraService {
         return detalleRepository.findDetallesByIdCompra(idcompra);
     }
     
-    @Override
+    /*@Override
     public List<CostoEntity> getPreciosCompraActualizados(List<DetalleCompra> detalle, Long idCompra, Date fechaFactura, Date fechaAnteriorFactura){
         System.out.print("ACTUALIZARCOSTO");
         LocalDate soloFechaFactura = (fechaFactura != null) 
@@ -477,6 +479,90 @@ public class DetCompraServiceImpl implements DetalleCompraService {
             }
         }
         return preciosActualizar;
+    }*/
+    @Override
+    public List<CostoEntity> getPreciosCompraActualizados(List<DetalleCompra> detalle, Long idCompra, Date fechaFactura, Date fechaAnteriorFactura) {
+    System.out.println("ACTUALIZAR COSTO");
+
+    LocalDate fechaFacturaLocal = toLocalDate(fechaFactura);
+    LocalDate fechaAnteriorLocal = toLocalDate(fechaAnteriorFactura);
+
+    List<DetalleCompra> detallesAnteriores = (idCompra != null)
+            ? detalleRepository.findAllByIdCompra(idCompra)
+            : Collections.emptyList();
+
+    List<Long> productosIds = detalle.stream()
+            .map(d -> d.getProducto().getId())
+            .collect(Collectors.toList());
+
+    List<CostoEntity> preciosAnterior = detallesAnteriores.isEmpty()
+            ? Collections.emptyList()
+            : precioService.findPreciosByFechaAndProductos(fechaAnteriorFactura, productosIds);
+
+    List<CostoEntity> preciosActual = precioService.findPreciosByFechaAndProductos(fechaFactura, productosIds);
+
+    List<CostoEntity> preciosActualizar = new ArrayList<>();
+
+    for (DetalleCompra det : detalle) {
+        Long idProducto = det.getProducto().getId();
+        int nuevoPrecio = det.getCostoCompra();
+
+        CostoEntity costoActual = buscarPorProducto(preciosActual, idProducto);
+        CostoEntity costoAnterior = buscarPorProducto(preciosAnterior, idProducto);
+
+        if (fechaAnteriorLocal == null || fechaFacturaLocal.equals(fechaAnteriorLocal)) {
+            procesarCambioCosto(preciosActualizar, fechaFactura, fechaFacturaLocal, det, costoActual, nuevoPrecio);
+        } else {
+            if (costoAnterior != null && fechaAnteriorLocal.equals(toLocalDate(costoAnterior.getFecha()))) {
+                if (nuevoPrecio != costoAnterior.getCosto()) {
+                    costoAnterior.setCosto((long) nuevoPrecio);
+                }
+                costoAnterior.setFecha(fechaFactura);
+                preciosActualizar.add(costoAnterior);
+            } else if (costoActual != null && fechaFacturaLocal.equals(toLocalDate(costoActual.getFecha()))) {
+                if (nuevoPrecio != costoActual.getCosto()) {
+                    costoActual.setCosto((long) nuevoPrecio);
+                    preciosActualizar.add(costoActual);
+                }
+            } else {
+                preciosActualizar.add(crearNuevoCosto(fechaFactura, nuevoPrecio, det.getProducto()));
+            }
+        }
+    }
+
+    return preciosActualizar;
+}
+
+    private LocalDate toLocalDate(Date date) {
+        return (date != null)
+                ? date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+                : null;
+    }
+
+    private CostoEntity buscarPorProducto(List<CostoEntity> lista, Long idProducto) {
+        return lista.stream()
+                .filter(c -> c.getProducto().getId().equals(idProducto))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private void procesarCambioCosto(List<CostoEntity> lista, Date fecha, LocalDate fechaLocal, DetalleCompra det, CostoEntity costoActual, int nuevoPrecio) {
+        if (costoActual != null && fechaLocal.equals(toLocalDate(costoActual.getFecha()))) {
+            if (nuevoPrecio != costoActual.getCosto()) {
+                costoActual.setCosto((long) nuevoPrecio);
+                lista.add(costoActual);
+            }
+        } else {
+            lista.add(crearNuevoCosto(fecha, nuevoPrecio, det.getProducto()));
+        }
+    }
+
+    private CostoEntity crearNuevoCosto(Date fecha, int costo, ProductoEntity producto) {
+        CostoEntity nuevo = new CostoEntity();
+        nuevo.setFecha(fecha);
+        nuevo.setCosto((long) costo);
+        nuevo.setProducto(producto);
+        return nuevo;
     }
     
 }

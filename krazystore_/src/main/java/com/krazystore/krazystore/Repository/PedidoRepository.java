@@ -4,6 +4,7 @@
  */
 package com.krazystore.krazystore.Repository;
 
+import com.krazystore.krazystore.DTO.EntregasPedidoDTO;
 import com.krazystore.krazystore.DTO.Pedido;
 import com.krazystore.krazystore.DTO.PedidoDTO;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
@@ -39,11 +40,12 @@ public interface PedidoRepository extends JpaRepository<PedidoEntity, Long>{
 //        List<Pedido> findAllPedidos();
 //    }
 @Query(
-    "SELECT new com.krazystore.krazystore.DTO.PedidoDTO(p.id, p.fecha, p.total, c.nombre, c.telefono, p.estadoPedido, "
+    "SELECT new com.krazystore.krazystore.DTO.PedidoDTO(p.id, p.fecha, p.total, pe.nombre, pe.telefono, p.estadoPedido, p.estadoFacturacion,"
             + "COALESCE(sum(CASE WHEN o.cantStock < t.cantidad THEN (t.cantidad - COALESCE(r.cantFacturada,0) - o.cantStock) ELSE 0 END),0), "
             + "COALESCE(sum(t.cantidad),0) ) "
             + "FROM PedidoEntity p "
            + "LEFT JOIN p.cliente c "
+            + "LEFT JOIN c.persona pe "
             + "LEFT JOIN DetallePedidoEntity t "
             + "ON t.pedido = p "
             + "LEFT JOIN t.producto o "
@@ -51,7 +53,7 @@ public interface PedidoRepository extends JpaRepository<PedidoEntity, Long>{
                         + "FROM DetalleVentaEntity dc "
                         + "LEFT JOIN dc.venta c "
                         + "GROUP BY c.pedido.id, dc.producto.id, c.estado ) r ON r.pedidoID = p.id AND r.productoId = o.id AND r.estadoVenta <> 'A' "
-            + "GROUP BY  p.id, p.fecha, p.total, c.nombre, c.telefono, p.estadoPedido "
+            + "GROUP BY  p.id, p.fecha, p.total, pe.nombre, pe.telefono, p.estadoPedido "
             + "ORDER BY p.id DESC"
            )
         List<PedidoDTO> findAllPedidos();
@@ -103,7 +105,7 @@ public interface PedidoRepository extends JpaRepository<PedidoEntity, Long>{
     "SELECT f "
             + "FROM VentaEntity f "
             + "JOIN f.pedido p "
-            + "WHERE p.id = ?1 "
+            + "WHERE p.id = ?1 AND f.estado <> 'A' "
            )
         List<VentaEntity> getFacturas(Long id);
         
@@ -130,6 +132,28 @@ public interface PedidoRepository extends JpaRepository<PedidoEntity, Long>{
             + "WHERE p.id = ?1  "
            )
         boolean esPedidoTotalmenteFacturado(Long idPedido);
+        
+        @Query(
+    "SELECT new com.krazystore.krazystore.DTO.EntregasPedidoDTO( "
+            + "COALESCE(SUM(CASE WHEN e.estado = 'P' THEN de.cantidad END),0), "
+            + "COALESCE(SUM(CASE WHEN e.estado = 'E' THEN de.cantidad END),0), "
+            + "COALESCE(SUM(CASE WHEN e.estado = 'N' THEN de.cantidad END),0)) "
+            + "FROM PedidoEntity p "
+            + "LEFT JOIN DetallePedidoEntity d ON d.pedido = p "
+            + "LEFT JOIN DetalleEntrega de ON de.detallePedido = d "
+           + "LEFT JOIN de.entrega e "
+            + "WHERE p.id = ?1 "
+           )
+        EntregasPedidoDTO findEstadoEntregasPedido(Long id);
+        
+        @Query(
+    "SELECT COALESCE(SUM(d.cantidad),0) "
+            + "FROM PedidoEntity p "
+            + "LEFT JOIN DetallePedidoEntity d ON d.pedido = p "
+            + "LEFT JOIN d.producto o ON o.esServicio = false "
+            + "WHERE p.id = ?1 "
+           )
+        Long totalProductosPedido(Long id);
         
         
 }

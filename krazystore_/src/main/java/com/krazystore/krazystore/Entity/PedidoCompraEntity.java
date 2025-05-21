@@ -4,8 +4,11 @@
  */
 package com.krazystore.krazystore.Entity;
 
+import Utils.EstadoPedido;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -40,18 +43,13 @@ public class PedidoCompraEntity {
     @ManyToOne
     @JoinColumn(name = "id_proveedor")
     private ProveedorEntity proveedor;
+    @Enumerated(EnumType.STRING)
     @Column(name = "estado")
-    private Character estadoPedido;
+    private EstadoPedido estadoPedido;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado_facturacion")
+    private EstadoPedido estadoFacturacion;
     
-
-    public Character getEstadoPedido() {
-        return estadoPedido;
-    }
-
-    public void setEstadoPedido(Character estadoPedido) {
-        this.estadoPedido = estadoPedido;
-    }
-
     public Long getId() {
         return id;
     }
@@ -92,6 +90,23 @@ public class PedidoCompraEntity {
         this.observaciones = observaciones;
     }
 
+    public EstadoPedido getEstadoPedido() {
+        return estadoPedido;
+    }
+
+    public void setEstadoPedido(EstadoPedido estadoPedido) {
+        this.estadoPedido = estadoPedido;
+    }
+
+    public EstadoPedido getEstadoFacturacion() {
+        return estadoFacturacion;
+    }
+
+    public void setEstadoFacturacion(EstadoPedido estadoFacturacion) {
+        this.estadoFacturacion = estadoFacturacion;
+    }
+
+    
 
 
 }

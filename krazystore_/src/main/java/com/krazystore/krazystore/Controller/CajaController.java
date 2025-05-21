@@ -10,9 +10,7 @@ import com.krazystore.krazystore.DTO.EstadoPagoPedidoDTO;
 import com.krazystore.krazystore.DTO.IngresoVarioDTO;
 import com.krazystore.krazystore.DTO.MovimientoCreationDTO;
 import com.krazystore.krazystore.DTO.MovimientosDTO;
-import com.krazystore.krazystore.DTO.PagoPedidoCompraCreationDTO;
 import com.krazystore.krazystore.DTO.ReembolsoAnticipoCreationDTO;
-import com.krazystore.krazystore.DTO.ReembolsoPagoPedidoCompraCreationDTO;
 import com.krazystore.krazystore.DTO.VentaCreationDTO;
 import com.krazystore.krazystore.Entity.CajaEntity;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
@@ -72,11 +70,6 @@ public class CajaController {
         cajaService.cerrarCaja(id);
     }
     
-    @GetMapping("/estado_pagos_pedido_compra/{id}")
-    public EstadoPagoPedidoDTO getEstadoPagoPedidoCompra(@PathVariable("id") Long id) {
-        return cajaService.getEstadoPagoPedidoCompra(id);
-    }
-    
     @GetMapping("/estado_pagos_pedido_venta/{id}")
     public EstadoPagoPedidoDTO getEstadoPagoPedidoVenta(@PathVariable("id") Long id) {
         return cajaService.getEstadoPagoPedidoVenta(id);
@@ -92,15 +85,6 @@ public class CajaController {
         return cajaService.saveMovimiento(reembolsoCreationDTO);
     }
     
-    @PostMapping("/pago_pedido_compra")
-    public MovimientoEntity savePagoPedidoCompra(@RequestBody PagoPedidoCompraCreationDTO pagoPedidoCompraCreationDTO){
-        return cajaService.saveMovimiento(pagoPedidoCompraCreationDTO);
-    }
-    
-    @PostMapping("/reembolso_pago_pedido_compra")
-    public MovimientoEntity saveReembolsoPagoPedidoCompra(@RequestBody ReembolsoPagoPedidoCompraCreationDTO reembolsoPagoPedidoCompraCreationDTO){
-        return cajaService.saveMovimiento(reembolsoPagoPedidoCompraCreationDTO);
-    }
     
     @PostMapping("/ingreso_vario")
     public MovimientoEntity saveMovimiento(@RequestBody IngresoVarioDTO ingreso) {
@@ -145,16 +129,6 @@ public class CajaController {
     @DeleteMapping("/reembolso/{id}")
     public void deleteReembolso(@PathVariable("id") Long id) {
         cajaService.deleteReembolso(id);
-    }
-    
-    @DeleteMapping("/pago_pedido_compra/{id}")
-    public void deletePagoPedidoCompra(@PathVariable("id") Long id) {
-        cajaService.deletePagoPedidoCompra(id);
-    }
-    
-    @DeleteMapping("/reembolso_pago_pedido_compra/{id}")
-    public void deleteReembolsoPagoPedidoCompra(@PathVariable("id") Long id) {
-        cajaService.deleteReembolsoPagoPedidoCompra(id);
     }
     
     @GetMapping("/caja/{id}")

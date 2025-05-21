@@ -5,11 +5,9 @@
 package com.krazystore.krazystore.DTO;
 
 import com.krazystore.krazystore.Entity.AplicacionAnticipo;
-import com.krazystore.krazystore.Entity.AplicacionPagoPedidoCompra;
 import com.krazystore.krazystore.Entity.FormaCobroEntity;
 import com.krazystore.krazystore.Entity.FormaPagoEntity;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
-import com.krazystore.krazystore.Entity.PagoEntity;
 import java.util.List;
 
 /**
@@ -21,7 +19,6 @@ public class MovimientoCreationDTO {
     private List<FormaPagoEntity> pagos;
     private List<FormaCobroEntity> cobros;
     private List<AplicacionAnticipo> anticiposAplicados;
-    private List<AplicacionPagoPedidoCompra> pagosPedidoCompraAplicados;
 
     public MovimientoCreationDTO() {
     }
@@ -60,19 +57,6 @@ public class MovimientoCreationDTO {
     public void setAnticiposAplicados(List<AplicacionAnticipo> anticiposAplicados) {
         this.anticiposAplicados = anticiposAplicados;
     }
-
-    public List<AplicacionPagoPedidoCompra> getPagosPedidoCompraAplicados() {
-        return pagosPedidoCompraAplicados;
-    }
-
-    public void setPagosPedidoCompraAplicados(List<AplicacionPagoPedidoCompra> pagosPedidoCompraAplicados) {
-        this.pagosPedidoCompraAplicados = pagosPedidoCompraAplicados;
-    }
-
-    
-   
-
-
     
     
 }

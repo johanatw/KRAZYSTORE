@@ -26,5 +26,10 @@ public class ConceptoServiceImpl implements ConceptoService {
     public List<ConceptoEntity> findByTipo(char tipo) {
         return conceptoRepository.getConceptosByTipo(tipo);
     }
+
+    @Override
+    public List<ConceptoEntity> getConceptosIngresoEgreso() {
+        return conceptoRepository.getConceptosIngresoEgreso();
+    }
     
 }

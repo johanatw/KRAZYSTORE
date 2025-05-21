@@ -101,19 +101,19 @@ public class PersonaServiceImpl implements PersonaService{
         updatedPersona.setTelefono(personaEntity.getTelefono());
         PersonaEntity newPersona = personarepository.save(updatedPersona);
         
-        if(personaCreationDTO.getDireccion().getId() != null){
+        if(direccionService.algunCampoTieneValor(personaCreationDTO.getDireccion())){
+            System.out.println("tiene valor?");
+            if(personaCreationDTO.getDireccion().getId() != null){
+                System.out.println("if");
                 direccionService.updateDireccion(personaCreationDTO.getDireccion(), personaCreationDTO.getDireccion().getId());
-            }else if(direccionService.algunCampoTieneValor(personaCreationDTO.getDireccion())){
-                personaCreationDTO.getDireccion().setPersona(newPersona);
+            }else{
+                System.out.println("else");
+                personaCreationDTO.getDireccion().setPersona(updatedPersona);
                 direccionService.saveDireccion(personaCreationDTO.getDireccion());
             }
- 
-        
+        }       
         
         return newPersona;
-        
-       
-        
         
     }
 
