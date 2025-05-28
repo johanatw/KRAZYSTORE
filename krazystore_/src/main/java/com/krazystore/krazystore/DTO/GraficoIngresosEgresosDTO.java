@@ -25,17 +25,40 @@ public class GraficoIngresosEgresosDTO {
     public GraficoIngresosEgresosDTO() {
     }
 
-    public GraficoIngresosEgresosDTO(List<String> labels, List<BigDecimal> ingresosAnticipo, List<BigDecimal> ingresosVenta, List<BigDecimal> ingresosOtros, List<BigDecimal> egresosAnticipo, List<BigDecimal> egresosVenta, List<BigDecimal> egresosOtros, List<BigDecimal> totalIngresos, List<BigDecimal> totalEgresos) {
+    public GraficoIngresosEgresosDTO(List<String> labels, List<BigDecimal> ingresosAnticipo, List<BigDecimal> ingresosVenta, List<BigDecimal> ingresosOtros, List<BigDecimal> egresosVenta, List<BigDecimal> egresosOtros, List<BigDecimal> totalIngresos, List<BigDecimal> totalEgresos) {
         this.labels = labels;
         this.ingresosAnticipo = ingresosAnticipo;
         this.ingresosVenta = ingresosVenta;
         this.ingresosOtros = ingresosOtros;
-        this.egresosAnticipo = egresosAnticipo;
         this.egresosCompra = egresosVenta;
         this.egresosOtros = egresosOtros;
         this.totalIngresos = totalIngresos;
         this.totalEgresos = totalEgresos;
     }
+
+    public GraficoIngresosEgresosDTO(List<String> labels, List<BigDecimal> ingresosAnticipo, 
+            List<BigDecimal> ingresosVenta, List<BigDecimal> ingresosOtros, List<BigDecimal> totalIngresos) {
+        this.labels = labels;
+        this.ingresosAnticipo = ingresosAnticipo;
+        this.ingresosVenta = ingresosVenta;
+        this.ingresosOtros = ingresosOtros;
+        this.totalIngresos = totalIngresos;
+    }
+
+    public GraficoIngresosEgresosDTO(List<String> labels, List<BigDecimal> egresosCompra, List<BigDecimal> egresosOtros, List<BigDecimal> totalEgresos) {
+        this.labels = labels;
+        this.egresosCompra = egresosCompra;
+        this.egresosOtros = egresosOtros;
+        this.totalEgresos = totalEgresos;
+    }
+
+    public GraficoIngresosEgresosDTO(List<String> labels, List<BigDecimal> totalIngresos, List<BigDecimal> totalEgresos) {
+        this.labels = labels;
+        this.totalIngresos = totalIngresos;
+        this.totalEgresos = totalEgresos;
+    }
+    
+    
 
     public List<String> getLabels() {
         return labels;

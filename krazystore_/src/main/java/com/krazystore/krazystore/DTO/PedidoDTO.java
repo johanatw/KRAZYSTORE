@@ -18,8 +18,8 @@ public class PedidoDTO {
     private int costoEnvio =0;
     private String cliente;
     private String telefono;
-    private EstadoPedido estadoPedido;
-    private EstadoPedido estadoFacturacion;
+    private Character estadoPedido;
+    private Character estadoFacturacion;
     private Long cantPreVenta;
     private Long totalItems;         
 
@@ -48,7 +48,7 @@ public class PedidoDTO {
         this.totalItems = totalItems;
     }
 
-    public PedidoDTO(long id, Date fecha, int total, String cliente, String telefono, EstadoPedido estadoPedido, Long cantPreVenta, Long totalItems) {
+    public PedidoDTO(long id, Date fecha, int total, String cliente, String telefono, Character estadoPedido, Long cantPreVenta, Long totalItems) {
         this.id = id;
         this.fecha = fecha;
         this.total = total;
@@ -59,7 +59,7 @@ public class PedidoDTO {
         this.totalItems = totalItems;
     }
     
-    public PedidoDTO(long id, Date fecha, int total, String cliente, String telefono, EstadoPedido estadoPedido, EstadoPedido estadoFacturacion,Long cantPreVenta, Long totalItems) {
+    public PedidoDTO(long id, Date fecha, int total, String cliente, String telefono, Character estadoPedido, Character estadoFacturacion,Long cantPreVenta, Long totalItems) {
         this.id = id;
         this.fecha = fecha;
         this.total = total;
@@ -84,11 +84,11 @@ public class PedidoDTO {
         this.totalItems = totalItems;
     }
 
-    public EstadoPedido getEstadoPedido() {
+    public Character getEstadoPedido() {
         return estadoPedido;
     }
 
-    public void setEstadoPedido(EstadoPedido estadoPedido) {
+    public void setEstadoPedido(Character estadoPedido) {
         this.estadoPedido = estadoPedido;
     }
 
@@ -155,11 +155,11 @@ public class PedidoDTO {
         this.telefono = telefono;
     }
 
-    public EstadoPedido getEstadoFacturacion() {
+    public Character getEstadoFacturacion() {
         return estadoFacturacion;
     }
 
-    public void setEstadoFacturacion(EstadoPedido estadoFacturacion) {
+    public void setEstadoFacturacion(Character estadoFacturacion) {
         this.estadoFacturacion = estadoFacturacion;
     }
     

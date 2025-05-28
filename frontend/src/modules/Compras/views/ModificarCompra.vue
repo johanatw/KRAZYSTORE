@@ -128,7 +128,7 @@ onMounted(() => {
         }
 
         detalleFacturar.value.forEach(element => {
-            element.pendiente = element.detallePedido.cantSolicitada -  element.detallePedido.cantFacturada + element.cantidad;
+            element.pendiente = element.detallePedido?.cantSolicitada -  element.detallePedido?.cantFacturada + element.cantidad;
         });
         
         console.log(detalleFacturar.value);
@@ -150,7 +150,7 @@ onMounted(() => {
     
     });
     
-   ProveedorServices.obtenerProveedores().then((data) => {
+   ProveedorServices.obtenerProveedoresNacionalesProductos().then((data) => {
        proveedores.value = data.data;
    });
 
@@ -873,7 +873,6 @@ const eliminar = (detalle) => {
                                 </div>
                                 <div>
                                     <Button label="Agregar Producto" text @click="visible = true" />
-                                    <Button label="Agregar Servicio" text @click="servicioDialog = true" />
                                     </div>
                             </div>
                         </template>

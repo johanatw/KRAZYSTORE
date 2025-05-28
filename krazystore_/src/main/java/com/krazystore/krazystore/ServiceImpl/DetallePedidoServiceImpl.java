@@ -397,6 +397,25 @@ public class DetallePedidoServiceImpl implements DetallePedidoService{
         detallepedidorepository.deleteByPedido(id);
     }
 
+    @Override
+    public List<ProductoExistenciasDTO> getProductosRevertirReservas(Long id) {
+        List<DetallePedidoEntity> detalles = detallepedidorepository.findByNroPedido(id); 
+        List<ProductoExistenciasDTO> productosActualizarExistencias = new ArrayList<>();
+        
+        List<ProductoEntity> productosActualizar = new ArrayList<>();
+
+        detalles.forEach(d -> {
+            ProductoExistenciasDTO productoActualizar = new ProductoExistenciasDTO(
+                    d.getProducto().getId(),
+                    d.getCantidad(),
+                    TipoAjusteExistencia.DISMINUIR
+            );
+            productosActualizarExistencias.add(productoActualizar);
+        });
+        
+        return productosActualizarExistencias;
+    }
+
    
     
 

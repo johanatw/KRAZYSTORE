@@ -277,10 +277,10 @@ public class DetCompraServiceImpl implements DetalleCompraService {
         return elementos;
     }
 
-    @Override
+    /*@Override
     public List<DetalleCompraDTO> findDetallesByIdCompra(Long idcompra) {
         return detalleRepository.findDetallesByIdCompra(idcompra);
-    }
+    }*/
     
     /*@Override
     public List<CostoEntity> getPreciosCompraActualizados(List<DetalleCompra> detalle, Long idCompra, Date fechaFactura, Date fechaAnteriorFactura){
@@ -480,89 +480,95 @@ public class DetCompraServiceImpl implements DetalleCompraService {
         }
         return preciosActualizar;
     }*/
+    
     @Override
-    public List<CostoEntity> getPreciosCompraActualizados(List<DetalleCompra> detalle, Long idCompra, Date fechaFactura, Date fechaAnteriorFactura) {
-    System.out.println("ACTUALIZAR COSTO");
+    public List<CostoEntity> obtenerCostosParaActualizarAlGuardarFactura(List<DetalleCompra> detalles, Date fechaFactura) {
+    List<CostoEntity> nuevosCostos = new ArrayList<>();
 
-    LocalDate fechaFacturaLocal = toLocalDate(fechaFactura);
-    LocalDate fechaAnteriorLocal = toLocalDate(fechaAnteriorFactura);
+    for (DetalleCompra detalle : detalles) {
+        ProductoEntity producto = detalle.getProducto();
+        long costoActual = detalle.getCostoCompra(); // O costoTotal / cantidad
+        Date fecha = fechaFactura;
 
-    List<DetalleCompra> detallesAnteriores = (idCompra != null)
-            ? detalleRepository.findAllByIdCompra(idCompra)
-            : Collections.emptyList();
+        // Buscar si existe un costo cercano a la fecha con ese mismo valor
+        Optional<CostoEntity> costoExistente = precioService.findCostoCercano(producto.getId(), fecha);
 
-    List<Long> productosIds = detalle.stream()
-            .map(d -> d.getProducto().getId())
-            .collect(Collectors.toList());
-
-    List<CostoEntity> preciosAnterior = detallesAnteriores.isEmpty()
-            ? Collections.emptyList()
-            : precioService.findPreciosByFechaAndProductos(fechaAnteriorFactura, productosIds);
-
-    List<CostoEntity> preciosActual = precioService.findPreciosByFechaAndProductos(fechaFactura, productosIds);
-
-    List<CostoEntity> preciosActualizar = new ArrayList<>();
-
-    for (DetalleCompra det : detalle) {
-        Long idProducto = det.getProducto().getId();
-        int nuevoPrecio = det.getCostoCompra();
-
-        CostoEntity costoActual = buscarPorProducto(preciosActual, idProducto);
-        CostoEntity costoAnterior = buscarPorProducto(preciosAnterior, idProducto);
-
-        if (fechaAnteriorLocal == null || fechaFacturaLocal.equals(fechaAnteriorLocal)) {
-            procesarCambioCosto(preciosActualizar, fechaFactura, fechaFacturaLocal, det, costoActual, nuevoPrecio);
-        } else {
-            if (costoAnterior != null && fechaAnteriorLocal.equals(toLocalDate(costoAnterior.getFecha()))) {
-                if (nuevoPrecio != costoAnterior.getCosto()) {
-                    costoAnterior.setCosto((long) nuevoPrecio);
-                }
-                costoAnterior.setFecha(fechaFactura);
-                preciosActualizar.add(costoAnterior);
-            } else if (costoActual != null && fechaFacturaLocal.equals(toLocalDate(costoActual.getFecha()))) {
-                if (nuevoPrecio != costoActual.getCosto()) {
-                    costoActual.setCosto((long) nuevoPrecio);
-                    preciosActualizar.add(costoActual);
-                }
-            } else {
-                preciosActualizar.add(crearNuevoCosto(fechaFactura, nuevoPrecio, det.getProducto()));
-            }
+        if (costoExistente.isEmpty() || costoExistente.get().getCosto().compareTo(costoActual) != 0) {
+            // No hay un costo igual cerca de la fecha -> se considera un nuevo costo
+            nuevosCostos.add(new CostoEntity(fecha, costoActual,producto));
         }
     }
 
-    return preciosActualizar;
+    return nuevosCostos;
 }
 
-    private LocalDate toLocalDate(Date date) {
-        return (date != null)
-                ? date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-                : null;
-    }
+    
+    @Override
+    public List<CostoEntity> obtenerCostosParaActualizarAlModificarFactura(
+        List<DetalleCompra> nuevosDetalles,
+        Long idCompra,
+        Date fechaAnterior,
+        Date fechaNueva
+) {
+        
+    List<DetalleCompra> detallesAnteriores = detalleRepository.findAllByIdCompra(idCompra);
+    List<CostoEntity> cambios = new ArrayList<>();
 
-    private CostoEntity buscarPorProducto(List<CostoEntity> lista, Long idProducto) {
-        return lista.stream()
-                .filter(c -> c.getProducto().getId().equals(idProducto))
-                .findFirst()
-                .orElse(null);
-    }
+    for (DetalleCompra nuevoDetalle : nuevosDetalles) {
+        ProductoEntity producto = nuevoDetalle.getProducto();
+        Long nuevoPrecio = (long)nuevoDetalle.getCostoCompra();
 
-    private void procesarCambioCosto(List<CostoEntity> lista, Date fecha, LocalDate fechaLocal, DetalleCompra det, CostoEntity costoActual, int nuevoPrecio) {
-        if (costoActual != null && fechaLocal.equals(toLocalDate(costoActual.getFecha()))) {
-            if (nuevoPrecio != costoActual.getCosto()) {
-                costoActual.setCosto((long) nuevoPrecio);
-                lista.add(costoActual);
+        // Buscar el detalle anterior con el mismo producto
+        DetalleCompra anterior = detallesAnteriores.stream()
+            .filter(d -> d.getProducto().getId().equals(producto.getId()))
+            .findFirst()
+            .orElse(null);
+
+        Long precioAnterior = anterior != null ? (long)anterior.getCostoCompra() : null;
+
+        // 1. Si precio cambió
+        if (precioAnterior == null || nuevoPrecio.compareTo(precioAnterior) != 0) {
+            // Ver si había un costo guardado en la fecha anterior
+            Optional<CostoEntity> costoConFechaAnterior = precioService.findByProductoIdAndFecha(producto.getId(), fechaAnterior);
+
+            if (costoConFechaAnterior.isPresent()) {
+                // Caso: había un costo en la fecha anterior, se asume que fue por esa factura. Actualizamos.
+                CostoEntity costo = costoConFechaAnterior.get();
+                costo.setCosto(nuevoPrecio);
+                costo.setFecha(fechaNueva);
+                cambios.add(costo);
+            } else {
+                // No había costo con la fecha anterior, verificar si ya existe uno igual cerca de la nueva fecha
+                Optional<CostoEntity> costoCercano = precioService.findCostoCercano(producto.getId(), fechaNueva);
+                if (costoCercano.isEmpty() || costoCercano.get().getCosto().compareTo(nuevoPrecio) != 0) {
+                    // No hay un costo igual cerca de la nueva fecha → guardar como nuevo
+                    cambios.add(new CostoEntity(fechaNueva, nuevoPrecio, producto));
+                }
             }
-        } else {
-            lista.add(crearNuevoCosto(fecha, nuevoPrecio, det.getProducto()));
+
+        } else if (!fechaAnterior.equals(fechaNueva)) {
+            // 2. Si el precio no cambió pero la fecha sí, revisar si se registró con la fecha anterior
+            Optional<CostoEntity> costoConFechaAnterior = precioService.findByProductoIdAndFecha(producto.getId(), fechaAnterior);
+            if (costoConFechaAnterior.isPresent()) {
+                CostoEntity costo = costoConFechaAnterior.get();
+                costo.setFecha(fechaNueva);
+                cambios.add(costo); // actualizamos solo la fecha
+            }
         }
     }
 
-    private CostoEntity crearNuevoCosto(Date fecha, int costo, ProductoEntity producto) {
-        CostoEntity nuevo = new CostoEntity();
-        nuevo.setFecha(fecha);
-        nuevo.setCosto((long) costo);
-        nuevo.setProducto(producto);
-        return nuevo;
+    return cambios;
+}
+
+    @Override
+    public List<DetalleCompraDTO> findDetallesRecepcionarByIdCompra(Long id) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
+
+    @Override
+    public List<DetalleCompraDTO> findDetallesByIdCompra(Long id) {
+        return detalleRepository.findDetallesByIdCompra(id);
+    }
+
     
 }

@@ -5,6 +5,7 @@
 package com.krazystore.krazystore.ServiceImpl;
 
 import Utils.Estado;
+import Utils.FacturaEvent;
 import Utils.PedidoEvent;
 import Utils.TipoEvento;
 import com.krazystore.krazystore.DTO.DetalleEntregaDTO;
@@ -20,6 +21,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,11 +78,14 @@ public class EntregaServiceImpl implements EntregaService {
                 .map(detalleEntregaMapper)
                 .collect(Collectors.toList());
         
+        detalle.forEach(det -> System.out.println(det.getDetalleVenta().getIdDetVent()));
+        
         detalle.forEach(det -> det.setEntrega(entregaDTO.getEntrega()));
         
         detalleService.saveDetalle(detalle);
         
-        actualizarEstadoPedido(entregaDTO.getEntrega().getPedido().getId(),TipoEvento.ESTADO_PEDIDO);
+        
+        actualizarEstadoPedido(entregaDTO.getEntrega().getVenta().getPedido().getId(),TipoEvento.ESTADO_PEDIDO);
         
         return entregaDTO.getEntrega();
     }
@@ -113,13 +118,25 @@ public class EntregaServiceImpl implements EntregaService {
         updatedEntrega.setModoEntrega(entrega.getEntrega().getModoEntrega());
         updatedEntrega.setPuntoEntrega(entrega.getEntrega().getPuntoEntrega());
         updatedEntrega.setEstado(Estado.PENDIENTE.getCodigo());
-        actualizarEstadoPedido(updatedEntrega.getPedido().getId(),TipoEvento.ESTADO_PEDIDO);
+        actualizarEstadoPedido(updatedEntrega.getVenta().getPedido().getId(),TipoEvento.ESTADO_PEDIDO);
         return entregaRepository.save(updatedEntrega);
     }
 
+    @Transactional
     @Override
     public void deleteEntrega(Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        EntregaEntity deletedEntrega = entregaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Entrega no encontrada"));
+        detalleService.deleteByIdEntrega(id);
+         
+        Long idPedido = deletedEntrega.getVenta()!=null?deletedEntrega.getVenta().getPedido().getId():null;
+        entregaRepository.deleteById(id);
+        
+        if(idPedido!=null){
+            actualizarEstadoPedido(idPedido,TipoEvento.ESTADO_PEDIDO);
+        }
+        
+        
     }
 
     @Transactional
@@ -128,7 +145,7 @@ public class EntregaServiceImpl implements EntregaService {
         EntregaEntity updatedEntrega = entregaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Entrega no encontrada"));
         updatedEntrega.setEstado(Estado.ENTREGADO.getCodigo());
-        actualizarEstadoPedido(updatedEntrega.getPedido().getId(),TipoEvento.ESTADO_PEDIDO);
+        actualizarEstadoPedido(updatedEntrega.getVenta().getPedido().getId(),TipoEvento.ESTADO_PEDIDO);
         return entregaRepository.save(updatedEntrega);
     }
 
@@ -137,14 +154,26 @@ public class EntregaServiceImpl implements EntregaService {
     public EntregaEntity marcarComoNoEntregado(Long id) {
         EntregaEntity updatedEntrega = entregaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Entrega no encontrada"));
-        updatedEntrega.setEstado(Estado.NOENTREGADO.getCodigo());
-        actualizarEstadoPedido(updatedEntrega.getPedido().getId(),TipoEvento.ESTADO_PEDIDO);
+        updatedEntrega.setEstado(Estado.NO_ENTREGADO.getCodigo());
+        actualizarEstadoPedido(updatedEntrega.getVenta().getPedido().getId(),TipoEvento.ESTADO_PEDIDO);
         return entregaRepository.save(updatedEntrega);
     }
     
     public void actualizarEstadoPedido(Long idPedido, TipoEvento tipoEvento) {
         // Publicar el evento
+        System.out.println("ACTUALIZARESTADO");
+        System.out.println(idPedido);
         PedidoEvent evento = new PedidoEvent(idPedido, tipoEvento);
         eventPublisher.publishEvent(evento);
+    }
+    
+    @EventListener
+    public void handleFacturaEvent(FacturaEvent event) {
+        if(event.getTipoEvento() == TipoEvento.FACTURA_ANULADA && event.getIdPedido() != null ) {
+            entregaRepository.desasociarVentaEntrega(event.getNuevaVenta().getId(),Estado.CANCELADO.getCodigo());
+            actualizarEstadoPedido(event.getIdPedido(),TipoEvento.ESTADO_PEDIDO);
+            
+        }
+        
     }
 }

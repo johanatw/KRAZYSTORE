@@ -20,6 +20,54 @@ export const ProveedorServices = {
     })
     
   },
+  obtenerProveedoresProductos() {
+
+      return axios.get(PROVEEDORES_API_BASE_URL+"/proveedores_productos",{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
+    
+  },
+  obtenerProveedoresNacionalesProductos() {
+
+      return axios.get(PROVEEDORES_API_BASE_URL+"/proveedores_nacionales_productos",{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
+    
+  },
+  obtenerProveedoresImportacion() {
+
+      return axios.get(PROVEEDORES_API_BASE_URL+"/proveedores_importacion",{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }).catch(error => {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");  // Eliminar el token expirado
+          router.push({name: 'home'});
+          return Promise.reject(error);
+      }
+      return Promise.reject(error);
+    })
+    
+  },
   getProveedor(id){
 
     return axios.get(PROVEEDORES_API_BASE_URL+"/"+id,{

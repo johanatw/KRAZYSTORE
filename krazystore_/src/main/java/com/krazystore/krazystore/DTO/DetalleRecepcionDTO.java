@@ -20,10 +20,29 @@ public class DetalleRecepcionDTO {
     private int cantRecepcionado;
     private int cantFacturado;
     private int recepcionadoFactura;
+    private DetalleCompraDTO detalleCompra;
     
 
     public DetalleRecepcionDTO() {
     }
+
+    public DetalleRecepcionDTO(Long id, Long idDetCompra, Integer cantidad, Long idProducto, String producto,
+            int cantAceptada, int cantRechazada, int cantRecepcionado, Long totalRecepcionado) {
+        this.id = id;
+        this.cantAceptada = cantAceptada;
+        this.cantRechazada = cantRechazada;
+        this.cantRecepcionado = cantRecepcionado;
+        this.detalleCompra = new DetalleCompraDTO(idDetCompra, cantidad, idProducto, producto, totalRecepcionado);
+    }
+
+    public DetalleRecepcionDTO(Long idDetCompra, Integer cantidad, Long idProducto, String producto, long cantTotalRecepcionado, Long idCompra) {
+        this.cantRechazada = 0;
+        this.cantRecepcionado = cantidad - (int)cantTotalRecepcionado;
+        this.cantAceptada = this.cantRecepcionado;
+        this.detalleCompra = new DetalleCompraDTO(idDetCompra, cantidad, idProducto, producto,cantTotalRecepcionado, idCompra);
+    }
+    
+    
 
     public DetalleRecepcionDTO(Long idDetallePedido, Long idProducto, 
             String producto, int cantAceptada, int cantRechazada, int cantRecepcionado) {
@@ -131,5 +150,16 @@ public class DetalleRecepcionDTO {
         this.cantFacturado = cantFacturado;
     }
 
+    public DetalleCompraDTO getDetalleCompra() {
+        return detalleCompra;
+    }
+
+    public void setDetalleCompra(DetalleCompraDTO detalleCompra) {
+        this.detalleCompra = detalleCompra;
+    }
+
+
+    
+    
     
 }

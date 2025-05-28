@@ -52,7 +52,7 @@ public interface ProductoRepository extends JpaRepository<ProductoEntity, Long>{
             + "LEFT JOIN CostoEntity t ON p.id = t.producto.id AND t.fecha = " 
             + " (SELECT tc.fecha FROM CostoEntity tc WHERE tc.producto.id = p.id "
             + "AND tc.fecha <= NOW() ORDER BY tc.fecha DESC LIMIT 1 ) "
-            + "WHERE p.nombre = 'Servicio de entrega'"
+            + "WHERE p.nombre = 'Servicio de transporte internacional'"
            )
     public Optional<ProductoDTO> getServicioTransporte();
 

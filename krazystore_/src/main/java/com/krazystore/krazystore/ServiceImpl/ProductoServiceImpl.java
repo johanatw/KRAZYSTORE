@@ -95,7 +95,6 @@ public class ProductoServiceImpl implements ProductoService{
         updatedProducto.setNombre(productoEntity.getNombre());
         updatedProducto.setDescripcion(productoEntity.getDescripcion());
         updatedProducto.setSubCategoria(productoEntity.getSubCategoria());
-        updatedProducto.setEstado(productoEntity.getEstado());
         updatedProducto.setBajoDemanda(productoEntity.getBajoDemanda());
         updatedProducto.setCantLimBajoDemanda(productoEntity.getCantLimBajoDemanda());
         updatedProducto.setCantDisponible(productoEntity.getCantDisponible());

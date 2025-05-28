@@ -30,6 +30,9 @@ public class DetalleEntrega {
     @ManyToOne
     @JoinColumn(name = "id_det_pedido")
     private DetallePedidoEntity detallePedido;
+    @ManyToOne
+    @JoinColumn(name="id_det_venta")
+    private DetalleVentaEntity detalleVenta;
     @Column
     private Integer cantidad;
 
@@ -41,7 +44,12 @@ public class DetalleEntrega {
         this.detallePedido = detallePedido;
         this.cantidad = cantidad;
     }
-    
+
+    public DetalleEntrega(Long id, DetalleVentaEntity detalleVenta, Integer cantidad) {
+        this.id = id;
+        this.detalleVenta = detalleVenta;
+        this.cantidad = cantidad;
+    }
     
 
     public DetalleEntrega(Long id, EntregaEntity entrega, DetallePedidoEntity detallePedido, Integer cantidad) {
@@ -81,6 +89,14 @@ public class DetalleEntrega {
 
     public void setCantidad(Integer cantidad) {
         this.cantidad = cantidad;
+    }
+
+    public DetalleVentaEntity getDetalleVenta() {
+        return detalleVenta;
+    }
+
+    public void setDetalleVenta(DetalleVentaEntity detalleVenta) {
+        this.detalleVenta = detalleVenta;
     }
     
     

@@ -15,10 +15,6 @@
             <div class="field col-12 md:col-6 p-fluid">
            
                 <Card>
-                    <template #title>
-                        <h3 style="font-weight: bold;" >Ingresos</h3>
-                        <h4>Año: 2025</h4>
-                    </template>
                     <template #content>
                         <IngresosChart  />
                     </template>
@@ -27,10 +23,6 @@
             </div>
             <div class="field col-12 md:col-6 p-fluid">
                 <Card>
-                    <template #title>
-                        <h3 style="font-weight: bold;">Egresos</h3>
-                        <h4>Año: 2025</h4>
-                    </template>
                     <template #content>
                         <EgresosChart  />
                     </template>
@@ -38,10 +30,6 @@
             </div>    
             <div class="field col-12 md:col-12 p-fluid" style="justify-content: start;  ">
                 <Card>
-                    <template #title>
-                        <h3 style="font-weight: bold;">Ingresos y Egresos</h3>
-                        <h4>Año: 2025</h4>
-                    </template>
                     <template #content>
                         <TotalIngresosEgresosChart  />
                     </template>

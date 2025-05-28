@@ -256,5 +256,55 @@ public List<MovimientosDTO> findAnticiposAplicadosByIdCaja(Long id);
                "GROUP BY TO_CHAR(m.fecha, 'YYYY-mm') " +
                "ORDER BY mes ASC", nativeQuery = true)
     List<Object[]> obtenerIngresosYEgresosUltimos6Meses();
+    
+    @Query(value = "SELECT TO_CHAR(m.fecha, 'YYYY-mm') AS mes, " +
+               "SUM(CASE WHEN c.descripcion = 'Anticipo cliente' THEN COALESCE(fc.importe,0) ELSE 0 END) AS ingresos_anticipos, " +
+                "SUM(CASE WHEN c.descripcion = 'Venta' THEN COALESCE(fc.importe,0) ELSE 0 END) AS ingresos_ventas, " +
+                "SUM(CASE WHEN c.descripcion <> 'Venta' "
+            +   "           AND c.descripcion <> 'Anticipo cliente' "
+            + "             AND c.tipo = 'I' THEN COALESCE(fc.importe,0) ELSE 0 END) AS ingresos_varios " +
+               "FROM movimientos m " +
+                "LEFT JOIN conceptos c ON m.id_concepto = c.id " +
+                "LEFT JOIN formas_pago fp ON m.id = fp.id_movimiento " +
+             "LEFT JOIN formas_cobro fc ON m.id = fc.id_movimiento " +
+               "WHERE EXTRACT(YEAR FROM m.fecha) = ?1 " +
+               "GROUP BY TO_CHAR(m.fecha, 'YYYY-mm') " +
+               "ORDER BY mes ASC", nativeQuery = true)
+    List<Object[]> obtenerIngresosPorAño(Integer año);
+    
+    @Query("SELECT DISTINCT EXTRACT(YEAR FROM m.fecha) FROM MovimientoEntity m ORDER BY EXTRACT(YEAR FROM m.fecha) ASC")
+    List<Integer> obtenerAñosDisponibles();
 
+    @Query(value = "SELECT TO_CHAR(m.fecha, 'YYYY-mm') AS mes, " +
+                "SUM(CASE WHEN c.descripcion = 'Compra' THEN COALESCE(fp.importe,0) ELSE 0 END) AS egresos_compras, " +
+            "SUM(CASE WHEN c.descripcion <> 'Compra' "
+            + "         AND c.tipo = 'E' THEN COALESCE(fp.importe,0) ELSE 0 END) AS egresos_varios " +
+               "FROM movimientos m " +
+                "LEFT JOIN conceptos c ON m.id_concepto = c.id " +
+                "LEFT JOIN formas_pago fp ON m.id = fp.id_movimiento " +
+               "WHERE EXTRACT(YEAR FROM m.fecha) = ?1 " +
+               "GROUP BY TO_CHAR(m.fecha, 'YYYY-mm') " +
+               "ORDER BY mes ASC", nativeQuery = true)
+    public List<Object[]> obtenerEgresosPorAño(Integer año);
+
+    @Query(value = "SELECT TO_CHAR(m.fecha, 'YYYY-mm') AS mes, " +
+               "SUM(CASE WHEN c.descripcion = 'Anticipo cliente' THEN COALESCE(fc.importe,0) ELSE 0 END) AS ingresos_anticipos, " +
+                "SUM(CASE WHEN c.descripcion = 'Venta' THEN COALESCE(fc.importe,0) ELSE 0 END) AS ingresos_ventas, " +
+                "SUM(CASE WHEN c.descripcion <> 'Venta' "
+            +   "           AND c.descripcion <> 'Anticipo cliente' "
+            + "             AND c.tipo = 'I' THEN COALESCE(fc.importe,0) ELSE 0 END) AS ingresos_varios, " +
+                "SUM(CASE WHEN c.descripcion = 'Compra' THEN COALESCE(fp.importe,0) ELSE 0 END) AS egresos_compras, " +
+            "SUM(CASE WHEN c.descripcion <> 'Compra' "
+            + "         AND c.tipo = 'E' THEN COALESCE(fp.importe,0) ELSE 0 END) AS egresos_varios " +
+               "FROM movimientos m " +
+                "LEFT JOIN conceptos c ON m.id_concepto = c.id " +
+                "LEFT JOIN formas_pago fp ON m.id = fp.id_movimiento " +
+             "LEFT JOIN formas_cobro fc ON m.id = fc.id_movimiento " +
+               "WHERE EXTRACT(YEAR FROM m.fecha) = ?1 " +
+               "GROUP BY TO_CHAR(m.fecha, 'YYYY-mm') " +
+               "ORDER BY mes ASC", nativeQuery = true)
+    public List<Object[]> obtenerIngresosYEgresosPorAño(Integer año);
 }
+
+
+

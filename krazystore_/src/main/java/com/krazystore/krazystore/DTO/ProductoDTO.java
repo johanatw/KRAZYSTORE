@@ -42,6 +42,13 @@ public class ProductoDTO {
         this.precio = precio;
     }
 
+    public ProductoDTO(Long id, String nombre, Boolean esServicio) {
+        this.id = id;
+        this.nombre = nombre;
+        this.esServicio = esServicio;
+    }
+
+    
     public ProductoDTO(Long id, String nombre, SubCategoriaEntity categoria) {
         this.id = id;
         this.nombre = nombre;

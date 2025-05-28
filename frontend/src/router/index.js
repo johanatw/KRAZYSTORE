@@ -239,7 +239,7 @@ const router = createRouter({
       component: () => import('@/modules/Compras/views/VerCompra.vue')
     },
     {
-      path: '/recepcionar/:id',
+      path: '/nueva_recepcion/',
       name: 'recepcionarPedido',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -429,6 +429,39 @@ const router = createRouter({
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('@/modules/Graficos/Dashboard.vue')
+    },
+
+    {
+      path: '/categorias',
+      name: 'categorias',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Parametros/ListaCategorias.vue')
+    },
+    {
+      path: '/puntos_retiro',
+      name: 'puntos_retiro',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Parametros/PuntosRetiro.vue')
+    },
+    {
+      path: '/deliverys',
+      name: 'deliverys',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Parametros/Deliverys.vue')
+    },
+    {
+      path: '/timbrados',
+      name: 'timbrados',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('@/modules/Parametros/Timbrados.vue')
     },
     
   ]

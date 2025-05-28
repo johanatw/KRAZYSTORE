@@ -53,4 +53,25 @@ public interface VentaRepository extends JpaRepository<VentaEntity, Long>{
     "LIMIT 10 "
 )
     public List<ProductoVentasDTO> obtenerTopProductosVendidos(String mes_);
+
+    @Query(
+    "SELECT new com.krazystore.krazystore.Entity.VentaEntity( " +
+        "v.id, " +
+        "v.nroFactura, " +
+        "v.fecha " +
+    ") " +
+    "FROM VentaEntity v " +
+    "LEFT JOIN v.pedido p " +
+    "WHERE p.id = ?1 and v.estado <> 'A' " +
+    "GROUP BY v.id " 
+    )
+    public List<VentaEntity> findByIdPedido(Long idPedido);
+
+    @Query(
+    "SELECT case when (count(e) > 0) then true else false end " +
+    "FROM EntregaEntity e " +
+    "LEFT JOIN e.venta v " +
+    "WHERE v.id = ?1 and e.estado <> 'X' " 
+    )
+    public Boolean tieneProductosPreparadosParaEntrega(Long id);
 }

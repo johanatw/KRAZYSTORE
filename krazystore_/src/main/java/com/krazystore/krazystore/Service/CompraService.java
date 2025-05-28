@@ -15,9 +15,16 @@ import java.util.Optional;
  */
 public interface CompraService {
     List<CompraEntity> findAll();
-    CompraCreationDTO findById(Long id);
-    List<CompraCreationDTO> findByIdPedido(Long idPedido);
+    //CompraCreationDTO findById(Long id);
+    //List<CompraCreationDTO> findByIdPedido(Long idPedido);
     CompraEntity saveCompra(CompraCreationDTO compra)throws Exception;
     CompraEntity updateCompra(CompraCreationDTO compra, Long id)throws Exception;
     void deleteCompra(Long id);
+    public CompraCreationDTO findCompraRecepcionarById(Long id);
+
+    public List<CompraCreationDTO> findFacturasProductosByIdsPedidos(List<Long> ids);
+
+    public List<CompraCreationDTO> findFacturasByIdPedido(Long id);
+
+    public CompraCreationDTO findById(Long id);
 }

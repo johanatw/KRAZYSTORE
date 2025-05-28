@@ -5,6 +5,7 @@ import InputText from 'primevue/inputtext';
 import Column from 'primevue/column';
 import Button from 'primevue/button';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
+
 import {PedidoServices} from '@/services/PedidoServices';
 import { PedidoCompraServices } from '@/services/PedidoCompraServices';
 import { AnticipoServices } from '@/services/AnticipoServices';
@@ -40,12 +41,16 @@ const classe = ref(' color: #dd128a !important; weight: bold ' );
 const confirm = useConfirm();
 const facturasPedido = ref();
 const selectedFactura = ref();
+const selectedFacturas = ref();
 const selectedRecepciones = ref();
+const selectedRecepcion = ref();
 const recepcionesPedido = ref();
 const pedidoRecepcionar =ref();
 const pedidoFacturar =ref();
 const toast = useToast();
-
+const pedidoNacional = ref('N');
+const pedidoInternacional = ref('I');
+const idsPedidosRecepcionar = ref([]);
 const selectedOpcion = ref();
 const idPedidoSelected = ref();
 const rowClass = (data) => {
@@ -134,7 +139,9 @@ const filters = ref({
 async function recepcionarPedidoCompra(id) {
    // let id = pedido.id;
    //pedidoRecepcionar.value = pedido;
-   router.push({name: 'recepcionarPedido', params: {id}});
+
+   facturasPedido.value = (await CompraServices.obtenerComprasByPedido(id)).data;
+   seleccionarFacturaDialog.value = true;
   /*if ((pedidoRecepcionar.value.proveedor.tipo.descripcion == 'Extranjero') ) {
     facturasPedido.value = (await CompraServices.obtenerComprasByPedido(id)).data;
     console.log(facturasPedido.value);
@@ -142,21 +149,49 @@ async function recepcionarPedidoCompra(id) {
     
   } else{
     router.push({name: 'recepcionarPedido', params: {id}});
+  router.push({name: 'recepcionarPedido', params: {id}});
   }*/
     
 }
 
 const recepcionarPedidoInternacional = () => {
-  let id = pedidoRecepcionar.value.id;
-  let facturaId = selectedFactura.value.compra.id;
-  console.log(facturaId);
-  router.push({name: 'recepcionarPedido', params: {id}, query: {facturaId: facturaId} });
+  console.log(idsFacturasSeleccionadas.value);
+  sessionStorage.setItem('facturasRecepcionar', JSON.stringify(idsFacturasSeleccionadas.value) );
+ // console.log(selectedFacturas.value);
+  //let id = pedidoRecepcionar.value.id;
+  //let facturaId = selectedFactura.value.compra.id;
+  //console.log(facturaId);
+ router.push({name: 'recepcionarPedido'});
 
 }
 
 async function facturarPedidoCompra(id) {
   pedidoFacturar.value = id;
   nuevaFactura(id);
+  /*recepcionesPedido.value = (await RecepcionServices.getRecepcionesByPedido(id)).data;
+    console.log(recepcionesPedido.value);
+    seleccionarRecepcionesDialog.value = true;
+   // let id = pedido.id;
+  /*  pedidoFacturar.value = pedido;
+  if ((pedidoFacturar.value.proveedor.tipo.descripcion == 'Nacional') ) {
+    recepcionesPedido.value = (await RecepcionServices.getRecepcionesByPedido(id)).data;
+    console.log(recepcionesPedido.value);
+    seleccionarRecepcionesDialog.value = true;
+    
+  } else{
+    sessionStorage.removeItem('recepcionesFacturar');
+    nuevaFactura(id);
+  }*/
+    
+}
+
+async function facturarEnvioInternacional(id) {
+  recepcionesPedido.value = (await RecepcionServices.getRecepcionesByPedido(id)).data;
+  console.log(recepcionesPedido.value);
+  seleccionarRecepcionesDialog.value = true;
+  
+  pedidoFacturar.value = id;
+  //nuevaFactura(id);
   /*recepcionesPedido.value = (await RecepcionServices.getRecepcionesByPedido(id)).data;
     console.log(recepcionesPedido.value);
     seleccionarRecepcionesDialog.value = true;
@@ -184,10 +219,12 @@ const facturarPedidoNacional = () => {
 }
 
 const facturarRecepciones = () => {
-  let id = pedidoFacturar.value;
-  if (selectedRecepcionesIds.value!=null) {
-    sessionStorage.setItem('recepcionesFacturar', JSON.stringify(selectedRecepcionesIds.value) );
-    nuevaFactura(id);
+  console.log(selectedRecepcion.value.recepcion);
+  if (selectedRecepcion.value.recepcion?.id!=null) {
+    let id = selectedRecepcion.value.recepcion.id;
+   // sessionStorage.setItem('recepcionesFacturar', JSON.stringify(selectedRecepcionesIds.value) );
+    router.push({name: 'facturar_recepcion', params: {id}});
+    
   } 
 
 }
@@ -327,10 +364,9 @@ const ver = (e) =>{
     console.log(selectedRecepciones.value);
 }
 
-const selectedRecepcionesIds = computed(() => 
-  selectedRecepciones.value.map(r => r.recepcion.id) // Solo guardamos los IDs
-);
-
+const idsFacturasSeleccionadas = computed(() => {
+  return selectedFacturas.value.map(d => d.compra?.id);
+});
 
 </script>
 
@@ -402,8 +438,8 @@ const selectedRecepcionesIds = computed(() =>
                 <Button v-tooltip="'Ver detalles'" icon="pi pi-eye" text rounded aria-label="Search" @click="verPedidoCompra(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
                 
                 <Button v-tooltip="'Facturar'" :disabled="isTotalFacturado(slotProps.data.estadoPedido) " icon="pi pi-receipt" severity="info" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="facturarPedidoCompra(slotProps.data.id)" />
-                <Button v-if="slotProps.data.proveedor?.tipo.descripcion == 'Extranjero'" v-tooltip="'Recepcionar'" :disabled="isRecepcionCompleta(slotProps.data.estadoPedido)" icon="pi pi-truck" severity="success" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="recepcionarPedidoCompra(slotProps.data.id)" />
-
+                <Button v-if="slotProps.data.tipoPedido == pedidoInternacional" v-tooltip="'Recepcionar'" :disabled="isRecepcionCompleta(slotProps.data.estadoPedido)" icon="pi pi-truck" severity="success" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="recepcionarPedidoCompra(slotProps.data.id)" />
+               
                 <Button v-tooltip="'Eliminar'" :disabled="!isNuevo(slotProps.data.estadoPedido)" icon="pi pi-trash" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
                 
                 </template>
@@ -422,10 +458,10 @@ const selectedRecepcionesIds = computed(() =>
     
             <div class="contenedor" > 
               <div>     
-              <DataTable v-model:selection="selectedFactura"  v-model:expandedRows="expandedRows" :value="facturasPedido" dataKey="compra.id" tableStyle="min-width: 50rem">
-                <Column selectionMode="single" headerStyle="width: 3rem"></Column>
+              <DataTable v-model:selection="selectedFacturas"  v-model:expandedRows="expandedRows" :value="facturasPedido" dataKey="compra.id" tableStyle="min-width: 50rem">
+                <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
                 <Column expander style="width: 5rem" />
-                <Column field="compra.id" header="Factura#">
+                <Column field="compra.nroFactura" header="Factura#">
                   
                 </Column>
                 <template #expansion="slotProps">
@@ -472,13 +508,8 @@ const selectedRecepcionesIds = computed(() =>
     
             <div class="contenedor" > 
               <div>     
-              <DataTable   v-model:expandedRows="expandedRows" :value="recepcionesPedido"  dataKey="recepcion.id" v-model:selection="selectedRecepciones" tableStyle="min-width: 50rem">
-                <Column selectionMode="multiple" headerStyle="width: 3rem">
-                  <template #body="slotProps">
-                  <div class="flex-auto p-fluid" style="max-width:20lvb  !important; " >
-                      <Checkbox :disabled="slotProps.data.recepcion.compra !== null" v-model="selectedRecepciones" :value="slotProps.data"  />
-                  </div> 
-              </template>
+              <DataTable   v-model:expandedRows="expandedRows" :value="recepcionesPedido"  dataKey="recepcion.id" v-model:selection="selectedRecepcion" tableStyle="min-width: 50rem">
+                <Column disabled selectionMode="single" headerStyle="width: 3rem">
                 </Column>
                 <Column expander style="width: 5rem" />
                 <Column field="recepcion.id" header="Recepcion#"></Column>

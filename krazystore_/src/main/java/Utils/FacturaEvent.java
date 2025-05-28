@@ -11,25 +11,33 @@ import com.krazystore.krazystore.Entity.VentaEntity;
  *
  * @author HP
  */
-public abstract class NuevaFacturaEvent {
+public abstract class FacturaEvent {
     private final TipoEvento tipoEvento;
     private VentaEntity nuevaVenta;
     private CompraEntity nuevaCompra;
+    private Long idPedido;
 
-    public NuevaFacturaEvent(TipoEvento tipoEvento) {
+    public FacturaEvent(TipoEvento tipoEvento) {
         this.tipoEvento = tipoEvento;
     }
 
-    public NuevaFacturaEvent(TipoEvento tipoEvento, VentaEntity nuevaVenta) {
+    public FacturaEvent(TipoEvento tipoEvento, VentaEntity nuevaVenta) {
         this.tipoEvento = tipoEvento;
         this.nuevaVenta = nuevaVenta;
     }
 
-    public NuevaFacturaEvent(TipoEvento tipoEvento, CompraEntity nuevaCompra) {
+    public FacturaEvent(TipoEvento tipoEvento, CompraEntity nuevaCompra) {
         this.tipoEvento = tipoEvento;
         this.nuevaCompra = nuevaCompra;
     }
 
+    public FacturaEvent(TipoEvento tipoEvento, VentaEntity nuevaVenta, Long idPedido) {
+        this.tipoEvento = tipoEvento;
+        this.nuevaVenta = nuevaVenta;
+        this.idPedido = idPedido;
+    }
+
+    
     public VentaEntity getNuevaVenta() {
         return nuevaVenta;
     }
@@ -48,6 +56,14 @@ public abstract class NuevaFacturaEvent {
 
     public TipoEvento getTipoEvento() {
         return tipoEvento;
+    }
+
+    public Long getIdPedido() {
+        return idPedido;
+    }
+
+    public void setIdPedido(Long idPedido) {
+        this.idPedido = idPedido;
     }
 
     

@@ -26,9 +26,9 @@ import { TipoDocServices } from "@/services/TipoDocServices";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import {DepartamentoServices } from '@/services/DepartamentoServices';
-import { PuntoEntregaServices } from '@/services/PuntoEntregaServices';
+import { PuntoRetiroServices } from '@/services/PuntoEntregaServices';
 import { ModosEntregaServices } from "@/services/ModosEntregaServices";
-import { EmpresasTransporteServices } from '@/services/EmpresasTransporteServices';
+import { EmpresasDeliveryServices } from '@/services/EmpresasTransporteServices';
 import {EntregaServices} from '@/services/EntregaServices';
 import DatePicker from "primevue/datepicker";
 const map = ref();
@@ -168,7 +168,7 @@ async function getDetalle() {
 }
 const getPuntosEntrega = async () => {
     try {
-      const response = await PuntoEntregaServices.obtenerPuntosEntrega();
+      const response = await PuntoRetiroServices.obtenerPuntosRetiro();
       puntosEntrega.value = response.data;
     } catch (error) {
        //alert(error);
@@ -177,7 +177,7 @@ const getPuntosEntrega = async () => {
 
 const getEmpresasTransporte = async () => {
     try {
-      const response = await EmpresasTransporteServices.obtenerEmpresasTransporte();
+      const response = await EmpresasDeliveryServices.obtenerEmpresasDelivery();
       empresasTransporte.value = response.data;
     } catch (error) {
        //alert(error);

@@ -16,10 +16,15 @@ import java.util.List;
  */
 public interface DashboardService {
 
-    public GraficoIngresosEgresosDTO obtenerIngresosYEgresosUltimos6Meses();
+    public GraficoIngresosEgresosDTO obtenerIngresosYEgresosPorAño(Integer año);
 
     public GraficoVentasPorCategoriaDTO obtenerVentasPorCategoriaMes(String mes);
 
     public List<ProductoVentasDTO> obtenerTopProductosVendidos(String mes);
+    public GraficoIngresosEgresosDTO obtenerIngresosPorAño(Integer año);
+
+    public List<Integer> obtenerAñosDisponibles();
+
+    public GraficoIngresosEgresosDTO obtenerEgresosPorAño(Integer año);
     
 }

@@ -26,10 +26,11 @@ import { TipoDocServices } from "@/services/TipoDocServices";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import {DepartamentoServices } from '@/services/DepartamentoServices';
-import { PuntoEntregaServices } from '@/services/PuntoEntregaServices';
+import { PuntoRetiroServices } from '@/services/PuntoEntregaServices';
 import { ModosEntregaServices } from "@/services/ModosEntregaServices";
-import { EmpresasTransporteServices } from '@/services/EmpresasTransporteServices';
+import { EmpresasDeliveryServices } from '@/services/EmpresasTransporteServices';
 import {EntregaServices} from '@/services/EntregaServices';
+import { VentaServices } from "@/services/VentaServices";
 import DatePicker from "primevue/datepicker";
 const map = ref();
 const direcciones = ref([]);
@@ -67,6 +68,7 @@ const detalles = ref([]);
 const envioSelected = ref();
 const fecha = ref();
 const fechaCompleta = ref();
+const detallePreparar = ref();
 const error = ref(false);
 const opciones = ref(['Casi','Entre']);
 const selectedEnvio = ref({});
@@ -74,6 +76,7 @@ const medios = ref();
 const direccionesCliente = ref([]);
 const puntosEntrega = ref([]);
 const empresasTransporte = ref([]);
+const facturaPreparar = ref({});
 const modalidadesEntrega = ref([]);
 const infoEntrega = ref([{
     valor: "Retiro"
@@ -105,8 +108,8 @@ const messageError = (msg) => {
 
 onMounted(() => {
        
-
-    getPedido();
+    getFacturaPreparar(router.currentRoute.value.params.id);
+    //getPedido();
     getPuntosEntrega();
     getModosEntrega();
     getEmpresasTransporte();
@@ -163,7 +166,7 @@ async function getDetalle() {
 }
 const getPuntosEntrega = async () => {
     try {
-      const response = await PuntoEntregaServices.obtenerPuntosEntrega();
+      const response = await PuntoRetiroServices.obtenerPuntosRetiro();
       puntosEntrega.value = response.data;
     } catch (error) {
        //alert(error);
@@ -172,8 +175,33 @@ const getPuntosEntrega = async () => {
 
 const getEmpresasTransporte = async () => {
     try {
-      const response = await EmpresasTransporteServices.obtenerEmpresasTransporte();
+      const response = await EmpresasDeliveryServices.obtenerEmpresasDelivery();
       empresasTransporte.value = response.data;
+    } catch (error) {
+       //alert(error);
+    }
+};
+
+const getFacturaPreparar = async (id) => {
+    try {
+      const response = await VentaServices.getFacturaPreparar(id);
+      console.log(response.data);
+      facturaPreparar.value = response.data?.venta;
+      let detalleFactura = response.data?.detalle;
+      fecha.value = new Date();
+
+        detalleFactura.forEach(element => {
+          let e = {};
+            e.cantidadFacturada = element.cantidadFacturada;
+            e.cantidadPreparada = element.cantidadPreparada;
+            e.cantidadPendiente = element.cantidadFacturada - element.cantidadPreparada;
+            e.cantidad = e.cantidadPendiente;
+            e.detalleVenta = element;
+
+            detalles.value.push(e);
+        });
+
+      console.log(detalles.value);
     } catch (error) {
        //alert(error);
     }
@@ -651,7 +679,7 @@ const cambiarModoEntrega= (modalidad) => {
       entrega.value.direccionEnvio = null;
     } else {
       entrega.value.puntoEntrega = null;
-      getDireccionesCliente(cliente.value.id);
+      getDireccionesCliente(cliente.value?.persona?.id);
     }
 };
 
@@ -689,14 +717,15 @@ const submit = () =>{
         
         entrega.value.observaciones = observaciones.value;
         entrega.value.fecha = fecha.value ;
-       entrega.value.pedido = pedido.value;
+       entrega.value.venta = facturaPreparar.value;
         
         
        // console.log("submitdetalle",);
         //ex.value = productos.value.existencias;
         
-        let entregaDTO = {entrega: entrega.value, detalle: detalles.value};
-        EntregaServices.registrarEntrega(entregaDTO).then((response)=>{
+        let entregaDTO = {entrega: entrega.value, detalle: detallePreparar.value};
+        console.log(entregaDTO);
+       EntregaServices.registrarEntrega(entregaDTO).then((response)=>{
           showSuccess('Entrega registrado correctamente');
             verPedidos();
         }).catch(
@@ -707,6 +736,7 @@ const submit = () =>{
 
 
 const validarForm = (event) => {
+    detallePreparar.value = detalles.value?.filter(d => d.cantidad > 0);
     console.log("selectedCliente.value");
     console.log(selectedCliente.value);
     mensaje.value = [];
@@ -722,6 +752,11 @@ const validarForm = (event) => {
       mensaje.value.push("Debe seleccionar un punto de entrega");
     }
   
+    if (detallePreparar.value.length < 1) {
+            error.value = true;
+            mensaje.value.push("No se ingresó ninguna cantidad para preparar");
+
+    }
     
   
     submit();
@@ -1029,32 +1064,26 @@ const validarForm = (event) => {
                                 <div class="card" style="width: 100%;">
     <div class="flex card-container" style="width: 100%;">
         <DataTable class="tablaCarrito" ref="dt" :value="detalles" scrollable scrollHeight="400px" dataKey="producto.id" style="width: 100%;">
-         <Column  class="col" field="detallePedido.producto.nombre" header="Nombre" aria-sort="none" ></Column>
-         <Column class="col" field="producto.precio"  header="Solicitado" aria-sort="none" >
-            <template #body="slotProps">
-            <div class="flex-auto p-fluid" >
-                  {{  formatearNumero(slotProps.data.detallePedido.cantSolicitado) }}
-              </div> 
-            </template>
-        </Column>
+         <Column  class="col" field="detalleVenta.producto.nombre" header="Nombre" aria-sort="none" ></Column>
+
         <Column class="col" field="producto.precio"  header="Facturado" aria-sort="none" >
             <template #body="slotProps">
             <div class="flex-auto p-fluid" >
-                  {{  formatearNumero(slotProps.data.detallePedido.cantFacturada) }}
+                  {{  formatearNumero(slotProps.data.cantidadFacturada) }}
               </div> 
             </template>
         </Column>
         <Column class="col" field="producto.precio"  header="Preparado" aria-sort="none" >
             <template #body="slotProps">
             <div class="flex-auto p-fluid" >
-                  {{  formatearNumero(slotProps.data.detallePedido.cantEntregada) }}
+                  {{  formatearNumero(slotProps.data.cantidadPreparada) }}
               </div> 
             </template>
         </Column>
          <Column  class="col" field="cantidad" header="Pendiente" aria-sort="none">
             <template #body="slotProps">
                 <div >
-                  {{ slotProps.data.detallePedido.cantFacturada - slotProps.data.detallePedido.cantEntregada}}
+                  {{ slotProps.data.cantidadPendiente}}
               </div>  
             </template>
              
@@ -1062,7 +1091,7 @@ const validarForm = (event) => {
          <Column  class="col" field="cantidad" aria-sort="none">
             <template #body="slotProps">
                 <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                  <InputNumber fluid  v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="0" :max="slotProps.data.cantDisponible" />
+                  <InputNumber fluid  v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="0" :max="slotProps.data.cantidadPendiente" />
               </div>  
             </template>
              

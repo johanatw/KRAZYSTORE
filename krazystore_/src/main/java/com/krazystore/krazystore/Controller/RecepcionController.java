@@ -41,6 +41,13 @@ public class RecepcionController {
     public List<RecepcionDTO> findAll() {
         return recepcionService.findAll();
     }
+    
+    @GetMapping("/{id}")
+    public RecepcionCreationDTO findById(@PathVariable("id") Long id) {
+        return recepcionService.findById(id);
+    }
+    /*
+    
 
     @GetMapping("/{id}")
     public RecepcionCreationDTO findById(@PathVariable("id") Long id) {
@@ -51,6 +58,8 @@ public class RecepcionController {
     public List<DetalleRecepcionDTO> obtenerDetalleFacturaRecepcionar(@PathVariable("id") Long id) {
         return recepcionService.obtenerDetalleFacturaRecepcionar(id);
     }
+    
+    
    
     
     @GetMapping("/pedido_compra/{id}")
@@ -58,17 +67,25 @@ public class RecepcionController {
         return recepcionService.findByIdPedido(id);
     }
     
-    @PostMapping
-    public RecepcionEntity saveRecepcion(@RequestBody RecepcionCreationDTO recepcion) {
-        System.out.println("savecontroller");
-        return recepcionService.saveRecepcion(recepcion);
-    }
+    
 
     @PutMapping("/{id}")
     public RecepcionEntity updateRecepcion(@PathVariable long id, @RequestBody RecepcionCreationDTO recepcion) {
         return recepcionService.updateRecepcion(recepcion, id);
     }
 
+    */
+    @PostMapping
+    public RecepcionEntity saveRecepcion(@RequestBody RecepcionCreationDTO recepcion) {
+        System.out.println("savecontroller");
+        return recepcionService.saveRecepcion(recepcion);
+    }
+    
+    @GetMapping("/detalles_compras_recepcionar")
+    public List<DetalleRecepcionDTO> obtenerDetallesFacturasRecepcionar(@RequestParam(value="ids") List<Long> ids) {
+        return recepcionService.obtenerDetallesFacturasRecepcionar(ids);
+    }
+    
     @DeleteMapping("/{id}")
     public void deleteRecepcion(@PathVariable("id") Long id) {
         recepcionService.deleteRecepcion(id);

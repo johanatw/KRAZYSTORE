@@ -7,7 +7,6 @@ package com.krazystore.krazystore.Repository;
 import com.krazystore.krazystore.DTO.DetallePedidoRecepcionDTO;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.CompraEntity;
-import com.krazystore.krazystore.Entity.PagoPedidoCompra;
 import com.krazystore.krazystore.Entity.PedidoCompraEntity;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,19 +19,12 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface PedidoCompraRepository extends JpaRepository<PedidoCompraEntity, Long> {
-    @Query(
-    "SELECT a "
-            + "FROM PagoPedidoCompra a "
-            + "LEFT JOIN a.pedidoCompra p "
-            + "WHERE p.id = ?1 "
-           )
-        List<PagoPedidoCompra> getAnticipos(Long id);
         
         @Query(
     "SELECT c "
             + "FROM CompraEntity c "
             + "JOIN c.pedido pc "
-            + "WHERE pc.id = ?1 "
+            + "WHERE pc.id = ?1 and c.tipoFactura = 'PROD' "
            )
         List<CompraEntity> getFacturas(Long id);
 
@@ -55,9 +47,10 @@ public interface PedidoCompraRepository extends JpaRepository<PedidoCompraEntity
         
     @Query(
     "SELECT COALESCE(SUM(dr.cantRecepcionada),0) "
-            + "FROM PedidoCompraEntity p "
-            + "LEFT JOIN DetallePedidoCompra d ON d.pedidoCompra = p "
-            + "LEFT JOIN DetalleRecepcion dr ON dr.detallePedido = d "
+            + "FROM DetalleRecepcion dr "
+            + "LEFT JOIN dr.detalleCompra dc "
+            + "LEFT JOIN dc.compra c "
+            + "LEFT JOIN c.pedido p "
             + "WHERE p.id = ?1 "
            )
         Long totalProductosRecepcionados(Long id);
@@ -66,8 +59,18 @@ public interface PedidoCompraRepository extends JpaRepository<PedidoCompraEntity
     "SELECT COALESCE(SUM(d.cantidad),0) "
             + "FROM PedidoCompraEntity p "
             + "LEFT JOIN DetallePedidoCompra d ON d.pedidoCompra = p "
-            + "LEFT JOIN d.producto o ON o.esServicio = false "
-            + "WHERE p.id = ?1 "
+            + "LEFT JOIN d.producto o "
+            + "WHERE p.id = ?1 AND o.esServicio <> TRUE "
            )
         Long totalProductosPedido(Long id);
+        
+        @Query(
+    "SELECT COALESCE(SUM(d.cantidad),0) "
+            + "FROM DetalleCompra d "
+            + "LEFT JOIN d.compra c "
+            + "LEFT JOIN c.pedido p "
+            + "LEFT JOIN d.producto o "
+            + "WHERE p.id = ?1 AND o.esServicio <> TRUE "
+           )
+        Long totalProductosFacturados(Long id);
 }

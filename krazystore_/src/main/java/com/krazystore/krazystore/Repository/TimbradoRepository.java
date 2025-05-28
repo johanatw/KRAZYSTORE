@@ -18,7 +18,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface TimbradoRepository extends JpaRepository<TimbradoEntity, Long>{
-    @Query("SELECT t FROM TimbradoEntity t WHERE t.vigenciaInicio <= CURRENT_DATE AND t.vigenciaFin >= CURRENT_DATE AND t.ultimoRemitido < t.numeroFin AND t.activo = TRUE")
+    @Query("SELECT t FROM TimbradoEntity t WHERE t.vigenciaInicio <= CURRENT_DATE AND t.vigenciaFin >= CURRENT_DATE AND t.ultimoEmitido < t.numeroFin AND t.activo = TRUE")
     public Optional<TimbradoEntity> findVigente();
 
     @Query("SELECT t FROM TimbradoEntity t WHERE t.numeroTimbrado = ?1  ")
@@ -26,7 +26,6 @@ public interface TimbradoRepository extends JpaRepository<TimbradoEntity, Long>{
     
     @Query(
     "SELECT t FROM TimbradoEntity t "
-            + "WHERE t.activo = TRUE "
             + "ORDER BY t.id DESC "
            )
     @Override

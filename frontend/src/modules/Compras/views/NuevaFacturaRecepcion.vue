@@ -194,7 +194,7 @@ ProductoServices.obtenerProductos().then((data) => {
 
 });
 
-   ProveedorServices.obtenerProveedores().then((data) => {
+   ProveedorServices.obtenerProveedoresImportacion().then((data) => {
    proveedores.value = data.data;
    });
 
@@ -430,17 +430,23 @@ console.log("selectedCliente.value");
 console.log(selectedCliente.value);
 mensaje.value = [];
 error.value = false;
+
 if (selectedCliente.value) {
 
 
 } else {
 error.value = true;
-mensaje.value.push("Debe seleccionar un cliente");
+mensaje.value.push("Debe seleccionar un Proveedor");
+}
+
+if(nroFactura.value == null || nroFactura.value == undefined || !nroFactura.value.trim() ){
+    error.value = true;
+    mensaje.value.push("Debe ingresar el número de factura");
 }
 
 if (total.value <1) {
 error.value = true;
-mensaje.value.push("Debe añadir productos");
+mensaje.value.push("El total de la factura debe ser mayor a 0");
 }
 
   
@@ -600,7 +606,7 @@ if (!error.value){
 console.log();
 let fechaAnticipo = new Date();
 let gravada = total.value - montoIva.value;
-let ant = {total: total.value, fecha: fechaCompra.value,totalGravada: gravada, montoIva: montoIva.value, proveedor: selectedCliente.value, nroFactura: nroFactura.value, timbrado: timbrado.value, recepcion: {id: idRecepcion.value}, pedido: {id: recepcion.value?.idPedido} };
+let ant = {total: total.value, fecha: fechaCompra.value,totalGravada: gravada, montoIva: montoIva.value, proveedor: selectedCliente.value, nroFactura: nroFactura.value, timbrado: timbrado.value, recepcion: {id: idRecepcion.value} };
 
 let ids =  recepcionesFacturarIds.value;
 /*if (compraNacional.value) {

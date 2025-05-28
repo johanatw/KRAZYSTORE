@@ -1,10 +1,10 @@
 
 <template>
     <div class="flex p-fluid justify-content-center " >
-        <Panel style=" position: relative; width: 100%;" >
+        <Panel style=" position: relative; width: 80%;" >
             <template #header>
                 <div class="flex align-items-center gap-2">
-                    <h3 class="font-bold">Inventario N° {{ router.currentRoute.value.params.id }}</h3>
+                    <h3 class="font-bold">Control de Inventario N° {{ router.currentRoute.value.params.id }}</h3>
                 </div>
             </template>
      

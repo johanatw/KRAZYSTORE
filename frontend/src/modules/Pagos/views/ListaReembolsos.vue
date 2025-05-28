@@ -225,7 +225,7 @@ const nuevoPedido = () =>{
         </Column>
         <Column field="total"  header="Cliente" aria-sort="ascending" sortable>    
                                     <template #body="slotProps">
-                                        {{ slotProps.data.cliente?.persona?.nombre || ' ' }}
+                                        {{ slotProps.data.cliente?.persona?.nombre || ' ' }} {{ slotProps.data.cliente?.persona?.apellido }}
                                     </template>        
                                 </Column>
           <Column field="anticipo"  header="N° Anticipo" aria-sort="ascending" sortable>  

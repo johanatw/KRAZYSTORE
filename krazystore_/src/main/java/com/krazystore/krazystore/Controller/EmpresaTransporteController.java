@@ -16,7 +16,7 @@ import com.krazystore.krazystore.Service.EmpresaTransporteService;
  */
 @RestController
 @CrossOrigin("*")
-@RequestMapping("/api/envios")
+@RequestMapping("/api/deliverys")
 public class EmpresaTransporteController {
     private final EmpresaTransporteService envioService;
 

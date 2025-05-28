@@ -1,30 +1,58 @@
 <template>
-    <div class="card"  >
-        <Chart type="bar" :data="chartData" :options="chartOptions" style="height: 250px;" />
+    <div  class=" flex p-fluid justify-content-between "  >
+            <h3 style="font-weight: bold;" >Egresos</h3>
+            <div class="flex " style="flex-direction: row;" >
+                <Select v-model="añoConsultar" :options="añosDisponibles"  placeholder="Seleccione un año" class="w-full md:w-56" />
+            
+                <Select v-model="añoConsultar" :options="añosDisponibles"  placeholder="Seleccione un año" class="w-full md:w-56" />
+            </div>
     </div>
+    <div>
+        <Chart type="bar" :data="chartData" :options="chartOptions" style="height: 250px;"  />
+    </div>
+           
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
 import { DashboardServices } from "@/services/DashboardServices";
 import Chart from 'primevue/chart';
+import { Select } from "primevue";
+const año = ref(new Date().getFullYear());
+const mesActual = ref(new Date().getMonth());
+const añoConsultar = ref();
+const añosDisponibles = ref([]);
 
 onMounted(() => {
-    getIngresosEgresosUltimos6Meses();
+    
+    añoConsultar.value = año.value;
+    getAñosDisponibles();
+    getEgresosPorAño(año.value);
     
     
 });
 
 
+
+const mesesBase = ref([
+  "enero", "febrero", "marzo", "abril", "mayo", "junio",
+  "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+]);
+
 const chartData = ref();
 const chartOptions = ref();
-const chartIngresosEgresosUltimos6Meses = ref();
+const egresosMensuales = ref();
+const datoscompletos = ref({
+    labels: [],
+    egresosOtros: [],
+    egresosCompra: []
+});
 
-const getIngresosEgresosUltimos6Meses = async () => {
+const getEgresosPorAño = async (año) => {
     try {
-      const response = await DashboardServices.obtenerDashboard();
-      chartIngresosEgresosUltimos6Meses.value = response.data;
-      console.log(chartIngresosEgresosUltimos6Meses.value);
+      const response = await DashboardServices.obtenerEgresosPorAño(año);
+      egresosMensuales.value = response.data;
+        getDatosCompletos();
       chartData.value = setChartData();
       chartOptions.value = setChartOptions();
     } catch (error) {
@@ -32,30 +60,47 @@ const getIngresosEgresosUltimos6Meses = async () => {
     }
 };
 
+const getAñosDisponibles = async () => {
+    console.log("AÑOS DI");
+    try {
+      const response = await DashboardServices.obtenerAñosDisponibles();
+      añosDisponibles.value = response.data;
+      console.log(añosDisponibles.value);
+    } catch (error) {
+       //alert(error);
+    }
+};
+
+const getDatosCompletos = async () =>  {
+    let mesHasta = añoConsultar.value == año.value?(mesActual.value + 1):12;
+    mesesBase.value.slice(0, mesHasta).map((mes) => {
+        let index = egresosMensuales.value?.labels.findIndex((r) => r.toLowerCase() === mes);
+            let montoCompras = (index>-1)?egresosMensuales.value.egresosCompra[index]:0;
+            let montoOtros = (index>-1)?egresosMensuales.value.egresosOtros[index]:0;
+            datoscompletos.value.labels.push(mes);
+            datoscompletos.value.egresosCompra.push(montoCompras);
+            datoscompletos.value.egresosOtros.push(montoOtros);
+        
+        });
+};
+
 const setChartData = () =>  {
     const documentStyle = getComputedStyle(document.documentElement);
 
     return {
-        labels: chartIngresosEgresosUltimos6Meses.value?.labels,
+        labels: datoscompletos.value?.labels,
         datasets: [
             {
                 type: 'bar',
                 label: 'Compras',
                 backgroundColor: documentStyle.getPropertyValue('--p-pink-300'),
-                data: chartIngresosEgresosUltimos6Meses.value?.egresosCompra
+                data: datoscompletos.value?.egresosCompra
             },
-            {
-                type: 'bar',
-                label: 'Anticipos',
-                backgroundColor: documentStyle.getPropertyValue('--p-yellow-300'),
-                data: chartIngresosEgresosUltimos6Meses.value?.egresosAnticipo
-            },
-            
             {
                 type: 'bar',
                 label: 'Otros',
                 backgroundColor: documentStyle.getPropertyValue('--p-sky-300'),
-                data: chartIngresosEgresosUltimos6Meses.value?.egresosOtros
+                data: datoscompletos.value?.egresosOtros
             }
         ]
     };

@@ -6,6 +6,7 @@
 package com.krazystore.krazystore.Controller;
 
 import com.krazystore.krazystore.DTO.VentaCreationDTO;
+import com.krazystore.krazystore.DTO.VentaRecepcionarDTO;
 import com.krazystore.krazystore.Entity.CategoriaEntity;
 import com.krazystore.krazystore.Entity.VentaEntity;
 import com.krazystore.krazystore.Service.CategoriaService;
@@ -48,7 +49,16 @@ public class VentaController {
     public Optional<VentaEntity> findById(@PathVariable("id") Long id) {
         return ventaService.findById(id);
     }
+    
+    @GetMapping("/preparar/{id}")
+    public VentaRecepcionarDTO findFacturaPrepararById(@PathVariable("id") Long id) {
+        return ventaService.findFacturaPrepararById(id);
+    }
  
+    @GetMapping("/pedido/{id}")
+    public List<VentaCreationDTO> findFacturasByIdPedido(@PathVariable("id") Long id) {
+        return ventaService.findByIdPedido(id);
+    }
 
     @PostMapping
     public VentaEntity saveVenta(@RequestBody VentaCreationDTO ventaCreationDTO) {

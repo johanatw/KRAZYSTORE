@@ -55,6 +55,68 @@ obtenerSubCatByIdsCat(ids) {
   })
   
 },
+registrarCategoria(categoria){
+  
+    return  axios.post(CATEGORIA_API_BASE_URL, categoria,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+
+},
+getCategoria(id){
+
+    return axios.get(CATEGORIA_API_BASE_URL+"/"+id,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+
+  },
+  modificarCategoria(id, categoria){
+
+    return axios.put(CATEGORIA_API_BASE_URL + "/" + id, categoria,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+  },
+  eliminar(id) {
+   
+    return axios.delete(CATEGORIA_API_BASE_URL + "/" + id,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+  },
 
 };
 export default { CategoriaServices: CategoriaServices };

@@ -85,6 +85,9 @@ const modificarAjuste = (id) => {
                             </div>
                         </template>
                         <template #content>
+                            <div >
+                                Usuario: {{ ajuste.usuarioRegistro?.persona?.nombre || '' }} {{ ajuste.usuarioRegistro?.persona?.apellido }}
+                            </div>
                             <div  >
                                 Fecha: {{ formatearFecha(ajuste.fecha) }}
                             </div> 

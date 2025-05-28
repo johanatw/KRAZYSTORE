@@ -40,8 +40,6 @@ public class ProductoEntity {
     @ManyToOne
     @JoinColumn(name = "id_tipo_iva")
     private IvaEntity tipoIva;
-    @Column
-    private Boolean estado;
     @Column(name = "bajo_demanda")
     private Boolean bajoDemanda = false;
     @Column(name = "limite_bajo_demanda")
@@ -67,7 +65,6 @@ public class ProductoEntity {
         this.id = id;
         this.nombre = nombre;
         this.subCategoria = subCategoria;
-        this.estado = estado;
         this.bajoDemanda = preVenta;
         this.cantLimBajoDemanda = cantPreVenta;
         this.cantStock = cantStock;
@@ -182,15 +179,6 @@ public class ProductoEntity {
         this.subCategoria = subCategoria;
     }
 
-
-
-    public Boolean getEstado() {
-        return estado;
-    }
-
-    public void setEstado(Boolean estado) {
-        this.estado = estado;
-    }
 
     public IvaEntity getTipoIva() {
         return tipoIva;

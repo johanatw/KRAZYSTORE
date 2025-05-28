@@ -96,6 +96,21 @@ const setDetalleEnvio = (envio=null) => {
 
 }
 
+const sePuedeReservar = (producto) => {
+    
+        if (producto.cantDisponible>0) {
+            return true;
+        }
+
+        if(producto.cantDisponible<=0 && producto.bajoDemanda && producto.cantDisponible > -producto.cantLimBajoDemanda ){
+            return true;
+        }
+        
+
+    
+
+}
+
 
 
 
@@ -194,12 +209,10 @@ if (index>-1) {
    detalle.value= {};
 }
 
-if (item.cantStock < 1 && item.bajoDemanda) {
-    item.cantLimBajoDemanda--;
-} else {
+
     item.cantDisponible--;
     
-}
+
 item.cantReservada++;
 sendSubTotal();
 
@@ -267,8 +280,8 @@ const eliminar = (detalle) => {
         </Column>
          <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
             <template #body="slotProps">
-                <div v-if="(slotProps.data.cantStock < 1 && slotProps.data.producto.bajoDemanda && slotProps.data.cantLimBajoDemanda>0)" style="max-width:15lvb  !important; " >
-                  <InputNumber fluid v-model="slotProps.data.cantSolicitado" inputId="minmax-buttons" mode="decimal" showButtons :min="1" :max="slotProps.data.cantLimBajoDemanda"   @update:modelValue="sendSubTotal" />
+                <div v-if="(slotProps.data.producto.cantDisponible < 1 && slotProps.data.producto.bajoDemanda )" style="max-width:15lvb  !important; " >
+                  <InputNumber fluid v-model="slotProps.data.cantSolicitado" inputId="minmax-buttons" mode="decimal" showButtons :min="1" :max="slotProps.data.cantDisponible + slotProps.data.cantLimBajoDemanda"   @update:modelValue="sendSubTotal" />
               </div>  
               <div v-else style="max-width:15lvb  !important; " >
                   <InputNumber fluid v-model="slotProps.data.cantSolicitado" inputId="minmax-buttons" mode="decimal" showButtons :min="1" :max="slotProps.data.cantDisponible"   @update:modelValue="sendSubTotal" />
@@ -333,8 +346,7 @@ const eliminar = (detalle) => {
                                                     <Column field="nombre" header="Nombre" aria-sort="none" ></Column>
                                                     <Column field="cantDisponible" header="Disponible" aria-sort="none" >
                                                     <template #body="slotProps">
-                                                        <h4 v-if="slotProps.data.cantStock < 1 && slotProps.data.bajoDemanda" style="color: tomato !important;">{{slotProps.data.cantLimBajoDemanda}}</h4>
-                                                        <h4 v-else style="color: green !important;">{{slotProps.data.cantDisponible}}</h4>
+                                                         <h4 style="color: green !important;">{{slotProps.data.cantDisponible}}</h4>
 
                                                     </template>
 
@@ -349,8 +361,7 @@ const eliminar = (detalle) => {
                                                     </Column>
                                                     <Column :exportable="false" style="min-width:8rem">
                                                     <template #body="slotProps">
-                                                        <Button v-if=" slotProps.data.cantDisponible > 0 || (slotProps.data.cantStock < 1 && slotProps.data.bajoDemanda && slotProps.data.cantLimBajoDemanda>0) || (slotProps.data.esServicio)" icon="pi pi-shopping-cart" class="mod_icono"  @click="addItem(slotProps.data)"/>
-                                                            <Button v-else disabled="true" icon="pi pi-shopping-cart" class="mod_icono" />
+                                                            <Button :disabled="!sePuedeReservar(slotProps.data)" icon="pi pi-shopping-cart" class="mod_icono" @click="addItem(slotProps.data)" />
                                                     </template>
                                                     </Column>
                                                 </DataTable>

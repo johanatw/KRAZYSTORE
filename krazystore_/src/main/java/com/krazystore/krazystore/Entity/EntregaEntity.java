@@ -46,6 +46,9 @@ public class EntregaEntity {
     @ManyToOne
     @JoinColumn(name = "id_direccion_envio")
     private DireccionEntity direccionEnvio;
+    @ManyToOne
+    @JoinColumn(name="id_venta")
+    private VentaEntity venta;
 
     public EntregaEntity() {
     }
@@ -131,8 +134,14 @@ public class EntregaEntity {
     public void setObservaciones(String observaciones) {
         this.observaciones = observaciones;
     }
-    
-    
 
+    public VentaEntity getVenta() {
+        return venta;
+    }
+
+    public void setVenta(VentaEntity venta) {
+        this.venta = venta;
+    }
+    
     
 }

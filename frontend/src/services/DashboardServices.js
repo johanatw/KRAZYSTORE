@@ -4,9 +4,9 @@ const DASHBOARD_API_BASE_URL = "http://localhost:7070/api/dashboard"
 const token = localStorage.getItem('token');
 
 export const DashboardServices = {
-  obtenerDashboard() {
+  obtenerDashboard(año) {
   
-      return axios.get(DASHBOARD_API_BASE_URL,{
+      return axios.get(DASHBOARD_API_BASE_URL+'?año='+año,{
         headers: {
           'Authorization': 'Bearer ' + localStorage.getItem('token')
         }
@@ -20,6 +20,22 @@ export const DashboardServices = {
     })
     
   },
+
+  obtenerAñosDisponibles() {
+    return axios.get(DASHBOARD_API_BASE_URL+'/años_disponibles',{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+  
+},
 
   obtenerVentasPorCategoriaChart() {
     let mes = '2025-05';
@@ -52,7 +68,37 @@ obtenerTop10ProductosVendidos() {
     return Promise.reject(error);
   })
   
-}
+},
+obtenerIngresosPorAño(año) {
+    return axios.get(DASHBOARD_API_BASE_URL+'/ingresos_año?año='+año,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+  
+},
+obtenerEgresosPorAño(año) {
+    return axios.get(DASHBOARD_API_BASE_URL+'/egresos_año?año='+año,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).catch(error => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");  // Eliminar el token expirado
+        router.push({name: 'home'});
+        return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  })
+  
+},
     
   
 

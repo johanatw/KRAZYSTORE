@@ -48,6 +48,7 @@ public class ClienteServiceImpl implements ClienteService {
     public ClienteDTO saveCliente(ClienteDTO clienteDTO) {
         PersonaEntity persona = new PersonaEntity(clienteDTO.getNombre(),
                 clienteDTO.getApellido(),
+                clienteDTO.getCorreo(),
                 clienteDTO.getTipoDoc(),
                 clienteDTO.getNroDoc(),
                 clienteDTO.getTelefono());
@@ -70,6 +71,7 @@ public class ClienteServiceImpl implements ClienteService {
         
         PersonaEntity persona = new PersonaEntity(clienteDTO.getNombre(),
                 clienteDTO.getApellido(),
+                clienteDTO.getCorreo(),
                 clienteDTO.getTipoDoc(),
                 clienteDTO.getNroDoc(),
                 clienteDTO.getTelefono());

@@ -29,8 +29,8 @@ public class DetalleRecepcionController {
         this.detalleService = detalleService;
     }
 
-    @GetMapping("/{id}")
+    /*@GetMapping("/{id}")
     public List<DetalleRecepcion> findByIdRecepcion(@PathVariable("id") Long id) {
         return detalleService.findByIdRecepcion(id);
-    }
+    }*/
 }

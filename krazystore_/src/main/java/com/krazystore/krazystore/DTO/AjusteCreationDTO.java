@@ -14,6 +14,7 @@ import java.util.List;
 public class AjusteCreationDTO {
     private AjusteStock ajuste;
     private List<DetalleAjusteDTO> detalle;
+    private String username;
 
     public AjusteCreationDTO() {
     }
@@ -35,6 +36,14 @@ public class AjusteCreationDTO {
 
     public void setDetalle(List<DetalleAjusteDTO> detalle) {
         this.detalle = detalle;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
     
     

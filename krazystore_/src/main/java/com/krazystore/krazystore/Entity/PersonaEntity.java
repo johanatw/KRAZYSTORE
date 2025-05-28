@@ -70,6 +70,15 @@ public class PersonaEntity {
         this.telefono = telefono;
     }
 
+    public PersonaEntity(String nombre, String apellido, String email, TipoDocEntity tipoDoc, String nroDoc, String telefono) {
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.email = email;
+        this.tipoDoc = tipoDoc;
+        this.nroDoc = nroDoc;
+        this.telefono = telefono;
+    }
+
     
 
     public String getNombre() {

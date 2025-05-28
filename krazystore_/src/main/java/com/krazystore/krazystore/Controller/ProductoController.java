@@ -46,7 +46,7 @@ public class ProductoController {
         return productoService.findById(id);
     }
     
-    @GetMapping("/servicio_entrega")
+    @GetMapping("/servicio_transporte_internacional")
     public Optional<ProductoDTO> getServicioTransporte() {
         return productoService.getServicioTransporte();
     }

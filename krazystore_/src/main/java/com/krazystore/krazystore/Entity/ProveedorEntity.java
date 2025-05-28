@@ -45,6 +45,8 @@ public class ProveedorEntity {
     private CiudadEntity ciudad;
     @Column
     private Boolean activo = true;
+    @Column(name = "es_proveedor_importacion")
+    private Boolean esProveedorImportacion = false;
 
     public ProveedorEntity() {
     }
@@ -131,6 +133,14 @@ public class ProveedorEntity {
 
     public void setCiudad(CiudadEntity ciudad) {
         this.ciudad = ciudad;
+    }
+
+    public Boolean getEsProveedorImportacion() {
+        return esProveedorImportacion;
+    }
+
+    public void setEsProveedorImportacion(Boolean esProveedorImportacion) {
+        this.esProveedorImportacion = esProveedorImportacion;
     }
          
     

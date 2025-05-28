@@ -118,8 +118,9 @@ const vistaListaAjustes = () => {
 const guardarAjuste = () =>{
     if (!error.value){
 
+        const username = localStorage.getItem('username');
         let ajuste = {fecha: fechaAjuste.value, observaciones: observaciones.value};
-        let ajusteCreationDTO = {ajuste: ajuste, detalle: detalleAjuste.value};
+        let ajusteCreationDTO = {ajuste: ajuste, detalle: detalleAjuste.value, username:username};
         
         AjusteStockServices.registrarAjuste(ajusteCreationDTO ).then((data)=> {
             let id = data.data.id;

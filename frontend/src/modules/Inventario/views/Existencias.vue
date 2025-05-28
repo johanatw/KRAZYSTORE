@@ -9,6 +9,9 @@ import {PedidoServices} from '@/services/PedidoServices';
 import { AnticipoServices } from '@/services/AnticipoServices';
 import {ReembolsoServices} from '@/services/ReembolsoServices'
 import { CompraServices } from '@/services/CompraServices';
+
+import { InputGroup } from 'primevue';
+import {InputGroupAddon }from 'primevue';
 import { ProductoServices } from '@/services/ProductoServices';
 import {CajaServices} from '@/services/CajaServices'
 import Panel from 'primevue/panel';
@@ -35,7 +38,7 @@ const confirm = useConfirm();
 const toast = useToast();
 const selectedOpcion = ref();
 const idPedidoSelected = ref();
-const compras = ref();
+const compras = ref([]);
 const cajaAbierta = ref({});
 const confirm2 = (id) => {
    
@@ -57,6 +60,16 @@ const confirm2 = (id) => {
 onMounted(() => {
     ProductoServices.obtenerProductos().then((data) => {
         compras.value = data.data;
+        compras.value = compras.value.map(compra => ({
+        ...compra,
+                estadoSinStock: getEstadoSinStock(compra),
+        estadoBajoDemanda: getEstadoBajoDemanda(compra),
+        estadoTexto: [
+                getEstadoSinStock(compra) || '',
+                getEstadoBajoDemanda(compra) || ''
+            ].filter(Boolean).join(' / ')
+
+        }));
         console.log(compras.value);
     });
  getCajaAbierta();
@@ -106,33 +119,63 @@ const getSeverity = (estado) => {
   
   
   switch (estado) {
-       case 'P':
-           return 'background-color: rgb(202, 241, 216); color: rgb(24, 138, 66);';
-
-       case 'N':
+       case 'Sin Stock':
            return 'background-color: rgb(254, 221, 199); color: rgb(174, 81, 15);';
 
-       case 'F':
+       case 'Bajo Pedido':
            return 'background-color: rgb(215, 227, 552); color: rgb(50, 111, 252);';
 
        default:
-           return null;
+           return 'background-color: rgb(255, 255, 255);';
    }
 };
 
-const getEstado = (estado) => {
+const getColorDisponible = (cantidad) => {
   
+  if (cantidad<1) {
+    return 'color: red;';
+  } else {
+    return 'color: green;';
+  }
+
+
+};
+
+const getColorReservado = (producto) => {
+  let cantReservada = producto.cantReservada;
+  let cantStock = producto.cantStock;
+  if (cantStock <cantReservada) {
+    return 'color: rgb(255, 102, 0);';
+  } 
+}
+
+
+const getColorStock = (cantidad) => {
   
-  switch (estado) {
-       case 'N':
-           return 'Pendiente de Pago';
+  if (cantidad<1) {
+    return 'color: red;';
+  } 
 
-       case 'P':
-           return 'Pagado';
+};
 
-       default:
-           return null;
-   }
+
+
+const getEstadoSinStock = (producto) => {
+  let cantStock = producto.cantStock;
+  
+  if(cantStock<1){
+    return 'Sin Stock'
+  }
+
+};
+
+const getEstadoBajoDemanda = (producto) => {
+  let bajoDemanda = producto.bajoDemanda;
+  
+  if (bajoDemanda) {
+    return 'Bajo Pedido'
+  }
+  
 };
 
 const addPago = () =>{
@@ -199,7 +242,17 @@ const nuevoPedido = () =>{
             <h3 class="font-bold">Existencias</h3>
         </div>
       </template>
-            
+            <template #icons>
+        <div class="flex align-items-center">
+          <InputGroup>
+            <InputText v-model="filters['global'].value" placeholder="Buscar..." />
+            <InputGroupAddon>
+              <i class="pi pi-search" />
+            </InputGroupAddon>
+        </InputGroup>
+        </div>
+    
+      </template>
   
       <div >
         
@@ -211,16 +264,38 @@ const nuevoPedido = () =>{
           <Column field="nombre" sortable header="Producto" aria-sort="ascending" >
   
         </Column>
-          <Column field="cantReservada"  header="Reservas" aria-sort="ascending" sortable>           
+          <Column field="cantReservada"  header="Reservas" aria-sort="ascending" sortable>  
+            <template #body="slotProps">
+                <div :style="getColorReservado(slotProps.data)" >
+                    {{ slotProps.data.cantReservada }}
+                </div>
+            </template>         
         </Column>
         <Column field="cantDisponible"  header="Disponible" aria-sort="ascending" sortable>    
-              
+              <template #body="slotProps">
+                <div :style="getColorDisponible(slotProps.data.cantDisponible)" >
+                    {{ slotProps.data.cantDisponible }}
+                </div>
+            </template>
         </Column>
           <Column field="cantStock"  header="Stock" aria-sort="ascending" sortable> 
+            <template #body="slotProps">
+                <div :style="getColorStock(slotProps.data.cantStock)" >
+                    {{ slotProps.data.cantStock }}
+                </div>
+            </template>
 
         </Column>   
-        
-
+        <Column  field="estadoTexto"  header="Estado" aria-sort="ascending" sortable> 
+            <template #body="slotProps">
+                <Tag :style="getSeverity(slotProps.data.estadoSinStock)" style="font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;">
+                {{ slotProps.data.estadoSinStock }}
+                </Tag>
+                <Tag :style="getSeverity(slotProps.data.estadoBajoDemanda)" style="font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;">
+            {{ slotProps.data.estadoBajoDemanda }}
+            </Tag>
+            </template>
+        </Column>
         </DataTable>
       </div>
       

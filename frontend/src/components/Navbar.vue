@@ -123,6 +123,34 @@ const items = ref([
                     router.push({name: 'productos_venta'});
                 }
             },
+            {
+                label: 'Categorias',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'categorias'});
+                }
+            },
+            {
+                label: 'Puntos de Retiro',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'puntos_retiro'});
+                }
+            },
+            {
+                label: 'Deliverys',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'deliverys'});
+                }
+            },
+            {
+                label: 'Timbrados',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'timbrados'});
+                }
+            },
           
         ]
     },

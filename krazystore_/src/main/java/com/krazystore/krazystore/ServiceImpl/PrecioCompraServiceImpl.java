@@ -72,4 +72,14 @@ public class PrecioCompraServiceImpl implements PrecioCompraService {
     public List<CostoEntity> findPreciosByIdProducto(Long id) {
         return precioCompraRepository.findPreciosByIdProducto(id);
     }
+
+    @Override
+    public Optional<CostoEntity> findCostoCercano(Long id, Date fecha) {
+        return precioCompraRepository.findCostoCercano(id, fecha);
+    }
+
+    @Override
+    public Optional<CostoEntity> findByProductoIdAndFecha(Long id, Date fecha) {
+        return precioCompraRepository.findByProductoIdAndFecha(id, fecha);
+    }
 }

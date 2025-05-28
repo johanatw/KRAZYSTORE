@@ -7,6 +7,7 @@ package com.krazystore.krazystore.ServiceImpl;
 import Utils.TipoAjusteExistencia;
 import Utils.TipoOperacionDetalle;
 import com.krazystore.krazystore.DTO.DetalleVentaCreationRequest;
+import com.krazystore.krazystore.DTO.DetalleVentaPrepararDTO;
 import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
 import com.krazystore.krazystore.Entity.DetalleVentaEntity;
 import com.krazystore.krazystore.Entity.ProductoEntity;
@@ -290,6 +291,11 @@ public class DetalleVentaServiceImpl implements DetalleVentaService{
                     detalle -> detalle.getProducto().getId(),
                     DetalleVentaEntity::getCantidad
                 ));
+    }
+
+    @Override
+    public List<DetalleVentaPrepararDTO> findDetallesFacturaRecepcionarByIdVenta(Long id) {
+        return detalleventarepository.findDetallesFacturaPrepararByIdVenta(id);
     }
     
 }

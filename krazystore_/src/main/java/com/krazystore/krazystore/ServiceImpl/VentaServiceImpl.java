@@ -6,16 +6,18 @@ package com.krazystore.krazystore.ServiceImpl;
 
 import Utils.Estado;
 import Utils.FacturaVentaPagadoEvent;
-import Utils.NuevaFacturaVentaEvent;
+import Utils.FacturaVentaEvent;
 import Utils.NumberToLetterConverter;
 import Utils.PedidoEvent;
 import Utils.PedidoFacturadoEvent;
 import Utils.ProductosFacturadosEvent;
 import Utils.TipoEvento;
 import com.krazystore.krazystore.DTO.CategoriaVentasDTO;
+import com.krazystore.krazystore.DTO.DetalleVentaPrepararDTO;
 import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
 import com.krazystore.krazystore.DTO.ProductoVentasDTO;
 import com.krazystore.krazystore.DTO.VentaCreationDTO;
+import com.krazystore.krazystore.DTO.VentaRecepcionarDTO;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.ConceptoEntity;
 import com.krazystore.krazystore.Entity.DetallePedidoEntity;
@@ -121,8 +123,7 @@ public class VentaServiceImpl implements VentaService{
         ventaEntity.setEstado(Estado.PENDIENTEDEPAGO.getCodigo());
         VentaEntity venta = ventarepository.save(ventaEntity);
         //actualiza cantidad utilizado de timbrado
-        timbrado.setCantUtilizada(timbrado.getCantUtilizada() + 1);
-        timbrado.setUltimoRemitido(timbrado.getUltimoRemitido()+1);
+        timbrado.setUltimoEmitido(timbrado.getUltimoEmitido()+1);
         timbradoService.updateTimbrado(timbrado.getId(),timbrado);
 
         //Guarda detalles y trae productos a actualizar existencias
@@ -203,9 +204,15 @@ public class VentaServiceImpl implements VentaService{
     @Transactional
     @Override
     public int anularFactura(Long id) {
+        VentaEntity facturaVenta = ventarepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Factura no encontrada"));
         
-        VentaEntity facturaVenta = ventarepository.findById(id).get();
+        Boolean tieneProductosPreparadosParaEntrega = ventarepository.tieneProductosPreparadosParaEntrega(id);
+        if(tieneProductosPreparadosParaEntrega){
+            throw new RuntimeException("No se puede anular la factura.\nHay productos preparados para entrega");
+        }
         PedidoEntity pedidoAsociado = facturaVenta.getPedido();
+        Long idPedidoAsociado = pedidoAsociado != null?pedidoAsociado.getId():null;
         facturaVenta.setEstado(Estado.ANULADO.getCodigo());
         List<DetalleVentaEntity> detalleVenta = detalleVentaService.findByIdVenta(id);
         
@@ -229,7 +236,7 @@ public class VentaServiceImpl implements VentaService{
             actualizarProductosFacturados(productosActualizarExistencias);
         }
         
-        notificarFacturaVentaAnulada(facturaVenta);
+        notificarFacturaVentaAnulada(facturaVenta, idPedidoAsociado);
         return 0;
        
     }
@@ -667,23 +674,24 @@ public class VentaServiceImpl implements VentaService{
     
     public void notificarFacturaVentaPendiente(VentaEntity nuevaVenta) {
         // Publicar el evento
-        NuevaFacturaVentaEvent evento = new NuevaFacturaVentaEvent(TipoEvento.NUEVA_VENTA, nuevaVenta );
+        FacturaVentaEvent evento = new FacturaVentaEvent(TipoEvento.NUEVA_VENTA, nuevaVenta );
         eventPublisher.publishEvent(evento);
     }
     
-    public void notificarFacturaVentaAnulada(VentaEntity ventaAnulada) {
+    public void notificarFacturaVentaAnulada(VentaEntity ventaAnulada, Long idPedido) {
         // Publicar el evento
-        NuevaFacturaVentaEvent evento = new NuevaFacturaVentaEvent(TipoEvento.FACTURA_ANULADA, ventaAnulada );
+        FacturaVentaEvent evento = new FacturaVentaEvent(TipoEvento.FACTURA_ANULADA, ventaAnulada, idPedido );
         eventPublisher.publishEvent(evento);
     }
     
     public void notificarFacturaVentaModificada(VentaEntity venta) {
         // Publicar el evento
-        NuevaFacturaVentaEvent evento = new NuevaFacturaVentaEvent(TipoEvento.FACTURA_VENTA_MODIFICADA,venta );
+        FacturaVentaEvent evento = new FacturaVentaEvent(TipoEvento.FACTURA_VENTA_MODIFICADA,venta );
         eventPublisher.publishEvent(evento);
     }
     
     public void actualizarEstadoPedido(Long idPedido, TipoEvento tipoEvento) {
+        System.out.println("ESTADOPEDIDO");
         // Publicar el evento
         PedidoEvent evento = new PedidoEvent(idPedido, tipoEvento);
         eventPublisher.publishEvent(evento);
@@ -713,5 +721,35 @@ public class VentaServiceImpl implements VentaService{
     public List<ProductoVentasDTO> obtenerTopProductosVendidos(String mes) {
         String mes_= "2025-05";
         return ventarepository.obtenerTopProductosVendidos(mes_);
+    }
+    
+    @Override
+    public List<VentaCreationDTO> findByIdPedido(Long idPedido) {
+        List<VentaEntity> facturas = ventarepository.findByIdPedido(idPedido);
+        
+        List<VentaCreationDTO> facturasList = new ArrayList<>();
+        
+        
+        for (VentaEntity factura : facturas) {
+            VentaCreationDTO ventaDTO = new VentaCreationDTO();
+            List<DetalleVentaEntity> detalle = detalleVentaService.findByIdVenta(factura.getId());
+            
+            ventaDTO.setDetalle(detalle);
+            ventaDTO.setVenta(factura);
+            
+            facturasList.add(ventaDTO);
+        }
+        
+        return facturasList;
+    }
+
+    @Override
+    public VentaRecepcionarDTO findFacturaPrepararById(Long id) {
+        VentaEntity venta = ventarepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Factura no encontrada"));
+        
+        List<DetalleVentaPrepararDTO> detalle = detalleVentaService.findDetallesFacturaRecepcionarByIdVenta(id);
+        
+        return new VentaRecepcionarDTO(venta,detalle);
     }
 }

@@ -13,6 +13,7 @@ import { TimbradoServices } from '@/services/TimbradoServices';
 import {ReembolsoServices} from '@/services/ReembolsoServices'
 import { CajaServices } from '@/services/CajaServices';
 import Panel from 'primevue/panel';
+import { InputGroup, InputGroupAddon } from 'primevue';
 import router from '@/router';
 import Toast from 'primevue/toast';
 import Tag from 'primevue/tag';
@@ -21,6 +22,8 @@ import ConfirmDialog from 'primevue/confirmdialog';
 import RadioButton from 'primevue/radiobutton';
 const visible = ref(false);
 import Listbox from 'primevue/listbox';
+
+  
 
 
 import SplitButton from 'primevue/splitbutton';
@@ -125,22 +128,19 @@ const deleteReembolso = (id) =>{
    
 }
 
-const anular = (id) =>{
+
+const anular = async (id) =>{
     console.log("anular");
     console.log(id);
     let pagosAsociados = 1;
-    VentaServices.anularVenta(id).then((response)=>{
-        if (response.data == pagosAsociados) {
-            toast.add({ severity: 'warn', detail: 'Debe eliminar los pagos asociados', life: 5000 });
-        } else {
-            getVentas();
-            toast.add({ severity: 'success', detail: 'Factura anulada', life: 5000 });
-        }
-        
-      
-            
-        })
-
+    
+    try {
+      const { data } = await VentaServices.anularVenta(id);
+      getVentas();
+        toast.add({ severity: 'success', detail: 'Factura anulada', life: 5000 });
+    } catch (error) {
+      showError(error.response.data.mensaje);
+    }
    
 }
 
@@ -243,11 +243,19 @@ const nuevoPedido = () =>{
             <h3 class="font-bold">Facturas de Venta</h3>
         </div>
       </template>
-      <template #icons>
-        
-        <Button  label="Nueva Factura" @click="nuevaFactura()" />
+    <template #icons>
+                
+        <div class="flex align-items-center">
+            <Button   icon="pi pi-plus " @click="nuevaFactura()"  style="margin-right: 1% ;"/>
+          <InputGroup>
+            <InputText fluid v-model="filters['global'].value" placeholder="Buscar..." />
+            <InputGroupAddon>
+              <i class="pi pi-search" />
+            </InputGroupAddon>
+        </InputGroup>
+        </div>
     
-    </template>
+      </template>
       
       
   
@@ -300,13 +308,8 @@ const nuevoPedido = () =>{
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
                 <div style="display: flex;" >
-                    <Button  label="Revisar" @click="verFactura(slotProps.data.id)"  style="height: 2rem !important; width: 5rem !important; margin-right: 1%; font-size: 14px; " />
-                    <div v-if="slotProps.data.estado == 'P'">
-                        <Button  severity="danger"  label="Anular" @click="confirm2(slotProps.data.id,slotProps.data.nroFactura )"  style="height: 2rem !important; width: 5rem !important; font-size: 14px;" />
-                </div>
-                <div v-else>
-                    <Button  severity="danger"  label="Anular" disabled  style="height: 2rem !important; width: 5rem !important; font-size: 14px;" />
-                </div>
+                    <Button icon="pi pi-eye" v-tooltip="'Ver Factura'" text rounded aria-label="Search" @click="verFactura(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
+                    <Button icon="pi pi-times" :disabled="slotProps.data.estado !== 'P'" v-tooltip="'Anular'" text rounded aria-label="Search" severity="warn" @click="confirm2(slotProps.data.id,slotProps.data.nroFactura )" style="height: 2rem !important; width: 2rem !important;" />
                 
                 </div>
                 

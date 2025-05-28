@@ -4,7 +4,7 @@
  */
 package com.krazystore.krazystore.Controller;
 
-import Utils.TipoPedido;
+import Utils.TipoPedidoCompra;
 import com.krazystore.krazystore.DTO.AnticipoCreationDTO;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.AplicacionAnticipo;

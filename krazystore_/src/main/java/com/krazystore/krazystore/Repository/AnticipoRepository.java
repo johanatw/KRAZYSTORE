@@ -65,6 +65,18 @@ public interface AnticipoRepository extends JpaRepository<AnticipoEntity,Long>{
   value = "SELECT r.id FROM reembolsos_anticipo r WHERE r.id_anticipo = ?1 ", 
   nativeQuery = true)
     public List<Long> getReembolsosByIdAnticipo(Long id);
+
+    @Query(
+   "SELECT a.id "
+           + "FROM AnticipoEntity a "
+           + "LEFT JOIN a.pedido p "
+           + "WHERE p.id = ?1 ")
+    public List<Long> findAnticiposByIdPedido(Long idPedido);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE AnticipoEntity a SET a.pedido = NULL WHERE a.id IN ?1 ")
+    public void desvincularPedido(List<Long> idAnticipos);
     
     
     

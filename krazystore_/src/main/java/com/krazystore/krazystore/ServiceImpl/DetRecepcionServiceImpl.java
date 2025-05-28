@@ -40,7 +40,7 @@ public class DetRecepcionServiceImpl implements DetalleRecepcionService {
         this.detalleRepository = detalleRepository;
     }
     
-
+/*
     @Override
     public List<DetalleRecepcion> findByIdRecepcion(Long id) {
         return detalleRepository.findByIdRecepcion(id);
@@ -52,37 +52,7 @@ public class DetRecepcionServiceImpl implements DetalleRecepcionService {
     }
     
 
-    @Transactional
-    @Override
-    public List<ProductoExistenciasDTO> saveDetRecepcion(List<DetalleRecepcion> detalle, Long idRecepcion) {
-        List<DetalleRecepcion> detalleGuardar = new ArrayList<>();
-        List<ProductoExistenciasDTO> productosActualizarExistencias = new ArrayList<>();
-        detalle.forEach(d -> {
-            
-            if(d.getCantRecepcionada() > 0){
-                System.out.println(d.getCantRecepcionada());
-                System.out.println(d.getCantAceptada());
-                System.out.println(d.getCantRechazada());
-                d.setCantAceptada(d.getCantRecepcionada() - d.getCantRechazada());
-                detalleGuardar.add(d);
-                
-                ProductoExistenciasDTO productoActualizar = new ProductoExistenciasDTO(
-                   d.getDetallePedido().getProducto().getId(),
-                    d.getCantAceptada(),
-                    TipoAjusteExistencia.INCREMENTAR
-                );
-            
-                productosActualizarExistencias.add(productoActualizar);
-            }
-        });
-        
-        if (!detalleGuardar.isEmpty()) {
-            detalleRepository.saveAll(detalleGuardar);
-        }
-        
-        return productosActualizarExistencias;
-       
-    }
+    
 
     @Transactional
     @Override
@@ -119,25 +89,7 @@ public class DetRecepcionServiceImpl implements DetalleRecepcionService {
     }
     
 
-    @Override
-    public List<ProductoExistenciasDTO> deleteDetRecepcion(Long idRecepcion) {
-        List<DetalleRecepcion> detalle = detalleRepository.findByIdRecepcion(idRecepcion);
-        List<ProductoExistenciasDTO> productosActualizarExistencias = new ArrayList<>();
-         
-        detalle.forEach(d -> {
-                ProductoExistenciasDTO productoActualizar = new ProductoExistenciasDTO(
-                   d.getDetallePedido().getProducto().getId(),
-                    d.getCantAceptada(),
-                    TipoAjusteExistencia.DISMINUIR
-                );
-            
-                productosActualizarExistencias.add(productoActualizar);
-            
-        });
-        
-        detalleRepository.deleteAllByIdRecepcion(idRecepcion);
-        return productosActualizarExistencias;
-    }
+    
     
     private void procesarModificaciones(List<DetalleRecepcion> detallesAnteriores, List<DetalleRecepcion> nuevosDetalles) {
         List<DetalleRecepcion> itemsModificar = getElementosModificar(detallesAnteriores, nuevosDetalles);
@@ -154,7 +106,7 @@ public class DetRecepcionServiceImpl implements DetalleRecepcionService {
         // Recorre detalle anterior
         anteriorDetalle.forEach(anterior -> {
             // Busca si el producto del detalle anterior existe en el detalle actual
-            Optional<DetalleRecepcion> actual = actualDetalle.stream().filter(act -> Objects.equals(act.getDetallePedido().getProducto().getId(), anterior.getDetallePedido().getProducto().getId())).findAny();
+            Optional<DetalleRecepcion> actual = actualDetalle.stream().filter(act -> Objects.equals(act.getDetalleCompra().getProducto().getId(), anterior.getDetalleCompra().getProducto().getId())).findAny();
             // Si encuentra, y hay diferencia se intenta modificar
             if(actual.isPresent() ){
                 if(actual.get().getCantRecepcionada() > 0 ){
@@ -190,7 +142,7 @@ public class DetRecepcionServiceImpl implements DetalleRecepcionService {
         };
                 
         for (DetalleRecepcion detalle : detallesProcesar) {
-            Long idProducto = detalle.getDetallePedido().getProducto().getId();
+            Long idProducto = detalle.getDetalleCompra().getProducto().getId();
             
             int cantidadAnterior = (tipoOperacion == TipoOperacionDetalle.MODIFICAR ) ? mapaCantidadAnterior.getOrDefault(idProducto, 0): 0;
             int cantidadNueva = detalle.getCantAceptada();
@@ -208,16 +160,85 @@ public class DetRecepcionServiceImpl implements DetalleRecepcionService {
     private Map<Long, Integer> construirMapaCantidadAnterior(List<DetalleRecepcion> detallesAnteriores) {
         return detallesAnteriores.stream()
                 .collect(Collectors.toMap(
-                    detalle -> detalle.getDetallePedido().getProducto().getId(),
+                    detalle -> detalle.getDetalleCompra().getProducto().getId(),
                     detalle -> detalle.getCantRecepcionada() - detalle.getCantRechazada()
                 ));
     }
+
+    
+
+    @Override
+    public List<DetalleRecepcionDTO> obtenerDetallesFacturasRecepcionar(List<Long> ids) {
+        List<DetalleRecepcionDTO> detalleRecepcionar = detalleRepository.obtenerDetallesFacturasRecepcionar(ids).stream()
+                    .filter(d -> d.getDetalleCompra().getCantidad()>d.getDetalleCompra().getCantRecepcionada()) // condición
+                    .collect(Collectors.toList());
+        return detalleRecepcionar;
+    }
+
+  */
 
     @Override
     public List<DetalleRecepcionDTO> findDetalleByIdRecepcion(Long idRecepcion) {
         return detalleRepository.findDetalleByIdRecepcion(idRecepcion);
     }
-
-  
+    
+    public List<DetalleRecepcionDTO> obtenerDetallesFacturasRecepcionar(List<Long> ids) {
+        List<DetalleRecepcionDTO> detalleRecepcionar = detalleRepository.obtenerDetallesFacturasRecepcionar(ids).stream()
+                    .filter(d -> d.getDetalleCompra().getCantPendiente() >0) // condición
+                    .collect(Collectors.toList());
+        return detalleRecepcionar;
+    }
+    
+    @Transactional
+    @Override
+    public List<ProductoExistenciasDTO> saveDetRecepcion(List<DetalleRecepcion> detalle, Long idRecepcion) {
+        List<DetalleRecepcion> detalleGuardar = new ArrayList<>();
+        List<ProductoExistenciasDTO> productosActualizarExistencias = new ArrayList<>();
+        detalle.forEach(d -> {
+            
+            if(d.getCantRecepcionada() > 0){
+                System.out.println(d.getCantRecepcionada());
+                System.out.println(d.getCantAceptada());
+                System.out.println(d.getCantRechazada());
+                d.setCantAceptada(d.getCantRecepcionada() - d.getCantRechazada());
+                detalleGuardar.add(d);
+                
+                ProductoExistenciasDTO productoActualizar = new ProductoExistenciasDTO(
+                   d.getDetalleCompra().getProducto().getId(),
+                    d.getCantAceptada(),
+                    TipoAjusteExistencia.INCREMENTAR
+                );
+            
+                productosActualizarExistencias.add(productoActualizar);
+            }
+        });
+        
+        if (!detalleGuardar.isEmpty()) {
+            detalleRepository.saveAll(detalleGuardar);
+        }
+        
+        return productosActualizarExistencias;
+       
+    }
+    
+    @Override
+    public List<ProductoExistenciasDTO> deleteDetRecepcion(Long idRecepcion) {
+        List<DetalleRecepcion> detalle = detalleRepository.findByIdRecepcion(idRecepcion);
+        List<ProductoExistenciasDTO> productosActualizarExistencias = new ArrayList<>();
+         
+        detalle.forEach(d -> {
+                ProductoExistenciasDTO productoActualizar = new ProductoExistenciasDTO(
+                   d.getDetalleCompra().getProducto().getId(),
+                    d.getCantAceptada(),
+                    TipoAjusteExistencia.DISMINUIR
+                );
+            
+                productosActualizarExistencias.add(productoActualizar);
+            
+        });
+        
+        detalleRepository.deleteAllByIdRecepcion(idRecepcion);
+        return productosActualizarExistencias;
+    }
     
 }

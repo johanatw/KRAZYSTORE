@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -40,9 +41,14 @@ public class CompraController {
         return compraService.findAll();
     }
     
+    @GetMapping("/pedidos")
+    public List<CompraCreationDTO> findFacturasProductosByIdsPedidos(@RequestParam(value="ids") List<Long> ids) {
+        return compraService.findFacturasProductosByIdsPedidos(ids);
+    }
+    
     @GetMapping("/pedido/{id}")
-    public List<CompraCreationDTO> findByIdPedido(@PathVariable("id") Long id) {
-        return compraService.findByIdPedido(id);
+    public List<CompraCreationDTO> findFacturasProductosByIdPedido(@PathVariable("id") Long id) {
+        return compraService.findFacturasByIdPedido(id);
     }
 
     @GetMapping("/{id}")

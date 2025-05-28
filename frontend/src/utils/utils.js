@@ -42,26 +42,36 @@ export async function existeCajaAbierta() {
 
 export function getEstadoPedidoVenta(estado) {
   switch (estado) {
-       case 'NUEVO':
+       case 'N':
            return 'Nuevo';
-       case 'FACTURADO':
-           return 'Facturado';
-        case 'PARCIALMENTE_FACTURADO':
-           return 'Fact. Parcial';
-        case 'CON_ANTICIPO':
+        case 'A':
            return 'Con Anticipo';
-        case 'PENDIENTE_DE_FACTURA':
-           return 'Pendiente';
-        case 'PREPARADO':
+        case 'P':
            return 'Preparado';
-        case 'PARCIALMENTE_PREPARADO':
+        case 'R':
            return 'Prep. Parcial';
-        case 'PARCIALMENTE_ENTREGADO':
+        case 'M':
            return 'Entrega Parcial';
-        case 'ENTREGADO':
+        case 'E':
            return 'Entregado';
-        case 'NO_ENTREGADO':
+        case 'X':
            return 'No Entregado';
+           case 'C':
+           return 'Cancelado';
+
+       default:
+           return null;
+   }
+};
+
+export function getEstadoFacturaPedidoVenta(estado) {
+  switch (estado) {
+       case 'F':
+           return 'Facturado';
+        case 'R':
+           return 'Fact. Parcial';
+        case 'P':
+           return 'Pendiente';
 
        default:
            return null;
@@ -70,17 +80,17 @@ export function getEstadoPedidoVenta(estado) {
 
 export function getEstadoPedidoCompra(estado) {
   switch (estado) {
-       case 'NUEVO':
+       case 'N':
            return 'Nuevo';
-       case 'RECEPCIONADO':
+       case 'R':
            return 'Recepcionado';
-        case 'PARCIALMENTE_RECEPCIONADO':
+        case 'M':
            return 'Recepcion parcial';
-        case 'FACTURADO':
+        case 'F':
             return 'Facturado';
-        case 'PARCIALMENTE_FACTURADO':
+        case 'R':
             return 'Fact. Parcial';
-        case 'PENDIENTE_DE_FACTURA':
+        case 'P':
             return 'Pendiente';
        default:
            return null;
@@ -105,8 +115,10 @@ export function getEstadoEntrega(estado) {
              return 'Pendiente de Entrega';
          case 'E':
              return 'Entregado';
-        case 'N':
+        case 'X':
              return 'No Entregado';
+        case 'C':
+             return 'Cancelado';
   
          default:
              return null;

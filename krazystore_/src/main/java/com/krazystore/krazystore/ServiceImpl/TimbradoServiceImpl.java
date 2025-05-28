@@ -29,7 +29,7 @@ public class TimbradoServiceImpl implements TimbradoService {
         String nroFactura;
         int ce = timbrado.getCodEstablecimiento();
         int pe = timbrado.getPuntoExpedicion();
-        int ultimoRemitido = timbrado.getUltimoRemitido() + 1;
+        int ultimoRemitido = timbrado.getUltimoEmitido() + 1;
         if(Integer.toString(ce).length() == 1){
             nroFactura= "00"+ce+"-";
         }else if(Integer.toString(ce).length() == 2){
@@ -85,7 +85,7 @@ public class TimbradoServiceImpl implements TimbradoService {
     
     @Override
     public TimbradoEntity updateTimbrado(Long id,TimbradoEntity timbrado) {
-        System.out.println(timbrado.getUltimoRemitido());
+        System.out.println(timbrado.getUltimoEmitido());
         return timbradoRepository.save(timbrado);
     }
 

@@ -17,6 +17,7 @@ public class InventarioCreationDTO {
     InventarioEntity inventario;
     private List<DetalleInventarioDTO> detalle;
     private List<CategoriaEntity> filtrosInventario;
+    private String username;
 
     public InventarioEntity getInventario() {
         return inventario;
@@ -41,6 +42,14 @@ public class InventarioCreationDTO {
 
     public void setFiltrosInventario(List<CategoriaEntity> filtrosInventario) {
         this.filtrosInventario = filtrosInventario;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     

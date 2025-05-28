@@ -30,9 +30,9 @@ import org.springframework.web.servlet.NoHandlerFoundException;
  */
 @RestControllerAdvice
 public class ApiExceptionHandler {
-    
+    /*
     //controla los errores de los campos
-    /*@ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handlderMethodArgumentNotValidException(MethodArgumentNotValidException exception,
                                                                           WebRequest webRequest) {
         System.out.println("entreaaaa");
@@ -63,9 +63,9 @@ public class ApiExceptionHandler {
         ApiResponse apiResponse = new ApiResponse(exception.getMessage(), webRequest.getDescription(false));
         return new ResponseEntity<>(apiResponse, HttpStatus.NOT_FOUND);
     }
-    */
+    
     //controla los errores de logica o de los catch en general 400
-    /*@ExceptionHandler(BadRequestException.class)
+    @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiResponse> handlerBadRequestException(BadRequestException exception,
                                                                         WebRequest webRequest) {
         System.out.println(exception.getClass());
@@ -79,17 +79,17 @@ public class ApiExceptionHandler {
         System.out.println("entreaaaa44");
         ApiResponse apiResponse = new ApiResponse(exception.getMessage(), webRequest.getDescription(false));
         return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
-    }*/
+    }
 
     //controla los errores de varios tipos y globalizrlo con un error 500
-    /*
+    
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse> handlerException(Exception exception,
                                                                   WebRequest webRequest) {
         System.out.println("entreaaaa555");
         ApiResponse apiResponse = new ApiResponse(exception.getMessage(), webRequest.getDescription(false));
         return new ResponseEntity<>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }*/
+    }
     
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<String> handleUsernameNotFoundException(UsernameNotFoundException ex) {
@@ -121,7 +121,7 @@ public class ApiExceptionHandler {
         ApiResponse apiResponse = new ApiResponse("Token inválido", webRequest.getDescription(false));
         return new ResponseEntity<>(apiResponse, HttpStatus.UNAUTHORIZED);
     }
-    
+    */
     
 
 }

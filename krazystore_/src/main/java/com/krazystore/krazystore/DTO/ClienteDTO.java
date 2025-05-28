@@ -21,6 +21,7 @@ public class ClienteDTO {
     private String nroDoc;
     private String telefono;
     private DireccionEntity direccion;
+    private String correo;
 
     public ClienteDTO() {
     }
@@ -29,6 +30,7 @@ public class ClienteDTO {
         this.id = id;
         this.nombre = persona.getNombre();
         this.apellido = persona.getApellido();
+        this.correo = persona.getEmail();
         this.nombreCompleto = this.apellido != null ? (this.nombre + " " + this.apellido) : this.nombre;
         this.tipoDoc = persona.getTipoDoc();
         this.nroDoc = persona.getNroDoc();
@@ -44,6 +46,7 @@ public class ClienteDTO {
         this.tipoDoc = persona.getTipoDoc();
         this.nroDoc = persona.getNroDoc();
         this.telefono = persona.getTelefono();
+        this.correo = persona.getEmail();
     }
     
     public long getId() {
@@ -108,6 +111,14 @@ public class ClienteDTO {
 
     public void setDireccion(DireccionEntity direccion) {
         this.direccion = direccion;
+    }
+
+    public String getCorreo() {
+        return correo;
+    }
+
+    public void setCorreo(String correo) {
+        this.correo = correo;
     }
 
 

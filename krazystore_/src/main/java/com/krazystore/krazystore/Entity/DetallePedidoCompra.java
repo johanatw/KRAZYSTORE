@@ -48,6 +48,10 @@ public class DetallePedidoCompra {
         this.producto = producto;
     }
 
+    public DetallePedidoCompra(Long id) {
+        this.id = id;
+    }
+
     
 
     

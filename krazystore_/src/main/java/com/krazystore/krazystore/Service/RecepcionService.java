@@ -16,13 +16,26 @@ import java.util.Optional;
  * @author HP
  */
 public interface RecepcionService {
-    List<RecepcionDTO> findAll();
+
+    public List<DetalleRecepcionDTO> obtenerDetallesFacturasRecepcionar(List<Long> ids);
+    /*List<RecepcionDTO> findAll();
     RecepcionCreationDTO findById(Long id);
     RecepcionEntity saveRecepcion (RecepcionCreationDTO recepcion);
     RecepcionEntity updateRecepcion(RecepcionCreationDTO recepcion, Long id);
-    void deleteRecepcion(Long id);
+    
     int getTotalRecepcionadoPorProducto(Long pedidoId, Long productoId);
     List<DetalleRecepcionDTO> obtenerDetalleFacturaRecepcionar(Long idCompra);
     List<RecepcionCreationDTO> findByIdPedido(Long idPedido);
+
+    public List<DetalleRecepcionDTO> obtenerDetallesFacturasRecepcionar(List<Long> ids);*/
+
+    public RecepcionEntity saveRecepcion(RecepcionCreationDTO recepcion);
+
+    void deleteRecepcion(Long id);
+    public List<RecepcionDTO> findAll();
+
+    public RecepcionCreationDTO findById(Long id);
+
+    public Boolean esRecepcionado(Long id);
 
 }

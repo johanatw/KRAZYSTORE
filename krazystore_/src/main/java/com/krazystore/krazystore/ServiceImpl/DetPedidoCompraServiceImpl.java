@@ -36,7 +36,7 @@ public class DetPedidoCompraServiceImpl implements DetallePedidoCompraService {
     
     @Override
     public List<DetallePedidoCompraDTO> findDTOByIdPedido(Long id) {
-        return detalleRepository.findDetallesByIdPedido(id);
+        return detalleRepository.findDetallesDTOByIdPedido(id);
     }
     
     @Override
@@ -49,10 +49,10 @@ public class DetPedidoCompraServiceImpl implements DetallePedidoCompraService {
         return detalleRepository.getCantProductosPedidos(id);
     }
     
-    @Override
+    /*@Override
     public Long getCantProductosRecepcionados(Long id) {
         return detalleRepository.getCantProductosRecepcionados(id);
-    }
+    }*/
 
     @Transactional
     @Override
@@ -189,9 +189,21 @@ public class DetPedidoCompraServiceImpl implements DetallePedidoCompraService {
         return elementos;
     }
 
-    @Override
+    /*@Override
     public List<DetallePedidoCompraDTO> findDetalleFacturarByIdsRecepciones(List<Long> ids) {
         return detalleRepository.findDetalleFacturarByIdsRecepciones(ids);
+    }*/
+
+    
+
+    @Override
+    public Long getCantProductosRecepcionados(Long id) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public List<DetallePedidoCompraDTO> findDetalleFacturarByIdsRecepciones(List<Long> ids) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     
 }

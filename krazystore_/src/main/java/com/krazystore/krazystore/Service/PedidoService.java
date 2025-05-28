@@ -21,4 +21,5 @@ public interface PedidoService {
     PedidoEntity savePedido(PedidoCreationDTO pedidoCreationDTO);
     PedidoEntity updatePedido(PedidoCreationDTO pedidoCreationDTO, Long id) throws Exception;
     void deletePedido(Long id);
+    PedidoEntity cancelarPedido(Long id);
 }

@@ -5,8 +5,9 @@
 package com.krazystore.krazystore.ServiceImpl;
 
 import Utils.AplicacionAnticiposEvent;
+import Utils.PedidoCanceladoEvent;
 import Utils.TipoEvento;
-import Utils.TipoPedido;
+import Utils.TipoPedidoCompra;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.AplicacionAnticipo;
 
@@ -223,6 +224,20 @@ public class AnticipoServiceImpl implements AnticipoService{
         });
         
         anticipoRepository.saveAll(anticiposActualizar);
+    }
+    
+    @EventListener
+    public void handlePedidoCanceladoEvent(PedidoCanceladoEvent evento) {
+        Long idPedido = evento.getPedidoId();
+        if(idPedido==null)
+            throw new IllegalArgumentException("Id de pedido no puede ser null");
+        
+        List<Long> idAnticipos = anticipoRepository.findAnticiposByIdPedido(idPedido);
+        
+        if(!idAnticipos.isEmpty()){
+            anticipoRepository.desvincularPedido(idAnticipos);
+        }
+        
     }
     
 }

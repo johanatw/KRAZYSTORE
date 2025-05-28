@@ -68,8 +68,8 @@ export const RecepcionServices = {
 
   },
 
-  getDetalleFacturaRecepcionar(id){
-    return axios.get(RECEPCION_API_BASE_URL+"/detalle_compra_recepcionar/"+id,{
+  getDetallesFacturasRecepcionar(ids){
+    return axios.get(RECEPCION_API_BASE_URL+"/detalles_compras_recepcionar?ids="+ids,{
       headers: {
         'Authorization': 'Bearer ' + localStorage.getItem('token')
       }

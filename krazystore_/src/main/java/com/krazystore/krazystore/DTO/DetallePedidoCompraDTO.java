@@ -22,9 +22,21 @@ public class DetallePedidoCompraDTO {
     private int cantFacturada;
     private int subTotal;
     private int costoCompra;
+    private Boolean esServicio;
 
     public DetallePedidoCompraDTO() {
     }
+
+    public DetallePedidoCompraDTO(Long id, Long idProducto, String producto, IvaEntity tipoIva, int cantidad, int subTotal, int costoCompra, long cantFacturada ) {
+        this.id = id;
+        this.producto = new ProductoDTO(idProducto, producto, tipoIva);
+        this.cantidad = cantidad;
+        this.cantSolicitada = cantidad;
+        this.cantFacturada = (int)cantFacturada;
+        this.subTotal = subTotal;
+        this.costoCompra = costoCompra;
+    }
+
 
     public DetallePedidoCompraDTO(Long id, Long cantSolicitada, Long cantRecepcionada,Long cantAceptada, Long cantFacturada) {
         this.id = id;
@@ -34,7 +46,7 @@ public class DetallePedidoCompraDTO {
         this.cantAceptada = (int)(long)cantAceptada;
     }
 
-    
+   
     
     public DetallePedidoCompraDTO(Long id, Long idProducto, String producto, 
             PedidoCompraEntity pedidoCompra, int cantidad, int subTotal, int costoCompra, Long cantRecepcionada) {
@@ -59,6 +71,7 @@ public class DetallePedidoCompraDTO {
         this.costoCompra = costoCompra;
     }
     
+    
     public DetallePedidoCompraDTO(Long id, Long idProducto, String producto) {
         this.id = id;
         this.producto = new ProductoDTO(idProducto, producto);
@@ -71,7 +84,7 @@ public class DetallePedidoCompraDTO {
     }
     
     public DetallePedidoCompraDTO(Long id, Long idProducto, String producto, IvaEntity tipoIva,
-            PedidoCompraEntity pedidoCompra, int cantidad, int subTotal, int costoCompra, 
+            PedidoCompraEntity pedidoCompra, int cantidad, int subTotal, int costoCompra, Boolean esServicio,
             Long cantRecepcionada, Long cantFacturada, Long cantAceptada) {
         this.id = id;
         this.producto = new ProductoDTO(idProducto, producto, tipoIva);
@@ -83,18 +96,10 @@ public class DetallePedidoCompraDTO {
         this.subTotal = subTotal;
         this.costoCompra = costoCompra;
         this.cantidad = cantidad;
+        this.esServicio = esServicio;
     }
     
-    public DetallePedidoCompraDTO(Long id, Long idProducto, String producto, IvaEntity tipoIva,
-            Integer costoCompra, Long cantAceptada, Long cantRecepcionada
-            ) {
-        this.id = id;
-        this.producto = new ProductoDTO(idProducto, producto, tipoIva);
-        this.cantRecepcionada = (int)(long) cantRecepcionada;
-        this.cantAceptada = (int)(long) cantAceptada;
-        this.costoCompra = costoCompra;
-        
-    }
+    
 
     public DetallePedidoCompraDTO(Long id, Long idProducto, String producto, 
             int cantidad, int costoCompra, Long cantRecepcionada) {
@@ -197,6 +202,14 @@ public class DetallePedidoCompraDTO {
 
     public void setCantAceptada(int cantAceptada) {
         this.cantAceptada = cantAceptada;
+    }
+
+    public Boolean getEsServicio() {
+        return esServicio;
+    }
+
+    public void setEsServicio(Boolean esServicio) {
+        this.esServicio = esServicio;
     }
     
     

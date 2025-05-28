@@ -92,12 +92,13 @@ router.push({name: 'ventas'});
 };
 
 const detalleFacturar = ref([]);
-const selectedProducts = ref();
+const detalleFacturar2 = ref([]);
+const selectedProducts = ref([]);
 const subTotal = ref(0);
 const montoIva = ref(0);
 const detalle = ref({});
 const total = ref(0);
-const nroFactura = ref();
+const nroFactura = ref('');
 const fechaCompra = ref(new Date());
 const recepcion = ref();
 const pedido = ref();
@@ -110,19 +111,26 @@ onMounted(() => {
     let idPedido = router.currentRoute.value.params.id;
     PedidoCompraServices.getPedido(router.currentRoute.value.params.id).then((data) => {
         pedido.value = data.data.pedido;
-        detalleFacturar.value = data.data.detalle;  
-        
+        let detallePedido = data.data.detalle; 
+        console.log(data.data.detalle);
         selectedCliente.value = data.data.pedido.proveedor;
         compraInternacional.value = esCompraInternacional(selectedCliente.value.tipo.descripcion)?true:false;
         mostrarCliente(); 
         console.log(compraInternacional.value);
         
-        detalleFacturar.value.forEach(e => {
-            e.id = null;
+        detallePedido.forEach(e => {
+            let d = {};
+            d.producto = e.producto;
+            d.subTotal = e.subTotal;
+            d.costoCompra = e.costoCompra;
+            d.detallePedido = e;
+            d.cantSolicitada = e.cantSolicitada;
+            d.cantFacturada = e.cantFacturada;
             console.log(e.cantSolicitada);
-            e.cantidad = e.cantSolicitada - e.cantFacturada;
-            e.ivaAplicado = compraInternacional.value?iva0.value:e.producto.tipoIva;
-          
+            d.cantidad = e.cantSolicitada - e.cantFacturada;
+            d.ivaAplicado = compraInternacional.value?iva0.value:e.producto.tipoIva;
+            
+            detalleFacturar.value.push(d);
         });
 
 
@@ -209,7 +217,7 @@ const filters = ref({
 
 const esCompraInternacional = (tipoProveedor) =>{
 
-if (tipoProveedor == 'Extranjero') {
+if (tipoProveedor == 'Internacional') {
     return true;
 }
 
@@ -410,6 +418,8 @@ return index;
 const validarForm = () => {
 console.log("selectedCliente.value");
 console.log(selectedCliente.value);
+detalleFacturar2.value = selectedProducts.value?.filter(d => d.cantidad > 0);
+    
 mensaje.value = [];
 error.value = false;
 if (selectedCliente.value) {
@@ -417,13 +427,27 @@ if (selectedCliente.value) {
 
 } else {
 error.value = true;
-mensaje.value.push("Debe seleccionar un cliente");
+mensaje.value.push("Debe seleccionar un Proveedor");
 }
 
-if (total.value <1) {
-error.value = true;
-mensaje.value.push("Debe añadir productos");
+if(nroFactura.value == null || nroFactura.value == undefined || !nroFactura.value.trim() ){
+    error.value = true;
+    mensaje.value.push("Debe ingresar el número de factura");
 }
+
+if (selectedProducts.value.length < 1) {
+    error.value = true;
+    mensaje.value.push("Debe seleccionar productos");
+}else if (detalleFacturar2.value.length < 1) {
+            error.value = true;
+            mensaje.value.push("No se ingresó ninguna cantidad para facturar");
+
+    } else if (total.value <1) {
+error.value = true;
+mensaje.value.push("El total de la factura debe ser mayor a 0");
+}
+
+
 
   
 guardarFactura();
@@ -593,7 +617,7 @@ let ids =  recepcionesFacturarIds.value;
     ids = JSON.parse('[ ]');
 }*/
 
-let anticipoCreationDTO = {compra: ant, detalle: selectedProducts.value, idRecepciones: ids};
+let anticipoCreationDTO = {compra: ant, detalle: detalleFacturar2.value};
 console.log(anticipoCreationDTO);
 
 CompraServices.registrarCompra(anticipoCreationDTO ).then((data)=> {
@@ -850,7 +874,7 @@ Proveedor
  <Column class="col" header="Costo" aria-sort="none" >
  <template #body="slotProps">
  <div class="flex-auto p-fluid" >
- {{ slotProps.data.costoCompra }}
+ {{ formatearNumero(slotProps.data.costoCompra) }}
  </div> 
  </template>
 </Column>
@@ -880,7 +904,7 @@ Proveedor
 </Column>
 <Column  class="col" field="cantidad" header="IVA" aria-sort="none">
     <template #body="slotProps">
-        {{ slotProps.data.producto.tipoIva.porcentaje}}%
+        {{ slotProps.data.ivaAplicado.porcentaje}}%
     </template>
     
 </Column>

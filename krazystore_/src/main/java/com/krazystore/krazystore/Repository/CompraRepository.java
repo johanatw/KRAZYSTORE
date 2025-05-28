@@ -19,7 +19,21 @@ public interface CompraRepository extends JpaRepository<CompraEntity, Long> {
         @Query(
         "SELECT c FROM CompraEntity c "
                + "LEFT JOIN FETCH c.pedido p "
-                + "WHERE p.id = ?1 "
+                + "WHERE p.id = ?1 AND c.tipoFactura = 'PROD'"
                )
         public List<CompraEntity> findByIdPedido(Long id);
+
+        @Query(
+        "SELECT c FROM CompraEntity c "
+               + "LEFT JOIN c.pedido p "
+                + "WHERE p.id IN ?1 AND c.tipoFactura = 'PROD'"
+               )
+    public List<CompraEntity> findFacturasProductosByIdsPedidos(List<Long> ids);
+
+    @Query(
+        "SELECT c FROM CompraEntity c "
+               + "LEFT JOIN c.pedido p "
+                + "WHERE p.id = ?1 AND c.tipoFactura = 'PROD'"
+               )
+    public List<CompraEntity> findFacturasByIdPedido(Long id);
 }

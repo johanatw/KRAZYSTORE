@@ -35,9 +35,6 @@ public class RecepcionEntity {
     private Date fecha;
     @Column
     private Character estado;
-    @ManyToOne
-    @JoinColumn(name = "id_pedido")
-    private PedidoCompraEntity pedido;
 
     public RecepcionEntity(Long id) {
         this.id = id;
@@ -66,16 +63,5 @@ public class RecepcionEntity {
     public void setFecha(Date fecha) {
         this.fecha = fecha;
     }
-
-    public PedidoCompraEntity getPedido() {
-        return pedido;
-    }
-
-    public void setPedido(PedidoCompraEntity pedido) {
-        this.pedido = pedido;
-    }
-
-    
-    
     
 }

@@ -18,6 +18,7 @@ import { useToast } from "primevue/usetoast";
 import { TipoDocServices } from '@/services/TipoDocServices';
 import { DepartamentoServices } from '@/services/DepartamentoServices';
 import { CiudadServices } from '@/services/CiudadServices';
+import Checkbox from 'primevue/checkbox';
 
 
 const proveedores = ref();
@@ -37,7 +38,7 @@ const tiposProveedor = ref([
 const confirm2 = (id) => {
    
     confirm.require({
-        message: 'Eliminar el reembolso #'+ id + '?',
+        message: 'Eliminar este registro?',
         header: 'Confirmacion',
         icon: 'pi pi-info-circle',
         rejectLabel: 'Cancelar',
@@ -45,17 +46,15 @@ const confirm2 = (id) => {
         rejectClass: 'p-button-secondary p-button-outlined',
         acceptClass: 'p-button-danger',
         accept: () => {
-            deleteReembolso(id);
+            eliminarProveedor(id);
             
         },
         
     });
 };
 onMounted(() => {
-  ProveedorServices.obtenerProveedores().then((data) => {
-        proveedores.value = data.data;
-        console.log(proveedores.value);
-    });
+  getProveedores();
+
 
     DepartamentoServices.obtenerDepartamentos().then((data) => {
         departamentos.value = data.data;
@@ -75,6 +74,44 @@ const registrarProveedor = () =>{
     proveedor.value = {};
     proveedorDialog.value = true;
 }
+
+const eliminarProveedor = async (id) => {
+        try {
+          await ProveedorServices.eliminar(id);
+          
+          showSuccess('Proveedor eliminado correctamente');
+          getProveedores();
+        } catch (error) {
+          showError('Error al eliminar el proveedor');
+        }
+      }
+
+async function getProveedores() {
+    try {
+      const { data } = await ProveedorServices.obtenerProveedores();
+      proveedores.value = data;
+    } catch (error) {
+      showError('Error al obtener proveedores');
+    }
+  }
+
+const showError = (message) => {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: message,
+      life: 3000
+    });
+  };
+  
+  const showSuccess = (message) => {
+    toast.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: message,
+      life: 3000
+    });
+  };
 
 const obtenerCiudadesByDepartamento = (id) =>{
     CiudadServices.obtenerCiudadesByDepartamento(id).then((data) => {
@@ -195,6 +232,10 @@ const saveProveedor = () => {
         <div class="field">
             <label for="description">Direccion</label>
             <InputText fluid id="description" v-model="proveedor.direccion" required="true"  />
+        </div>
+        <div class="field flex items-center gap-2">
+            <Checkbox fluid v-model="proveedor.esProveedorImportacion" binary />
+            <label for="description">Es proveedor de servicios de importación</label>
         </div>
     </div>
         <template #footer>

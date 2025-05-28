@@ -122,10 +122,10 @@ async function guardarAnticipo() {
     CajaServices.saveAnticipo(anticipoCreationDTO ).then((data)=> {
         getAnticipos();
         closeDialog();
-        toast.add({ severity:"success", detail: 'Anticipo registrado', life: 3000 });
+        showSuccess('Anticipo registrado');
     } );
     } else {
-        toast.add({ severity:"error", detail: 'No existe una caja abierta', life: 3000 });
+        showError('No existe una caja abierta');
     }
 };
 
@@ -204,6 +204,24 @@ const getTipoPedido = (tipo) =>{
     }
 }
 
+const showError = (message) => {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: message,
+      life: 3000
+    });
+  };
+  
+  const showSuccess = (message) => {
+    toast.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: message,
+      life: 3000
+    });
+  };
+
 const closeDialog = (event) =>{
     if (event == false) {
         reiniciarDialog();
@@ -246,10 +264,10 @@ const guardarReembolso = () =>{
             
             getAnticipos();
             closeDialog();
-            toast.add({ severity:"success", detail: 'Reembolso registrado', life: 3000 });
+            showSuccess('Reembolso registrado');
         });
     } else {
-        toast.add({ severity:"error", detail: 'No existe una caja abierta', life: 3000 });
+        showError('No existe una caja abierta');
     }
     
 };
@@ -305,7 +323,7 @@ const deleteAnticipo = (id) =>{
 
         anticipos.value.splice(index,cantidad);
         visibleDeleteDialog.value= false;
-        toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 5000 });
+        showSuccess('Anticipo eliminado');
 
     })
 
@@ -486,9 +504,10 @@ const getMediosCobro= () => {
                                                     <label for="totalPagos" style="font-weight: 600;"> Motivo del reembolso: </label>
                                                 </div>
                                                 <div  class="flex field col-12 md:col-6" style=" justify-content: start; " :style="{color: color}" >
-                                                    <span class="p-inputnumber p-inputwrapper p-inputwrapper-filled p-fluid"  name="input" style="padding: 0rem !important;">
-                                                        <input v-model="motivo" class="p-inputtext p-component p-inputnumber-input"  >
-                                                    </span>
+                                                    
+                                                        <InputText fluid v-model="motivo"  type="text" placeholder="Motivo"  />
+                                                    
+                                                  
                                                 </div>
                                             </div>
                                         </div>
@@ -644,10 +663,10 @@ const getMediosCobro= () => {
                     </Column>
                     <Column field="total"  header="Cliente" aria-sort="ascending" sortable>    
                                     <template #body="slotProps">
-                                        {{ slotProps.data.cliente?.persona?.nombre || ' ' }}
+                                        {{ slotProps.data.cliente?.persona?.nombre || ' ' }} {{ slotProps.data.cliente?.persona?.apellido }}
                                     </template>        
                                 </Column>
-                    <Column field="pedido.id" header="Pedido N°" aria-sort="ascending" sortable>
+                        <Column field="pedido.id" header="Pedido N°" aria-sort="ascending" sortable>
                         <template #body="slotProps">
                            {{ formatearNumero(slotProps.data.pedido?.id) }}
                         </template>

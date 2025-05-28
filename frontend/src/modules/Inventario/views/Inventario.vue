@@ -1,10 +1,10 @@
 
 <template>
     <div class="flex p-fluid justify-content-center " >
-        <Panel style=" position: relative; width: 100%;" >
+        <Panel style=" position: relative; width: 80%;" >
             <template #header>
                 <div class="flex align-items-center gap-2">
-                    <h3 class="font-bold">Nuevo Inventario</h3>
+                    <h3 class="font-bold">Nuevo Control de Inventario</h3>
                 </div>
             </template>
      
@@ -206,7 +206,7 @@ const guardarInventario = () =>{
     let anticipoCreationDTO = {inventario: ant, detalle: productosFiltrados.value};
 
     InventarioServices.registrarInventario(anticipoCreationDTO).then((data)=> {
-        showSuccess('Inventario creado correctamente');
+        showSuccess('Control de Inventario creado');
         let id = data.data.id;
         vistaInventarios();        
     } );

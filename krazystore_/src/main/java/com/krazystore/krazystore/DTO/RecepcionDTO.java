@@ -20,15 +20,16 @@ public class RecepcionDTO {
     private Character estado;
     private ProveedorEntity proveedor;
     private CompraEntity compra;
+    private String idsPedido;
     
 
     public RecepcionDTO() {
     }
 
-    public RecepcionDTO(Long id, Date fecha, Long idPedido) {
+    public RecepcionDTO(Long id, Date fecha, Character estado) {
         this.id = id;
         this.fecha = fecha;
-        this.idPedido = idPedido;
+        this.estado = estado;
     }
     
     public RecepcionDTO(Long id, Date fecha, Long idPedido, Character estado) {
@@ -39,6 +40,14 @@ public class RecepcionDTO {
         
     }
 
+    public RecepcionDTO(Long id, Date fecha, String idsPedido, Character estado) {
+        this.id = id;
+        this.fecha = fecha;
+        this.estado = estado;
+        this.idsPedido = idsPedido;
+    }
+
+    
     public RecepcionDTO(Long id, Date fecha, Long idPedido, Character estado, CompraEntity compra) {
         this.id = id;
         this.fecha = fecha;
@@ -46,6 +55,7 @@ public class RecepcionDTO {
         this.estado = estado;
         this.compra = compra;
     }
+
     
     
 
@@ -119,6 +129,14 @@ public class RecepcionDTO {
 
     public void setCompra(CompraEntity compra) {
         this.compra = compra;
+    }
+
+    public String getIdsPedido() {
+        return idsPedido;
+    }
+
+    public void setIdsPedido(String idsPedido) {
+        this.idsPedido = idsPedido;
     }
    
     

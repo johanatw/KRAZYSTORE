@@ -21,6 +21,7 @@ import lombok.NoArgsConstructor;
 public class RecepcionCreationDTO {
     private RecepcionDTO recepcion;
     private List<DetalleRecepcionDTO> detalle;
+    private List<Long> idsCompras;
 
     
     public RecepcionDTO getRecepcion() {
@@ -37,6 +38,14 @@ public class RecepcionCreationDTO {
 
     public void setDetalle(List<DetalleRecepcionDTO> detalle) {
         this.detalle = detalle;
+    }
+
+    public List<Long> getIdsCompras() {
+        return idsCompras;
+    }
+
+    public void setIdsCompras(List<Long> idsCompras) {
+        this.idsCompras = idsCompras;
     }
 
     

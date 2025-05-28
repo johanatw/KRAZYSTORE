@@ -28,4 +28,6 @@ public interface DetallePedidoService {
     void deleteByPedido(Long id);
     void deleteDetallesPedido(List<Long> ids);
     void deleteDetallePedido(Long id);
+
+    public List<ProductoExistenciasDTO> getProductosRevertirReservas(Long id);
 }

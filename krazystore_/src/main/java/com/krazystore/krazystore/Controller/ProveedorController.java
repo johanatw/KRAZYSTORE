@@ -37,6 +37,21 @@ public class ProveedorController {
     public List<ProveedorEntity> findAll() {
         return proveedorService.findAll();
     }
+    
+    @GetMapping("/proveedores_productos")
+    public List<ProveedorEntity> findProveedoresProductos() {
+        return proveedorService.findProveedoresProductos();
+    }
+    
+    @GetMapping("/proveedores_nacionales_productos")
+    public List<ProveedorEntity> findProveedoresNacionalesProductos() {
+        return proveedorService.findProveedoresNacionalesProductos();
+    }
+    
+    @GetMapping("/proveedores_importacion")
+    public List<ProveedorEntity> findProveedoresImportacion() {
+        return proveedorService.findProveedoresImportacion();
+    }
 
     @GetMapping("/{id}")
     public Optional<ProveedorEntity> findById(@PathVariable("id") Long id) {

@@ -8,6 +8,7 @@ package com.krazystore.krazystore.Service;
 
 
 import com.krazystore.krazystore.DTO.DetalleVentaCreationRequest;
+import com.krazystore.krazystore.DTO.DetalleVentaPrepararDTO;
 import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
 import com.krazystore.krazystore.Entity.DetalleVentaEntity;
 import com.krazystore.krazystore.Entity.ProductoEntity;
@@ -29,4 +30,6 @@ public interface DetalleVentaService {
     List<ProductoExistenciasDTO> updateDetVenta(List<DetalleVentaEntity> detalle, Long idVenta) throws Exception;
     void deleteDetalleVenta(Long id);
     List<ProductoExistenciasDTO> anularDetalleVenta(Long idVenta);
+
+    public List<DetalleVentaPrepararDTO> findDetallesFacturaRecepcionarByIdVenta(Long id);
 }

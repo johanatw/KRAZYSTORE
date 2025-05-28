@@ -26,6 +26,12 @@ public class MovimientoMensualDTO {
     public MovimientoMensualDTO() {
     }
 
+    public MovimientoMensualDTO(YearMonth mes, BigDecimal totalIngresos, BigDecimal totalEgresos) {
+        this.mes = mes;
+        this.totalIngresos = totalIngresos;
+        this.totalEgresos = totalEgresos;
+    }
+
     public MovimientoMensualDTO(YearMonth mes, BigDecimal ingresosAnticipo, BigDecimal ingresosVenta, BigDecimal ingresosOtros, BigDecimal totalIngresos, BigDecimal egresosAnticipo, BigDecimal egresosVenta, BigDecimal egresosOtros, BigDecimal totalEgresos) {
         this.mes = mes;
         this.ingresosAnticipo = ingresosAnticipo;
@@ -38,6 +44,22 @@ public class MovimientoMensualDTO {
         this.totalEgresos = totalEgresos;
     }
 
+    public MovimientoMensualDTO(YearMonth mes, BigDecimal ingresosAnticipo, BigDecimal ingresosVenta, BigDecimal ingresosOtros, BigDecimal totalIngresos) {
+        this.mes = mes;
+        this.ingresosAnticipo = ingresosAnticipo;
+        this.ingresosVenta = ingresosVenta;
+        this.ingresosOtros = ingresosOtros;
+        this.totalIngresos = totalIngresos;
+    }
+
+    public MovimientoMensualDTO(YearMonth mes, BigDecimal egresosCompra, BigDecimal egresosOtros, BigDecimal totalEgresos) {
+        this.mes = mes;
+        this.egresosCompra = egresosCompra;
+        this.egresosOtros = egresosOtros;
+        this.totalEgresos = totalEgresos;
+    }
+
+    
     public YearMonth getMes() {
         return mes;
     }

@@ -14,6 +14,7 @@ import Utils.ProductosRecepcionadosEvent;
 import Utils.RecepcionFacturada;
 import Utils.RecepcionesFacturadasEvent;
 import Utils.TipoEvento;
+import Utils.TipoFacturaCompra;
 import com.krazystore.krazystore.DTO.CompraCreationDTO;
 import com.krazystore.krazystore.DTO.DetalleCompraDTO;
 import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
@@ -83,6 +84,18 @@ public class CompraServiceImpl implements CompraService {
     }
     
     @Override
+    public CompraCreationDTO findCompraRecepcionarById(Long id) {
+        CompraEntity compra = compraRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Compra no encontrada"));
+        List<DetalleCompraDTO> detalle = detalleService.findDetallesRecepcionarByIdCompra(id);
+        
+        CompraCreationDTO compraDTO = new CompraCreationDTO();
+        compraDTO.setCompra(compra);
+        compraDTO.setDetalle(detalle);
+        return compraDTO;
+    }
+    
+   /* @Override
     public List<CompraCreationDTO> findByIdPedido(Long idPedido) {
         List<CompraEntity> compras = compraRepository.findByIdPedido(idPedido);
         
@@ -103,7 +116,7 @@ public class CompraServiceImpl implements CompraService {
         }
         
         return comprasList;
-    }
+    }*/
 
     @Transactional
     @Override
@@ -113,12 +126,13 @@ public class CompraServiceImpl implements CompraService {
         }
         //System.out.println("entra savecompra");
         
-        //List<Long> idRecepcionesAsociadas = compraDTO.getIdRecepciones();
         
         Boolean recepcionAsociada = compraDTO.getCompra().getRecepcion() != null;
         Boolean pedidoAsociado = compraDTO.getCompra().getPedido() != null;
+        String tipoFactura = recepcionAsociada?TipoFacturaCompra.SERVICIO_TRANSPORTE_INTERNACIONAL.getCodigo():TipoFacturaCompra.PRODUCTOS.getCodigo();
         
         compraDTO.getCompra().setEstado(Estado.PENDIENTEDEPAGO.getCodigo());
+        compraDTO.getCompra().setTipoFactura(tipoFactura);
         CompraEntity nuevaCompra;
         nuevaCompra = compraRepository.save(compraDTO.getCompra());
         String tipoCompra = nuevaCompra.getProveedor().getTipo().getDescripcion();
@@ -130,7 +144,7 @@ public class CompraServiceImpl implements CompraService {
         
         detalle.forEach(det -> det.setCompra(nuevaCompra));
         
-        List<CostoEntity> preciosActualizados = detalleService.getPreciosCompraActualizados(detalle, null, nuevaCompra.getFecha(), null);
+        List<CostoEntity> preciosActualizados = detalleService.obtenerCostosParaActualizarAlGuardarFactura(detalle, nuevaCompra.getFecha());
         
         List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.saveDetCompra(detalle, nuevaCompra.getId());
         
@@ -188,7 +202,8 @@ public class CompraServiceImpl implements CompraService {
             .collect(Collectors.toList());
         System.out.println("4");
         
-        List<CostoEntity> preciosActualizados = detalleService.getPreciosCompraActualizados(detalle, id, compra.getFecha(), updatedCompra.getFecha());
+        List<CostoEntity> preciosActualizados = detalleService.
+                obtenerCostosParaActualizarAlModificarFactura(detalle, id, updatedCompra.getFecha(), compra.getFecha());
         System.out.println("5");
         updatedCompra.setFecha(compra.getFecha());
         updatedCompra.setNroFactura(compra.getNroFactura());
@@ -215,7 +230,7 @@ public class CompraServiceImpl implements CompraService {
         
         
             System.out.println("8");
-        //notificarFacturaCompraModificada(updatedCompra);
+        notificarFacturaCompraModificada(updatedCompra);
         return updatedCompra;
         
     }
@@ -223,22 +238,38 @@ public class CompraServiceImpl implements CompraService {
     @Transactional
     @Override
     public void deleteCompra(Long id) {
+        System.out.println("DELETED COMPRA");
         CompraEntity compra = compraRepository.findById(id).get();
         Long pedidoId = compra.getPedido()!=null?compra.getPedido().getId():null;
+        Long recepcionId = compra.getRecepcion()!=null?compra.getRecepcion().getId():null;
+        String tipoProveedor = compra.getProveedor().getTipo().getDescripcion();
+        System.out.println(compra.getProveedor().getDescripcion());
+        Boolean esRecepcionado = recepcionService.esRecepcionado(id);
         //No puede eliminar una factura si ya esta pagado
         if(Estado.PAGADO.getCodigo() == compra.getEstado()){
             throw new BadRequestException("No se puede Eliminar " );
+        }
+        System.out.println("DELETED COMPRA2");
+        if(esRecepcionado){
+            throw new BadRequestException("Factura asociada a recepciones.\nNo se puede eliminar" );
         }
         
         movimientoService.deleteCompra(id);
         
         List<ProductoExistenciasDTO> productosActualizarExistencias = detalleService.deleteDetCompra(id);
         compraRepository.deleteById(id);
+        System.out.println(tipoProveedor);
+        if("Nacional".equals(tipoProveedor)){
+            System.out.println("IFFFF");
+            actualizarExistencias(productosActualizarExistencias);
+        }
         
-        actualizarExistencias(productosActualizarExistencias);
         
         if(pedidoId != null){
             actualizarEstadoPedido(pedidoId, TipoEvento.ESTADO_FACTURACION);
+        }
+        if(recepcionId != null){
+            actualizarEstadoRecepcion(recepcionId, Estado.PENDIENTE_DE_FACTURA);
         }
         
         
@@ -303,4 +334,52 @@ public class CompraServiceImpl implements CompraService {
         PreciosCompraActualizadosEvent evento = new PreciosCompraActualizadosEvent(preciosCompra );
         eventPublisher.publishEvent(evento);
     }
+
+    @Override
+    public List<CompraCreationDTO> findFacturasProductosByIdsPedidos(List<Long> ids) {
+        List<CompraEntity> compras = compraRepository.findFacturasProductosByIdsPedidos(ids);
+        
+        if(compras == null){
+            return null;
+        }
+        List<CompraCreationDTO> comprasList = new ArrayList<>();
+        
+        
+        for (CompraEntity compra : compras) {
+            CompraCreationDTO compraDTO = new CompraCreationDTO();
+            List<DetalleCompraDTO> detalle = detalleService.findDetallesByIdCompra(compra.getId());
+            
+            compraDTO.setCompra(compra);
+            compraDTO.setDetalle(detalle);
+            
+            comprasList.add(compraDTO);
+        }
+        
+        return comprasList;
+    }
+
+    @Override
+    public List<CompraCreationDTO> findFacturasByIdPedido(Long id) {
+        List<CompraEntity> compras = compraRepository.findFacturasByIdPedido(id);
+        
+        if(compras == null){
+            return null;
+        }
+        List<CompraCreationDTO> comprasList = new ArrayList<>();
+        
+        
+        for (CompraEntity compra : compras) {
+            CompraCreationDTO compraDTO = new CompraCreationDTO();
+            List<DetalleCompraDTO> detalle = detalleService.findDetallesByIdCompra(compra.getId());
+            
+            compraDTO.setCompra(compra);
+            compraDTO.setDetalle(detalle);
+            
+            comprasList.add(compraDTO);
+        }
+        
+        return comprasList;
+    }
+
+    
 }

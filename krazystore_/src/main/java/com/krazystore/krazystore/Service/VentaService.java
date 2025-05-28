@@ -9,6 +9,7 @@ package com.krazystore.krazystore.Service;
 import com.krazystore.krazystore.DTO.CategoriaVentasDTO;
 import com.krazystore.krazystore.DTO.ProductoVentasDTO;
 import com.krazystore.krazystore.DTO.VentaCreationDTO;
+import com.krazystore.krazystore.DTO.VentaRecepcionarDTO;
 import com.krazystore.krazystore.Entity.CategoriaEntity;
 import com.krazystore.krazystore.Entity.DetalleVentaEntity;
 import com.krazystore.krazystore.Entity.VentaEntity;
@@ -31,8 +32,11 @@ public interface VentaService {
     void deleteVenta(Long id);
     void getFacturaPdf(HttpServletResponse response, Long id);
     String generarPdf(Long id) throws FileNotFoundException;
+    public List<VentaCreationDTO> findByIdPedido(Long idPedido);
 
     public List<CategoriaVentasDTO> obtenerVentasPorCategoriaMes(String mes);
 
     public List<ProductoVentasDTO> obtenerTopProductosVendidos(String mes);
+
+    public VentaRecepcionarDTO findFacturaPrepararById(Long id);
 }

@@ -94,6 +94,7 @@ const proveedor = ref({});
 
 onMounted(() => {
     EntregaServices.getEntrega(router.currentRoute.value.params.id).then((data) => {
+        console.log(data.data);
         entrega.value = data.data.entrega
         detalle.value = data.data.detalle;
    });
@@ -261,11 +262,11 @@ const modificarPedido = (id) => {
                                 <div class="card" style="width: 100%;">
     <div class="flex card-container" style="width: 100%;">
         <DataTable class="tablaCarrito" ref="dt" :value="detalle" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
-            <Column  class="col" field="detallePedido.producto.nombre" header="Nombre" aria-sort="none" ></Column>
-         <Column class="col" field="producto.precio"  header="Solicitado" aria-sort="none" >
+            <Column  class="col" field="detalleVenta.producto.nombre" header="Nombre" aria-sort="none" ></Column>
+         <Column class="col" field="producto.precio"  header="Facturado" aria-sort="none" >
             <template #body="slotProps">
             <div class="flex-auto p-fluid" >
-                  {{  formatearNumero(slotProps.data.detallePedido.cantSolicitado) }}
+                  {{  formatearNumero(slotProps.data.detalleVenta.cantidad) }}
               </div> 
             </template>
         </Column>

@@ -17,7 +17,6 @@ import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.CajaEntity;
 import com.krazystore.krazystore.Entity.CompraEntity;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
-import com.krazystore.krazystore.Entity.PagoPedidoCompra;
 import com.krazystore.krazystore.Entity.ReembolsoAnticipo;
 import com.krazystore.krazystore.Entity.VentaEntity;
 import java.util.List;
@@ -59,5 +58,10 @@ public interface MovimientoService {
     void deleteVenta(Long idVenta);
     void deleteCompra(Long id);
 
-    public List<MovimientoMensualDTO> obtenerIngresosYEgresosUltimos6Meses();
+    public List<MovimientoMensualDTO> obtenerIngresosYEgresosPorAño(Integer año);
+    List<MovimientoMensualDTO> obtenerIngresosPorAño(Integer año);
+
+    public List<Integer> obtenerAñosDisponibles();
+
+    public List<MovimientoMensualDTO> obtenerEgresosPorAño(Integer año);
 }

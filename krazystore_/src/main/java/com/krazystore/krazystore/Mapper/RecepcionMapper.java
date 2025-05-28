@@ -18,13 +18,11 @@ import org.springframework.stereotype.Service;
 public class RecepcionMapper implements Function<RecepcionDTO, RecepcionEntity> {
     @Override
     public RecepcionEntity apply(RecepcionDTO recepcionDTO) {
-        PedidoCompraEntity pedido = new PedidoCompraEntity();
-        pedido.setId(recepcionDTO.getIdPedido());
+        
         return new RecepcionEntity(
                 recepcionDTO.getId(),
                 recepcionDTO.getFecha(),
-                recepcionDTO.getEstado(),
-                pedido
+                recepcionDTO.getEstado()
         );
     }
     

@@ -12,7 +12,7 @@ import Utils.PedidoCompraEvent;
 import Utils.PedidoEvent;
 import Utils.TipoEvento;
 import Utils.TipoFactura;
-import Utils.TipoPedido;
+import Utils.TipoPedidoCompra;
 import com.krazystore.krazystore.DTO.AnticipoCreationDTO;
 import com.krazystore.krazystore.DTO.EgresoVarioDTO;
 import com.krazystore.krazystore.DTO.EstadoPagoPedidoDTO;
@@ -30,7 +30,6 @@ import com.krazystore.krazystore.Entity.CajaEntity;
 import com.krazystore.krazystore.Entity.CompraEntity;
 import com.krazystore.krazystore.Entity.ConceptoEntity;
 import com.krazystore.krazystore.Entity.MovimientoEntity;
-import com.krazystore.krazystore.Entity.PagoPedidoCompra;
 import com.krazystore.krazystore.Entity.ReembolsoAnticipo;
 import com.krazystore.krazystore.Entity.VentaEntity;
 import com.krazystore.krazystore.Repository.MovimientoRepository;
@@ -275,14 +274,15 @@ public class MovimientoServiceImpl implements MovimientoService {
         movimientoRepository.deleteById(movimiento.getId());
         
         //Se guarda pedido
-        Long idPedido = anticipo.getPedido().getId();
+        Long idPedido = anticipo.getPedido()!=null?anticipo.getPedido().getId():null;
        
         //Se elimina el anticipo
         System.out.println("DELETE ANTICIPO2");
         anticipoService.deleteAnticipo(id);
         
         //Se actualiza estado de pago del Pedido
-        actualizarEstadoPedido(idPedido, TipoEvento.ESTADO_PEDIDO);
+        if(idPedido != null)
+            actualizarEstadoPedido(idPedido, TipoEvento.ESTADO_PEDIDO);
     }
     
     @Override
@@ -486,8 +486,29 @@ public class MovimientoServiceImpl implements MovimientoService {
 
     
     @Override
-    public List<MovimientoMensualDTO> obtenerIngresosYEgresosUltimos6Meses() {
-        List<Object[]> listObject = movimientoRepository.obtenerIngresosYEgresosUltimos6Meses();
+    public List<MovimientoMensualDTO> obtenerIngresosYEgresosPorAño(Integer año) {
+        List<Object[]> listObject = movimientoRepository.obtenerIngresosYEgresosPorAño(año);
+        List<MovimientoMensualDTO> movimientosMensuales = new ArrayList<>();
+        
+     
+        for (Object[] o : listObject) {
+            DateTimeFormatter inputFormat = DateTimeFormatter.ofPattern("yyyy-MM");
+            YearMonth ym = YearMonth.parse((String) o[0], inputFormat);
+            MovimientoMensualDTO movimientoMensual = new MovimientoMensualDTO(
+                    ym,
+                    (((BigDecimal)o[1]).add((BigDecimal)o[2])).add((BigDecimal)o[3]),
+                    (((BigDecimal)o[4]).add((BigDecimal)o[5]))
+            );
+            
+            movimientosMensuales.add(movimientoMensual);
+
+          }
+        return movimientosMensuales;
+    }
+
+    @Override
+    public List<MovimientoMensualDTO> obtenerIngresosPorAño(Integer año) {
+        List<Object[]> listObject = movimientoRepository.obtenerIngresosPorAño(año);
         List<MovimientoMensualDTO> movimientosMensuales = new ArrayList<>();
         
      
@@ -499,11 +520,34 @@ public class MovimientoServiceImpl implements MovimientoService {
                     (BigDecimal)o[1],
                     (BigDecimal)o[2],
                     (BigDecimal)o[3],
-                    (((BigDecimal)o[1]).add((BigDecimal)o[1])).add((BigDecimal)o[3]),
-                    (BigDecimal)o[4],
-                    (BigDecimal)o[5],
-                    (BigDecimal)o[6],
-                    (((BigDecimal)o[4]).add((BigDecimal)o[5])).add((BigDecimal)o[6])
+                    (((BigDecimal)o[1]).add((BigDecimal)o[1])).add((BigDecimal)o[3])
+            );
+            
+            movimientosMensuales.add(movimientoMensual);
+
+          }
+        return movimientosMensuales;
+    }
+
+    @Override
+    public List<Integer> obtenerAñosDisponibles() {
+        return movimientoRepository.obtenerAñosDisponibles();
+    }
+
+    @Override
+    public List<MovimientoMensualDTO> obtenerEgresosPorAño(Integer año) {
+        List<Object[]> listObject = movimientoRepository.obtenerEgresosPorAño(año);
+        List<MovimientoMensualDTO> movimientosMensuales = new ArrayList<>();
+        
+     
+        for (Object[] o : listObject) {
+            DateTimeFormatter inputFormat = DateTimeFormatter.ofPattern("yyyy-MM");
+            YearMonth ym = YearMonth.parse((String) o[0], inputFormat);
+            MovimientoMensualDTO movimientoMensual = new MovimientoMensualDTO(
+                    ym,
+                    (BigDecimal)o[1],
+                    (BigDecimal)o[2],
+                    (((BigDecimal)o[1]).add((BigDecimal)o[1]))
             );
             
             movimientosMensuales.add(movimientoMensual);

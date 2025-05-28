@@ -5,6 +5,7 @@
 package com.krazystore.krazystore.Service;
 
 import com.krazystore.krazystore.Entity.CostoEntity;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -22,4 +23,7 @@ public interface PrecioCompraService {
     CostoEntity savePrecioCompra(CostoEntity precioCompra);
     CostoEntity updatePrecioCompra(CostoEntity precioCompra, Long id);
     void deletePrecioCompra(Long id);
+
+    public Optional<CostoEntity> findCostoCercano(Long id, Date fecha);
+    public Optional<CostoEntity> findByProductoIdAndFecha(Long id, Date fecha);
 }

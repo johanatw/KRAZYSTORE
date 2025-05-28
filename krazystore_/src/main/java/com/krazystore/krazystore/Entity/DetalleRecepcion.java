@@ -40,8 +40,8 @@ public class DetalleRecepcion {
     @JoinColumn(name="id_recepcion")
     private RecepcionEntity recepcion;
     @ManyToOne
-    @JoinColumn(name="id_det_ped")
-    private DetallePedidoCompra detallePedido;
+    @JoinColumn(name="id_det_compra")
+    private DetalleCompra detalleCompra;
 
     public DetalleRecepcion(DetalleRecepcion detalle) {
         this.id = detalle.getId();
@@ -49,7 +49,7 @@ public class DetalleRecepcion {
         this.cantAceptada = detalle.getCantAceptada();
         this.cantRechazada = detalle.getCantRechazada();
         this.recepcion = detalle.getRecepcion();
-        this.detallePedido = detalle.getDetallePedido();
+        this.detalleCompra= detalle.getDetalleCompra();
     }
 
     
@@ -93,15 +93,15 @@ public class DetalleRecepcion {
         this.recepcion = recepcion;
     }
 
-    public DetallePedidoCompra getDetallePedido() {
-        return detallePedido;
+    public DetalleCompra getDetalleCompra() {
+        return detalleCompra;
     }
 
-    public void setDetallePedido(DetallePedidoCompra detallePedido) {
-        this.detallePedido = detallePedido;
+    public void setDetalleCompra(DetalleCompra detalleCompra) {
+        this.detalleCompra = detalleCompra;
     }
 
-    
+   
     
     
             

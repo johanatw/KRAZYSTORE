@@ -36,4 +36,10 @@ public class DetalleEntregaServiceImpl implements DetalleEntregaService {
         return detalleEntregaRepository.saveAll(detalle);
        
     }
+
+    @Transactional
+    @Override
+    public void deleteByIdEntrega(Long id) {
+        detalleEntregaRepository.deleteByIdEntrega(id);
+    }
 }

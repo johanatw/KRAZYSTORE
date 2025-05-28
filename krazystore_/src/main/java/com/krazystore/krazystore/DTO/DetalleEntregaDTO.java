@@ -4,7 +4,9 @@
  */
 package com.krazystore.krazystore.DTO;
 
+import com.krazystore.krazystore.Entity.DetalleVentaEntity;
 import com.krazystore.krazystore.Entity.IvaEntity;
+import com.krazystore.krazystore.Entity.ProductoEntity;
 
 /**
  *
@@ -13,11 +15,20 @@ import com.krazystore.krazystore.Entity.IvaEntity;
 public class DetalleEntregaDTO {
     private Long id;
     private DetallePedidoDTO detallePedido;
+    private DetalleVentaEntity detalleVenta;
     private Integer cantidad;
 
     public DetalleEntregaDTO() {
     }
 
+    public DetalleEntregaDTO(Long id, Long idDetVenta, ProductoEntity producto, 
+            Integer cantFacturada, Integer cantidad) {
+        this.id = id;
+        this.detalleVenta = new DetalleVentaEntity(idDetVenta, producto, cantFacturada);
+        this.cantidad = cantidad;
+    }
+
+    
     public DetalleEntregaDTO(Long id, 
             Long idDetPedido, Long idProducto, String nombre, 
             Integer cantSolicitada, Long cantFacturada, Long cantEntregada,
@@ -51,6 +62,14 @@ public class DetalleEntregaDTO {
 
     public void setCantidad(Integer cantidad) {
         this.cantidad = cantidad;
+    }
+
+    public DetalleVentaEntity getDetalleVenta() {
+        return detalleVenta;
+    }
+
+    public void setDetalleVenta(DetalleVentaEntity detalleVenta) {
+        this.detalleVenta = detalleVenta;
     }
     
     

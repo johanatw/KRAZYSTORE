@@ -23,9 +23,6 @@ import lombok.NoArgsConstructor;
  */
 @Entity
 @Table(name = "costos")
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 public class CostoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,6 +35,24 @@ public class CostoEntity {
     @ManyToOne
     @JoinColumn(name="id_producto")
     private ProductoEntity producto;
+
+    public CostoEntity() {
+    }
+
+    public CostoEntity(Long id, Date fecha, Long costo, ProductoEntity producto) {
+        this.id = id;
+        this.fecha = fecha;
+        this.costo = costo;
+        this.producto = producto;
+    }
+
+    public CostoEntity(Date fecha, Long costo, ProductoEntity producto) {
+        this.fecha = fecha;
+        this.costo = costo;
+        this.producto = producto;
+    }
+    
+    
 
     public Long getId() {
         return id;

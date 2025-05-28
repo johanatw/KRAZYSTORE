@@ -18,4 +18,10 @@ public interface ProveedorService {
     ProveedorEntity saveProveedor(ProveedorEntity proveedor);
     ProveedorEntity updateProveedor(ProveedorEntity proveedor, Long id);
     void deleteProveedor(Long id);
+
+    public List<ProveedorEntity> findProveedoresProductos();
+
+    public List<ProveedorEntity> findProveedoresImportacion();
+
+    public List<ProveedorEntity> findProveedoresNacionalesProductos();
 }

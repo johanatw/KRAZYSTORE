@@ -34,34 +34,22 @@ public class DashboardServiceImpl implements DashboardService {
     private VentaService ventaService;
     
     @Override
-    public GraficoIngresosEgresosDTO obtenerIngresosYEgresosUltimos6Meses() {
+    public GraficoIngresosEgresosDTO obtenerIngresosYEgresosPorAño(Integer año) {
         System.out.println("entraa dashboard");
-        List<MovimientoMensualDTO> movimientosMensuales = movimientoService.obtenerIngresosYEgresosUltimos6Meses();
+        List<MovimientoMensualDTO> movimientosMensuales = movimientoService.obtenerIngresosYEgresosPorAño(año);
         
         List<String> labels = new ArrayList<>();
-        List<BigDecimal> ingresosAnticipo = new ArrayList<>();
-        List<BigDecimal> ingresosVenta = new ArrayList<>();
-        List<BigDecimal> ingresosOtro = new ArrayList<>();
         List<BigDecimal> totalIngresos = new ArrayList<>();
-        List<BigDecimal> egresosAnticipo = new ArrayList<>();
-        List<BigDecimal> egresosCompra = new ArrayList<>();
-        List<BigDecimal> egresosOtro = new ArrayList<>();
         List<BigDecimal> totalEgresos = new ArrayList<>();
 
         DateTimeFormatter outputFormat = DateTimeFormatter.ofPattern("MMMM", new Locale("es"));
 
         for (MovimientoMensualDTO m : movimientosMensuales) {
             labels.add(outputFormat.format(m.getMes())); // Ej: "enero", "febrero"
-            ingresosAnticipo.add(m.getIngresosAnticipo());
-            ingresosVenta.add(m.getIngresosVenta());
-            ingresosOtro.add(m.getIngresosOtros());
             totalIngresos.add(m.getTotalIngresos());
-            egresosAnticipo.add(m.getEgresosAnticipo());
-            egresosCompra.add(m.getEgresosCompra());
-            egresosOtro.add(m.getEgresosOtros());
             totalEgresos.add(m.getTotalEgresos());
         }
-        return new GraficoIngresosEgresosDTO(labels,ingresosAnticipo, ingresosVenta, ingresosOtro, egresosAnticipo, egresosCompra, egresosOtro, totalIngresos, totalEgresos);
+        return new GraficoIngresosEgresosDTO(labels, totalIngresos, totalEgresos);
         }
 
     @Override
@@ -94,6 +82,55 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public List<ProductoVentasDTO> obtenerTopProductosVendidos(String mes) {
         return ventaService.obtenerTopProductosVendidos(mes);
+    }
+
+    @Override
+    public GraficoIngresosEgresosDTO obtenerIngresosPorAño(Integer año) {
+        System.out.println("entraa dashboard");
+        List<MovimientoMensualDTO> movimientosMensuales = movimientoService.obtenerIngresosPorAño(año);
+        
+        List<String> labels = new ArrayList<>();
+        List<BigDecimal> ingresosAnticipo = new ArrayList<>();
+        List<BigDecimal> ingresosVenta = new ArrayList<>();
+        List<BigDecimal> ingresosOtro = new ArrayList<>();
+        List<BigDecimal> totalIngresos = new ArrayList<>();
+
+        DateTimeFormatter outputFormat = DateTimeFormatter.ofPattern("MMMM", new Locale("es"));
+
+        for (MovimientoMensualDTO m : movimientosMensuales) {
+            labels.add(outputFormat.format(m.getMes())); // Ej: "enero", "febrero"
+            ingresosAnticipo.add(m.getIngresosAnticipo());
+            ingresosVenta.add(m.getIngresosVenta());
+            ingresosOtro.add(m.getIngresosOtros());
+            totalIngresos.add(m.getTotalIngresos());
+        }
+        return new GraficoIngresosEgresosDTO(labels,ingresosAnticipo, ingresosVenta, ingresosOtro, totalIngresos);
+        
+    }
+
+    @Override
+    public List<Integer> obtenerAñosDisponibles() {
+        return movimientoService.obtenerAñosDisponibles();
+    }
+
+    @Override
+    public GraficoIngresosEgresosDTO obtenerEgresosPorAño(Integer año) {
+        List<MovimientoMensualDTO> movimientosMensuales = movimientoService.obtenerEgresosPorAño(año);
+        
+        List<String> labels = new ArrayList<>();
+        List<BigDecimal> egresosCompra = new ArrayList<>();
+        List<BigDecimal> egresosOtro = new ArrayList<>();
+        List<BigDecimal> totalEgresos = new ArrayList<>();
+
+        DateTimeFormatter outputFormat = DateTimeFormatter.ofPattern("MMMM", new Locale("es"));
+
+        for (MovimientoMensualDTO m : movimientosMensuales) {
+            labels.add(outputFormat.format(m.getMes())); // Ej: "enero", "febrero"
+            egresosCompra.add(m.getEgresosCompra());
+            egresosOtro.add(m.getEgresosOtros());
+            totalEgresos.add(m.getTotalIngresos());
+        }
+        return new GraficoIngresosEgresosDTO(labels, egresosCompra, egresosOtro, totalEgresos);
     }
     
 }

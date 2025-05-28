@@ -31,8 +31,23 @@ public class DashboardController {
     private final DashboardService dashboardService;
     
     @GetMapping
-    public GraficoIngresosEgresosDTO obtenerIngresosYEgresosUltimos6Meses() {
-        return dashboardService.obtenerIngresosYEgresosUltimos6Meses();
+    public GraficoIngresosEgresosDTO obtenerIngresosYEgresosPorAño(@RequestParam(value="año") Integer año) {
+        return dashboardService.obtenerIngresosYEgresosPorAño(año);
+    }
+    
+    @GetMapping("/ingresos_año")
+    public GraficoIngresosEgresosDTO obtenerIngresosPorAño(@RequestParam(value="año") Integer año) {
+        return dashboardService.obtenerIngresosPorAño(año);
+    }
+    
+    @GetMapping("/egresos_año")
+    public GraficoIngresosEgresosDTO obtenerEgresosPorAño(@RequestParam(value="año") Integer año) {
+        return dashboardService.obtenerEgresosPorAño(año);
+    }
+    
+    @GetMapping("/años_disponibles")
+    public List<Integer> obtenerAñosDisponibles() {
+        return dashboardService.obtenerAñosDisponibles();
     }
     
     @GetMapping("/ventas_por_categorias")

@@ -208,7 +208,10 @@ const nuevoPedido = () =>{
           <template #loading> Cargando. </template>
           <Column field="id" sortable header="N°" aria-sort="ascending" ></Column>
           
-          <Column field="idPedido"  header="Id Pedido" aria-sort="ascending" sortable>           
+          <Column field="idsPedido"  header="Id Pedido" aria-sort="ascending" sortable>  
+            <template #body="slotProps">
+                {{ slotProps.data.idsPedido }}
+            </template>         
         </Column>
         <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
           <template #body="slotProps">
@@ -225,10 +228,10 @@ const nuevoPedido = () =>{
 </Column> 
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
-                <Button icon="pi pi-eye" v-tooltip="'Ver detalles'" text rounded aria-label="Search" @click="verRecepcion(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />              
+                <Button icon="pi pi-eye" v-tooltip="'Ver detalles'" text rounded aria-label="Search" @click="verRecepcion(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />   
+                <Button  v-tooltip="'Facturar envío internacional'" icon="pi pi-globe" severity="warn" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="facturarRecepcion(slotProps.data.id)" />           
                 <Button v-tooltip="'Eliminar'" :disabled="isFacturada(slotProps.data.estado)" icon="pi pi-trash" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
-                <Button v-tooltip="'Facturar'" :disabled="isFacturada(slotProps.data.estado)" icon="pi pi-receipt" severity="info" text rounded aria-label="Cancel"  style="height: 2rem !important; width: 2rem !important;" @click="facturarRecepcion(slotProps.data.id)" />
-                </template>
+                 </template>
           </Column>
         </DataTable>
       </div>

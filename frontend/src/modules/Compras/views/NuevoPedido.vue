@@ -37,8 +37,11 @@ const mensaje = ref([]);
 const ciudades = ref([]);
 const departamentos = ref([]);
 const documentos = ref([]);
+const pedidoInternacional = ref(false);
 const visible = ref(false);
 const proveedor = ref({});
+const codPedidoNacional = ref('N');
+const codPedidoInternacional = ref('I');
 const selectedOp = ref('Casi');
 const productos= ref();
 const proveedores=ref();
@@ -101,7 +104,8 @@ onMounted(() => {
 
     getCostoEnvio();
     
-   ProveedorServices.obtenerProveedores().then((data) => {
+   ProveedorServices.obtenerProveedoresProductos().then((data) => {
+        console.log(data.data);
        proveedores.value = data.data;
    });
 
@@ -171,7 +175,7 @@ const mostrarCliente = () =>{
     // Crear un elemento <a> con innerHTML
     let enlace = document.createElement("a");
     enlace.innerHTML = textoConSaltos;  // Insertar el texto con saltos de línea
-    enlace.id = "infoCliente"
+    enlace.id = "infoCliente";
     enlace.href = "#";  // Evitar navegación
     enlace.style.cursor = "pointer";  // Cambiar cursor al pasar sobre el enlace
 
@@ -185,7 +189,7 @@ const mostrarCliente = () =>{
     // Insertar el enlace en el div
     document.getElementById("clienteDiv").appendChild(enlace);
         
-
+    pedidoInternacional.value = selectedProveedor.value.tipo?.descripcion == "Internacional";
     clienteSeleccionado.value = true;
 }
 
@@ -431,8 +435,8 @@ const showError = (message) => {
   const guardarFactura = () =>{
     if (!error.value){
 
-
-    let ant = {total: total.value, fecha: fecha.value, estado: 'N', proveedor: selectedProveedor.value, observaciones: observaciones.value };
+    let tipoPedido = pedidoInternacional.value?codPedidoInternacional.value:codPedidoNacional.value;
+    let ant = {total: total.value, fecha: fecha.value, estado: 'N', proveedor: selectedProveedor.value, observaciones: observaciones.value, tipoPedido: tipoPedido};
 
     console.log(detalleFacturar.value);
 
@@ -618,7 +622,7 @@ const showError = (message) => {
                 </div>
                 <div >
                     <Button label="Agregar Producto" text @click="visible = true" />
-                    <Button label="Agregar Costo de Envio" text @click="agregarCostoEnvio()" style="margin-left: 1%;" />
+                    <Button label="Agregar Costo de Envio" text @click="agregarCostoEnvio()" />
                     </div>
 
             </div>

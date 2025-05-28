@@ -18,11 +18,20 @@ import java.util.Optional;
  */
 public interface DetalleCompraService {
     List<DetalleCompra> findByIdCompra(Long id);
-    List<DetalleCompraDTO> findDetallesByIdCompra(Long idcompra);
+    //List<DetalleCompraDTO> findDetallesByIdCompra(Long idcompra);
     List<ProductoExistenciasDTO> saveDetCompra(List<DetalleCompra> detalle, Long idCompra) throws Exception;
     List<ProductoExistenciasDTO> updateDetCompra(List<DetalleCompra> detalle, Long idCompra)throws Exception;
     List<ProductoExistenciasDTO> deleteDetCompra(Long idCompra);
     boolean esCostoActualizado(Long idProducto, int costo, Date fecha);
-    
-    List<CostoEntity> getPreciosCompraActualizados(List<DetalleCompra> detalle, Long idCompra, Date fechaFactura, Date fechaAnteriorFactura);
+    public List<CostoEntity> obtenerCostosParaActualizarAlGuardarFactura(List<DetalleCompra> detalles, Date fechaFactura);
+    public List<CostoEntity> obtenerCostosParaActualizarAlModificarFactura(
+        List<DetalleCompra> nuevosDetalles,
+        Long idCompra,
+        Date fechaAnterior,
+        Date fechaNueva
+    );
+
+    public List<DetalleCompraDTO> findDetallesRecepcionarByIdCompra(Long id);
+
+    public List<DetalleCompraDTO> findDetallesByIdCompra(Long id);
 }

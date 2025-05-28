@@ -5,7 +5,7 @@
 package com.krazystore.krazystore.ServiceImpl;
 
 import Utils.Estado;
-import Utils.NuevaFacturaEvent;
+import Utils.FacturaEvent;
 import Utils.TipoEvento;
 import com.krazystore.krazystore.DTO.AnticipoCreationDTO;
 import com.krazystore.krazystore.DTO.EgresoVarioDTO;
@@ -112,7 +112,7 @@ public class CajaServiceImpl implements CajaService{
     
     
     @EventListener
-    public void handleNuevaFacturaEvent(NuevaFacturaEvent event) {
+    public void handleNuevaFacturaEvent(FacturaEvent event) {
         if (event.getTipoEvento() == TipoEvento.NUEVA_VENTA) {
             movimientoService.saveMovimiento(event.getNuevaVenta());
         }else if (event.getTipoEvento() == TipoEvento.NUEVA_COMPRA) {

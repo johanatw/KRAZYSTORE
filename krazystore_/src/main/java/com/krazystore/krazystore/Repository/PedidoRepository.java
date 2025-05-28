@@ -137,12 +137,12 @@ public interface PedidoRepository extends JpaRepository<PedidoEntity, Long>{
     "SELECT new com.krazystore.krazystore.DTO.EntregasPedidoDTO( "
             + "COALESCE(SUM(CASE WHEN e.estado = 'P' THEN de.cantidad END),0), "
             + "COALESCE(SUM(CASE WHEN e.estado = 'E' THEN de.cantidad END),0), "
-            + "COALESCE(SUM(CASE WHEN e.estado = 'N' THEN de.cantidad END),0)) "
-            + "FROM PedidoEntity p "
-            + "LEFT JOIN DetallePedidoEntity d ON d.pedido = p "
-            + "LEFT JOIN DetalleEntrega de ON de.detallePedido = d "
-           + "LEFT JOIN de.entrega e "
-            + "WHERE p.id = ?1 "
+            + "COALESCE(SUM(CASE WHEN e.estado = 'X' THEN de.cantidad END),0)) "
+            + "FROM DetalleEntrega de "
+            + "LEFT JOIN de.entrega e "
+            + "LEFT JOIN e.venta v "
+            + "LEFT JOIN v.pedido p "
+            + "WHERE p.id = ?1 and v.estado <> 'A' and e.estado <> 'C' "
            )
         EntregasPedidoDTO findEstadoEntregasPedido(Long id);
         

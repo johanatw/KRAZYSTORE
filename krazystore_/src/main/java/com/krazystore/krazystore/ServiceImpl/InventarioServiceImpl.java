@@ -15,11 +15,13 @@ import com.krazystore.krazystore.Entity.CategoriaEntity;
 import com.krazystore.krazystore.Entity.DetalleInventario;
 import com.krazystore.krazystore.Entity.InventarioEntity;
 import com.krazystore.krazystore.Entity.ProductoEntity;
+import com.krazystore.krazystore.Entity.Usuario;
 import com.krazystore.krazystore.Mapper.DetalleInventarioDTOMapper;
 import com.krazystore.krazystore.Mapper.DetalleInventarioMapper;
 import com.krazystore.krazystore.Repository.InventarioRepository;
 import com.krazystore.krazystore.Service.DetalleInventarioService;
 import com.krazystore.krazystore.Service.InventarioService;
+import com.krazystore.krazystore.Service.UsuarioService;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -50,6 +52,9 @@ public class InventarioServiceImpl implements InventarioService {
     
     @Autowired
     private DetalleInventarioService detalleService;
+    
+    @Autowired
+    private UsuarioService usuarioService;
     
     @Override
     public List<InventarioDTO> findAll() {
@@ -164,6 +169,12 @@ public class InventarioServiceImpl implements InventarioService {
     public InventarioEntity finalizarInventario(InventarioCreationDTO inventarioDTO, Long id) throws Exception {
         InventarioEntity inventario = inventarioRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Inventario no encontrado"));
+        
+        Optional<Usuario> usuario = usuarioService.findByUsername(inventarioDTO.getUsername());
+                
+        if(usuario.isPresent()){
+            inventario.setUsuarioRegistro(usuario.get());
+        }
         
         inventario.setEstado(Estado.PENDIENTEAJUSTE.getCodigo());
         inventarioRepository.save(inventario);

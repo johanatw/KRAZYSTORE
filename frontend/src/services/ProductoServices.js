@@ -73,7 +73,7 @@ export const ProductoServices = {
   },
   obtenerServicioTransporte(){
 
-    return axios.get(PRODUCTO_API_BASE_URL + "/servicio_entrega",{
+    return axios.get(PRODUCTO_API_BASE_URL + "/servicio_transporte_internacional",{
       headers: {
         'Authorization': 'Bearer ' + localStorage.getItem('token')
       }

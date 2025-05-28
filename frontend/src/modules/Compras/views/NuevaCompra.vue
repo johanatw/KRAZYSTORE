@@ -135,7 +135,7 @@ onMounted(() => {
     
     });
     
-   ProveedorServices.obtenerProveedores().then((data) => {
+   ProveedorServices.obtenerProveedoresNacionalesProductos().then((data) => {
        proveedores.value = data.data;
    });
 
@@ -802,7 +802,6 @@ const showError = (message) => {
                                     </div>
                                     <div>
                                         <Button label="Agregar Producto" text @click="visible = true" />
-                                        <Button label="Agregar Servcio" text @click="servicioDialog = true" />
                                         </div>
 
                                 </div>

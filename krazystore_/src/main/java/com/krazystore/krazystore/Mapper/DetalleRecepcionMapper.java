@@ -5,6 +5,7 @@
 package com.krazystore.krazystore.Mapper;
 
 import com.krazystore.krazystore.DTO.DetalleRecepcionDTO;
+import com.krazystore.krazystore.Entity.DetalleCompra;
 import com.krazystore.krazystore.Entity.DetallePedidoCompra;
 import com.krazystore.krazystore.Entity.DetalleRecepcion;
 import com.krazystore.krazystore.Entity.ProductoEntity;
@@ -23,9 +24,9 @@ public class DetalleRecepcionMapper implements Function<DetalleRecepcionDTO, Det
         RecepcionEntity recepcion = new RecepcionEntity(detalleDTO.getIdRecepcion());
     
         ProductoEntity producto = new ProductoEntity();
-        producto.setId(detalleDTO.getDetallePedido().getProducto().getId());
+        producto.setId(detalleDTO.getDetalleCompra().getProducto().getId());
         
-        DetallePedidoCompra detallePedido = new DetallePedidoCompra(detalleDTO.getDetallePedido().getId(), producto);
+        DetalleCompra detalleCompra = new DetalleCompra(detalleDTO.getDetalleCompra().getId(), producto);
 
         return new DetalleRecepcion(
                 detalleDTO.getId(),
@@ -33,7 +34,7 @@ public class DetalleRecepcionMapper implements Function<DetalleRecepcionDTO, Det
                 detalleDTO.getCantAceptada(),
                 detalleDTO.getCantRechazada(),
                 recepcion,
-                detallePedido
+                detalleCompra
         );
     }
     

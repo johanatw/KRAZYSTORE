@@ -49,6 +49,7 @@ onMounted(() => {
 });
 
 
+
 const vistaListaAjustes = () => {
     router.push({name: 'ajustes'});
 }
@@ -57,7 +58,27 @@ const modificarAjuste = (id) => {
     router.push({name: 'modificar_ajuste', params: {id}});
 }
 
+const validarForm = (id) => {
+
+let detalleAjustar = detalleAjuste.value?.filter(d => d.cantidadFinal >= 0);
+    
+mensaje.value = [];
+error.value = false;
+
+
+if (detalleAjustar.length < 1) {
+    error.value = true;
+    mensaje.value.push("Uno o más productos quedarían con stock negativo si se aplica esta baja.");
+}
+
+
+ajustarInventario(id);
+  
+
+}
+
 const ajustarInventario = (id) =>{
+    if (!error.value){
     AjusteStockServices.ajustar(id).then((data)=> {
         showSuccess('Inventario ajustado');
         vistaListaAjustes();
@@ -65,6 +86,7 @@ const ajustarInventario = (id) =>{
         //emit('anticipoGuardado', data.data.id);
         
     } );
+}
 }
 
 const showSuccess = (message) => {
@@ -90,10 +112,21 @@ const showSuccess = (message) => {
                     <div class="card flex" style="justify-content: end;">  
                         <Button label="Atras"  style="margin-right: 1%;" @click="vistaListaAjustes()" />
                         <Button style="margin-right: 1%;" label="Modificar" @click="modificarAjuste(router.currentRoute.value.params.id)" />
-                        <Button label="Ajustar" @click="ajustarInventario(router.currentRoute.value.params.id)" />
+                        <Button label="Ajustar" @click="validarForm(router.currentRoute.value.params.id)" />
                     </div>  
                 </div>
             </template>
+            <div class="contenedor" >
+
+            <div v-if="error" style="background-color: rgb(242, 222, 222); 
+            border: solid 1px rgb(215, 57, 37); padding-top: 1%; padding-bottom: 1%; margin-bottom: 1%;"> 
+                <ul>
+                    <li v-for="msg in mensaje" style="list-style: none;">
+                    <a style="color: rgb(173, 89, 86);">{{ msg }}</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
 
             <div class="grid " >
                 <!--Detalle Ajuste -->

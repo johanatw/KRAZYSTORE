@@ -16,10 +16,20 @@ import java.util.Optional;
  * @author HP
  */
 public interface DetalleRecepcionService {
-    List<DetalleRecepcion> findByIdRecepcion(Long id);
+
+    public List<DetalleRecepcionDTO> obtenerDetallesFacturasRecepcionar(List<Long> ids);
+   /* List<DetalleRecepcion> findByIdRecepcion(Long id);
     List<DetalleRecepcionDTO> obtenerDetalleFacturaRecepcionar(Long idCompra);
     List<DetalleRecepcionDTO> findDetalleByIdRecepcion(Long idRecepcion);
     List<ProductoExistenciasDTO> saveDetRecepcion (List<DetalleRecepcion> detalle, Long idRecepcion);
     List<ProductoExistenciasDTO> updateDetRecepcion(List<DetalleRecepcion> detalle, Long idRecepcion);
     List<ProductoExistenciasDTO> deleteDetRecepcion(Long idRecepcion);
+
+    public List<DetalleRecepcionDTO> obtenerDetallesFacturasRecepcionar(List<Long> ids);*/
+
+    public List<ProductoExistenciasDTO> saveDetRecepcion(List<DetalleRecepcion> detalle, Long id);
+
+    public List<DetalleRecepcionDTO> findDetalleByIdRecepcion(Long id);
+
+    public List<ProductoExistenciasDTO> deleteDetRecepcion(Long id);
 }

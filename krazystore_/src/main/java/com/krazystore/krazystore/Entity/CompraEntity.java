@@ -56,7 +56,15 @@ public class CompraEntity {
     @ManyToOne
     @JoinColumn(name="id_recepcion")
     private RecepcionEntity recepcion;
+    @Column(name="tipo_factura")
+    private String tipoFactura;
 
+    public CompraEntity(Long id) {
+        this.id = id;
+    }
+
+    
+    
     public char getEstado() {
         return estado;
     }
@@ -154,6 +162,14 @@ public class CompraEntity {
 
     public void setRecepcion(RecepcionEntity recepcion) {
         this.recepcion = recepcion;
+    }
+
+    public String getTipoFactura() {
+        return tipoFactura;
+    }
+
+    public void setTipoFactura(String tipoFactura) {
+        this.tipoFactura = tipoFactura;
     }
 
     

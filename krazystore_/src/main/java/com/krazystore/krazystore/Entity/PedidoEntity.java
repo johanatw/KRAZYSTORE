@@ -28,12 +28,10 @@ public class PedidoEntity {
     private String observaciones;
     @Column
     private int total;
-    @Enumerated(EnumType.STRING)
     @Column(name = "estado")
-    private EstadoPedido estadoPedido;
-    @Enumerated(EnumType.STRING)
+    private Character estadoPedido;
     @Column(name = "estado_facturacion")
-    private EstadoPedido estadoFacturacion;
+    private Character estadoFacturacion;
     @ManyToOne
     @JoinColumn(name = "id_cliente")
     private ClienteEntity cliente;
@@ -41,7 +39,7 @@ public class PedidoEntity {
     public PedidoEntity() {
     }
 
-    public PedidoEntity(Long id, Date fecha, int montoIva, int total, EstadoPedido estadoPedido, FormaPagoEntity formaPago, ModoEntregaEntity modoEntrega, ClienteEntity cliente) {
+    public PedidoEntity(Long id, Date fecha, int montoIva, int total, Character estadoPedido, FormaPagoEntity formaPago, ModoEntregaEntity modoEntrega, ClienteEntity cliente) {
         this.id = id;
         this.fecha = fecha;
         this.total = total;
@@ -75,16 +73,6 @@ public class PedidoEntity {
         this.total = total;
     }
 
-    public EstadoPedido getEstadoPedido() {
-        return estadoPedido;
-    }
-
-    public void setEstadoPedido(EstadoPedido estadoPedido) {
-        this.estadoPedido = estadoPedido;
-    }
-
-    
-
     public ClienteEntity getCliente() {
         return cliente;
     }
@@ -101,18 +89,21 @@ public class PedidoEntity {
         this.observaciones = observaciones;
     }
 
-    public EstadoPedido getEstadoFacturacion() {
+    public Character getEstadoPedido() {
+        return estadoPedido;
+    }
+
+    public void setEstadoPedido(Character estadoPedido) {
+        this.estadoPedido = estadoPedido;
+    }
+
+    public Character getEstadoFacturacion() {
         return estadoFacturacion;
     }
 
-    public void setEstadoFacturacion(EstadoPedido estadoFacturacion) {
+    public void setEstadoFacturacion(Character estadoFacturacion) {
         this.estadoFacturacion = estadoFacturacion;
     }
 
-    
-    
-
-    
-    
     
 }

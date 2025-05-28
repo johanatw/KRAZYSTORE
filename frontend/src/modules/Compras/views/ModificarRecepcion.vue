@@ -104,7 +104,7 @@ onMounted(() => {
         //pedidoNacional.value =  (pedido.value.proveedor.tipo.descripcion !== 'Extranjero')
 
         detalle.value.forEach(element => {
-            element.cantPendiente = element.detallePedido.cantSolicitada - element.detallePedido.cantRecepcionada + element.cantRecepcionado;
+            element.cantPendiente = element.detallePedido.cantFacturada - element.detallePedido.cantRecepcionada + element.cantRecepcionado;
            /* if (pedido.value.proveedor.tipo.descripcion == 'Extranjero') {
                 element.cantPendiente = element.detallePedido.cantFacturada - element.detallePedido.cantRecepcionada + element.cantRecepcionado;
             }else{ 
@@ -132,7 +132,22 @@ const mostrarCliente = (proveedor) =>{
     clienteSeleccionado.value = true;
 }
 
-const modificarPedido = (id) => {
+const validarForm = () => {
+    mensaje.value = [];
+    error.value = false;
+    const productosRecepcionados = detalle.value?.filter(d => d.cantRecepcionado > 0)
+    if (productosRecepcionados.length < 1) {
+            error.value = true;
+            mensaje.value.push("No se ingresó ninguna cantidad para recepcionar");
+
+    } 
+    
+  
+    modificarPedido();
+
+}
+
+const modificarPedido = () => {
     if (!error.value){
 
 
@@ -174,7 +189,7 @@ const modificarPedido = (id) => {
                 <div class="card flex" style="justify-content: end;">   
                     <div class="card flex" style="justify-content: end;">  
                         <Button  label="Cancelar"  style="margin-right: 1%;" @click="verRecepcion(pedido.id)" />
-                        <Button  label="Guardar" @click="modificarPedido(pedido.id)" />
+                        <Button  label="Guardar" @click="validarForm()" />
                     </div>  
                 </div>
             </template>
@@ -227,7 +242,12 @@ const modificarPedido = (id) => {
     <div class="flex card-container" style="width: 100%;">
         <DataTable class="tablaCarrito" ref="dt" :value="detalle" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
          <Column  class="col" field="detallePedido.producto.nombre" header="Nombre" aria-sort="none" ></Column>
-         <Column  class="col" field="detallePedido.cantSolicitada" header="Solicitado" aria-sort="none">
+         <Column  class="col" field="detallePedido.cantSolicitada" header="Facturado" aria-sort="none">
+            <template #body="slotProps">
+                <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
+                {{ slotProps.data.detallePedido.cantFacturada }}  
+                </div>  
+            </template>
          </Column>
          <!--<Column v-else class="col" field="detallePedido.cantFacturada" header="Facturado" aria-sort="none">
          </Column>-->

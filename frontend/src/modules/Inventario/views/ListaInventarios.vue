@@ -8,8 +8,10 @@ import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { AnticipoServices } from '@/services/AnticipoServices';
 import { CajaServices } from '@/services/CajaServices';
 import Panel from 'primevue/panel';
+import { InputGroupAddon } from 'primevue';
 import router from '@/router';
 import { FormasPagoServices } from '@/services/FormasPagoServices';
+import Tag from 'primevue/tag';
 import Card from 'primevue/card';
 import InputNumber from 'primevue/inputnumber';
 import Dropdown from 'primevue/dropdown';
@@ -39,6 +41,11 @@ onMounted(() => {
     getInventarios();
 });
 
+const filters = ref({
+    'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
+});
+
+
 
 const nuevoInventario = () =>{
     router.push({name: 'nuevo_inventario'});
@@ -55,6 +62,22 @@ const verInventario = (id) =>{
 const registrarConteo = (id) =>{
     router.push({name: 'registrar_conteo', params: {id}});
 }
+
+const getSeverity = (estado) => {
+    switch (estado) {
+        case 'S':
+           return 'background-color: rgb(202, 241, 216); color: rgb(24, 138, 66); font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;';
+
+       case 'P':
+           return 'background-color: rgb(254, 221, 199); color: rgb(174, 81, 15); font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;';
+
+       case 'A':
+           return 'background-color: rgb(215, 227, 552); color: rgb(50, 111, 252); font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;';
+
+        default:
+            return null;
+    }
+};
 
 const isFinalizado = (estado) => {
   switch (estado) {
@@ -114,15 +137,23 @@ const ajustarInventario = (id) =>{
         <Panel style=" position: relative; width: 90%;" >
             <template #header>
                 <div class="flex align-items-center gap-2">
-                    <h3 class="font-bold">Inventarios</h3>
+                    <h3 class="font-bold">Controles de Inventario</h3>
                 </div>
             </template>
       
             <template #icons>
-                <div class="flex align-items-center">
-                    <Button  label="Nuevo" @click="nuevoInventario()" />
-                </div>
-            </template>
+                
+        <div class="flex align-items-center">
+            <Button  label="Nuevo" @click="nuevoInventario()"  style="margin-right: 1% ;"/>
+          <InputGroup>
+            <InputText v-model="filters['global'].value" placeholder="Buscar..." />
+            <InputGroupAddon>
+              <i class="pi pi-search" />
+            </InputGroupAddon>
+        </InputGroup>
+        </div>
+    
+      </template>
       
             <div >
                 <DataTable  :value="inventarios" scrollHeight="400px"  
@@ -139,7 +170,7 @@ const ajustarInventario = (id) =>{
                     </Column>
                     <Column  field="estado" header="Estado" aria-sort="ascending" sortable >
                         <template #body="slotProps">
-                            {{ getEstado(slotProps.data.estado) }}
+                            <Tag :style="getSeverity(slotProps.data.estado)" style=" font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ getEstado(slotProps.data.estado)}}</Tag>
                         </template>
                     </Column>
                     <Column :exportable="false" style="min-width:8rem">

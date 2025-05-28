@@ -101,7 +101,7 @@ onMounted(() => {
         detalle.value = data.data.detalle;
         fecha.value = new Date(pedido.value.fecha);
         detalle.value.forEach(element => {
-            element.cantPendiente = element.detallePedido.cantSolicitada - element.detallePedido.cantRecepcionada;
+            element.detalleCompra.cantPendiente = element.detalleCompra.cantidad - element.detalleCompra.cantRecepcionada;
             /*if (pedido.value.proveedor.tipo.descripcion == 'Extranjero') {
                 compraNacional.value = false;
                 element.cantPendiente = element.detallePedido.cantFacturada - element.detallePedido.cantRecepcionada;
@@ -240,8 +240,13 @@ const modificarPedido = (id) => {
                                 <div class="card" style="width: 100%;">
     <div class="flex card-container" style="width: 100%;">
         <DataTable class="tablaCarrito" ref="dt" :value="detalle" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
-         <Column  class="col" field="detallePedido.producto.nombre" header="Nombre" aria-sort="none" ></Column>
-         <Column v-if="compraNacional" class="col" field="detallePedido.cantSolicitada" header="Solicitado" aria-sort="none">
+         <Column  class="col" field="detalleCompra.producto.nombre" header="Nombre" aria-sort="none" ></Column>
+         <Column  class="col" field="detalleCompra.cantSolicitada" header="Facturado" aria-sort="none">
+            <template #body="slotProps">
+                <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
+                {{ slotProps.data.detalleCompra.cantidad }}  
+                </div>  
+            </template>
          </Column>
         <!-- <Column v-else class="col" field="detallePedido.cantFacturada" header="Facturado" aria-sort="none">
          </Column>-->
@@ -249,7 +254,7 @@ const modificarPedido = (id) => {
          <Column class="col" field="cantidad" header="Pendiente de recepción" aria-sort="none">
             <template #body="slotProps">
                 <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                {{ slotProps.data.cantPendiente }}  
+                {{ slotProps.data.detalleCompra.cantPendiente }}  
                 </div>  
             </template>
          </Column>

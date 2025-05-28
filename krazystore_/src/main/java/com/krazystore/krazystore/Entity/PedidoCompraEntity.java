@@ -43,12 +43,12 @@ public class PedidoCompraEntity {
     @ManyToOne
     @JoinColumn(name = "id_proveedor")
     private ProveedorEntity proveedor;
-    @Enumerated(EnumType.STRING)
     @Column(name = "estado")
-    private EstadoPedido estadoPedido;
-    @Enumerated(EnumType.STRING)
+    private Character estadoPedido;
     @Column(name = "estado_facturacion")
-    private EstadoPedido estadoFacturacion;
+    private Character estadoFacturacion;
+    @Column(name = "tipo_pedido")
+    private Character tipoPedido;
     
     public Long getId() {
         return id;
@@ -90,20 +90,29 @@ public class PedidoCompraEntity {
         this.observaciones = observaciones;
     }
 
-    public EstadoPedido getEstadoPedido() {
+    public Character getEstadoPedido() {
         return estadoPedido;
     }
 
-    public void setEstadoPedido(EstadoPedido estadoPedido) {
+    public void setEstadoPedido(Character estadoPedido) {
         this.estadoPedido = estadoPedido;
     }
 
-    public EstadoPedido getEstadoFacturacion() {
+    public Character getEstadoFacturacion() {
         return estadoFacturacion;
     }
 
-    public void setEstadoFacturacion(EstadoPedido estadoFacturacion) {
+    public void setEstadoFacturacion(Character estadoFacturacion) {
         this.estadoFacturacion = estadoFacturacion;
+    }
+
+    
+    public Character getTipoPedido() {
+        return tipoPedido;
+    }
+
+    public void setTipoPedido(Character tipoPedido) {
+        this.tipoPedido = tipoPedido;
     }
 
     

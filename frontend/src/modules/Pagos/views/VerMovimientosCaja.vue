@@ -38,24 +38,24 @@
                   
                     <div class="flex align-items-center gap-3 mb-2">
                         <label for="username" class="font-semibold w-9rem">Tipo transacción</label>
-                        <Dropdown v-model:model-value="movimiento.concepto" :options="conceptos" optionLabel="descripcion" placeholder="Seleccione un elemento" checkmark :highlightOnSelect="false" class="w-full md:w-14rem"  />
+                        <Select fluid v-model:model-value="movimiento.concepto" :options="conceptos" optionLabel="descripcion" placeholder="Seleccione un elemento" checkmark :highlightOnSelect="false"  />
                     </div>
 
                     <div class="flex align-items-center gap-3 mb-2">
                         <label for="email" class="font-semibold w-9rem">Monto</label>
-                        <InputNumber v-model:model-value="movimiento.monto" inputId="integeronly" @input="validarMonto($event)" />
+                        <InputNumber fluid v-model:model-value="movimiento.monto" inputId="integeronly" @input="validarMonto($event)" />
                     </div>
                     <div class="flex align-items-center gap-3 mb-2">
                         <label for="email" class="font-semibold w-9rem">Medio de pago</label>
-                        <Dropdown v-model:model-value="movimiento.medio" :options="formasPago" optionLabel="descripcion"  placeholder="Seleccione un elemento" checkmark :highlightOnSelect="false" class="w-full md:w-14rem" />
+                        <Select fluid v-model:model-value="movimiento.medio" :options="formasPago" optionLabel="descripcion"  placeholder="Seleccione un elemento" checkmark :highlightOnSelect="false" />
                     </div>
                     <div class="flex align-items-center gap-3 mb-2">
                         <label for="email" class="font-semibold w-9rem">Documento</label>
-                        <InputText v-model:model-value="movimiento.nroDocumento" id="email" class="flex-auto" autocomplete="off"  />
+                        <InputText fluid v-model:model-value="movimiento.nroDocumento" id="email" class="flex-auto" autocomplete="off"  />
                     </div>
                     <div class="flex align-items-center gap-3 mb-2">
                         <label for="email" class="font-semibold w-9rem">Observación</label>
-                        <Textarea v-model:model-value="movimiento.observacion" rows="5" cols="30"  />
+                        <Textarea fluid v-model:model-value="movimiento.observacion" rows="5" cols="30"  />
                     </div>
                 </div>  
             </div>
@@ -572,6 +572,7 @@ const closeDialog = (event) =>{
     pagosAplicar.value = [];
     anticiposAplicar.value = [];
     anticiposAplicados.value = [];
+    anticiposAsociados.value = false;
     pagosAplicados.value = [];
     reiniciarDialog();
     
@@ -602,10 +603,10 @@ const guardarMovimiento = () =>{
                 }
     let pagos = [pago];
 
-    if (movimiento.value.tipo == 'Ingreso') {
+    if (movimiento.value.concepto.tipo == 'I') {
         let ingresoDTO = {movimiento: movimiento.value, cobros: pagos};
         CajaServices.saveIngresoVario(ingresoDTO).then((data) => {
-            toast.add({ severity:"success", detail: movimiento.value.tipo + ' Registrado', life: 3000 });
+            showSuccess('Ingreso Registrado');
             getMovimientos();
             closeDialog();
             
@@ -614,7 +615,7 @@ const guardarMovimiento = () =>{
     } else {
         let egresoDTO = {movimiento: movimiento.value, pagos: pagos};
         CajaServices.saveEgresoVario(egresoDTO).then((data) => {
-            toast.add({ severity:"success", detail: movimiento.value.tipo + ' Registrado', life: 3000 });
+            showSuccess('Egreso Registrado');
             getMovimientos();
             closeDialog();
             
@@ -625,19 +626,37 @@ const guardarMovimiento = () =>{
     
 }
 
+ const showError = (message) => {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: message,
+      life: 3000
+    });
+  };
+  
+  const showSuccess = (message) => {
+    toast.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: message,
+      life: 3000
+    });
+  };
+
 const guardarPagosPendientes = () =>{
     let fechaMovimiento = new Date();
     movimientoPagar.value.fecha = fechaMovimiento;
     movimientoPagar.value.caja = caja.value;
     //obtenerAnticiposAplicados();
     
-    
+    let formasPagos = pagos.value?.filter(d => d.importe > 0);
     console.log(pagos.value);
-    console.log(pagosAplicados.value);
-    let movimientoCreationDTO = {movimiento: movimientoPagar.value, pagos: pagos.value, pagosPedidoCompraAplicados: pagosAplicados.value};
+  
+    let movimientoCreationDTO = {movimiento: movimientoPagar.value, pagos: formasPagos};
     
     CajaServices.savePagosPendiente(movimientoCreationDTO).then((data) => {
-        toast.add({ severity:"success", detail: movimiento.value.tipo + ' Registrado', life: 3000 });
+        showSuccess('Pago registrado');
         getMovimientos();
         getMovimientosPendientesDePago();
         closeDialog();
@@ -651,14 +670,15 @@ const guardarCobrosPendientes = () =>{
     movimientoCobrar.value.fecha = fechaMovimiento;
     movimientoCobrar.value.caja = caja.value;
     //obtenerAnticiposAplicados();
-    
+    let formasCobros = pagos.value?.filter(d => d.importe > 0);
+    let anticiposAplicar = anticiposAplicados.value?.filter(d => d.monto > 0);
     console.log(movimientoCobrar.value);
     console.log(pagos.value);
     console.log(anticiposAplicados.value);
-    let movimientoCreationDTO = {movimiento: movimientoCobrar.value, cobros: pagos.value, anticiposAplicados: anticiposAplicados.value};
+    let movimientoCreationDTO = {movimiento: movimientoCobrar.value, cobros: formasCobros, anticiposAplicados: anticiposAplicar};
     
     CajaServices.saveCobrosPendiente(movimientoCreationDTO).then((data) => {
-        toast.add({ severity:"success", detail: movimiento.value.tipo + ' Registrado', life: 3000 });
+        showSuccess('Cobro registrado');
         getMovimientos();
         getMovimientosPendientesDeCobro();
         closeDialog();
@@ -677,7 +697,7 @@ const deleteMovimiento = (id) =>{
       getMovimientosPendientesDePago();
       getMovimientosPendientesDeCobro();
         movimientos.value.splice(index,cantidad);
-            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 5000 });
+        showSuccess('Movimiento eliminado');
         })
 
 }
@@ -731,9 +751,6 @@ const registrarPago = (movimiento) => {
         getAnticiposByIdPedidoVenta(movimiento.venta.pedido.id);
     } 
 
-    if(movimiento.compra != null && movimiento.compra.pedido != null ){
-        getPagosByIdPedidoCompra(movimiento.compra.pedido.id);
-    }
 };
 
 const registrarCobro = (movimiento) => {
@@ -759,18 +776,6 @@ AnticipoServices.getAnticiposByIdPedidoVenta(idPedido).then((data) => {
     console.log(data.data);
     if (anticiposAplicar.value.length > 0) {
         anticiposAsociados.value = true;
-    }   
-
-});
-};
-
-const getPagosByIdPedidoCompra = (id) => {
-console.log("getCompra");
-PagoPedidoCompraServices.findPagosAplicarByIdPedidoCompra(id).then((data) => {
-    pagosAplicar.value = data.data;
-    console.log(pagosAplicar.value);
-    if (pagosAplicar.value.length > 0) {
-        pagosAsociados.value = true;
     }   
 
 });

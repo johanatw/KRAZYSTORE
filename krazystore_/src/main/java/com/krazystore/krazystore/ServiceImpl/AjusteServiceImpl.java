@@ -12,16 +12,19 @@ import com.krazystore.krazystore.DTO.DetalleAjusteDTO;
 import com.krazystore.krazystore.DTO.ProductoExistenciasDTO;
 import com.krazystore.krazystore.Entity.AjusteStock;
 import com.krazystore.krazystore.Entity.DetalleAjuste;
+import com.krazystore.krazystore.Entity.Usuario;
 import com.krazystore.krazystore.Mapper.DetalleAjusteDTOMapper;
 import com.krazystore.krazystore.Mapper.DetalleAjusteMapper;
 import com.krazystore.krazystore.Repository.AjusteRepository;
 import com.krazystore.krazystore.Service.AjusteService;
 import com.krazystore.krazystore.Service.DetalleAjusteService;
+import com.krazystore.krazystore.Service.UsuarioService;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,10 +50,13 @@ public class AjusteServiceImpl implements AjusteService {
     
     @Autowired
     private DetalleAjusteMapper detalleMapper;
+    
+    @Autowired
+    private UsuarioService usuarioService;
 
     @Override
     public List<AjusteStock> findAll() {
-        return ajusteRepository.findAll();
+        return ajusteRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
     }
 
     @Override
@@ -75,6 +81,12 @@ public class AjusteServiceImpl implements AjusteService {
         List<DetalleAjusteDTO> detalleDTO = ajusteDTO.getDetalle();
         AjusteStock ajuste = ajusteDTO.getAjuste();
 
+        Optional<Usuario> usuario = usuarioService.findByUsername(ajusteDTO.getUsername());
+                
+        if(usuario.isPresent()){
+            ajuste.setUsuarioRegistro(usuario.get());
+        }
+        
         // Guardar el ajuste
         ajuste.setEstado(Estado.PENDIENTEAJUSTE.getCodigo());
         AjusteStock nuevoAjuste = ajusteRepository.save(ajuste);

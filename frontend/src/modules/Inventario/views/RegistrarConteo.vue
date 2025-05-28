@@ -1,10 +1,10 @@
 
 <template>
     <div class="flex p-fluid justify-content-center " >
-        <Panel style=" position: relative; width: 100%;" >
+        <Panel style=" position: relative; width: 80%;" >
             <template #header>
                 <div class="flex align-items-center gap-2">
-                    <h3 class="font-bold">Inventario N° {{ router.currentRoute.value.params.id }}</h3>
+                    <h3 class="font-bold">Control de Inventario N° {{ router.currentRoute.value.params.id }}</h3>
                 </div>
             </template>
      
@@ -179,10 +179,11 @@ const guardarInventario = () =>{
     let fechaAnticipo = new Date();
     let ant = {fecha: fechaAnticipo, estado: 'N'};
 
-    let anticipoCreationDTO = {inventario: inventario.value, detalle: productosFiltrados.value};
+    const username = localStorage.getItem('username');
+    let anticipoCreationDTO = {inventario: inventario.value, detalle: productosFiltrados.value, username: username};
     InventarioServices.finalizarInventario(inventario.value.id, anticipoCreationDTO).then((data)=> {
         let id = data.data.id;
-        showSuccess('Inventario finalizado correctamente');
+        showSuccess('Control de Inventario finalizado');
         vistaListaInventarios();
     } );
 }

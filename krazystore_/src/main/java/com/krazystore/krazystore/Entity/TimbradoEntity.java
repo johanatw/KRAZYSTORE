@@ -24,29 +24,23 @@ public class TimbradoEntity {
     @Column(name = "id")
     private Long id;
     @Column
-    private int numeroTimbrado;
+    private Integer numeroTimbrado;
     @Column
     private Date vigenciaInicio;
     @Column
     private Date vigenciaFin;
     @Column
-    private int codEstablecimiento;
+    private Integer codEstablecimiento;
     @Column
-    private int puntoExpedicion;
+    private Integer puntoExpedicion;
     @Column
-    private int numeroInicio;
+    private Integer numeroInicio;
     @Column
-    private int numeroFin;
+    private Integer numeroFin;
     @Column
-    private int cantHabilitada;
-    @Column
-    private int cantUtilizada;
-    @Column
-    private int ultimoRemitido;
+    private Integer ultimoEmitido = 0;
     @Column
     private Date fecha_creacion;
-    @Column
-    private char estado;
     @Column
     private Boolean activo = true;
 
@@ -61,19 +55,11 @@ public class TimbradoEntity {
         this.id = id;
     }
 
-    public Date getFecha_creacion() {
-        return fecha_creacion;
-    }
-
-    public void setFecha_creacion(Date fecha_creacion) {
-        this.fecha_creacion = fecha_creacion;
-    }
-
-    public int getNumeroTimbrado() {
+    public Integer getNumeroTimbrado() {
         return numeroTimbrado;
     }
 
-    public void setNumeroTimbrado(int numeroTimbrado) {
+    public void setNumeroTimbrado(Integer numeroTimbrado) {
         this.numeroTimbrado = numeroTimbrado;
     }
 
@@ -93,68 +79,52 @@ public class TimbradoEntity {
         this.vigenciaFin = vigenciaFin;
     }
 
-    public int getCodEstablecimiento() {
+    public Integer getCodEstablecimiento() {
         return codEstablecimiento;
     }
 
-    public void setCodEstablecimiento(int codEstablecimiento) {
+    public void setCodEstablecimiento(Integer codEstablecimiento) {
         this.codEstablecimiento = codEstablecimiento;
     }
 
-    public int getPuntoExpedicion() {
+    public Integer getPuntoExpedicion() {
         return puntoExpedicion;
     }
 
-    public void setPuntoExpedicion(int puntoExpedicion) {
+    public void setPuntoExpedicion(Integer puntoExpedicion) {
         this.puntoExpedicion = puntoExpedicion;
     }
 
-    public int getNumeroInicio() {
+    public Integer getNumeroInicio() {
         return numeroInicio;
     }
 
-    public void setNumeroInicio(int numeroInicio) {
+    public void setNumeroInicio(Integer numeroInicio) {
         this.numeroInicio = numeroInicio;
     }
 
-    public int getNumeroFin() {
+    public Integer getNumeroFin() {
         return numeroFin;
     }
 
-    public void setNumeroFin(int numeroFin) {
+    public void setNumeroFin(Integer numeroFin) {
         this.numeroFin = numeroFin;
     }
 
-    public int getCantHabilitada() {
-        return cantHabilitada;
+    public Integer getUltimoEmitido() {
+        return ultimoEmitido;
     }
 
-    public void setCantHabilitada(int cantHabilitada) {
-        this.cantHabilitada = cantHabilitada;
+    public void setUltimoEmitido(Integer ultimoEmitido) {
+        this.ultimoEmitido = ultimoEmitido;
     }
 
-    public int getCantUtilizada() {
-        return cantUtilizada;
+    public Date getFecha_creacion() {
+        return fecha_creacion;
     }
 
-    public void setCantUtilizada(int cantUtilizada) {
-        this.cantUtilizada = cantUtilizada;
-    }
-
-    public int getUltimoRemitido() {
-        return ultimoRemitido;
-    }
-
-    public void setUltimoRemitido(int ultimoRemitido) {
-        this.ultimoRemitido = ultimoRemitido;
-    }
-
-    public char getEstado() {
-        return estado;
-    }
-
-    public void setEstado(char estado) {
-        this.estado = estado;
+    public void setFecha_creacion(Date fecha_creacion) {
+        this.fecha_creacion = fecha_creacion;
     }
 
     public Boolean getActivo() {
@@ -164,6 +134,9 @@ public class TimbradoEntity {
     public void setActivo(Boolean activo) {
         this.activo = activo;
     }
+
+    
+
     
     
 }

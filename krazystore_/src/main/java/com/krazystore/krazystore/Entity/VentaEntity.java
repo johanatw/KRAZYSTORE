@@ -63,6 +63,12 @@ public class VentaEntity {
         this.estado = estado;
     }  
 
+    public VentaEntity(Long id, String nroFactura, Date fecha) {
+        this.id = id;
+        this.nroFactura = nroFactura;
+        this.fecha = fecha;
+    }
+
     
     public Integer getTimbrado() {
         return timbrado;

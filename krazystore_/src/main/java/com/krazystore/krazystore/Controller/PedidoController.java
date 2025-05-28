@@ -47,6 +47,11 @@ public class PedidoController {
         return pedidoService.updatePedido(pedidoCreationDTO, id);
     }
 
+    @PutMapping("/cancelar/{id}")
+    public PedidoEntity cancelarPedido(@PathVariable long id, @RequestBody PedidoEntity pedido) throws Exception {
+        return pedidoService.cancelarPedido(id);
+    }
+    
     @DeleteMapping("/{id}")
     public void deletePedido(@PathVariable("id") Long id) {
         pedidoService.deletePedido(id);

@@ -10,11 +10,14 @@ import com.krazystore.krazystore.Entity.VentaEntity;
  *
  * @author HP
  */
-public class NuevaFacturaVentaEvent extends  NuevaFacturaEvent{
+public class FacturaVentaEvent extends  FacturaEvent{
 
-    public NuevaFacturaVentaEvent(TipoEvento tipoEvento, VentaEntity nuevaVenta) {
+    public FacturaVentaEvent(TipoEvento tipoEvento, VentaEntity nuevaVenta) {
         super(tipoEvento, nuevaVenta);
     }
-    
-    
+
+    public FacturaVentaEvent( TipoEvento tipoEvento, VentaEntity nuevaVenta, Long idPedido) {
+        super(tipoEvento, nuevaVenta, idPedido);
+    }
+
 }

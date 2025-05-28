@@ -5,7 +5,7 @@
 package com.krazystore.krazystore.Service;
 
 import Utils.TipoEvento;
-import Utils.TipoPedido;
+import Utils.TipoPedidoCompra;
 import com.krazystore.krazystore.Entity.AnticipoEntity;
 import com.krazystore.krazystore.Entity.AplicacionAnticipo;
 import com.krazystore.krazystore.Entity.PedidoEntity;

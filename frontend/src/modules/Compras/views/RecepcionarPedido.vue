@@ -34,6 +34,7 @@ const submitted = ref(false);
 const clienteSeleccionado = ref(false);
 const mensaje = ref([]);
 const fechaRecepcion = ref(new Date());
+
 const ciudades = ref([]);
 const departamentos = ref([]);
 const documentos = ref([]);
@@ -43,6 +44,7 @@ const selectedOp = ref('Casi');
 const productos= ref();
 const clientes=ref();
 const filteredClientes = ref();
+const detalleRecepcionar = ref();
 const error = ref(false);
 const facturaId = ref();
 const opciones = ref(['Casi','Entre']);
@@ -85,7 +87,7 @@ const message = (m) => {
         },
     });
 };
-
+const detallesFacturasRecepcionar = ref([]);
 const detalleRecepcion = ref([]);
 const detalle= ref([]);
 const subTotal = ref(0);
@@ -115,7 +117,18 @@ onMounted(() => {
         });
     }else
     {console.log(router.currentRoute.value.query.facturaId);*/
-    PedidoCompraServices.getPedido(router.currentRoute.value.params.id).then((data) => {
+    let idsFacturasRecepcionar = JSON.parse(sessionStorage.getItem('facturasRecepcionar'));
+    console.log(idsFacturasRecepcionar);
+        RecepcionServices.getDetallesFacturasRecepcionar(idsFacturasRecepcionar).then((data)=>{
+            console.log(data.data);
+            detalleRecepcion.value = data.data;
+/*
+            detalleRecepcion.value.forEach(e=> {                
+                e.cantPendiente = e.cantFacturado - e.recepcionadoFactura;
+                
+            });*/
+        });
+   /* PedidoCompraServices.getPedido(router.currentRoute.value.params.id).then((data) => {
         pedido.value = data.data.pedido;
         detalle.value = data.data.detalle;
         fechaRecepcion.value = pedido.value.fecha;
@@ -123,27 +136,29 @@ onMounted(() => {
        proveedor.value = pedido.value.proveedor;
        /*if ( esCompraInternacional(proveedor.value.tipo.descripcion)) {
             compraNacional.value = false;
-        }else{ compraNacional.value = true;}*/ 
+        }else{ compraNacional.value = true;}
        mostrarCliente(proveedor.value);
 
        detalle.value.forEach(e=> {
-            
-            let d = {};
+            if (!e.esServicio) {
+                let d = {};
             
             d.detallePedido = e;
             d.cantRecepcionado = 0;
             d.cantRechazada = 0;
             d.cantAceptada = 0;
-            d.cantPendiente = e.cantSolicitada- e.cantRecepcionada;
+            d.cantPendiente = e.cantFacturada- e.cantRecepcionada;
             /*if (proveedor.value.tipo.descripcion == 'Extranjero') {
                 d.cantPendiente = e.cantFacturada - e.cantRecepcionada;
             }else{ 
                 d.cantPendiente = e.cantSolicitada- e.cantRecepcionada;
-            } */
+            } 
             
             detalleRecepcion.value.push(d);
+            }
+            
         });
-   });
+   });*/
 
 });
 
@@ -176,6 +191,21 @@ const verPedidos = () =>{
     router.push({name: 'pedidos_compras'});
 }
 
+const validarForm = () => {
+    mensaje.value = [];
+    error.value = false;
+    detalleRecepcionar.value = detalleRecepcion.value?.filter(d => d.cantRecepcionado > 0);
+    if (detalleRecepcionar.value.length < 1) {
+            error.value = true;
+            mensaje.value.push("No se ingresó ninguna cantidad para recepcionar");
+
+    } 
+    
+  
+    modificarPedido();
+
+}
+
 const showError = (message) => {
     toast.add({
       severity: 'error',
@@ -194,10 +224,10 @@ const showError = (message) => {
     });
   };
 
-const modificarPedido = (id) => {
+const modificarPedido = () => {
     if (!error.value){
 
-
+    let idsCompras = detalleRecepcionar.value.map(d => d.detalleCompra.idCompra);
     let fechaAnticipo = new Date();
     let compraAsociada = compra.value.id != null ? compra.value : null;
     let ant = {idPedido: pedido.value.id, fecha: fechaRecepcion.value, compra: compraAsociada};
@@ -205,9 +235,10 @@ const modificarPedido = (id) => {
     console.log(ant);
     console.log(detalleRecepcion.value);
 
-    let anticipoCreationDTO = {recepcion: ant, detalle: detalleRecepcion.value};
+    let anticipoCreationDTO = {recepcion: ant, detalle: detalleRecepcionar.value, idsCompras: idsCompras };
    RecepcionServices.registrarRecepcion(anticipoCreationDTO ).then((data)=> {
         console.log("saveanticipothen");
+        sessionStorage.removeItem('facturasRecepcionar');
         console.log("data");
         let id = data.data.id;
         showSuccess('Recepcion creado correctamente');
@@ -236,14 +267,14 @@ const vistaPedidos= () =>{
     <Panel style=" position: relative; width: 80%;" >
         <template #header>
                 <div class="flex align-items-center gap-2">
-                    <h3 class="font-bold">Recepcionar Pedido N° {{ pedido.id }}</h3>
+                    <h3 class="font-bold">Nueva Recepción</h3>
                 </div>
             </template>
             <template #icons>
                 <div class="card flex" style="justify-content: end;">   
                     <div class="card flex" style="justify-content: end;">  
                         <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaPedidos()" />
-                        <Button  label="Guardar" @click="modificarPedido(pedido.id)" />
+                        <Button  label="Guardar" @click="validarForm()" />
                     </div>  
                 </div>
             </template>
@@ -295,16 +326,21 @@ const vistaPedidos= () =>{
                                 <div class="card" style="width: 100%;">
     <div class="flex card-container" style="width: 100%;">
         <DataTable class="tablaCarrito" ref="dt" :value="detalleRecepcion" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
-         <Column  class="col" field="detallePedido.producto.nombre" header="Nombre" aria-sort="none" ></Column>
+         <Column  class="col" field="detalleCompra.producto.nombre" header="Nombre" aria-sort="none" ></Column>
          
-        <Column  class="col" field="detallePedido.cantSolicitada" header="Solicitado" aria-sort="none">
+        <Column  class="col" field="detallePedido.cantSolicitada" header="Facturado" aria-sort="none">
+            <template #body="slotProps">
+                <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
+                {{ slotProps.data.detalleCompra.cantidad}}  
+                </div> 
+            </template>
          </Column>
          <!--<Column v-else class="col" field="cantFacturado" header="Facturado" aria-sort="none">
          </Column>-->
          <Column  class="col" field="cantidad" header="Recepcionado" aria-sort="none">
             <template #body="slotProps">
                 <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                {{ slotProps.data.detallePedido.cantRecepcionada}}  
+                {{ slotProps.data.detalleCompra.cantRecepcionada}}  
                 </div> 
             </template>
          </Column>
@@ -318,22 +354,22 @@ const vistaPedidos= () =>{
          <Column  class="col" field="cantidad" header="Pendiente" aria-sort="none">
             <template #body="slotProps">
                 <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                {{ slotProps.data.cantPendiente }}  
+                {{ slotProps.data.detalleCompra.cantPendiente }}  
                 </div>  
             </template>
          </Column>
          <Column  class="col" field="cantRecepcionado" header="Recibido" aria-sort="none">
             
             <template #body="slotProps">
-                <div v-if="slotProps.data.cantPendiente>0" class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
-                  <InputNumber fluid class="inpCant" v-model="slotProps.data.cantRecepcionado" :min="0" :max="slotProps.data.cantPendiente" inputId="minmax-buttons" mode="decimal" showButtons />
+                <div v-if="slotProps.data.detalleCompra.cantPendiente>0" class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
+                  <InputNumber fluid class="inpCant" v-model="slotProps.data.cantRecepcionado" :min="0" :max="slotProps.data.detalleCompra.cantPendiente" inputId="minmax-buttons" mode="decimal" showButtons />
               </div>  
          
             </template>
          </Column>
          <Column class="col" field="cantDañada" header="Aceptar" aria-sort="none">
             <template #body="slotProps">
-                <div v-if="slotProps.data.cantPendiente>0" class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
+                <div v-if="slotProps.data.detalleCompra.cantPendiente>0" class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
                   <InputNumber fluid class="inpCant" v-model="slotProps.data.cantAceptada" :min="0" :max="slotProps.data.cantRecepcionado" inputId="minmax-buttons" mode="decimal" showButtons />
               </div> 
              
@@ -341,7 +377,7 @@ const vistaPedidos= () =>{
          </Column>
          <Column  class="col" field="cantDañada" header="Rechazar" aria-sort="none">
             <template #body="slotProps">
-              <div v-if="slotProps.data.cantPendiente>0" class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
+              <div v-if="slotProps.data.detalleCompra.cantPendiente>0" class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
                   {{slotProps.data.cantRechazada = slotProps.data.cantRecepcionado - slotProps.data.cantAceptada}}
                 </div> 
             </template>

@@ -55,6 +55,18 @@ public class DetalleVentaEntity {
         this.subTotal = detalle.getSubTotal();
     }
 
+    public DetalleVentaEntity(ProductoEntity producto, int cantidad) {
+        this.producto = producto;
+        this.cantidad = cantidad;
+    }
+
+    public DetalleVentaEntity(Long idDetVenta, ProductoEntity producto, Integer cantFacturada) {
+        this.idDetVent = idDetVenta;
+        this.producto = producto;
+        this.cantidad = cantFacturada;
+    }
+
+    
     public long getIdDetVent() {
         return idDetVent;
     }

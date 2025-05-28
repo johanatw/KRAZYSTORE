@@ -23,18 +23,17 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 public interface RecepcionRepository extends JpaRepository<RecepcionEntity, Long> {
-    @Query(
+    /*@Query(
     "SELECT COALESCE(SUM(r.cantRecepcionada), 0) "
             + "FROM DetalleRecepcion r "
             + "JOIN DetallePedidoCompra d ON r.detallePedido = d "
             + "WHERE d.producto.id = ?2 AND d.pedidoCompra.id = ?1 "
            )
-        Integer getTotalRecepcionadoPorProducto(Long pedidoId, Long productoId);
+        Integer getTotalRecepcionadoPorProducto(Long pedidoId, Long productoId);*/
 
         
-    @Query("SELECT DISTINCT new com.krazystore.krazystore.DTO.RecepcionDTO(r.id, r.fecha, p.id, r.estado, p.proveedor ) "
+    @Query("SELECT new com.krazystore.krazystore.DTO.RecepcionDTO(r.id, r.fecha, r.estado ) "
         + "FROM RecepcionEntity r "
-        + "JOIN r.pedido p "
         + "WHERE r.id = ?1")
     Optional<RecepcionDTO> findRecepcion(Long idRecepcion);
 
@@ -55,7 +54,7 @@ public interface RecepcionRepository extends JpaRepository<RecepcionEntity, Long
         + "WHERE d.recepcion.id = ?1")
     List<DetalleRecepcionDTO> findDetallesByRecepcionId(Long idRecepcion);*/
     
-    @Query("SELECT new com.krazystore.krazystore.DTO.DetalleRecepcionDTO( " +
+  /*  @Query("SELECT new com.krazystore.krazystore.DTO.DetalleRecepcionDTO( " +
        "d.id, d.recepcion.id, dp.id, dp.producto.id, " +
        "dp.producto.nombre, dp.costoCompra, dp.cantidad, d.cantAceptada, " +
        "d.cantRechazada, d.cantRecepcionada, " +
@@ -74,20 +73,23 @@ public interface RecepcionRepository extends JpaRepository<RecepcionEntity, Long
        "           JOIN dc.compra f " +
        "           GROUP BY dc.producto.id, f.pedido.id) dc ON dc.productoId = dp.producto.id AND dc.pedidoId = s.id " +
        "WHERE d.recepcion.id = :idRecepcion")
-    List<DetalleRecepcionDTO> findDetallesByRecepcionId(@Param("idRecepcion") Long idRecepcion);
+    List<DetalleRecepcionDTO> findDetallesByRecepcionId(@Param("idRecepcion") Long idRecepcion);*/
     
     
-    @Query("SELECT DISTINCT new com.krazystore.krazystore.DTO.RecepcionDTO(r.id, r.fecha, p.id, r.estado, p.proveedor ) "
+    @Query("SELECT new com.krazystore.krazystore.DTO.RecepcionDTO(r.id, r.fecha, p.id, r.estado ) "
         + "FROM RecepcionEntity r "
-        + "JOIN r.pedido p "
+        + "LEFT JOIN CompraRecepcion fr ON fr.recepcion = r "
+        + "LEFT JOIN fr.compra c "
+        + "LEFT JOIN c.pedido p "
         + "ORDER BY r.id DESC ")
     List<RecepcionDTO> findAllRecepciones();
     
-    @Query("SELECT p.id "
+    /*@Query("SELECT p.id "
         + "FROM RecepcionEntity r "
+            
         + "LEFT JOIN r.pedido p "
         + "WHERE r.id = ?1")
-    Long getIdPedidoCompraByIdRecepcion(Long idRecepcion);
+    Long getIdPedidoCompraByIdRecepcion(Long idRecepcion);*/
     
     /*@Query("SELECT new com.krazystore.krazystore.DTO.RecepcionCreationDTO"
             + "(SELECT new com.krazystore.krazystore.DTO.RecepcionDTO(r.id, r.fecha, p.id ), "
@@ -104,9 +106,11 @@ public interface RecepcionRepository extends JpaRepository<RecepcionEntity, Long
         List<RecepcionCreationDTO> findRecepcionesByIdPedido(Long idPedido);*/
         
     @Query("SELECT new com.krazystore.krazystore.DTO.RecepcionDTO( " +
-       "r.id, r.fecha, p.id, r.estado ) " +
-       "FROM RecepcionEntity r " +
-       "JOIN r.pedido p " +
+       "r.id, r.fecha, r.estado ) " +
+       "FROM RecepcionEntity r " 
+       + "LEFT JOIN CompraRecepcion fr ON fr.recepcion = r "
+        + "LEFT JOIN fr.compra c "
+        + "LEFT JOIN c.pedido p " +
        "WHERE p.id = :idPedido " +
         "GROUP BY r.id, r.fecha, p.id ")
     List<RecepcionDTO> findRecepcionesByIdPedido(@Param("idPedido") Long idPedido);

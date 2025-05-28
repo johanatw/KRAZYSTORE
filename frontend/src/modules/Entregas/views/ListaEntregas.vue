@@ -16,8 +16,8 @@ import { EntregaServices } from '@/services/EntregaServices';
 import router from '@/router';
 import { DireccionServices } from '@/services/DireccionServices';
 import { ModosEntregaServices } from '@/services/ModosEntregaServices';
-import { EmpresasTransporteServices } from '@/services/EmpresasTransporteServices';
-import { PuntoEntregaServices } from '@/services/PuntoEntregaServices';
+import { EmpresasDeliveryServices } from '@/services/EmpresasTransporteServices';
+import { PuntoRetiroServices } from '@/services/PuntoEntregaServices';
 import Toast from 'primevue/toast';
 import Tag from 'primevue/tag';
 import Dialog from 'primevue/dialog';
@@ -54,7 +54,7 @@ const puntosEntrega = ref([]);
 const empresasTransporte = ref([]);
 const clienteDialog = ref(false);
 const modalidadesEntrega = ref([]);
-const confirm2 = (id) => {
+const confirm2 = (id, index) => {
    
     confirm.require({
         message: 'Eliminar esta entrega?',
@@ -65,7 +65,7 @@ const confirm2 = (id) => {
         rejectClass: 'p-button-secondary p-button-outlined',
         acceptClass: 'p-button-danger',
         accept: () => {
-            deleteCompra(id);
+            deleteEntrega(id,index);
             
         },
         
@@ -127,7 +127,7 @@ const isEnvio = (modalidad) => {
 
 const getPuntosEntrega = async () => {
     try {
-      const response = await PuntoEntregaServices.obtenerPuntosEntrega();
+      const response = await PuntoRetiroServices.obtenerPuntosRetiro();
       puntosEntrega.value = response.data;
     } catch (error) {
        //alert(error);
@@ -136,7 +136,7 @@ const getPuntosEntrega = async () => {
 
 const getEmpresasTransporte = async () => {
     try {
-      const response = await EmpresasTransporteServices.obtenerEmpresasTransporte();
+      const response = await EmpresasDeliveryServices.obtenerEmpresasDelivery();
       empresasTransporte.value = response.data;
     } catch (error) {
        //alert(error);
@@ -258,12 +258,12 @@ const cambiarModoEntrega= (modalidad) => {
 };
 
 
-const deleteCompra = (id) =>{
+const deleteEntrega = (id, index) =>{
     const cantidad= 1;
-    const index = entregas.value.findIndex((loopVariable) => loopVariable.id === id);
-    CompraServices.deleteCompra(id).then((response)=>{
+    
+    EntregaServices.eliminar(id).then((response)=>{
       console.log("response");
-      console.log(response.data);
+      
       
         entregas.value.splice(index,cantidad);
             toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 5000 });
@@ -527,7 +527,7 @@ const nuevoPedido = () =>{
           <template #loading> Cargando. </template>
           <Column field="fecha" sortable header="N° Pedido" aria-sort="ascending" >
             <template #body="slotProps">
-                {{ slotProps.data.pedido?.id }}
+                {{ slotProps.data.venta?.pedido?.id }}
             </template>
         </Column>
           <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
@@ -539,9 +539,9 @@ const nuevoPedido = () =>{
           <Column field="proveedor.descripcion"  header="Cliente" aria-sort="ascending" sortable> 
             <template #body="slotProps">
                 <div>
-                    {{ slotProps.data.pedido?.cliente?.persona.nombre }}
-                    <label v-if="slotProps.data.pedido?.cliente?.persona.apellido" for="apellido">
-                        {{ slotProps.data.pedido?.cliente?.persona.apellido }}
+                    {{ slotProps.data.venta?.pedido?.cliente?.persona.nombre }}
+                    <label v-if="slotProps.data.venta?.pedido?.cliente?.persona.apellido" for="apellido">
+                        {{ slotProps.data.venta?.pedido?.cliente?.persona.apellido }}
                     </label>
                 </div>
             </template>           
@@ -572,10 +572,10 @@ const nuevoPedido = () =>{
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
               <Button icon="pi pi-eye" v-tooltip="'Ver detalles'" text rounded aria-label="Search" @click="verEntrega(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
-              <Button icon="pi pi-check" v-tooltip="'Entregado'" text rounded aria-label="Search" severity="success" @click="marcarComoEntregado(slotProps.data.id,slotProps.index )" style="height: 2rem !important; width: 2rem !important;" />
-              <Button icon="pi pi-times" v-tooltip="'No Entregado'" text rounded aria-label="Search" severity="warn" @click="marcarComoNoEntregado(slotProps.data.id, slotProps.index)" style="height: 2rem !important; width: 2rem !important;" />
+              <Button icon="pi pi-check" v-tooltip="'Entregado'" :disabled="isPagado(slotProps.data.estado)" text rounded aria-label="Search" severity="success" @click="marcarComoEntregado(slotProps.data.id,slotProps.index )" style="height: 2rem !important; width: 2rem !important;" />
+              <Button icon="pi pi-times" v-tooltip="'No Entregado'" :disabled="isPagado(slotProps.data.estado)" text rounded aria-label="Search" severity="warn" @click="marcarComoNoEntregado(slotProps.data.id, slotProps.index)" style="height: 2rem !important; width: 2rem !important;" />
               <Button icon="pi pi-sync" v-tooltip="'Reprogramar'" :disabled="!isNoEntregado(slotProps.data.estado)" severity="info" text rounded aria-label="Search" @click="reprogramarEntrega(slotProps.data.id, slotProps.index)" style="height: 2rem !important; width: 2rem !important;" />
-              <Button  icon="pi pi-trash" v-tooltip="'Eliminar'" :disabled="isPagado(slotProps.data.estado)" severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+              <Button  icon="pi pi-trash" v-tooltip="'Eliminar'"  severity="danger" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id, slotProps.index )"  style="height: 2rem !important; width: 2rem !important;" />
                 
                 </template>
           </Column>

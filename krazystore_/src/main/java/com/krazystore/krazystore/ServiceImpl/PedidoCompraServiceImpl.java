@@ -21,6 +21,7 @@ import com.krazystore.krazystore.Service.DetallePedidoCompraService;
 import com.krazystore.krazystore.Service.PedidoCompraService;
 import com.krazystore.krazystore.Service.RecepcionService;
 import com.krazystore.krazystore.exception.BadRequestException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -80,8 +81,8 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
             throw new BadRequestException("Falta proveedor " );
         }
         
-        pedido.getPedido().setEstadoFacturacion(EstadoPedido.PENDIENTE_DE_FACTURA);
-        pedido.getPedido().setEstadoPedido(EstadoPedido.NUEVO);
+        pedido.getPedido().setEstadoFacturacion(Estado.PENDIENTE_DE_FACTURA.getCodigo());
+        pedido.getPedido().setEstadoPedido(Estado.NUEVO.getCodigo());
         
         PedidoCompraEntity nuevoPedido;
         nuevoPedido = pedidoCompraRepository.save(pedido.getPedido());
@@ -109,6 +110,7 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
         updatedPedido.setProveedor(pedido.getProveedor());
         updatedPedido.setTotal(pedido.getTotal());
         updatedPedido.setObservaciones(pedido.getObservaciones());
+        updatedPedido.setTipoPedido(pedido.getTipoPedido());
         
         pedidoCompraRepository.save(updatedPedido);
         
@@ -180,7 +182,7 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
     public void updateEstadoPedido(PedidoCompraEntity pedido) {
         Long pedidoId = pedido.getId();
         
-        EstadoPedido nuevoEstado = pedido.getEstadoPedido();
+        Character nuevoEstado = pedido.getEstadoPedido();
         
         Long totalProductosPedidos = pedidoCompraRepository.totalProductosPedido(pedidoId);
         Long totalRecepcionado = pedidoCompraRepository.totalProductosRecepcionados(pedidoId);
@@ -189,15 +191,51 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
         boolean isTotalRecepcionado = totalRecepcionado == totalProductosPedidos;
 
         if(hasProductosRecepcionados){
-            nuevoEstado = isTotalRecepcionado?EstadoPedido.RECEPCIONADO:EstadoPedido.PARCIALMENTE_RECEPCIONADO;
+            nuevoEstado = isTotalRecepcionado?Estado.RECEPCIONADO.getCodigo():Estado.PARCIALMENTE_RECEPCIONADO.getCodigo();
         }else{
-            nuevoEstado = EstadoPedido.NUEVO;
+            nuevoEstado = Estado.NUEVO.getCodigo();
         }
 
         if (!Objects.equals(nuevoEstado, pedido.getEstadoPedido())) { 
             pedido.setEstadoPedido(nuevoEstado);
             pedidoCompraRepository.save(pedido);
         }
+        
+    }
+    
+    public void updateEstadoPedidos(List<Long> idsPedidos) {
+        List<PedidoCompraEntity> pedidosActualizarEstados = new ArrayList<>();
+        
+        for (Long id : idsPedidos) {
+            PedidoCompraEntity pedido = obtenerPedido(id);
+            
+            Character nuevoEstado = pedido.getEstadoPedido();
+        
+            Long totalProductosPedidos = pedidoCompraRepository.totalProductosPedido(id);
+            Long totalRecepcionado = pedidoCompraRepository.totalProductosRecepcionados(id);
+
+            boolean hasProductosRecepcionados = totalRecepcionado>0;
+            boolean isTotalRecepcionado = totalRecepcionado == totalProductosPedidos;
+
+            if(hasProductosRecepcionados){
+                nuevoEstado = isTotalRecepcionado?Estado.RECEPCIONADO.getCodigo():Estado.PARCIALMENTE_RECEPCIONADO.getCodigo();
+            }else{
+                nuevoEstado = Estado.NUEVO.getCodigo();
+            }
+
+            if (!Objects.equals(nuevoEstado, pedido.getEstadoPedido())) { 
+                pedido.setEstadoPedido(nuevoEstado);
+                pedidosActualizarEstados.add(pedido);
+            }
+            
+        }
+        
+        if(!pedidosActualizarEstados.isEmpty()){
+            pedidoCompraRepository.saveAll(pedidosActualizarEstados);
+        }
+        
+        
+        
         
     }
 
@@ -208,20 +246,24 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
         boolean hasFacturas = hasFacturas(pedido.getId());
         boolean esTotalmenteFacturado = pedidoCompraRepository.esPedidoTotalmenteFacturado(pedido.getId());
         
-        EstadoPedido nuevoEstado = pedido.getEstadoFacturacion();
-        EstadoPedido nuevoEstadoPedido = pedido.getEstadoPedido();
+        Character nuevoEstado = pedido.getEstadoFacturacion();
+        Character nuevoEstadoPedido = pedido.getEstadoPedido();
         
         if (hasFacturas) {
-            nuevoEstado = esTotalmenteFacturado ? EstadoPedido.FACTURADO : EstadoPedido.PARCIALMENTE_FACTURADO;
+            nuevoEstado = esTotalmenteFacturado ? Estado.FACTURADO.getCodigo() : Estado.PARCIALMENTE_FACTURADO.getCodigo();
         }else{
-            nuevoEstado = EstadoPedido.PENDIENTE_DE_FACTURA;
+            nuevoEstado = Estado.PENDIENTE_DE_FACTURA.getCodigo();
         }
         
         if(tipoPedido != null && "Nacional".equals(tipoPedido) ){
+            Long totalProductosPedidos = pedidoCompraRepository.totalProductosPedido(pedidoId);
+            Long totalProductosFacturados = pedidoCompraRepository.totalProductosFacturados(pedidoId);
+        
+            boolean isTotalProductosRecepcionado = Objects.equals(totalProductosFacturados, totalProductosPedidos);
             if(hasFacturas){
-                nuevoEstadoPedido = esTotalmenteFacturado ? EstadoPedido.RECEPCIONADO : EstadoPedido.PARCIALMENTE_RECEPCIONADO;
+                nuevoEstadoPedido = isTotalProductosRecepcionado ? Estado.RECEPCIONADO.getCodigo() : Estado.PARCIALMENTE_RECEPCIONADO.getCodigo();
             }else{
-                nuevoEstadoPedido = EstadoPedido.NUEVO;
+                nuevoEstadoPedido = Estado.NUEVO.getCodigo();
             }
             
         }
@@ -234,26 +276,48 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
         
     }
     
+    
     @EventListener
-    public void handlePedidoEvents(PedidoCompraEvent evento) {
-        PedidoCompraEntity pedido = pedidoCompraRepository.findById(evento.getPedidoId())
-                .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado"));
-
-        TipoEvento tipoEvento = evento.getTipoEvento();
-        switch (tipoEvento) {
-            case ESTADO_PEDIDO:
-                updateEstadoPedido(pedido);
-                break;
-
-            case ESTADO_FACTURACION:
-                updateEstadoFacturacionPedido(pedido);
-                break;
-
-            default:
-                throw new IllegalArgumentException("Evento no reconocido: " + evento.getTipoEvento());
-        }
-        
+    public void handlePedidoEvents(PedidoCompraEvent evento)  {
+    if (evento == null || evento.getTipoEvento() == null) {
+        throw new IllegalArgumentException("Evento o tipo de evento no puede ser nulo");
     }
+
+    List<Long> idsPedidos = evento.getIdsPedidos();
+    boolean actualizarVariosPedidos = idsPedidos != null && !idsPedidos.isEmpty();
+    TipoEvento tipoEvento = evento.getTipoEvento();
+
+    switch (tipoEvento) {
+        case ESTADO_PEDIDO:
+            if (actualizarVariosPedidos) {
+                updateEstadoPedidos(idsPedidos);
+            } else {
+                PedidoCompraEntity pedido = obtenerPedido(evento.getPedidoId());
+                updateEstadoPedido(pedido);
+            }
+            break;
+
+        case ESTADO_FACTURACION:
+            if (actualizarVariosPedidos) {
+                
+            } else {
+                PedidoCompraEntity pedido = obtenerPedido(evento.getPedidoId());
+                updateEstadoFacturacionPedido(pedido);
+            }
+            break;
+
+        default:
+            throw new IllegalArgumentException("Evento no reconocido: " + tipoEvento);
+    }
+}
+
+        private PedidoCompraEntity obtenerPedido(Long idPedido) {
+            if (idPedido == null) {
+                throw new IllegalArgumentException("ID de pedido no puede ser nulo");
+            }
+            return pedidoCompraRepository.findById(idPedido)
+                    .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado con ID: " + idPedido));
+        }
     
     public Character getEstadoRecepcionPedido(Long id) {
         long cantProductosRecepcionados;
@@ -264,9 +328,9 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
         if (cantProductosRecepcionados == 0){
             return null;
         }else if(cantProductosRecepcionados == cantProductosPedidos){
-            return Estado.RECEPCINADO.getCodigo();
+            return Estado.RECEPCIONADO.getCodigo();
         }else{
-            return Estado.PARCIALMENTERECEPCINADO.getCodigo();
+            return Estado.PARCIALMENTE_RECEPCIONADO.getCodigo();
         }
       
     }
@@ -301,4 +365,7 @@ public class PedidoCompraServiceImpl implements PedidoCompraService {
          PedidoCompraCreationDTO pedidoDTO = new PedidoCompraCreationDTO(pedido, detalle);
         return pedidoDTO;
     }
+
+
+   
 }

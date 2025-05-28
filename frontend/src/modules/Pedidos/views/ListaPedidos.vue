@@ -28,11 +28,13 @@ import IconField from 'primevue/iconfield';
 import SplitButton from 'primevue/splitbutton';
 const visibleDeleteDialog = ref(false);
 const pedidos = ref();
+const expandedRows = ref({});
 
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import Toast from 'primevue/toast';
-import { formatearNumero, formatearFecha, getEstadoPedidoVenta } from '@/utils/utils'; 
+import { formatearNumero, formatearFecha, getEstadoPedidoVenta, getEstadoFacturaPedidoVenta } from '@/utils/utils'; 
+import {VentaServices} from '@/services/VentaServices';
 
 const opciones = ref([{id: 1, descripcion: 'Facturar productos disponibles en stock.'},
                     {id: 2, descripcion: 'Registrar anticipo para productos no disponibles en stock.'}]);
@@ -49,6 +51,9 @@ const visiblePedidoFacturadoDialog = ref(false);
 const detallePedido = ref();
 const prepararPedidoDialog = ref(false);
 const pedidoPreparar = ref({});
+const facturasPedido = ref([]);
+const seleccionarFacturaDialog = ref(false);
+const facturaPreparar = ref({});
 
 const messageError = (msg) => {
     console.log('messageError invocado');
@@ -85,15 +90,15 @@ const messageAviso = (msg) => {
 const getSeverity = (estado) => {
   
   switch (estado) {
-       case 'NUEVO':
+       case 'N':
            return 'background-color: rgb(255, 210, 218); color: rgb(234, 85, 154);'+
            'font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;';
 
-       case 'FACTURADO':
+       case 'F':
            return 'background-color: rgb(215, 227, 552); color: rgb(50, 111, 252);'+
            'font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;';
 
-       case 'PARCIALMENTE_FACTURADO':
+       case 'R':
            return 'background-color: rgb(254, 221, 199); color: rgb(174, 81, 15);'+
            'font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;';
 
@@ -115,9 +120,9 @@ const isNuevo = (estado) => {
 
 const existenProductosFacturados = (estado) => {
   switch (estado) {
-       case 'FACTURADO':
+       case 'F':
            return true;
-        case 'PARCIALMENTE_FACTURADO':
+        case 'R':
            return true;
        default:
            return false;
@@ -127,7 +132,7 @@ const existenProductosFacturados = (estado) => {
 const pedidoPreparado = (estado) => {
   console.log(estado);
   switch (estado) {
-       case 'PREPARADO':
+       case 'P':
            return true;
        default:
            return false;
@@ -143,9 +148,24 @@ const isTotalFacturado = (estado) => {
    }
 };
 
-const prepararPedido = (id) => {
+const prepararPedido = async () => {
+  let id = facturaPreparar.value.venta?.id;
+  console.log(id);
   router.push({name: 'preparar_pedido', params: {id}});
 };
+
+const seleccionarFacturas = async (id) => {
+  try {
+    console.log(id);
+      const { data } = await VentaServices.obtenerFacturasByPedido(id);
+      facturasPedido.value = data;
+      console.log(facturasPedido.value);
+      seleccionarFacturaDialog.value = true;
+    } catch (error) {
+      showError('Error al obtener facturas');
+    }
+};
+
 
 const verificarStockProductos = () => {
   console.log(detallePedido.value);
@@ -273,6 +293,19 @@ const facturarPedido = async (id) =>{
         router.push({name: 'facturar', params: {id}});
     } else {
         showError('No existe timbrado vigente para la factura');
+    }
+    
+    
+}
+
+const cancelarPedido = async (pedido) =>{
+  console.log(pedido);
+    const response = await PedidoServices.cancelarPedido(pedido.id, pedido);
+    console.log(response.data);
+    if (response.data != null) {
+        
+    } else {
+        showError('No se pudo cancelar');
     }
     
     
@@ -450,6 +483,55 @@ const reload = () =>{
 </template>
 </Dialog>
 
+<div>
+        <!--Modal Seleccionar Factura-->
+        <Dialog v-model:visible="seleccionarFacturaDialog"  modal header="Edit Profile" >
+            <template #header>
+                <div class="flex align-items-center gap-2">
+                    <h3 class="font-bold">Seleccionar Factura</h3>
+                </div>
+            </template>
+    
+            <div class="contenedor" > 
+              <div>     
+              <DataTable v-model:selection="facturaPreparar"  v-model:expandedRows="expandedRows" :value="facturasPedido" dataKey="venta.id" tableStyle="min-width: 50rem">
+                <Column selectionMode="single" headerStyle="width: 3rem"></Column>
+                <Column expander style="width: 5rem" />
+                <Column field="venta.nroFactura" header="Factura#">
+                  
+                </Column>
+                <template #expansion="slotProps">
+                  <div >
+                  <table width="100%" align="center" border="1" style="border-collapse: collapse;" >
+                    <thead>
+                      <tr>
+                        <th style="font-weight: bold;" >Producto</th>
+                        <th style="font-weight: bold;">Cantidad Facturada</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="d in slotProps.data.detalle" :key="d.id">
+                        <td>{{ d.producto.nombre  }}</td>
+                        <td>{{ d.cantidad  }}</td>
+                       
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                
+            </template>
+            </DataTable>
+          </div>
+            </div>
+            <template #footer>
+                <div class="card flex" style="justify-content: end;">  
+                    <Button  label="Cancelar"  style="margin-right: 1%;" />
+                    <Button  label="Aceptar" @click="prepararPedido()" />
+                </div>
+            </template>
+        </Dialog>
+      </div>
     <Panel style=" position: relative; width: 90%;" >
       <template #header>
         <div class="flex align-items-center gap-2">
@@ -489,9 +571,9 @@ const reload = () =>{
           </template>        
         </Column>
           <Column field="cliente" header="Cliente" aria-sort="ascending" sortable>
-            
-              
-
+            <template #body="slotProps">
+              {{ slotProps.data.cliente || ' ' }} 
+              </template>
             </Column>
             <Column  field="telefono" header="Telefono" aria-sort="ascending" sortable >
             </Column>
@@ -503,7 +585,7 @@ const reload = () =>{
             </Column>
             <Column  field="estadoPedido" header="Estado Facturación" aria-sort="ascending" sortable >
               <template #body="slotProps">
-                <Tag :style="getSeverity(slotProps.data.estadoFacturacion)" >{{ getEstadoPedidoVenta(slotProps.data.estadoFacturacion)}}</Tag>
+                <Tag :style="getSeverity(slotProps.data.estadoFacturacion)" >{{ getEstadoFacturaPedidoVenta(slotProps.data.estadoFacturacion)}}</Tag>
               </template>
               
             </Column>
@@ -530,8 +612,9 @@ const reload = () =>{
                 <Button icon="pi pi-trash" v-tooltip="'Eliminar'" severity="danger" :disabled="!isNuevo(slotProps.data.estadoPedido)" text rounded aria-label="Cancel" @click="confirm2(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
             
                 <Button v-tooltip="'Facturar'" :disabled="isTotalFacturado(slotProps.data.estadoFacturacion)" icon="pi pi-receipt" severity="info" text rounded aria-label="Cancel" @click="facturarPedido(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
-                <Button v-tooltip="'Preparar'" icon="pi pi-box" severity="success" :disabled="pedidoPreparado(slotProps.data.estadoPedido) || !existenProductosFacturados(slotProps.data.estadoFacturacion) " text rounded aria-label="Cancel" @click="prepararPedido(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
-            
+                <Button v-tooltip="'Preparar'" icon="pi pi-box" severity="success" :disabled="pedidoPreparado(slotProps.data.estadoPedido) || !existenProductosFacturados(slotProps.data.estadoFacturacion) " text rounded aria-label="Cancel" @click="seleccionarFacturas(slotProps.data.id)"  style="height: 2rem !important; width: 2rem !important;" />
+                <Button icon="pi pi-times" v-tooltip="'Cancelar'" :disabled="existenProductosFacturados(slotProps.data.estadoFacturacion)" text rounded aria-label="Search" severity="warn" @click="cancelarPedido(slotProps.data)" style="height: 2rem !important; width: 2rem !important;" />
+              
                 </template>
           </Column>
         </DataTable>

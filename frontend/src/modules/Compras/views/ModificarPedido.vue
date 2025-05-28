@@ -40,6 +40,9 @@ const documentos = ref([]);
 const visible = ref(false);
 const proveedor = ref({});
 const selectedOp = ref('Casi');
+const codPedidoNacional = ref('N');
+const codPedidoInternacional = ref('I');
+const pedidoInternacional = ref(false);
 const productos= ref();
 const proveedores=ref();
 const filteredClientes = ref();
@@ -193,7 +196,7 @@ const mostrarCliente = () =>{
     // Insertar el enlace en el div
     document.getElementById("clienteDiv").appendChild(enlace);
         
-
+    pedidoInternacional.value = selectedCliente.value.tipo?.descripcion == "Internacional";
     clienteSeleccionado.value = true;
 }
 
@@ -413,8 +416,8 @@ const eliminar = (detalle) => {
   const guardarFactura = () =>{
     if (!error.value){
 
-  
-    let ant = {total: total.value, fecha: fecha.value, estado: pedido.value.estado, proveedor: selectedCliente.value, observaciones: pedido.value.observaciones};
+        let tipoPedido = pedidoInternacional.value?codPedidoInternacional.value:codPedidoNacional.value;
+    let ant = {total: total.value, fecha: fecha.value, estado: pedido.value.estado, proveedor: selectedCliente.value, observaciones: pedido.value.observaciones, tipoPedido: tipoPedido};
 
     console.log(detalleFacturar.value);
     let anticipoCreationDTO = {pedido: ant, detalle: detalleFacturar.value};

@@ -62,5 +62,20 @@ public class ProveedorServiceImpl implements ProveedorService {
     public void deleteProveedor(Long id) {
         proveedorRepository.deleteById(id);
     }
+
+    @Override
+    public List<ProveedorEntity> findProveedoresProductos() {
+        return proveedorRepository.findProveedoresProductos();
+    }
+
+    @Override
+    public List<ProveedorEntity> findProveedoresImportacion() {
+        return proveedorRepository.findProveedoresImportacion();
+    }
+
+    @Override
+    public List<ProveedorEntity> findProveedoresNacionalesProductos() {
+        return proveedorRepository.findProveedoresNacionalesProductos();
+    }
     
 }

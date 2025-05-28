@@ -44,9 +44,9 @@ public interface DetallePedidoCompraRepository extends JpaRepository<DetallePedi
         + "WHERE d.pedidoCompra.id = ?1")
     List<DetallePedidoCompraDTO> findDetallesByIdPedido(Long idPedido);*/
     
-    @Query("SELECT new com.krazystore.krazystore.DTO.DetallePedidoCompraDTO( " +
+    /*@Query("SELECT new com.krazystore.krazystore.DTO.DetallePedidoCompraDTO( " +
        "d.id, d.producto.id, d.producto.nombre, d.producto.tipoIva, d.pedidoCompra, " +
-       "d.cantidad, d.subTotal, d.costoCompra, " +
+       "d.cantidad, d.subTotal, d.costoCompra, d.producto.esServicio, " +
        "COALESCE(dr.cantRecepcionada, 0), " +
        "COALESCE(dc.cantidadComprada, 0), " +
        "COALESCE(dr.cantAceptada, 0)) " +
@@ -63,7 +63,7 @@ public interface DetallePedidoCompraRepository extends JpaRepository<DetallePedi
        "           JOIN dc.compra f " +
        "           GROUP BY dc.producto.id, f.pedido.id) dc ON dc.productoId = d.producto.id AND dc.pedidoId = :idPedido " +
        "WHERE d.pedidoCompra.id = :idPedido")
-    List<DetallePedidoCompraDTO> findDetallesByIdPedido(@Param("idPedido") Long idPedido);
+    List<DetallePedidoCompraDTO> findDetallesByIdPedido(@Param("idPedido") Long idPedido);*/
     
     @Transactional
      @Modifying
@@ -80,14 +80,14 @@ public interface DetallePedidoCompraRepository extends JpaRepository<DetallePedi
            )
     Long getCantProductosPedidos(Long id);
     
-    @Query(
+   /* @Query(
     "SELECT SUM(COALESCE(d.cantRecepcionada, 0)) "
             + "FROM PedidoCompraEntity p "
             + "LEFT JOIN DetallePedidoCompra t ON t.pedidoCompra = p "
             + "LEFT JOIN DetalleRecepcion d ON d.detallePedido = t "
             + "WHERE p.id = ?1 " 
            )
-    Long getCantProductosRecepcionados(Long idPedido);
+    Long getCantProductosRecepcionados(Long idPedido);*/
     
     /*@Query(
     "SELECT new com.krazystore.krazystore.DTO.DetallePedidoRecepcionDTO(d.id, d.producto, d.pedidoCompra, d.cantidad, "
@@ -100,7 +100,7 @@ public interface DetallePedidoCompraRepository extends JpaRepository<DetallePedi
            )
     public List<DetallePedidoRecepcionDTO> findAllDetalles(Long idPedido);*/
     
-    @Query("SELECT new com.krazystore.krazystore.DTO.DetallePedidoCompraDTO( " +
+    /*@Query("SELECT new com.krazystore.krazystore.DTO.DetallePedidoCompraDTO( " +
        "dp.id, dp.producto.id, " +
        "dp.producto.nombre, dp.producto.tipoIva, dp.costoCompra, " +
        "COALESCE(SUM(dr.cantAceptada), 0), COALESCE(SUM(dr.cantRecepcionada), 0) ) " +
@@ -109,5 +109,16 @@ public interface DetallePedidoCompraRepository extends JpaRepository<DetallePedi
        "JOIN dr.recepcion r " + 
        "WHERE r.id IN :ids " +
        "GROUP BY dp.id, dp.producto.id, dp.producto.nombre, dp.producto.tipoIva, dp.costoCompra" )
-    List<DetallePedidoCompraDTO> findDetalleFacturarByIdsRecepciones(@Param("ids") List<Long> ids);
+    List<DetallePedidoCompraDTO> findDetalleFacturarByIdsRecepciones(@Param("ids") List<Long> ids);*/
+
+    @Query("SELECT new com.krazystore.krazystore.DTO.DetallePedidoCompraDTO(d.id, d.producto.id, d.producto.nombre, d.producto.tipoIva, "
+        + "d.cantidad, d.subTotal, d.costoCompra, "
+        + "COALESCE(SUM(dc.cantidad), 0) " 
+            + " ) "
+        + "FROM DetallePedidoCompra d "
+        + "LEFT JOIN d.pedidoCompra p "
+        + "LEFT JOIN DetalleCompra dc ON dc.detallePedido = d "
+        + "WHERE p.id = ?1 " +
+            "GROUP BY d.id, d.producto.id, d.producto.nombre, d.producto.tipoIva, d.cantidad, d.subTotal, d.costoCompra" )
+    public List<DetallePedidoCompraDTO> findDetallesDTOByIdPedido(Long id);
 }

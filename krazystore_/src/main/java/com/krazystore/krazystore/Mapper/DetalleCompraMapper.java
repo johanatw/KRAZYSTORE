@@ -6,6 +6,7 @@ package com.krazystore.krazystore.Mapper;
 
 import com.krazystore.krazystore.DTO.DetalleCompraDTO;
 import com.krazystore.krazystore.Entity.DetalleCompra;
+import com.krazystore.krazystore.Entity.DetallePedidoCompra;
 import com.krazystore.krazystore.Entity.ProductoEntity;
 import java.util.function.Function;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,10 @@ public class DetalleCompraMapper implements Function<DetalleCompraDTO, DetalleCo
     public DetalleCompra apply(DetalleCompraDTO t) {
         ProductoEntity producto = new ProductoEntity();
         producto.setId(t.getProducto().getId());
+        Long idDetallePedido = t.getDetallePedido()!=null?t.getDetallePedido().getId():null;
+
+        DetallePedidoCompra detalle = idDetallePedido!=null?new DetallePedidoCompra(idDetallePedido):null
+                ;
         //Long id, int cantidad, int subTotal, ProductoEntity producto, int costoCompra
         return new DetalleCompra(
                 t.getId(),
@@ -28,7 +33,8 @@ public class DetalleCompraMapper implements Function<DetalleCompraDTO, DetalleCo
                 t.getSubTotal(),
                 producto,
                 t.getCostoCompra(),
-                t.getIvaAplicado()
+                t.getIvaAplicado(),
+                detalle
         );
     }
     

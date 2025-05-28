@@ -220,5 +220,21 @@ modificarPedido(id, pedido){
   return Promise.reject(error);
 })
 },
+cancelarPedido(id, pedido){
+  console.log(id);
+  console.log(pedido);
+  return axios.put(PEDIDO_API_BASE_URL + "/cancelar/" + id, {},{
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
+  }).catch(error => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");  // Eliminar el token expirado
+      router.push({name: 'home'});
+      return Promise.reject(error);
+  }
+  return Promise.reject(error);
+})
+},
 };
 export default { PedidoServices: PedidoServices };

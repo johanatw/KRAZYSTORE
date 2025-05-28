@@ -18,7 +18,44 @@ public class DetalleCompraDTO {
     private int costoCompra;
     private IvaEntity ivaAplicado;
     private DetallePedidoCompraDTO detallePedido;
+    private Integer cantRecepcionada;
+    private Integer cantPendiente;
+    private Long idCompra;
 
+    public DetalleCompraDTO(Long id, int cantidad, Long idProducto, String producto, long cantRecepcionada) {
+        this.id = id;
+        this.cantidad = cantidad;
+        this.producto = new ProductoDTO(idProducto,producto);
+        this.cantRecepcionada = (int)cantRecepcionada;
+    }
+    
+    
+    public DetalleCompraDTO(Long id, int cantidad, Long idProducto, String producto, long cantRecepcionada, Long idCompra) {
+        this.id = id;
+        this.cantidad = cantidad;
+        this.cantPendiente = cantidad - (int)cantRecepcionada;
+        this.producto = new ProductoDTO(idProducto,producto);
+        this.cantRecepcionada = (int)cantRecepcionada;
+        this.idCompra = idCompra;
+    }
+
+    public DetalleCompraDTO(Long id, Integer cantidad, Long idProducto, String producto) {
+        this.id = id;
+        this.cantidad = cantidad;
+        this.producto = new ProductoDTO(idProducto,producto);
+    }
+
+    public DetalleCompraDTO(Long id,int cantidad, Long idProducto, String producto, IvaEntity ivaAplicado, IvaEntity iva,
+            int subTotal, int costoCompra) {
+        this.id = id;
+        this.ivaAplicado = ivaAplicado;
+        this.cantidad = cantidad;
+        this.subTotal = subTotal;
+        this.producto = new ProductoDTO(idProducto,producto, iva);
+        this.costoCompra = costoCompra;
+    }
+    
+    
     public DetalleCompraDTO(Long id, Long idProducto, String producto, IvaEntity ivaAplicado, IvaEntity iva,
             int cantidad, int subTotal, int costoCompra,Long idDetallePedidoCompra, 
             Long cantSolicitada, Long cantRecepcionada, Long cantAceptada, Long cantFacturada) {
@@ -30,6 +67,8 @@ public class DetalleCompraDTO {
         this.costoCompra = costoCompra;
         this.detallePedido = new DetallePedidoCompraDTO(idDetallePedidoCompra,cantSolicitada,cantRecepcionada,cantAceptada,cantFacturada);
     }
+    
+    
 
     public DetalleCompraDTO() {
     }
@@ -90,6 +129,30 @@ public class DetalleCompraDTO {
 
     public void setIvaAplicado(IvaEntity ivaAplicado) {
         this.ivaAplicado = ivaAplicado;
+    }
+
+    public Integer getCantRecepcionada() {
+        return cantRecepcionada;
+    }
+
+    public void setCantRecepcionada(Integer cantRecepcionada) {
+        this.cantRecepcionada = cantRecepcionada;
+    }
+
+    public Long getIdCompra() {
+        return idCompra;
+    }
+
+    public void setIdCompra(Long idCompra) {
+        this.idCompra = idCompra;
+    }
+
+    public Integer getCantPendiente() {
+        return cantPendiente;
+    }
+
+    public void setCantPendiente(Integer cantPendiente) {
+        this.cantPendiente = cantPendiente;
     }
 
     

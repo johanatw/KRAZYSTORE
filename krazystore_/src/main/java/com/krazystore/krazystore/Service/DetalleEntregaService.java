@@ -16,4 +16,6 @@ import java.util.Optional;
 public interface DetalleEntregaService {
     List<DetalleEntregaDTO> findByIdEntrega(Long id);
     List<DetalleEntrega> saveDetalle(List<DetalleEntrega> detalle);
+
+    public void deleteByIdEntrega(Long id);
 }

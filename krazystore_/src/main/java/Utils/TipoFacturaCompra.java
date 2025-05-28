@@ -8,19 +8,17 @@ package Utils;
  *
  * @author HP
  */
-public enum TipoPedido {
-    PEDIDOCOMPRA('C'),
-    PEDIDOVENTA('V');
+public enum TipoFacturaCompra {
+    PRODUCTOS("PROD"),
+    SERVICIO_TRANSPORTE_INTERNACIONAL("STI");
     
-    private final char codigo;
+    private final String codigo;
 
-    private TipoPedido(char codigo) {
+    private TipoFacturaCompra(String codigo) {
         this.codigo = codigo;
     }
 
-    public char getCodigo() {
+    public String getCodigo() {
         return codigo;
     }
-    
-    
 }

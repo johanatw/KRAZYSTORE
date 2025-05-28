@@ -8,6 +8,9 @@
   import Dropdown from 'primevue/dropdown';
   import { PersonaServices } from '@/services/PersonaServices';
   import { ClienteServices } from '@/services/ClienteServices';
+  import { Form } from '@primevue/forms';
+  import { Message } from 'primevue';
+
   import { FilterMatchMode } from '@primevue/core/api';
   import Button from 'primevue/button';
   import Dialog from 'primevue/dialog';
@@ -16,11 +19,14 @@
   import InputGroup from 'primevue/inputgroup';
   import InputGroupAddon from 'primevue/inputgroupaddon';
   import { useConfirm } from "primevue/useconfirm";
-  import { useToast } from "primevue/usetoast";
-  import ConfirmDialog from 'primevue/confirmdialog';
   
+  import ConfirmDialog from 'primevue/confirmdialog';
+  import { zodResolver } from '@primevue/forms/resolvers/zod';
+import { z } from 'zod';
+
   const router = useRouter();
   const confirm = useConfirm();
+  import { useToast } from "primevue/usetoast";
   const toast = useToast();
   
   // Estados
@@ -59,6 +65,26 @@
     getClientes();
     getDepartamentos();
   });
+
+  // 💡 Zod schema SOLO para email
+const emailSchema = z.string().email({ message: 'Correo inválido' });
+
+  const resolver = ref(zodResolver(
+    z.object({
+        username: z.string().min(1, { message: 'Username is required.' }),
+        email: z.string().min(1, { message: 'Email is required.' }).email({ message: 'Invalid email address.' })
+    })
+));
+
+const onFormSubmit = ({ valid }) => {
+    if (valid) {
+        toast.add({ severity: 'success', summary: 'Form is submitted.', life: 3000 });
+    }
+};
+
+function emailValido(valor) {
+  return emailSchema.safeParse(valor).success;
+}
   
   // Funciones para obtener datos
   async function getClientes() {
@@ -199,6 +225,7 @@
   };
   
   const saveCliente = async () => {
+    console.log(cliente.value);
     submitted.value = true;
     
     // Validaciones básicas
@@ -255,6 +282,19 @@
       <Dialog v-model:visible="verClienteDialog" :style="{width: '450px'}" header="Cliente" :modal="true" class="p-fluid">
         <!-- Formulario del cliente -->
         <div class="formgridgrid">
+          <div class="card flex justify-center">
+        <Form v-slot="$form" :resolver="resolver" :initialValues="initialValues" @submit="onFormSubmit" class="flex flex-col gap-4 w-full sm:w-56">
+            <div class="flex flex-col gap-1">
+                <InputText name="username" type="text" placeholder="Username" fluid />
+                <Message v-if="$form.username?.invalid" severity="error" size="small" variant="simple">{{ $form.username.error?.message }}</Message>
+            </div>
+            <div class="flex flex-col gap-1">
+                <InputText name="email" type="text" placeholder="Email" fluid />
+                <Message v-if="$form.email?.invalid" severity="error" size="small" variant="simple">{{ $form.email.error?.message }}</Message>
+            </div>
+            <Button type="submit" severity="secondary" label="Submit" />
+        </Form>
+    </div>
           <!-- Sección de datos personales -->
           <div class="field">
             <label for="nombre">Nombre</label>
@@ -370,6 +410,12 @@
           <div class="field">
             <label for="telefono">Teléfono</label>
             <InputText fluid id="telefono" v-model.trim="cliente.telefono" required="true" />
+          </div>
+          <div class="field">
+            <label for="email">Correo</label>
+            <InputText fluid id="email" v-model.trim="cliente.correo"
+                      :class="{'p-invalid': submitted && !emailValido(cliente.correo)}" />
+            <small class="p-error" v-if="submitted && !emailValido(cliente.correo)">Correo inválido</small>
           </div>
           
           <!-- Sección de dirección -->
