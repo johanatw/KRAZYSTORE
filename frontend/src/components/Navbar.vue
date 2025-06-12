@@ -123,34 +123,7 @@ const items = ref([
                     router.push({name: 'productos_venta'});
                 }
             },
-            {
-                label: 'Categorias',
-                icon: 'pi pi-star',
-                command: () => {
-                    router.push({name: 'categorias'});
-                }
-            },
-            {
-                label: 'Puntos de Retiro',
-                icon: 'pi pi-star',
-                command: () => {
-                    router.push({name: 'puntos_retiro'});
-                }
-            },
-            {
-                label: 'Deliverys',
-                icon: 'pi pi-star',
-                command: () => {
-                    router.push({name: 'deliverys'});
-                }
-            },
-            {
-                label: 'Timbrados',
-                icon: 'pi pi-star',
-                command: () => {
-                    router.push({name: 'timbrados'});
-                }
-            },
+            
           
         ]
     },
@@ -210,14 +183,14 @@ const items = ref([
                 }
             },
             {
-                label: 'Anticipos Clientes',
+                label: 'Anticipos',
                 icon: 'pi pi-star',
                 command: () => {
                     router.push({name: 'anticipos_clientes'});
                 }
             },
             {
-                label: 'Reembolsos Clientes',
+                label: 'Reembolsos',
                 icon: 'pi pi-star',
                 command: () => {
                     router.push({name: 'reembolsos'});
@@ -239,7 +212,7 @@ const items = ref([
                 }
             },
             {
-                label: 'Inventario',
+                label: 'Control de Inventario',
                 icon: 'pi pi-star',
                 command: () => {
                     router.push({name: 'inventario'});
@@ -250,6 +223,41 @@ const items = ref([
                 icon: 'pi pi-star',
                 command: () => {
                     router.push({name: 'ajustes'});
+                }
+            },
+
+        ]
+    },
+    { 
+        label: 'Parametros',
+        icon: 'pi pi-bill',
+        items: [
+            {
+                label: 'Categorias',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'categorias'});
+                }
+            },
+            {
+                label: 'Puntos de Retiro',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'puntos_retiro'});
+                }
+            },
+            {
+                label: 'Deliverys',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'deliverys'});
+                }
+            },
+            {
+                label: 'Timbrados',
+                icon: 'pi pi-star',
+                command: () => {
+                    router.push({name: 'timbrados'});
                 }
             },
 

@@ -319,7 +319,7 @@ const isPagado = (estado) => {
 const isNoEntregado = (estado) => {
   
   switch (estado) {
-       case 'N':
+       case 'X':
            return true;
        default:
            return false;

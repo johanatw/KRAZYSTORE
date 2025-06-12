@@ -922,7 +922,7 @@ const validarForm = (event) => {
     <Panel style=" position: relative; width: 80%;" >
         <template #header>
      <div class="flex align-items-center gap-2">
-         <h3 class="font-bold">Preparar Pedido N° {{ pedido.id }}</h3>
+         <h3 class="font-bold">Preparar Pedido N° {{ facturaPreparar?.pedido?.id }}</h3>
      </div>
    </template>
    <template #icons>

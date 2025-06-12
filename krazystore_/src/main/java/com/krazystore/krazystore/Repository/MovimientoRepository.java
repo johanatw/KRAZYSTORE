@@ -133,9 +133,9 @@ public Optional<EstadoPagoPedidoDTO> getEstadoPagoPedidoVenta(Long id);
     "LEFT JOIN m.concepto c " +
     "LEFT JOIN m.caja caja " +
     "LEFT JOIN FormaPagoEntity p ON p.movimiento = m " +
-    "LEFT JOIN p.medio f " +
+    "LEFT JOIN p.medioPago f " +
     "LEFT JOIN FormaCobroEntity p1 ON p1.movimiento = m " +
-    "LEFT JOIN p1.medio f1 " + // Ajustado: p1.medio en lugar de p.medio
+    "LEFT JOIN p1.medioCobro f1 " + // Ajustado: p1.medio en lugar de p.medio
     "LEFT JOIN m.cliente cli " +
     "LEFT JOIN m.proveedor pr " +
     "WHERE caja.id = ?1 " +

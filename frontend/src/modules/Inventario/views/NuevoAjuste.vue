@@ -124,12 +124,20 @@ const guardarAjuste = () =>{
         
         AjusteStockServices.registrarAjuste(ajusteCreationDTO ).then((data)=> {
             let id = data.data.id;
-            vistaVerAjuste(id);
+            showSuccess('Baja resgitrada');
+        vistaListaAjustes();
         } );
     }
 }
 
-
+const showSuccess = (message) => {
+    toast.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: message,
+      life: 3000
+    });
+  };
 </script>
 <template>
     <div class=" flex justify-content-center " >
@@ -184,7 +192,7 @@ const guardarAjuste = () =>{
                         <template #title>
                             <div class="flex justify-content-between ">
                                 <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
-                                    Detalle Ajuste
+                                    Detalle de baja
                                 </div>    
                             </div>
                         </template>

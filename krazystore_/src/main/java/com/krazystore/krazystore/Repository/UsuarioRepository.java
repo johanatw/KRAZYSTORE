@@ -28,7 +28,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario,Long> {
     public List<String> getRolesByUsername(String username);
     
     @Query("SELECT p FROM PersonaEntity p "
-            + "JOIN Usuario u on u.persona = p "
+            + "JOIN EmpleadoEntity e on e.persona = p "
+            + "JOIN Usuario u on u.empleado = e "
             + "WHERE u.username = ?1 ")
     Optional<PersonaEntity> getPersonaByUsername(String username);
 }

@@ -287,9 +287,9 @@ import { formatearFecha } from '@/utils/utils';
                         @click="modificarTimbrado(slotProps.data.id)" 
                         v-tooltip="'Editar'" 
                         style="height: 2rem !important; width: 2rem !important;"/>
-                <Button icon="pi pi-trash" text rounded severity="danger" 
+                <Button icon="pi pi-times" text rounded severity="danger" 
                         @click="eliminarTimbrado(slotProps.data.id)" 
-                        v-tooltip="'Eliminar'"
+                        v-tooltip="'Dar de baja'"
                         style="height: 2rem !important; width: 2rem !important;"/>
               </template>
             </Column>

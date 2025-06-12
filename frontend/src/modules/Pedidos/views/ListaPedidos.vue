@@ -494,11 +494,16 @@ const reload = () =>{
     
             <div class="contenedor" > 
               <div>     
-              <DataTable v-model:selection="facturaPreparar"  v-model:expandedRows="expandedRows" :value="facturasPedido" dataKey="venta.id" tableStyle="min-width: 50rem">
+              <DataTable v-model:selection="facturaPreparar"  v-model:expandedRows="expandedRows" :value="facturasPedido" dataKey="venta.id" tableStyle="min-width: 30rem">
                 <Column selectionMode="single" headerStyle="width: 3rem"></Column>
                 <Column expander style="width: 5rem" />
                 <Column field="venta.nroFactura" header="Factura#">
                   
+                </Column>
+                <Column field="venta.fecha" header="Fecha">
+                  <template #body="slotProps">
+            {{ formatearFecha(slotProps.data.venta.fecha) }}   
+          </template>
                 </Column>
                 <template #expansion="slotProps">
                   <div >
@@ -590,7 +595,7 @@ const reload = () =>{
               
             </Column>
            
-          <Column field="total"  header="Total" aria-sort="ascending" sortable>
+          <Column field="total"  header="Total Gs." aria-sort="ascending" sortable>
             <template #body="slotProps">
             {{  formatearNumero(slotProps.data.total) }}   
           </template>

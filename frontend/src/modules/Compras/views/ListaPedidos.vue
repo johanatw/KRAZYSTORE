@@ -417,7 +417,7 @@ const idsFacturasSeleccionadas = computed(() => {
                   {{ slotProps.data.proveedor.descripcion }}                
             </template>           
         </Column>
-          <Column field="total"  header="Total" aria-sort="ascending" sortable> 
+          <Column field="total"  header="Total Gs." aria-sort="ascending" sortable> 
             <template #body="slotProps">
                 {{ formatearNumero(slotProps.data.total) }}
             </template> 

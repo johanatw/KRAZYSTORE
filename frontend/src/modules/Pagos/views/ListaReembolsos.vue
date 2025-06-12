@@ -237,7 +237,7 @@ const nuevoPedido = () =>{
                 
             </template>          
         </Column>
-          <Column field="monto"  header="Monto" aria-sort="ascending" sortable> 
+          <Column field="monto"  header="Monto Gs." aria-sort="ascending" sortable> 
             <template #body="slotProps">
                 {{ formatearNumero(slotProps.data.monto) }}
             </template> 

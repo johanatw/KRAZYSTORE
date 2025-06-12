@@ -31,6 +31,9 @@ public class Usuario {
     @ManyToOne
     @JoinColumn(name="id_persona")
     private PersonaEntity persona;
+    @ManyToOne
+    @JoinColumn(name="id_empleado")
+    private EmpleadoEntity empleado;
 
     public Usuario() {
     }
@@ -80,6 +83,14 @@ public class Usuario {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public EmpleadoEntity getEmpleado() {
+        return empleado;
+    }
+
+    public void setEmpleado(EmpleadoEntity empleado) {
+        this.empleado = empleado;
     }
     
     

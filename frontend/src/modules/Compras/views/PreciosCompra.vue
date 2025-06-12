@@ -235,7 +235,7 @@ const saveProducto = () => {
         </template>
     </Dialog>
 
-    <Panel style=" position: relative; width: 100%;" >
+    <Panel style=" position: relative; width: 90%;" >
       <template #header>
         <div class="flex align-items-center gap-2">
             <h3 class="font-bold">Precios de compra: {{ producto.nombre }}</h3>
@@ -268,7 +268,7 @@ const saveProducto = () => {
                 {{ formatearFecha(slotProps.data.fecha) }}
             </template>
         </Column>   
-        <Column field="precio"  header="Precio" aria-sort="ascending" sortable> 
+        <Column field="precio"  header="Precio Gs." aria-sort="ascending" sortable> 
             <template #body="slotProps" >
                 {{ formatearNumero(slotProps.data.costo) }}
             </template>

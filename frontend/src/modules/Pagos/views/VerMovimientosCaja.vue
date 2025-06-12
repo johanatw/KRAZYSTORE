@@ -38,6 +38,10 @@
                   
                     <div class="flex align-items-center gap-3 mb-2">
                         <label for="username" class="font-semibold w-9rem">Tipo transacción</label>
+                        <Select fluid v-model:model-value="tipoTransaccion" :options="options" optionLabel="descripcion" placeholder="Seleccione un elemento" checkmark :highlightOnSelect="false" @change="getConceptosIngresoEgreso(tipoTransaccion.cod)" />
+                    </div>
+                    <div class="flex align-items-center gap-3 mb-2">
+                        <label for="username" class="font-semibold w-9rem">Concepto</label>
                         <Select fluid v-model:model-value="movimiento.concepto" :options="conceptos" optionLabel="descripcion" placeholder="Seleccione un elemento" checkmark :highlightOnSelect="false"  />
                     </div>
 
@@ -45,9 +49,13 @@
                         <label for="email" class="font-semibold w-9rem">Monto</label>
                         <InputNumber fluid v-model:model-value="movimiento.monto" inputId="integeronly" @input="validarMonto($event)" />
                     </div>
-                    <div class="flex align-items-center gap-3 mb-2">
+                    <div v-if="tipoTransaccion.cod=='E'" class="flex align-items-center gap-3 mb-2">
                         <label for="email" class="font-semibold w-9rem">Medio de pago</label>
-                        <Select fluid v-model:model-value="movimiento.medio" :options="formasPago" optionLabel="descripcion"  placeholder="Seleccione un elemento" checkmark :highlightOnSelect="false" />
+                        <Select fluid v-model:model-value="movimiento.medioPago" :options="formasPago" optionLabel="descripcion"  placeholder="Seleccione un elemento" checkmark :highlightOnSelect="false" />
+                    </div>
+                    <div v-else class="flex align-items-center gap-3 mb-2">
+                        <label for="email" class="font-semibold w-9rem">Medio de cobro</label>
+                        <Select fluid v-model:model-value="movimiento.medioCobro" :options="formasCobro" optionLabel="descripcion"  placeholder="Seleccione un elemento" checkmark :highlightOnSelect="false" />
                     </div>
                     <div class="flex align-items-center gap-3 mb-2">
                         <label for="email" class="font-semibold w-9rem">Documento</label>
@@ -79,34 +87,14 @@
 
             <div >
                 
-                        <div v-if="pagosAsociados" style="margin-bottom: 1rem; ">
-                            <Message severity="info" >El pedido asociado a esta factura tiene anticipos</Message>
-                        </div>
                         <div>
                             <h3 style="font-weight: bolder;margin-bottom: 1rem; " >TOTAL FACTURA: {{ formatearNumero(total) }} Gs.</h3> 
                         </div>
-                        
-                        <div  v-if="pagosAsociados">
-                            <div> <h4 style="font-weight: bold; margin-bottom: 1rem; " >Anticipos Disponibles:</h4></div>
-                            
-                            <div v-for="(aplicar, index) in pagosAplicar" :key="index" class="formgrid grid">
-                                <div class="field col-1 md:col-1 p-fluid" style="justify-content: start;  ">
-                                <Checkbox v-model="aplicar.seleccionado" name="anticipo" :binary="true" @change="getPagosSeleccionados()"  />
-                            </div>
-                            <div class="field col-4 md:col-4 p-fluid" style="justify-content: start;  ">
-                                <label>Anticipo #{{ aplicar.pagoPedidoCompra.id}} - {{ formatearNumero(aplicar.pagoPedidoCompra.saldo) }} Gs.</label>
-                            </div>
-                            <div class="field col-5 md:col-5 p-fluid" style="justify-content: start;  ">
-                                <InputNumber :disabled="!aplicar.seleccionado" v-model="aplicar.monto" :max="aplicar.monto" @update:model-value="actualizarSumaTotal()" placeholder="Monto a usar" style="padding: 0rem !important; height: 100%;"/>
-                            </div>
-                            </div>
-                        </div>
-                        
                         <div>
                             <div class="formgrid grid" v-for="(item, index) in pagos" :key="index" >
                                         
                                 <div class="field col-5 md:col-5 p-fluid" style="justify-content: start;  ">
-                                    <Select style="padding: 0rem !important;" v-model="item.medio" :options="formasPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   />
+                                    <Select style="padding: 0rem !important;" v-model="item.medioPago" :options="formasPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   />
                                 </div>
                                 <div  class="field col-5 md:col-5 p-fluid" style=" justify-content: start; " >
                                     <InputNumber :disabled=item.disabled name="input" style="padding: 0rem !important; height: 100%;" v-model="item.importe"  @input="actualizarImporte($event, index)"/>
@@ -182,7 +170,7 @@
                             <div class="formgrid grid" v-for="(item, index) in pagos" :key="index" >
                                         
                                 <div class="field col-5 md:col-5 p-fluid" style="justify-content: start;  ">
-                                    <Select style="padding: 0rem !important;" v-model="item.medio" :options="formasPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   />
+                                    <Select style="padding: 0rem !important;" v-model="item.medioCobro" :options="formasCobro" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   />
                                 </div>
                                 <div  class="field col-5 md:col-5 p-fluid" style=" justify-content: start; " >
                                     <InputNumber :disabled=item.disabled name="input" style="padding: 0rem !important; height: 100%;" v-model="item.importe"  @input="actualizarImporte($event, index)"/>
@@ -276,8 +264,8 @@
                                     </template>        
                                 </Column>
                                 <Column field="concepto"  header="Concepto" aria-sort="ascending" sortable></Column>
-                                <Column field="formaPago"  header="Forma" aria-sort="ascending" sortable></Column>
-                                <Column field="total"  header="Monto" aria-sort="ascending" sortable>    
+                                <Column field="formaPago"  header="Medio" aria-sort="ascending" sortable></Column>
+                                <Column field="total"  header="Monto Gs." aria-sort="ascending" sortable>    
                                     <template #body="slotProps">
                                         <div :style="getColor(slotProps.data.tipo)">
                                             {{ formatearNumero(slotProps.data.total) }}
@@ -310,7 +298,7 @@
                                         {{ slotProps.data.proveedor?.descripcion || ' ' }}
                                     </template>        
                                 </Column>
-                                <Column field="monto"  header="Monto" aria-sort="ascending" sortable>    
+                                <Column field="monto"  header="Monto Gs." aria-sort="ascending" sortable>    
                                     <template #body="slotProps">
                                             {{ formatearNumero(slotProps.data.monto) }}
                                     </template>        
@@ -339,7 +327,7 @@
                                         {{ slotProps.data.cliente?.persona?.nombre || ' ' }} {{ slotProps.data.cliente?.persona?.apellido }}
                                     </template>        
                                 </Column>
-                                <Column field="monto"  header="Monto" aria-sort="ascending" sortable>    
+                                <Column field="monto"  header="Monto Gs." aria-sort="ascending" sortable>    
                                     <template #body="slotProps">
                                             {{ formatearNumero(slotProps.data.monto) }}
                                     </template>        
@@ -386,6 +374,7 @@ import { PagoPedidoCompraServices } from '@/services/PagoPedidoCompraServices';
 import {CajaServices} from '@/services/CajaServices';
 import router from '@/router';
 import ConfirmDialog from 'primevue/confirmdialog';
+import { MedioCobroServices } from '@/services/MedioCobroServices';
 import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
@@ -425,6 +414,7 @@ const disabled = ref(true);
 const borrar = ref(true);
 const selectedAnticipados = ref();
 const  formasPago = ref([]);
+const  formasCobro = ref([]);
 const metaKey = ref(true);
 const total = ref(0);
 const abonado = ref(0);
@@ -439,8 +429,9 @@ const movimiento = ref({});
 const movimientoPagar = ref({});
 const movimientoCobrar = ref({});
 const movimientos = ref([]);
-const options = ref(['Ingreso', 'Egreso']);
-const conceptos = ref();
+const options = ref([{descripcion:'Ingreso', cod:'I'},{descripcion:'Egreso', cod:'E'}]);
+const tipoTransaccion = ref({descripcion:'Ingreso', cod:'I'});
+const conceptos = ref([]);
 const observacionDialog = ref(false);
 const observacion = ref();
 
@@ -450,7 +441,9 @@ onMounted(() => {
     getMovimientos();
     getMovimientosPendientesDePago();
     getMovimientosPendientesDeCobro();
-    getConceptosIngresoEgreso();
+    getFormasCobro();
+    getFormasPago();
+    getConceptosIngresoEgreso(tipoTransaccion.value.cod);
     inicializarCampos();
   
 
@@ -490,9 +483,9 @@ const actualizarSumaTotal = () => {
     sumaTotal.value = calcularImportePagos() + calcularImporteAnticipos() + calcularImportePagosAplicados();
 };
 
-async function getConceptosIngresoEgreso() {
+async function getConceptosIngresoEgreso(tipo) {
     try {
-      const { data } = await ConceptoServices.obtenerConceptosIngresoEgreso();
+      const { data } = await ConceptoServices.obtenerConceptosByTipo(tipo);
       conceptos.value = data;
       console.log(conceptos.value);
     } catch (error) {
@@ -547,12 +540,17 @@ const calcularImportePagosAplicados = () => {
 };
 
 const inicializarCampos = () => {
-    movimiento.value.concepto = {id: 7, descripcion: 'Ingresos varios', tipo: 'I'};
-    movimiento.value.medio = {id: 2, descripcion: 'Efectivo'};
+    movimiento.value.concepto = conceptos.value[0];
+    movimiento.value.medioCobro = formasCobro.value[0];
+    movimiento.value.medioPago = formasPago.value[0];
     disabledSubmit.value = true;
     sumaTotal.value = 0;
-
-    getFormasPago();
+    pago.value.medioPago = null;
+    pago.value.medioCobro = null;
+    pago.value.importe = 0;
+    pago.value.disabled = true;
+    pagos.value.push(pago.value);
+    //getFormasPago();
 };
 
 const cerrarCaja= () =>{
@@ -598,12 +596,13 @@ const guardarMovimiento = () =>{
     movimiento.value.fecha = fechaMovimiento;
     movimiento.value.caja = caja.value;
 
-    let pago = {importe: movimiento.value.monto,
-                medio: movimiento.value.medio
-                }
-    let pagos = [pago];
+    
 
     if (movimiento.value.concepto.tipo == 'I') {
+        let pago = {importe: movimiento.value.monto,
+                medioCobro: movimiento.value.medioCobro
+                }
+        let pagos = [pago];
         let ingresoDTO = {movimiento: movimiento.value, cobros: pagos};
         CajaServices.saveIngresoVario(ingresoDTO).then((data) => {
             showSuccess('Ingreso Registrado');
@@ -613,6 +612,10 @@ const guardarMovimiento = () =>{
             console.log("ok");
         });
     } else {
+        let pago = {importe: movimiento.value.monto,
+                medioPago: movimiento.value.medioPago
+                }
+        let pagos = [pago];
         let egresoDTO = {movimiento: movimiento.value, pagos: pagos};
         CajaServices.saveEgresoVario(egresoDTO).then((data) => {
             showSuccess('Egreso Registrado');
@@ -829,7 +832,7 @@ const puedeEliminarseEnCaja = (concepto) =>{
 }
 
 const addRow = () => {
-    pagos.value.push({medio:null , importe: 0, disabled: true});
+    pagos.value.push({medioPago:null , medioCobro:null, importe: 0, disabled: true});
 };
 
 const eliminarRow = (index) => {
@@ -841,22 +844,29 @@ const eliminarRow = (index) => {
 
 
 
-const getFormasPago = () =>{
-    MedioPagoServices.obtenerMediosPago().then((data) => {
-        formasPago.value=data.data;
-        //selectedFormaPago.value=data.data[1];
-        console.log(formasPago.value);
-        pago.value.medio = null;
-        pago.value.importe = 0;
-        pago.value.disabled = true;
-        pagos.value.push(pago.value);
+const getFormasPago = async () =>{
+    try {
+      const { data } = await MedioPagoServices.obtenerMediosPago();
+      formasPago.value = data;
+      console.log(formasPago.value);
+    } catch (error) {
+      //showError('Error al obtener clientes');
+    }
+}
 
-    });
+const getFormasCobro = async () =>{
+    try {
+      const { data } = await MedioCobroServices.obtenerMediosCobro();
+      formasCobro.value = data;
+      console.log(formasCobro.value);
+    } catch (error) {
+      //showError('Error al obtener clientes');
+    }
 }
 
 
 const nuevoMovimiento = () =>{
-    MedioPagoServices.obtenerMediosPago().then((data) => {
+    /*MedioPagoServices.obtenerMediosPago().then((data) => {
         formasPago.value = data.data;
         //console.log(reembolsos.value);
     });

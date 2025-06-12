@@ -140,6 +140,9 @@ const showSuccess = (message) => {
                             </div>
                         </template>
                         <template #content>
+                            <div>
+                                Usuario: {{ ajuste.usuarioRegistro?.empleado?.persona?.nombre || '' }} {{ ajuste.usuarioRegistro?.empleado?.persona?.apellido }}
+                            </div>
                             <div  >
                                 Fecha: {{ formatearFecha(ajuste.fecha) }}
                             </div> 

@@ -266,7 +266,7 @@ const saveProducto = () => {
                 {{ formatearFecha(slotProps.data.fecha) }}
             </template>
         </Column>   
-        <Column field="precio"  header="Precio" aria-sort="ascending" sortable> 
+        <Column field="precio"  header="Precio Gs." aria-sort="ascending" sortable> 
             <template #body="slotProps" >
                 {{ formatearNumero(slotProps.data.precio) }}
             </template>

@@ -28,7 +28,7 @@
                         </template>
                         <template #content>
                             <div>
-                                Usuario: {{ inventario.usuarioRegistro?.persona?.nombre || '' }} {{ inventario.usuarioRegistro?.persona?.apellido }}
+                                Usuario: {{ inventario.usuarioRegistro?.empleado?.persona?.nombre || '' }} {{ inventario.usuarioRegistro?.empleado?.persona?.apellido }}
                             </div>
                             <div >
                                 Fecha: {{ formatearFecha(inventario.fecha) }}

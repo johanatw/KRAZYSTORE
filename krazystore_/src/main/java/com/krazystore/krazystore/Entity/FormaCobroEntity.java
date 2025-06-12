@@ -27,8 +27,8 @@ public class FormaCobroEntity {
     @Column
     private Long importe;
     @ManyToOne
-    @JoinColumn(name = "id_medio_pago")
-    private MedioPagoEntity medio;
+    @JoinColumn(name = "id_medio_cobro")
+    private MedioCobroEntity medioCobro;
     @ManyToOne
     @JoinColumn(name = "id_movimiento")
     private MovimientoEntity movimiento;
@@ -36,10 +36,10 @@ public class FormaCobroEntity {
     public FormaCobroEntity() {
     }
 
-    public FormaCobroEntity(Long id, Long importe, MedioPagoEntity medio, MovimientoEntity movimiento) {
+    public FormaCobroEntity(Long id, Long importe, MedioCobroEntity medio, MovimientoEntity movimiento) {
         this.id = id;
         this.importe = importe;
-        this.medio = medio;
+        this.medioCobro = medio;
         this.movimiento = movimiento;
     }
 
@@ -59,12 +59,12 @@ public class FormaCobroEntity {
         this.importe = importe;
     }
 
-    public MedioPagoEntity getMedio() {
-        return medio;
+    public MedioCobroEntity getMedioCobro() {
+        return medioCobro;
     }
 
-    public void setMedio(MedioPagoEntity medio) {
-        this.medio = medio;
+    public void setMedioCobro(MedioCobroEntity medioCobro) {
+        this.medioCobro = medioCobro;
     }
 
     public MovimientoEntity getMovimiento() {

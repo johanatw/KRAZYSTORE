@@ -24,10 +24,12 @@ import InputGroup from 'primevue/inputgroup';
 import {formatearNumero, formatearFecha, existeCajaAbierta, formatearFechaHora} from '@/utils/utils';
 import InputGroupAddon from 'primevue/inputgroupaddon';
 import { MedioPagoServices } from '@/services/MedioPagoCobroServices';
+import { MedioCobroServices } from '@/services/MedioCobroServices';
 import Select from 'primevue/select';
 import SelectButton from 'primevue/selectbutton';
 const visible = ref(false);
-const  mediosCobroPago = ref();
+const  mediosPago = ref([]);
+const  mediosCobro = ref([]);
 const disabled = ref(true);
 const disabledSubmit = ref(true);
 const pedido = ref();
@@ -96,7 +98,7 @@ const buscarPedido= (id, e) => {
 }
 
 const registrarAnticipo = () =>{
-    inicializarPagos();
+    //inicializarPagos();
     dialogRegistrar.value = true;
     
 };
@@ -130,7 +132,8 @@ async function guardarAnticipo() {
 };
 
 const inicializarPagos= () => {
-    pago.value.medio = null;
+    pago.value.medioPago = null;
+    pago.value.medioCobro = null;
     pago.value.importe = 0;
     pago.value.disabled = true;
     pagos.value.push(pago.value);
@@ -142,7 +145,7 @@ const inicializarPagos= () => {
 //Funciones Registrar Reembolso
 
 const addRow = () => {
-    pagos.value.push({medio:null , importe: 0, disabled: true});
+    pagos.value.push({medioPago:null , medioCobro: null, importe: 0, disabled: true});
 };
 
 const eliminarRow = (index) => {
@@ -184,7 +187,7 @@ const showDialogReembolso = (ant) =>{
     anticipo.value = ant;
         
     montoReembolsar.value = ant.saldo;
-    inicializarPagos();
+    //inicializarPagos();
     
     visible.value = true;
 }
@@ -245,6 +248,7 @@ const reiniciarDialog = () =>{
     pedido.value = null;
     searched.value = false;
     id.value = null;
+    inicializarPagos();
 }
   
   
@@ -362,7 +366,9 @@ const filters = ref({
 onMounted(() => {
     getAnticipos();
     getMediosCobro();
+    getMediosPago();
     getCajaAbierta();
+    inicializarPagos();
 });
 
 
@@ -373,13 +379,26 @@ const getCajaAbierta= () => {
     });
 };
 
+const getMediosPago = async () =>{
+    try {
+      const { data } = await MedioPagoServices.obtenerMediosPago();
+      mediosPago.value = data;
+      console.log(mediosPago.value);
+    } catch (error) {
+      //showError('Error al obtener clientes');
+    }
+}
 
+const getMediosCobro = async () =>{
+    try {
+      const { data } = await MedioCobroServices.obtenerMediosCobro();
+      mediosCobro.value = data;
+      console.log(mediosCobro.value);
+    } catch (error) {
+      //showError('Error al obtener clientes');
+    }
+}
 
-const getMediosCobro= () => {
-    MedioPagoServices.obtenerMediosPago().then((data) => {
-        mediosCobroPago.value=data.data;
-    });
-};
 
 
 </script>
@@ -478,7 +497,7 @@ const getMediosCobro= () => {
                                         <div>
                                             <div class="formgrid grid" v-for="item, index in pagos" :key="item" >
                                                 <div class="field col-12 md:col-6" style="justify-content: start;  ">
-                                                    <Select class="flex flex-grow-1" style="padding: 0rem !important;" v-model="item.medio" :options="mediosCobroPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   /> 
+                                                    <Select class="flex flex-grow-1" style="padding: 0rem !important;" v-model="item.medioPago" :options="mediosPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   /> 
                                                 </div>
                                     
                                                 <div class="flex field col-12 md:col-5" style=" justify-content: start; " >
@@ -584,12 +603,12 @@ const getMediosCobro= () => {
                 
                         <div class="field col-12 md:col-12">
                             <Card style="height: 100%;" >
-                                <template #title> Registrar Pago</template>
+                                <template #title> Registrar Cobro</template>
                                 <template #content>
                                     <div>
                                         <div class="formgrid grid" v-for="item, index in pagos" :key="item" >
                                             <div class="field col-12 md:col-6" style="justify-content: start;  ">
-                                                <Select class="flex flex-grow-1" style="padding: 0rem !important;" v-model="item.medio" :options="mediosCobroPago" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   /> 
+                                                <Select class="flex flex-grow-1" style="padding: 0rem !important;" v-model="item.medioCobro" :options="mediosCobro" @change="habilitarInput(index, item)" optionLabel="descripcion" placeholder="Seleccione un elemento"   /> 
                                             </div>
                                             <div class="flex field col-12 md:col-5" style=" justify-content: start; " >
                                                 <InputNumber fluid :disabled="item.disabled" name="input" style="padding: 0rem !important;  " v-model="item.importe" @input="actualizarImporte($event, index)"  />
@@ -604,7 +623,7 @@ const getMediosCobro= () => {
 
                                         <div class="formgrid grid">
                                             <div class="flex field col-12 md:col-6 " >
-                                                <label for="totalPagos" style="font-weight: 600;"> Monto a pagar: </label>
+                                                <label for="totalPagos" style="font-weight: 600;"> Monto a cobrar: </label>
                                             </div>
                                             <div  class="flex field col-12 md:col-6" style=" justify-content: start; " :style="{color: color}" >
                                                 {{ sumaTotal.toLocaleString("de-DE") }} Gs.
@@ -630,7 +649,7 @@ const getMediosCobro= () => {
         <Panel style=" position: relative; width: 90%;" >
             <template #header>
                 <div class="flex align-items-center gap-2">
-                    <h3 class="font-bold">Anticipos Clientes</h3>
+                    <h3 class="font-bold">Anticipos</h3>
                 </div>
             </template>
       
@@ -671,22 +690,22 @@ const getMediosCobro= () => {
                            {{ formatearNumero(slotProps.data.pedido?.id) }}
                         </template>
                     </Column>
-                    <Column  field="total" header="Total" aria-sort="ascending" sortable >
+                    <Column  field="total" header="Total Gs." aria-sort="ascending" sortable >
                         <template #body="slotProps">
                             {{ formatearNumero(slotProps.data.total) }}
                         </template>
                     </Column>
-                    <Column  field="utilizado" header="Utilizado" aria-sort="ascending" sortable >
+                    <Column  field="utilizado" header="Utilizado Gs." aria-sort="ascending" sortable >
                         <template #body="slotProps">
                             {{ formatearNumero(slotProps.data.utilizado) }}
                         </template>
                     </Column>
-                    <Column  field="reembolsado" header="Reembolsado" aria-sort="ascending" sortable >
+                    <Column  field="reembolsado" header="Reembolsado Gs." aria-sort="ascending" sortable >
                         <template #body="slotProps">
                             {{ formatearNumero(slotProps.data.reembolsado) }}
                         </template>
                     </Column>
-                    <Column  field="saldo" header="Saldo Disponible" aria-sort="ascending" sortable >
+                    <Column  field="saldo" header="Saldo Disponible Gs." aria-sort="ascending" sortable >
                         <template #body="slotProps">
                             {{ formatearNumero(slotProps.data.saldo) }}
                         </template>

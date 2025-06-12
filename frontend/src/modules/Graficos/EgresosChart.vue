@@ -4,8 +4,7 @@
             <div class="flex " style="flex-direction: row;" >
                 <Select v-model="añoConsultar" :options="añosDisponibles"  placeholder="Seleccione un año" class="w-full md:w-56" />
             
-                <Select v-model="añoConsultar" :options="añosDisponibles"  placeholder="Seleccione un año" class="w-full md:w-56" />
-            </div>
+             </div>
     </div>
     <div>
         <Chart type="bar" :data="chartData" :options="chartOptions" style="height: 250px;"  />

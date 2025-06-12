@@ -282,14 +282,14 @@ const nuevoPedido = () =>{
             <template #body="slotProps">
                 
                 <div v-if="slotProps.data.cliente.apellido">
-                    {{ slotProps.data.cliente.nombre }} {{ slotProps.data.cliente.apellido }}
+                    {{ slotProps.data.cliente.persona.nombre }} {{ slotProps.data.cliente.persona.apellido }}
                 </div>
                 <div v-else>
-                    {{ slotProps.data.cliente.nombre }}
+                    {{ slotProps.data.cliente.persona.nombre }}
                 </div>
             </template>   
         </Column>
-          <Column field="montoTotal"  header="Total" aria-sort="ascending" sortable> 
+          <Column field="montoTotal"  header="Total Gs." aria-sort="ascending" sortable> 
             <template #body="slotProps">
                 {{ formatearNumero(slotProps.data.montoTotal) }}
             </template>

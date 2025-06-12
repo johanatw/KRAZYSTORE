@@ -27,7 +27,7 @@
                         </template>
                         <template #content>
                             <div v-if="inventario.estado != 'S'" >
-                                Usuario: {{ inventario.usuarioRegistro?.persona?.nombre || '' }} {{ inventario.usuarioRegistro?.persona?.apellido }}
+                                Usuario: {{ inventario.usuarioRegistro?.empleado?.persona?.nombre || '' }} {{ inventario.usuarioRegistro?.empleado?.persona?.apellido }}
                             </div>
                             <div >
                                 Fecha: {{ formatearFecha(inventario.fecha) }}

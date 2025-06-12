@@ -218,9 +218,6 @@ const nuevoPedido = () =>{
                 {{ formatearFecha(slotProps.data.fecha) }}
             </template>
         </Column>
-          <Column field="proveedor.descripcion"  header="Proveedor" aria-sort="ascending" sortable> 
-
-        </Column>   
         <Column field="estado"  header="Estado" aria-sort="ascending" sortable> 
           <template #body="slotProps">
                 <Tag :style="getSeverity(slotProps.data.estado)" style=" font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ getEstadoRecepcion(slotProps.data.estado)}}</Tag>
