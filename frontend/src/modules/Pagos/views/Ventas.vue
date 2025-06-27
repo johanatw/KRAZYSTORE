@@ -88,8 +88,7 @@ const getTimbrado = () =>{
         }else{
             existeTimbradoVigente.value = false;
         }
-        
-    
+
     });
    
 }
@@ -232,95 +231,92 @@ const nuevoPedido = () =>{
 </script>
 
 <template>
-    
   <div class=" flex p-fluid justify-content-center " >
-
     <ConfirmDialog ></ConfirmDialog>
     <Toast />
+    
     <Panel style=" position: relative; width: 90%;" >
       <template #header>
         <div class="flex align-items-center gap-2">
-            <h3 class="font-bold">Facturas de Venta</h3>
+          <h3 class="font-bold">Facturas de Venta</h3>
         </div>
       </template>
-    <template #icons>
-                
+      
+      <template #icons>
         <div class="flex align-items-center">
-            <Button   icon="pi pi-plus " @click="nuevaFactura()"  style="margin-right: 1% ;"/>
+          <Button icon="pi pi-plus " @click="nuevaFactura()" style="margin-right: 1% ;"/>
           <InputGroup>
             <InputText fluid v-model="filters['global'].value" placeholder="Buscar..." />
             <InputGroupAddon>
               <i class="pi pi-search" />
             </InputGroupAddon>
-        </InputGroup>
+          </InputGroup>
         </div>
-    
       </template>
       
-      
-  
       <div >
-        
-        <DataTable  :value="ventas" scrollHeight="400px"  
+        <DataTable :value="ventas" scrollHeight="400px"  
           :paginator="true" :rows="7" :filters="filters"
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 
           currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros" >
+          
           <template #empty> No hay registros para mostrar. </template>
-           <template #loading> Cargando. </template>
+          <template #loading> Cargando. </template>
           
           <Column field="fecha" sortable header="Fecha" aria-sort="ascending" >
             <template #body="slotProps">
-                {{ formatearFecha(slotProps.data.fecha) }}
+              {{ formatearFecha(slotProps.data.fecha) }}
             </template>
-        </Column>
-        <Column field="fecha" sortable header="N° Pedido" aria-sort="ascending" >
+          </Column>
+          
+          <Column field="fecha" sortable header="N° Pedido" aria-sort="ascending" >
             <template #body="slotProps">
-                {{ slotProps.data.pedido?.id }}
+              {{ slotProps.data.pedido?.id }}
             </template>
-        </Column>
-          <Column field="cliente.nombre"  header="Cliente" aria-sort="ascending" sortable>  
+          </Column>
+          
+          <Column field="cliente.nombre" header="Cliente" aria-sort="ascending" sortable>  
             <template #body="slotProps">
-                
-                <div v-if="slotProps.data.cliente.apellido">
-                    {{ slotProps.data.cliente.persona.nombre }} {{ slotProps.data.cliente.persona.apellido }}
-                </div>
-                <div v-else>
-                    {{ slotProps.data.cliente.persona.nombre }}
-                </div>
+              <div v-if="slotProps.data.cliente.apellido">
+                {{ slotProps.data.cliente.persona.nombre }} {{ slotProps.data.cliente.persona.apellido }}
+              </div>
+              <div v-else>
+                {{ slotProps.data.cliente.persona.nombre }}
+              </div>
             </template>   
-        </Column>
-          <Column field="montoTotal"  header="Total Gs." aria-sort="ascending" sortable> 
+          </Column>
+          
+          <Column field="montoTotal" header="Total Gs." aria-sort="ascending" sortable> 
             <template #body="slotProps">
-                {{ formatearNumero(slotProps.data.montoTotal) }}
+              {{ formatearNumero(slotProps.data.montoTotal) }}
             </template>
-        </Column>
-        <Column field="estado"  header="Estado" aria-sort="ascending" sortable>    
-          <template #body="slotProps">
-                <Tag :style="getSeverity(slotProps.data.estado)" style=" font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >{{ getEstadoFacturaVenta(slotProps.data.estado)}}</Tag>
-              </template>          
-        </Column>
+          </Column>
+          
+          <Column field="estado" header="Estado" aria-sort="ascending" sortable>    
+            <template #body="slotProps">
+              <Tag :style="getSeverity(slotProps.data.estado)" style=" font-weight: bold; font-size: 12px; padding: 0.25rem 0.4rem;" >
+                {{ getEstadoFacturaVenta(slotProps.data.estado)}}
+              </Tag>
+            </template>          
+          </Column>
 
-        <Column field="nroFactura"  header="N° de Factura" aria-sort="ascending" sortable>            
-        </Column>
-      
-
+          <Column field="nroFactura" header="N° de Factura" aria-sort="ascending" sortable>            
+          </Column>
         
           <Column :exportable="false" style="min-width:8rem">
             <template #body="slotProps">
-                <div style="display: flex;" >
-                    <Button icon="pi pi-eye" v-tooltip="'Ver Factura'" text rounded aria-label="Search" @click="verFactura(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
-                    <Button icon="pi pi-times" :disabled="slotProps.data.estado !== 'P'" v-tooltip="'Anular'" text rounded aria-label="Search" severity="warn" @click="confirm2(slotProps.data.id,slotProps.data.nroFactura )" style="height: 2rem !important; width: 2rem !important;" />
-                
-                </div>
-                
-                
-                </template>
+              <div style="display: flex;" >
+                <Button icon="pi pi-eye" v-tooltip="'Ver Factura'" text rounded aria-label="Search" 
+                  @click="verFactura(slotProps.data.id)" style="height: 2rem !important; width: 2rem !important;" />
+                <Button icon="pi pi-times" :disabled="slotProps.data.estado !== 'P'" v-tooltip="'Anular'" 
+                  text rounded aria-label="Search" severity="warn" 
+                  @click="confirm2(slotProps.data.id,slotProps.data.nroFactura )" 
+                  style="height: 2rem !important; width: 2rem !important;" />
+              </div>
+            </template>
           </Column>
         </DataTable>
       </div>
-      
     </Panel>
-    
   </div>
-  
 </template>

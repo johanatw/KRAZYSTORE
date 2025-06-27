@@ -1,8 +1,4 @@
 <script setup>
-
-
-
-
 import Button from 'primevue/button';
 import { ref, onMounted } from "vue";
 import { TipoDocServices } from "@/services/TipoDocServices";
@@ -214,22 +210,6 @@ const showDialog = (valor=true) =>{
 
 </script>
 <template>
-    <!-- 
-    <ConfirmDialog group="headless">
-        <template #container="{ message, acceptCallback }">
-            <div class="flex flex-column align-items-center p-5 surface-overlay border-round">
-                <div class="border-circle bg-primary inline-flex justify-content-center align-items-center h-6rem w-6rem -mt-8">
-                    <i class="pi pi-times text-5xl"></i>
-                </div>
-                <span class="font-bold text-2xl block mb-2 mt-4">{{ message.header }}</span>
-                <p class="mb-0">{{ message.message }}</p>
-                <div class="flex align-items-center gap-2 mt-4">
-                    <Button label="Ok" @click="acceptCallback"></Button>
-                </div>
-            </div>
-        </template>
-    </ConfirmDialog>-->
-    
     <Toast />
     <div class="card flex justify-content-center" >
         <Dialog  v-model:visible="visible" modal header="Header" :closable="false" :draggable="false" :style="{ width: '40rem' }"  >

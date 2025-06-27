@@ -1,13 +1,14 @@
-
 <template>
     <div class="flex p-fluid justify-content-center " >
         <Panel style=" position: relative; width: 80%;" >
+            <!-- Encabezado -->
             <template #header>
                 <div class="flex align-items-center gap-2">
                     <h3 class="font-bold">Control de Inventario N° {{ router.currentRoute.value.params.id }}</h3>
                 </div>
             </template>
      
+            <!-- Botones de acciones en la parte superior derecha -->
             <template #icons>
                 <div  class="flex" style="justify-content: end;">  
                     <Button label="Atras"  style="margin-right: 1%;" @click="vistaInventarios()" />
@@ -16,7 +17,9 @@
                 </div>
             </template>
             
+            <!-- Contenido principal del panel -->
             <div>
+                <!-- Información general del inventario -->
                 <div class="field col-12 md:col-6">
                     <Card>
                         <template #title>
@@ -36,66 +39,66 @@
                             <div  >
                                 Estado: {{getEstadoInventario(inventario.estado)}}
                             </div> 
-
                         </template>
                     </Card>
                 </div> 
+                
+                <!-- Tabla con el detalle del inventario -->
                 <div class="field col-12 md:col-12">
                     <Card>
                         <template #content>
                             <DataTable :value="detalleInventario" paginator :rows="10" 
                             dataKey="id" ref="dt" filterDisplay="row" :loading="loading">
                                 <template #empty> No hay registros para mostrar. </template>
-                                    <Column field="producto.nombre" sortable header="Producto" aria-sort="ascending" ></Column>
-                                    <Column header="Categoría" :showFilterMenu="false" :filterMenuStyle="{ width: '14rem' }" style="min-width: 14rem">
-                                        <template #body="{ data }">
-                                            <div class="flex align-items-center gap-2">
-                                                <span>{{ data.producto.subCategoria.categoria.descripcion }}</span>
-                                            </div>
-                                        </template>
-                                    </Column>
-                                    <Column header="Sub Categoría" :showFilterMenu="false" :filterMenuStyle="{ width: '14rem' }" style="min-width: 14rem">
-                                        <template #body="{ data }">
-                                            <div class="flex align-items-center gap-2">
-                                                <span>{{ data.producto.subCategoria.descripcion }}</span>
-                                            </div>
-                                        </template>
-                                    </Column>
-                                    <Column v-if="!isEnCurso(inventario.estado)" header="Stock anterior" >
-                                        <template #body="{ data }">
-                                            <div class="flex align-items-center gap-2">
-                                                <span>{{ data.stockInicialInventario }}</span>
-                                            </div>
-                                        </template>
-                                    </Column>
-                                    <Column v-if="!isEnCurso(inventario.estado)" header="Contado" >
-                                        <template #body="{ data }">
-                                            <div class="flex align-items-center gap-2">
-                                                <span>{{ data.cantContada }}</span>
-                                            </div>
-                                        </template>
-                                    </Column>
-                                    <Column v-if="!isEnCurso(inventario.estado)" header="Diferencia" >
-                                        <template #body="{ data }">
-                                            <div class="flex align-items-center gap-2" :style="getColor(data.diferencia)" >
-                                                <span>{{ data.diferencia }}</span>
-                                            </div>
-                                        </template>
-                                    </Column>
-                </DataTable>
-
+                                <!-- Columnas de la tabla -->
+                                <Column field="producto.nombre" sortable header="Producto" aria-sort="ascending" ></Column>
+                                <Column header="Categoría" :showFilterMenu="false" :filterMenuStyle="{ width: '14rem' }" style="min-width: 14rem">
+                                    <template #body="{ data }">
+                                        <div class="flex align-items-center gap-2">
+                                            <span>{{ data.producto.subCategoria.categoria.descripcion }}</span>
+                                        </div>
+                                    </template>
+                                </Column>
+                                <Column header="Sub Categoría" :showFilterMenu="false" :filterMenuStyle="{ width: '14rem' }" style="min-width: 14rem">
+                                    <template #body="{ data }">
+                                        <div class="flex align-items-center gap-2">
+                                            <span>{{ data.producto.subCategoria.descripcion }}</span>
+                                        </div>
+                                    </template>
+                                </Column>
+                                <!-- Columnas condicionales según estado del inventario -->
+                                <Column v-if="!isEnCurso(inventario.estado)" header="Stock anterior" >
+                                    <template #body="{ data }">
+                                        <div class="flex align-items-center gap-2">
+                                            <span>{{ data.stockInicialInventario }}</span>
+                                        </div>
+                                    </template>
+                                </Column>
+                                <Column v-if="!isEnCurso(inventario.estado)" header="Contado" >
+                                    <template #body="{ data }">
+                                        <div class="flex align-items-center gap-2">
+                                            <span>{{ data.cantContada }}</span>
+                                        </div>
+                                    </template>
+                                </Column>
+                                <Column v-if="!isEnCurso(inventario.estado)" header="Diferencia" >
+                                    <template #body="{ data }">
+                                        <div class="flex align-items-center gap-2" :style="getColor(data.diferencia)" >
+                                            <span>{{ data.diferencia }}</span>
+                                        </div>
+                                    </template>
+                                </Column>
+                            </DataTable>
                         </template>
                     </Card>
                 </div> 
-                
-                
             </div>
         </Panel>
     </div>
-    
 </template>
 
 <script setup>
+// Importaciones
 import { ref, onMounted } from 'vue';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { ProductoServices } from '@/services/ProductoServices';
@@ -116,6 +119,8 @@ import { formatearFecha, getEstadoInventario } from '@/utils/utils';
 import { useToast } from "primevue/usetoast";
 const toast = useToast();
 import Toast from 'primevue/toast';
+
+// Variables 
 const fecha = ref(new Date());
 const detalleInventario = ref();
 const inventario = ref({});
@@ -123,45 +128,41 @@ const categorias = ref();
 const filters = ref({
     'producto.categoria': { value: null, matchMode: FilterMatchMode.IN },
 });
-
 const loading = ref(false);
 const dt = ref();
 const productosFiltrados = ref([]);
 
-    const onFilter = (event) => {
-        console.log(event);
-        console.log(filters.value.categoria);
-      // Guardar la lista filtrada reactivamente
-      productosFiltrados.value = event.filteredValue || detalleInventario.value;
-      console.log("Productos filtrados (evento):", productosFiltrados.value);
-    };
+// Función para manejar el filtrado de datos
+const onFilter = (event) => {
+    console.log(event);
+    console.log(filters.value.categoria);
+    productosFiltrados.value = event.filteredValue || detalleInventario.value;
+    console.log("Productos filtrados (evento):", productosFiltrados.value);
+};
 
+// Función para exportar a CSV
 const exportCSV = () => {
-    
     const doc = new jsPDF();
-
     
-      // Define the table headers and rows
-      const headers = [["Nombre","Categoria","Cantidad Contada"]];
-      const data = productosFiltrados.value.map((c) => [
+    const headers = [["Nombre","Categoria","Cantidad Contada"]];
+    const data = productosFiltrados.value.map((c) => [
         c.producto.nombre,
         c.producto.categoria.descripcion,
-        
- 
-      ]);
+    ]);
 
-      // Add the table to the PDF
-      doc.autoTable({
+    // Genera la tabla en el PDF
+    doc.autoTable({
         head: headers,
         body: data,
-        startY: 10, // Adjust starting position
+        startY: 10,
         styles: { fontSize: 10 },
         headStyles: { fillColor: [41, 128, 185] },
-      });
+    });
 
-      // Save the PDF
-      doc.save("products.pdf");
+    // Guarda el PDF
+    doc.save("products.pdf");
 };
+
 
 onMounted(() => {
     InventarioServices.getInventario(router.currentRoute.value.params.id).then((data) => {
@@ -170,57 +171,33 @@ onMounted(() => {
     });
 });
 
-const getSeverity = (status) => {
-    switch (status) {
-        case 'unqualified':
-            return 'danger';
-
-        case 'qualified':
-            return 'success';
-
-        case 'new':
-            return 'info';
-
-        case 'negotiation':
-            return 'warning';
-
-        case 'renewal':
-            return null;
-    }
-}
-
+// Función para determinar color basado en diferencia de stock
 const getColor = (diferencia) => {
     console.log(diferencia);
     if (diferencia < 0) {
         return 'color: red;';
     }
-
     if (diferencia > 0) {
         return 'color: green;';
     }
-
 }
 
+// Funciones para verificar estado del inventario
 const isFinalizado = (estado) => {
     switch (estado) {
-        case 'P':
-            return true;
-        default:
-            return false;
-
+        case 'P': return true;
+        default: return false;
     }
 }
 
 const isEnCurso = (estado) => {
     switch (estado) {
-        case 'S':
-            return true;
-        default:
-            return false;
-
+        case 'S': return true;
+        default: return false;
     }
 }
 
+// Funciones para mostrar notificaciones
 const showError = (message) => {
     toast.add({
       severity: 'error',
@@ -228,17 +205,18 @@ const showError = (message) => {
       detail: message,
       life: 3000
     });
-  };
+};
   
-  const showSuccess = (message) => {
+const showSuccess = (message) => {
     toast.add({
       severity: 'success',
       summary: 'Éxito',
       detail: message,
       life: 3000
     });
-  };
+};
 
+// Funciones para manejar acciones del inventario
 const ajustarInventario = (id) =>{
     InventarioServices.ajustarInventario(id).then((data)=> {
         showSuccess('Inventario ajustado');
@@ -256,8 +234,6 @@ const finalizarInventario = () =>{
     } );
 }
 
-
-
 const modificarInventario = (id) =>{
     router.push({name: 'modificar_inventario', params: {id}});
 }
@@ -265,8 +241,9 @@ const modificarInventario = (id) =>{
 const vistaInventarios= () =>{
     router.push({name: 'inventario'});
 }
-
 </script>
+
+
 <style>
 .p-inputgroup-addon{
     padding: 0%;

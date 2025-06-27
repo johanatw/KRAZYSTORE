@@ -178,38 +178,32 @@ const getEntrega = (formaEntrega, envio) =>{
 
 </script>
 <template>
-    
-
-<div class="card flex p-fluid justify-content-center " >
- 
-
-    <Panel style=" position: relative; width: 80%;" >
-        <template #header>
-            <div class="flex align-items-center gap-2">
-                <h3 class="font-bold">Pedido N° {{ pedido.id }}</h3>
-            </div>
-        </template>
-        <template #icons>
-            <div class="flex" style="justify-content: end;">  
-                <Button  label="Atras"  style="margin-right: 1%;"  @click="verPedidos()" />
-                <Button  label="Modificar" @click="modificarPedido(router.currentRoute.value.params.id)" />
+    <div class="card flex p-fluid justify-content-center " >
+        <Panel style=" position: relative; width: 80%;" >
+            <template #header>
+                <div class="flex align-items-center gap-2">
+                    <h3 class="font-bold">Pedido N° {{ pedido.id }}</h3>
                 </div>
-        </template>
-        <div class="contenedor" style="padding-left: 4%; padding-right: 4%;">
-
-            <div v-if="error" style="background-color: rgb(242, 222, 222); 
-            border: solid 1px rgb(215, 57, 37); padding-top: 1%; padding-bottom: 1%; margin-bottom: 1%;"> 
-                <ul>
-                    <li v-for="msg in mensaje" style="list-style: none;">
-                    <a style="color: rgb(173, 89, 86);">{{ msg }}</a>
-                    </li>
-                </ul>
+            </template>
+            <template #icons>
+                <div class="flex" style="justify-content: end;">  
+                    <Button  label="Atras"  style="margin-right: 1%;"  @click="verPedidos()" />
+                    <Button  label="Modificar" @click="modificarPedido(router.currentRoute.value.params.id)" />
+                </div>
+            </template>
+            <div class="contenedor" style="padding-left: 4%; padding-right: 4%;">
+                <div v-if="error" style="background-color: rgb(242, 222, 222); 
+                border: solid 1px rgb(215, 57, 37); padding-top: 1%; padding-bottom: 1%; margin-bottom: 1%;"> 
+                    <ul>
+                        <li v-for="msg in mensaje" style="list-style: none;">
+                            <a style="color: rgb(173, 89, 86);">{{ msg }}</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
 
-        <div class="grid " >
-
-            <div class="field col-12 md:col-6">
+            <div class="grid " >
+                <div class="field col-12 md:col-6">
                     <Card>
                         <template #title>
                             <div class="flex justify-content-between ">
@@ -227,96 +221,27 @@ const getEntrega = (formaEntrega, envio) =>{
                             </div> 
                             <div >
                                 Observaciones: 
-                                
                                 <p class="m-0">
                                     {{ pedido.observaciones }}
                                 </p>
                             </div>
-
                         </template>
                     </Card>
                 </div>
-            <div class="field col-12 md:col-6">
-                <MiCard ref="cardCliente" :titulo="'Cliente'" :contenido="infoCliente" @edit="searchCard.showDialog()"/> 
-            </div>  
-           <!-- <div class="field col-12 md:col-6">
-                <MiCard ref="cardEntrega" :titulo="'Entrega'" :contenido="infoEntrega" @edit="modoEntrega.showDialog()"/>
-            </div>-->
-            <div class="field col-12 md:col-12">
-                <DetallePedido ref="detalle"/>
+                <div class="field col-12 md:col-6">
+                    <MiCard ref="cardCliente" :titulo="'Cliente'" :contenido="infoCliente" @edit="searchCard.showDialog()"/> 
+                </div>  
+                <!-- <div class="field col-12 md:col-6">
+                    <MiCard ref="cardEntrega" :titulo="'Entrega'" :contenido="infoEntrega" @edit="modoEntrega.showDialog()"/>
+                </div>-->
+                <div class="field col-12 md:col-12">
+                    <DetallePedido ref="detalle"/>
+                </div>
             </div>
-
-            
-            
-        </div>
-    </Panel>
-</div>
-
+        </Panel>
+    </div>
 </template>
+
 <style>
-/*
-.p-accordion-tab{
-    margin: 2%;
-    
-    
-}
-.p-icon{
-    color: pink;
-    margin-right: 1%;
-}
 
-.p-accordion-header-link{
-    height: 7vh !important;
-}
-.p-accordion-header-text{
-    color: black;
-}
-
-.p-card{
-    box-shadow:none;
-    font-size:14px;
-}
-.p-card-title{
-    font-size:medium;
-    font-weight: bolder !important;
-}
-.p-card .p-card-body {
-    padding: 1rem;
-}
-.p-card .p-card-content {
-    padding: 0.5rem 0;
-}
-
-.principal{
-    display: flex;
-    border: solid palevioletred 2px;
-    justify-content: center;
-    border-radius: 1vh;
-    margin-left: 4%;
-    margin-right: 4%;
-    padding: 1%;
-}
-
-h3 {
-    display: flex;
-    font-size: 1.17em;
-    margin-block-start: 0px;
-    margin-block-end: 0px;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-    font-weight: bold;
-    justify-content: center;
-}
-.p-button{
-    box-shadow: 0 0 0 0 !important; 
-    font-family:'primeicons' !important;
-}
-.p-button:hover{
-    box-shadow: 0 0 0 0 !important; 
-}
-
-.field {
-    margin-bottom: 0rem;
-    padding: 0rem;
-}*/
 </style>

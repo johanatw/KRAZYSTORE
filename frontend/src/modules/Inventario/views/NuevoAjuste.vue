@@ -1,4 +1,5 @@
 <script setup>
+//Importaciones
 import CardDetalle from "@/modules/Pedidos/components/CardDetalle.vue";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
@@ -35,6 +36,7 @@ import {formatearNumero, formatearFecha} from '@/utils/utils';
 import DatePicker from "primevue/datepicker";
 import Textarea from "primevue/textarea";
 
+//Variables
 const mensaje = ref([]);
 const visible = ref(false);
 const productos= ref();
@@ -56,17 +58,14 @@ const message = (m) => {
         message: 'Se ha generado la Factura',
 
         accept: () => {
-            router.push({name: 'verFactura', params: {id}});
-            //verPedido(router.currentRoute.value.params.id);
-            
+            router.push({name: 'verFactura', params: {id}});  
         },
         reject: () => {
-            router.push({name: 'ventas'});
-            //verPedido(router.currentRoute.value.params.id);
-            
+            router.push({name: 'ventas'});   
         },
     });
 };
+
 
 onMounted(() => {
     AjusteStockServices.getProductosParaAjuste().then((data) => {
@@ -75,30 +74,29 @@ onMounted(() => {
     });
 });
 
+//Filtros
 const filters = ref({
  'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
 });
 
+//Validar formulario
 const validarForm = () => {
     mensaje.value = [];
     error.value = false;
-    
     if (detalleAjuste.value.length < 1) {
         error.value = true;
         mensaje.value.push("Debe añadir productos");
     }
-    
     guardarAjuste();
-
 }
 
 
 const addItem = (item) => {
     let index = detalleAjuste.value.findIndex((loopVariable) => loopVariable.producto.id === item.producto.id);
-
     if (index == -1) { detalleAjuste.value.push(item) }
 }
 
+//Eliminar 
 const eliminar = (detalle) => {
     const cantidad= 1;
     detalle.cantidadAjustada = 0;
@@ -106,22 +104,23 @@ const eliminar = (detalle) => {
     detalleAjuste.value.splice(index,cantidad);
 }
 
+//Vista de ajuste
 const vistaVerAjuste = (id) => {
     router.push({name: 'ver_ajuste', params: {id}});
 
 }
 
+//Vista Lista de ajuste
 const vistaListaAjustes = () => {
     router.push({name: 'ajustes'});
 }
 
+//Guardar ajuste
 const guardarAjuste = () =>{
     if (!error.value){
-
         const username = localStorage.getItem('username');
         let ajuste = {fecha: fechaAjuste.value, observaciones: observaciones.value};
         let ajusteCreationDTO = {ajuste: ajuste, detalle: detalleAjuste.value, username:username};
-        
         AjusteStockServices.registrarAjuste(ajusteCreationDTO ).then((data)=> {
             let id = data.data.id;
             showSuccess('Baja resgitrada');
@@ -130,6 +129,7 @@ const guardarAjuste = () =>{
     }
 }
 
+//Mensaje de éxito
 const showSuccess = (message) => {
     toast.add({
       severity: 'success',
@@ -157,9 +157,6 @@ const showSuccess = (message) => {
                 </div>
             </template>
         </ConfirmDialog>
-
-  
-
         <Panel style=" position: relative; width: 80%;" >
             <template #header>
                 <div class="flex align-items-center gap-2">

@@ -1,11 +1,11 @@
 <script setup>
+// Importaciones
 import CardDetalle from "@/modules/Pedidos/components/CardDetalle.vue";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import MapComponent from '@/modules/Pedidos/components/MapComponent.vue';
 import Dropdown from "primevue/dropdown";
 import AutoComplete from 'primevue/autocomplete';
-
 import Calendar from 'primevue/calendar';
 import { AjusteStockServices } from "@/services/AjusteStockServices";
 import Card from "primevue/card";
@@ -20,7 +20,6 @@ import { CiudadServices } from '@/services/CiudadServices';
 import { ref, onMounted } from "vue";
 import InputNumber from 'primevue/inputnumber';
 import InputGroup from 'primevue/inputgroup';
-
 import Panel from 'primevue/panel';
 import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
@@ -35,11 +34,12 @@ import PedidoCompraServices from "@/services/PedidoCompraServices";
 import {formatearNumero, formatearFecha, getEstadoAjuste} from '@/utils/utils';
 const toast = useToast();
 
-
+// Variables 
 const mensaje = ref([]);
 const error = ref(false);
 const detalleAjuste = ref([]);
 const ajuste = ref({});
+
 
 onMounted(() => {
     AjusteStockServices.getAjuste(router.currentRoute.value.params.id).then((data) => {
@@ -48,8 +48,7 @@ onMounted(() => {
     });
 });
 
-
-
+// Vista de Ajustes
 const vistaListaAjustes = () => {
     router.push({name: 'ajustes'});
 }
@@ -58,37 +57,32 @@ const modificarAjuste = (id) => {
     router.push({name: 'modificar_ajuste', params: {id}});
 }
 
+// Función para validar el formulario antes de ajustar
 const validarForm = (id) => {
-
-let detalleAjustar = detalleAjuste.value?.filter(d => d.cantidadFinal >= 0);
+    let detalleAjustar = detalleAjuste.value?.filter(d => d.cantidadFinal >= 0);
     
-mensaje.value = [];
-error.value = false;
+    mensaje.value = [];
+    error.value = false;
 
+    if (detalleAjustar.length < 1) {
+        error.value = true;
+        mensaje.value.push("Uno o más productos quedarían con stock negativo si se aplica esta baja.");
+    }
 
-if (detalleAjustar.length < 1) {
-    error.value = true;
-    mensaje.value.push("Uno o más productos quedarían con stock negativo si se aplica esta baja.");
+    ajustarInventario(id);
 }
 
-
-ajustarInventario(id);
-  
-
-}
-
+// Función para realizar el ajuste de inventario
 const ajustarInventario = (id) =>{
     if (!error.value){
-    AjusteStockServices.ajustar(id).then((data)=> {
-        showSuccess('Inventario ajustado');
-        vistaListaAjustes();
-        //closeDialog();
-        //emit('anticipoGuardado', data.data.id);
-        
-    } );
-}
+        AjusteStockServices.ajustar(id).then((data)=> {
+            showSuccess('Inventario ajustado');
+            vistaListaAjustes();
+        });
+    }
 }
 
+// Función para mostrar notificación de éxito
 const showSuccess = (message) => {
     toast.add({
       severity: 'success',
@@ -96,17 +90,20 @@ const showSuccess = (message) => {
       detail: message,
       life: 3000
     });
-  };
-
+};
 </script>
+
 <template>
     <div class=" flex justify-content-center " >
         <Panel style=" position: relative; width: 80%;" >
+            <!-- Encabezado del panel-->
             <template #header>
                 <div class="flex align-items-center gap-2">
                     <h3 class="font-bold">Baja de Stock N° {{ router.currentRoute.value.params.id }} </h3>
                 </div>
             </template>
+            
+            <!-- Botones de acciones en la parte superior derecha -->
             <template #icons>
                 <div class="card flex" style="justify-content: end;">   
                     <div class="card flex" style="justify-content: end;">  
@@ -116,20 +113,22 @@ const showSuccess = (message) => {
                     </div>  
                 </div>
             </template>
+            
+            <!-- Mensajes de error -->
             <div class="contenedor" >
-
-            <div v-if="error" style="background-color: rgb(242, 222, 222); 
-            border: solid 1px rgb(215, 57, 37); padding-top: 1%; padding-bottom: 1%; margin-bottom: 1%;"> 
-                <ul>
-                    <li v-for="msg in mensaje" style="list-style: none;">
-                    <a style="color: rgb(173, 89, 86);">{{ msg }}</a>
-                    </li>
-                </ul>
+                <div v-if="error" style="background-color: rgb(242, 222, 222); 
+                border: solid 1px rgb(215, 57, 37); padding-top: 1%; padding-bottom: 1%; margin-bottom: 1%;"> 
+                    <ul>
+                        <li v-for="msg in mensaje" style="list-style: none;">
+                        <a style="color: rgb(173, 89, 86);">{{ msg }}</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
 
+            <!-- Contenido principal -->
             <div class="grid " >
-                <!--Detalle Ajuste -->
+                <!-- Sección de información general del ajuste -->
                 <div class="field col-12 md:col-12">
                     <Card >
                         <template #title>
@@ -157,7 +156,7 @@ const showSuccess = (message) => {
                     </Card>
                 </div> 
             
-                <!--Productos Ajustar -->
+                <!-- Sección de productos a ajustar -->
                 <div class="col-12" >
                     <Card >
                         <template #title>
@@ -172,6 +171,7 @@ const showSuccess = (message) => {
                             <div>
                                 <div class="card" style="width: 100%;">
                                     <div class="flex card-container" style="width: 100%;">
+                                        <!-- Tabla con detalle de productos -->
                                         <DataTable class="tablaCarrito" ref="dt" :value="detalleAjuste" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
                                             <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>     
                                             <Column  class="col" field="cantidadAnterior" header="Cant. Anterior" aria-sort="none" ></Column>     
@@ -188,8 +188,9 @@ const showSuccess = (message) => {
             </div>
         </Panel>
     </div>
-    
 </template>
+
+
 <style>
 .p-inputgroup-addon{
     padding: 0%;
@@ -200,5 +201,4 @@ const showSuccess = (message) => {
     padding: 0rem;
     width: 1rem;
 }
-
 </style>

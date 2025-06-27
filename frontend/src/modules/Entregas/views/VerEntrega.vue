@@ -59,6 +59,7 @@ import { useToast } from "primevue/usetoast";
 import {PedidoCompraServices} from "@/services/PedidoCompraServices";
 import {formatearNumero, formatearFecha} from '@/utils/utils';
 
+//Variables
 const confirm = useConfirm();
 const toast = useToast();
 
@@ -84,6 +85,7 @@ const message = (m) => {
     });
 };
 
+//Para facturar
 const detalleFacturar = ref([]);
 const detalle= ref([]);
 const subTotal = ref(0);
@@ -101,10 +103,12 @@ onMounted(() => {
 
 });
 
+//Vista de entregas
 const vistaEntregas= () =>{
     router.push({name: 'entregas'});
 }
 
+//Modalidad de delivery
 const isRetiro = (modalidad) => {
     let descripcion = modalidad?.descripcion;
   switch (descripcion) {
@@ -115,6 +119,7 @@ const isRetiro = (modalidad) => {
    }
 };
 
+//Modalidad de envio
 const isEnvio = (modalidad) => {
     let descripcion = modalidad?.descripcion;
   switch (descripcion) {
@@ -125,6 +130,7 @@ const isEnvio = (modalidad) => {
    }
 };
 
+//Mostrarcliente
 const mostrarCliente = (proveedor) =>{
     let valor;
     if(proveedor.descripcion!=null){
@@ -145,43 +151,39 @@ const mostrarCliente = (proveedor) =>{
     clienteSeleccionado.value = true;
 }
 
+//Modificar pedido
 const modificarPedido = (id) => {
     router.push({name: 'modificar_entrega', params: {id}});
-  
-  }
+}
 
 
 </script>
 <template>
-    
-
-<div class=" flex justify-content-center " >
-    <Panel style=" position: relative; width: 80%;" >
-        <template #header>
+    <div class=" flex justify-content-center " >
+        <Panel style=" position: relative; width: 80%;" >
+            <template #header>
                 <div class="flex align-items-center gap-2">
                     <h3 class="font-bold">Entrega N° {{ entrega.id }}</h3>
                 </div>
             </template>
             <template #icons>
                 <div class="flex" style="justify-content: end;">  
-                <Button  label="Atras"  style="margin-right: 1%;"  @click="vistaEntregas()" />
-                <Button  label="Modificar" @click="modificarPedido(entrega.id)" />
+                    <Button  label="Atras"  style="margin-right: 1%;"  @click="vistaEntregas()" />
+                    <Button  label="Modificar" @click="modificarPedido(entrega.id)" />
                 </div>
- 
             </template>
-        <div class="contenedor" >
-
-            <div v-if="error" style="background-color: rgb(242, 222, 222); 
-            border: solid 1px rgb(215, 57, 37); padding-top: 1%; padding-bottom: 1%; margin-bottom: 1%;"> 
-                <ul>
-                    <li v-for="msg in mensaje" style="list-style: none;">
-                    <a style="color: rgb(173, 89, 86);">{{ msg }}</a>
-                    </li>
-                </ul>
+            <div class="contenedor" >
+                <div v-if="error" style="background-color: rgb(242, 222, 222); 
+                    border: solid 1px rgb(215, 57, 37); padding-top: 1%; padding-bottom: 1%; margin-bottom: 1%;"> 
+                    <ul>
+                        <li v-for="msg in mensaje" style="list-style: none;">
+                            <a style="color: rgb(173, 89, 86);">{{ msg }}</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
-        <div class="grid " >
-            <div class="field col-12 md:col-6">
+            <div class="grid " >
+                <div class="field col-12 md:col-6">
                     <Card>
                         <template #title>
                             <div class="flex justify-content-between ">
@@ -198,19 +200,16 @@ const modificarPedido = (id) => {
                                 Estado: {{getEstadoEntrega(entrega.estado)}}
                             </div> 
                             <div >
-                                Observaciones: 
-                                
+                                Observaciones:            
                                 <p class="m-0">
                                     {{ entrega.observaciones }}
                                 </p>
                             </div>
-
                         </template>
                     </Card>
                 </div>
-            
-           <div class="field col-12 md:col-6">
-            <Card>
+                <div class="field col-12 md:col-6">
+                    <Card>
                         <template #title>
                             <div class="flex justify-content-between ">
                                 <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
@@ -236,131 +235,56 @@ const modificarPedido = (id) => {
                                 </div>
                                 <div>
                                     Dirección Envío: 
-                                    <label >{{ entrega.direccionEnvio.direccion }},  {{ entrega.direccionEnvio.ciudad.descripcion }}</label>
-                                       
+                                    <label >{{ entrega.direccionEnvio.direccion }},  {{ entrega.direccionEnvio.ciudad.descripcion }}</label>              
                                 </div>
                             </div>
-                           </template>
+                        </template>
                     </Card>
-            
-            </div>  
-            
-            <div class="col-12" >
-                        <Card >
-                            <template #title>
-            <div class="flex justify-content-between ">
-                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
-                    Productos
-                </div>
-            </div>
-            
-        </template>
-                    
+                </div>  
+                <div class="col-12" >
+                    <Card >
+                        <template #title>
+                            <div class="flex justify-content-between ">
+                                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                                    Productos
+                                </div>
+                            </div>
+                        </template>
                         <template #content>
                             <div>
-                                
                                 <div class="card" style="width: 100%;">
-    <div class="flex card-container" style="width: 100%;">
-        <DataTable class="tablaCarrito" ref="dt" :value="detalle" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
-            <Column  class="col" field="detalleVenta.producto.nombre" header="Nombre" aria-sort="none" ></Column>
-         <Column class="col" field="producto.precio"  header="Facturado" aria-sort="none" >
-            <template #body="slotProps">
-            <div class="flex-auto p-fluid" >
-                  {{  formatearNumero(slotProps.data.detalleVenta.cantidad) }}
-              </div> 
-            </template>
-        </Column>
-         
-        <Column  class="col" field="cantidad" header="Preparado" aria-sort="none">
-         </Column>
-         
-     </DataTable>
-   </div>
- </div>
-                              
+                                    <div class="flex card-container" style="width: 100%;">
+                                        <DataTable class="tablaCarrito" ref="dt" :value="detalle" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
+                                            <Column  class="col" field="detalleVenta.producto.nombre" header="Nombre" aria-sort="none" ></Column>
+                                                <Column class="col" field="producto.precio"  header="Facturado" aria-sort="none" >
+                                                    <template #body="slotProps">
+                                                        <div class="flex-auto p-fluid" >
+                                                            {{  formatearNumero(slotProps.data.detalleVenta.cantidad) }}
+                                                        </div> 
+                                                    </template>
+                                                </Column>
+                                                <Column  class="col" field="cantidad" header="Preparado" aria-sort="none">
+                                            </Column>
+                                        </DataTable>
+                                    </div>
+                                </div>
                             </div>
                         </template>    
-                    </Card>
-                        
-                    </div>
-        </div>
-      
-    </Panel>
-</div>
-    
+                    </Card>   
+                </div>
+            </div>  
+        </Panel>
+    </div>   
 </template>
+
 <style>
-.p-inputgroup-addon{
-    padding: 0%;
-}
+    .p-inputgroup-addon{
+        padding: 0%;
+    }
 
-.p-inputnumber-buttons-stacked .p-inputnumber-button-group .p-button.p-inputnumber-button {
-    flex: 1 1 auto;
-    padding: 0rem;
-    width: 1rem;
-}
-/*
-
-.p-accordion-tab{
-    margin: 2%;
-    
-    
-}
-.p-icon{
-    color: pink;
-    margin-right: 1%;
-}
-
-.p-accordion-header-link{
-    height: 7vh !important;
-}
-.p-accordion-header-text{
-    color: black;
-}
-
-
-.p-card-title{
-    font-size:medium;
-}
-.p-card .p-card-body {
-    padding: 1rem;
-}
-.p-card .p-card-content {
-    padding: 0.5rem 0;
-}
-
-.principal{
-    display: flex;
-    border: solid palevioletred 2px;
-    justify-content: center;
-    border-radius: 1vh;
-    margin-left: 4%;
-    margin-right: 4%;
-    padding: 1%;
-}
-
-h3 {
-    display: flex;
-    font-size: 1.17em;
-    margin-block-start: 0px;
-    margin-block-end: 0px;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-    font-weight: bold;
-    justify-content: center;
-}
-.p-button{
-    box-shadow: 0 0 0 0 !important; 
-    font-family:'primeicons' !important;
-}
-.p-button:hover{
-    box-shadow: 0 0 0 0 !important; 
-}
-.p-card{
-    box-shadow:none;
-    font-size:14px;
-}
-.p-dropdown-label{
-    padding: 0px !important;
-}*/
+    .p-inputnumber-buttons-stacked .p-inputnumber-button-group .p-button.p-inputnumber-button {
+        flex: 1 1 auto;
+        padding: 0rem;
+        width: 1rem;
+    }
 </style>

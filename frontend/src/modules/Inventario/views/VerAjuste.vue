@@ -1,11 +1,11 @@
 <script setup>
+//Importaciones
 import CardDetalle from "@/modules/Pedidos/components/CardDetalle.vue";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import MapComponent from '@/modules/Pedidos/components/MapComponent.vue';
 import Dropdown from "primevue/dropdown";
 import AutoComplete from 'primevue/autocomplete';
-
 import Calendar from 'primevue/calendar';
 import { AjusteStockServices } from "@/services/AjusteStockServices";
 import Card from "primevue/card";
@@ -20,7 +20,6 @@ import { CiudadServices } from '@/services/CiudadServices';
 import { ref, onMounted } from "vue";
 import InputNumber from 'primevue/inputnumber';
 import InputGroup from 'primevue/inputgroup';
-
 import Panel from 'primevue/panel';
 import {PersonaServices} from '@/services/PersonaServices';
 import router from '@/router';
@@ -34,6 +33,7 @@ import { useToast } from "primevue/usetoast";
 import PedidoCompraServices from "@/services/PedidoCompraServices";
 import {formatearNumero, formatearFecha, getEstadoAjuste} from '@/utils/utils';
 
+//Variables
 const mensaje = ref([]);
 const error = ref(false);
 const detalleAjuste = ref([]);
@@ -46,17 +46,18 @@ onMounted(() => {
     });
 });
 
-
+//Vista de Lista de Ajuste
 const vistaListaAjustes = () => {
     router.push({name: 'ajustes'});
 }
 
+//Modificar ajuste
 const modificarAjuste = (id) => {
     router.push({name: 'modificar_ajuste', params: {id}});
 }
 
-
 </script>
+
 <template>
     <div class=" flex justify-content-center " >
         <Panel style=" position: relative; width: 80%;" >
@@ -111,8 +112,7 @@ const modificarAjuste = (id) => {
                                     Productos
                                 </div>
                             </div>
-                        </template>
-                    
+                        </template>                    
                         <template #content>
                             <div>
                                 <div class="card" style="width: 100%;">
@@ -130,9 +130,9 @@ const modificarAjuste = (id) => {
                 </div>
             </div>
         </Panel>
-    </div>
-    
+    </div>   
 </template>
+
 <style>
 .p-inputgroup-addon{
     padding: 0%;

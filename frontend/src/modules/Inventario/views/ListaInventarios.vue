@@ -1,4 +1,5 @@
 <script setup>
+//Importaciones
 import { ref, onMounted } from 'vue';
 import DataTable from 'primevue/datatable';
 import InputText from 'primevue/inputtext';
@@ -45,8 +46,7 @@ const filters = ref({
     'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
 });
 
-
-
+//Nuevo inventario
 const nuevoInventario = () =>{
     router.push({name: 'nuevo_inventario'});
 }
@@ -59,6 +59,7 @@ const verInventario = (id) =>{
     router.push({name: 'ver_inventario', params: {id}});
 }
 
+//Registro de conteo
 const registrarConteo = (id) =>{
     router.push({name: 'registrar_conteo', params: {id}});
 }
@@ -83,7 +84,6 @@ const isFinalizado = (estado) => {
   switch (estado) {
         case 'P':
            return true;
-
        default:
            return false;
    }
@@ -115,11 +115,9 @@ const getEstado = (estado) => {
    }
 };
 
+//Ajustar inventario
 const ajustarInventario = (id) =>{
     router.push({name: 'ajustar_inventario', params: {id}});
-    /*InventarioServices.ajustarInventario(id).then((data)=> {
-        getInventarios();
-    } );*/
 }
 
 </script>

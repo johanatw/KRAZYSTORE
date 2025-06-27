@@ -1,78 +1,80 @@
 <template>
-      <div class="flex p-fluid justify-content-center " >
-
-<Panel style=" position: relative; width: 90%;" >
-  <template #header>
-    <div class="flex align-items-center gap-2">
-        <h3 class="font-bold">Dashboard</h3>
-    </div>
-  </template>
-     
-  <div >
-    
-    <div class="card">
-        <div class="formgrid grid" >
-            <div class="field col-12 md:col-6 p-fluid">
-           
-                <Card>
-                    <template #content>
-                        <IngresosChart  />
-                    </template>
-                </Card>
-           
-            </div>
-            <div class="field col-12 md:col-6 p-fluid">
-                <Card>
-                    <template #content>
-                        <EgresosChart  />
-                    </template>
-                </Card>
-            </div>    
-            <div class="field col-12 md:col-12 p-fluid" style="justify-content: start;  ">
-                <Card>
-                    <template #content>
-                        <TotalIngresosEgresosChart  />
-                    </template>
-                </Card>
-                
-            </div>
-            <div class="field col-12 md:col-6 p-fluid" style="justify-content: center;  ">
-                <Card>
-                    <template #title>
-                        <h3 style="font-weight: bold;">Ventas por Categorías</h3>
-                        <h4>Mayo 2025</h4>
-                    </template>
-                    <template #content>
-                        <VentasPorCategoriaChart  />
-                    </template>
-                </Card>
-            </div>
-            <div class="field col-12 md:col-6 p-fluid" style="justify-content: center;  ">
-                <Card>
-                    <template #title>
-                        <h3 style="font-weight: bold;">Productos más vendidos</h3>
-                        <h4>Mayo 2025</h4>
-                    </template>
-                    <template #content>
-                        <Top10ProductosVendidosChart />
-                    </template>
-                </Card>
-
-            </div>
+    <!-- Contenedor principal flex -->
+    <div class="flex p-fluid justify-content-center">
+        <!-- Panel del dashboard -->
+        <Panel style=" position: relative; width: 90%;">
+            <!-- Encabezado del panel -->
+            <template #header>
+                <div class="flex align-items-center gap-2">
+                    <h3 class="font-bold">Dashboard</h3>
+                </div>
+            </template>
             
-          
-        </div>
-        
+            <!-- Contenido principal -->
+            <div>
+                <div class="card">
+                    <div class="formgrid grid">
+                        <!-- Columna para gráfico de ingresos -->
+                        <div class="field col-12 md:col-6 p-fluid">
+                            <Card>
+                                <template #content>
+                                    <IngresosChart />
+                                </template>
+                            </Card>
+                        </div>
+                        
+                        <!-- Columna para gráfico de egresos -->
+                        <div class="field col-12 md:col-6 p-fluid">
+                            <Card>
+                                <template #content>
+                                    <EgresosChart />
+                                </template>
+                            </Card>
+                        </div>
+                        
+                        <!-- Columna completa para gráfico combinado -->
+                        <div class="field col-12 md:col-12 p-fluid" style="justify-content: start;">
+                            <Card>
+                                <template #content>
+                                    <TotalIngresosEgresosChart />
+                                </template>
+                            </Card>
+                        </div>
+                        
+                        <!-- Columna para ventas por categoría -->
+                        <div class="field col-12 md:col-6 p-fluid" style="justify-content: center;">
+                            <Card>
+                                <template #title>
+                                    <h3 style="font-weight: bold;">Ventas por Categorías</h3>
+                                    <h4>Mayo 2025</h4>
+                                </template>
+                                <template #content>
+                                    <VentasPorCategoriaChart />
+                                </template>
+                            </Card>
+                        </div>
+                        
+                        <!-- Columna para productos más vendidos -->
+                        <div class="field col-12 md:col-6 p-fluid" style="justify-content: center;">
+                            <Card>
+                                <template #title>
+                                    <h3 style="font-weight: bold;">Productos más vendidos</h3>
+                                    <h4>Mayo 2025</h4>
+                                </template>
+                                <template #content>
+                                    <Top10ProductosVendidosChart />
+                                </template>
+                            </Card>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Panel>
     </div>
-  </div>
-  
-</Panel>
-
-</div>
-    
 </template>
 
 <script setup>
+// Importaciones 
 import { ref, onMounted } from "vue";
 import Card from "primevue/card";
 import Panel from "primevue/panel";
@@ -83,26 +85,30 @@ import IngresosChart from "./IngresosChart.vue";
 import EgresosChart from "./EgresosChart.vue";
 import VentasPorCategoriaChart from "./VentasPorCategoriaChart.vue";
 import Top10ProductosVendidosChart from "./Top10ProductosVendidosChart.vue";
+
+
 onMounted(() => {
     chartData.value = setChartData();
     chartOptions.value = setChartOptions();
     getIngresosEgresosUltimos6Meses();
 });
 
+// Función para obtener ingresos/egresos últimos 6 meses
 const getIngresosEgresosUltimos6Meses = async () => {
     try {
-      const response = await DashboardServices.obtenerVentasPorCategoriaChart();
-      console.log(response);
-    
+        const response = await DashboardServices.obtenerVentasPorCategoriaChart();
+        console.log(response);
     } catch (error) {
-       //alert(error);
+        //alert(error);
     }
 };
 
+// Variables para el gráfico
 const chartData = ref();
 const chartOptions = ref();
 
-const setChartData = () =>  {
+// Configuración de datos del gráfico
+const setChartData = () => {
     const documentStyle = getComputedStyle(document.documentElement);
 
     return {
@@ -129,7 +135,9 @@ const setChartData = () =>  {
         ]
     };
 };
-const setChartOptions = () =>  {
+
+// Configuración de opciones del gráfico
+const setChartOptions = () => {
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--p-text-color');
     const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');

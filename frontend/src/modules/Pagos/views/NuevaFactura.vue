@@ -544,419 +544,315 @@ const eliminar = (detalle) => {
 
 </script>
 <template>
-    
-
-<div class=" flex justify-content-center " >
+  <div class=" flex justify-content-center " >
     <ConfirmDialog group="headless">
-        <template #container="{ message, acceptCallback, rejectCallback }">
-            <div class="flex flex-column align-items-center p-5 surface-overlay border-round">
-                <div class="border-circle bg-primary inline-flex justify-content-center align-items-center h-6rem w-6rem -mt-8">
-                    <i class="pi pi-check text-5xl"></i>
-                </div>
+      <template #container="{ message, acceptCallback, rejectCallback }">
+        <div class="flex flex-column align-items-center p-5 surface-overlay border-round">
+          <div class="border-circle bg-primary inline-flex justify-content-center align-items-center h-6rem w-6rem -mt-8">
+            <i class="pi pi-check text-5xl"></i>
+          </div>
 
-                <p class="block mb-2 mt-4">{{ message.message }}</p>
-                <span class="font-bold mb-0 ">{{ message.header }}</span>
-                
-                <div class="flex align-items-center gap-2 mt-4">
-                    <Button label="Ver factura" @click="acceptCallback"></Button>
-                    <Button label="Ir a facturas" @click="rejectCallback"></Button>
-                </div>
-            </div>
-        </template>
+          <p class="block mb-2 mt-4">{{ message.message }}</p>
+          <span class="font-bold mb-0 ">{{ message.header }}</span>
+          
+          <div class="flex align-items-center gap-2 mt-4">
+            <Button label="Ver factura" @click="acceptCallback"></Button>
+            <Button label="Ir a facturas" @click="rejectCallback"></Button>
+          </div>
+        </div>
+      </template>
     </ConfirmDialog>
 
     <!--Dialog Registrar Modificar Cliente-->
     <Dialog v-model:visible="clienteDialog" :closable="false" :style="{width: '450px'}" header="Cliente" :modal="true" class="p-fluid">
-        <div class="formgrid">
+      <div class="formgrid">
         <div class="field">
-            <label for="name">Nombre</label>
-            <InputText fluid id="name" v-model.trim="cliente.nombre" required="true" autofocus :class="{'p-invalid': submitted && !cliente.nombre}" />
-            <small class="p-error" v-if="submitted && !cliente.nombre">Ingrese un Nombre</small>
+          <label for="name">Nombre</label>
+          <InputText fluid id="name" v-model.trim="cliente.nombre" required="true" autofocus :class="{'p-invalid': submitted && !cliente.nombre}" />
+          <small class="p-error" v-if="submitted && !cliente.nombre">Ingrese un Nombre</small>
         </div>
         <div class="field">
-            <label for="description">Apellido</label>
-            <InputText fluid id="description" v-model="cliente.apellido" required="true"  />
+          <label for="description">Apellido</label>
+          <InputText fluid id="description" v-model="cliente.apellido" required="true"  />
         </div>
         <div class="field">
-            <label for="inventoryStatus" class="mb-3">Tipo Documento</label>
-            <Dropdown fluid id="inventoryStatus" v-model="cliente.tipoDoc" :options="documentos" optionLabel="descripcion" placeholder="Seleccione el tipo de documento" />
+          <label for="inventoryStatus" class="mb-3">Tipo Documento</label>
+          <Dropdown fluid id="inventoryStatus" v-model="cliente.tipoDoc" :options="documentos" optionLabel="descripcion" placeholder="Seleccione el tipo de documento" />
         </div>
         <div class="field">
-            <label for="description">Nro Documento</label>
-            <InputText fluid id="description" v-model="cliente.nroDoc" required="true"  />
+          <label for="description">Nro Documento</label>
+          <InputText fluid id="description" v-model="cliente.nroDoc" required="true"  />
         </div>
         <div class="field">
-            <label for="description">Telefono</label>
-            <InputText fluid id="description" v-model="cliente.telefono" required="true"  />
+          <label for="description">Telefono</label>
+          <InputText fluid id="description" v-model="cliente.telefono" required="true"  />
         </div>
         <div class="field">
-            <label for="description">Calle Principal</label>
-            <InputText fluid id="description" v-model="direccion.calle1" required="true" :class="{'p-invalid': submitted && !validarDireccionCliente(direccion) && !direccion.calle1}" />
-            <small class="p-error" v-if="submitted && !validarDireccionCliente(direccion) && !direccion.calle1">Ingrese Calle Principal</small>
+          <label for="description">Calle Principal</label>
+          <InputText fluid id="description" v-model="direccion.calle1" required="true" :class="{'p-invalid': submitted && !validarDireccionCliente(direccion) && !direccion.calle1}" />
+          <small class="p-error" v-if="submitted && !validarDireccionCliente(direccion) && !direccion.calle1">Ingrese Calle Principal</small>
         </div>
         
         <div class="field">
-            <label for="description">Calle Secundaria</label>
-            <InputGroup fluid>
-                <Dropdown v-model="selectedOp" :options="opciones"  placeholder="Select a City" style="width: 0.1rem !important;" />
-                <InputText id="description" v-model="direccion.calle2" required="true"  />
-            </InputGroup>
+          <label for="description">Calle Secundaria</label>
+          <InputGroup fluid>
+            <Dropdown v-model="selectedOp" :options="opciones"  placeholder="Select a City" style="width: 0.1rem !important;" />
+            <InputText id="description" v-model="direccion.calle2" required="true"  />
+          </InputGroup>
         </div>
         <div class="field" v-if="selectedOp=='Entre'">
-            <label for="description">Calle Transversal</label>
-            <InputText fluid id="description" v-model="direccion.calle3" required="true"  />
+          <label for="description">Calle Transversal</label>
+          <InputText fluid id="description" v-model="direccion.calle3" required="true"  />
         </div>
         <div class="field">
-            <label for="description">N° Casa</label>
-            <InputText fluid id="description" v-model="direccion.nroCasa" required="true"  />
+          <label for="description">N° Casa</label>
+          <InputText fluid id="description" v-model="direccion.nroCasa" required="true"  />
         </div>
         <div class="field " >
-            <label for="nombreu">Departamento</label>
-            <Dropdown fluid v-model="direccion.departamento" :options="departamentos" optionLabel="descripcion" placeholder="Seleccione un departamento" @change="getCiudades(direccion.departamento.id)"  />
+          <label for="nombreu">Departamento</label>
+          <Dropdown fluid v-model="direccion.departamento" :options="departamentos" optionLabel="descripcion" placeholder="Seleccione un departamento" @change="getCiudades(direccion.departamento.id)"  />
         </div>
         <div class="field " >
-            <label for="nombreu">Ciudad</label>
-            <Dropdown fluid v-model="direccion.ciudad" :options="ciudades" optionLabel="descripcion" placeholder="Seleccione una ciudad" :class="{'p-invalid': submitted && !validarDireccionCliente(direccion) && !direccion.ciudad}"  />
-            <small class="p-error" v-if="submitted && !validarDireccionCliente(direccion) && !direccion.ciudad">Ingrese Ciudad</small>
+          <label for="nombreu">Ciudad</label>
+          <Dropdown fluid v-model="direccion.ciudad" :options="ciudades" optionLabel="descripcion" placeholder="Seleccione una ciudad" :class="{'p-invalid': submitted && !validarDireccionCliente(direccion) && !direccion.ciudad}"  />
+          <small class="p-error" v-if="submitted && !validarDireccionCliente(direccion) && !direccion.ciudad">Ingrese Ciudad</small>
         </div>
-       <!-- <div class="field">
-            <label for="description">Ubicar en el mapa</label>
-            <MapComponent @getUbicacion="getUbicacion" ref="map" :lat="direccion.lat" :lng="direccion.lng" />
-        </div>-->
-    </div>
+      </div>
 
-        <template #footer>
-            <Button label="Cancel" icon="pi pi-times" text @click="hideDialog"/>
-            <Button label="Save" icon="pi pi-check" text @click="saveCliente" />
-        </template>
+      <template #footer>
+        <Button label="Cancel" icon="pi pi-times" text @click="hideDialog"/>
+        <Button label="Save" icon="pi pi-check" text @click="saveCliente" />
+      </template>
     </Dialog>
 
     <Panel style=" position: relative; width: 80%;" >
-        <template #header>
-                <div class="flex align-items-center gap-2">
-                    <h3 class="font-bold">Nueva Factura</h3>
-                </div>
-            </template>
-            <template #icons>
-                <div class="card flex" style="justify-content: end;">   
-                    <div class="card flex" style="justify-content: end;">  
-                        <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaFacturasVenta()" />
-                        <Button  label="Guardar" @click="validarForm" />
-                    </div>  
-                </div>
-            </template>
-        <div class="contenedor" >
-
-            <div v-if="error" style="background-color: rgb(242, 222, 222); 
-            border: solid 1px rgb(215, 57, 37); padding-top: 1%; padding-bottom: 1%; margin-bottom: 1%;"> 
-                <ul>
-                    <li v-for="msg in mensaje" style="list-style: none;">
-                    <a style="color: rgb(173, 89, 86);">{{ msg }}</a>
-                    </li>
-                </ul>
-            </div>
+      <template #header>
+        <div class="flex align-items-center gap-2">
+          <h3 class="font-bold">Nueva Factura</h3>
         </div>
-        <div class="grid " >
-            
-           <div class="field col-12 md:col-6">
-            
-            <Card >
-        <template #title>
-            <div class="flex justify-content-between ">
+      </template>
+      <template #icons>
+        <div class="card flex" style="justify-content: end;">   
+          <div class="card flex" style="justify-content: end;">  
+            <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaFacturasVenta()" />
+            <Button  label="Guardar" @click="validarForm" />
+          </div>  
+        </div>
+      </template>
+      <div class="contenedor" >
+        <div v-if="error" style="background-color: rgb(242, 222, 222); 
+        border: solid 1px rgb(215, 57, 37); padding-top: 1%; padding-bottom: 1%; margin-bottom: 1%;"> 
+          <ul>
+            <li v-for="msg in mensaje" style="list-style: none;">
+              <a style="color: rgb(173, 89, 86);">{{ msg }}</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="grid " >
+        <div class="field col-12 md:col-6">
+          <Card >
+            <template #title>
+              <div class="flex justify-content-between ">
                 <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
-                    Cliente
+                  Cliente
                 </div>    
                 <div v-if="clienteSeleccionado">
-                    <Button icon="pi pi-times" link @click="eliminarClienteSelected"/>
+                  <Button icon="pi pi-times" link @click="eliminarClienteSelected"/>
                 </div>   
                 <div v-else>
-                    <Button icon="pi pi-plus" link @click="registrarCliente"/>
+                  <Button icon="pi pi-plus" link @click="registrarCliente"/>
                 </div>             
-            
-            </div>
-            
-        </template>
-        <template #content>
-            <div id="clienteDiv">
-
-            </div>
-            <div class="flex flex-column align-options-start">
-            
+              </div>
+            </template>
+            <template #content>
+              <div id="clienteDiv"></div>
+              <div class="flex flex-column align-options-start">
                 <div v-if="!clienteSeleccionado" >
-                    
-                    <AutoComplete fluid v-model="selectedCliente" optionLabel="nombre" forceSelection :suggestions="filteredClientes" @complete="search" @item-select="mostrarCliente">
+                  <AutoComplete fluid v-model="selectedCliente" optionLabel="nombre" forceSelection :suggestions="filteredClientes" @complete="search" @item-select="mostrarCliente">
                     <template #option="slotProps">
-                        <div class="flex flex-column align-options-start">
-                            <div>{{ slotProps.option.nombre }}</div>
-                            <div v-if="slotProps.option.telefono">{{ slotProps.option.telefono }}</div>
-                            <div v-if="slotProps.option.nroDoc">{{ slotProps.option.tipoDoc.descripcion }} - {{ slotProps.option.nroDoc }}</div>
-                        </div>
+                      <div class="flex flex-column align-options-start">
+                        <div>{{ slotProps.option.nombre }}</div>
+                        <div v-if="slotProps.option.telefono">{{ slotProps.option.telefono }}</div>
+                        <div v-if="slotProps.option.nroDoc">{{ slotProps.option.tipoDoc.descripcion }} - {{ slotProps.option.nroDoc }}</div>
+                      </div>
                     </template>
-                </AutoComplete>
+                  </AutoComplete>
                 </div>
-            </div>
-           
-            
-        </template>
-    </Card>
-            </div>  
-            <div class="field col-12 md:col-6">
-                <Card >
-        <template #title>
-            <div class="flex justify-content-between ">
+              </div>
+            </template>
+          </Card>
+        </div>  
+        <div class="field col-12 md:col-6">
+          <Card >
+            <template #title>
+              <div class="flex justify-content-between ">
                 <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
-                    Detalle Factura
+                  Detalle Factura
                 </div>            
-            </div>
-            
-        </template>
-        <template #content>
-            <p class="m-0">
+              </div>
+            </template>
+            <template #content>
+              <p class="m-0">
                 <div v-for="v in infoFactura">
-                    {{ v.valor }}
+                  {{ v.valor }}
                 </div>
-                
-            </p>
-        </template>
-    </Card>
- </div>
-            
-            <div class="col-12" >
-                        <Card >
-                            <template #title>
-            <div class="flex justify-content-between ">
+              </p>
+            </template>
+          </Card>
+        </div>
+        
+        <div class="col-12" >
+          <Card >
+            <template #title>
+              <div class="flex justify-content-between ">
                 <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
-                    Productos
+                  Productos
                 </div>
                 <div >
-                    <Button label="Agregar Producto" text @click="visible = true" />
-                    </div>
-
-            </div>
+                  <Button label="Agregar Producto" text @click="visible = true" />
+                </div>
+              </div>
+            </template>
             
-        </template>
-                    
-                        <template #content>
-                            <div>
-                                
-                                <div class="card" style="width: 100%;">
-    <div class="flex card-container" style="width: 100%;">
-        <DataTable class="tablaCarrito" ref="dt" :value="detalleFacturar" scrollable scrollHeight="400px" dataKey="producto.id" style="width: 100%;">
-          
-         <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
-        <Column class="col" field="producto.precio"  header="Precio" aria-sort="none" >
-            <template #body="slotProps">
-            <div class="flex-auto p-fluid" >
-                {{ formatearNumero(slotProps.data.precio) }}
-              </div> 
-            </template>
-        </Column>
-        <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
-            <template #body="slotProps">
-                <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
-                  <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="1" :max="slotProps.data.cantDisponible" @input="prueba(slotProps.data.producto,slotProps.data.cantDisponible,$event)" @update:modelValue="sendSubTotal" />
-              </div>  
-            </template>
-             
-         </Column>
-         <Column  class="col" field="cantidad" header="IVA" aria-sort="none">
-                <template #body="slotProps">
-                    <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
-                        <label for="subtotal"> {{  (slotProps.data.producto.tipoIva.porcentaje) }}%</label>
-                    </div>  
-                </template>
-                
-            </Column>
-         <Column  class="col" field="subTotal" header="Sub Total" aria-sort="none" >
-             <template #body="slotProps">
-                 <div class="flex-auto p-fluid" style="max-width: 20dvh;">
-                     <label for="subtotal"> {{  (slotProps.data.subTotal =  slotProps.data.cantidad * slotProps.data.precio ).toLocaleString("de-DE") }}</label>
+            <template #content>
+              <div>
+                <div class="card" style="width: 100%;">
+                  <div class="flex card-container" style="width: 100%;">
+                    <DataTable class="tablaCarrito" ref="dt" :value="detalleFacturar" scrollable scrollHeight="400px" dataKey="producto.id" style="width: 100%;">
+                      <Column class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
+                      <Column class="col" field="producto.precio" header="Precio" aria-sort="none" >
+                        <template #body="slotProps">
+                          <div class="flex-auto p-fluid" >
+                            {{ formatearNumero(slotProps.data.precio) }}
+                          </div> 
+                        </template>
+                      </Column>
+                      <Column class="col" field="cantidad" header="Uds." aria-sort="none">
+                        <template #body="slotProps">
+                          <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
+                            <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="1" :max="slotProps.data.cantDisponible" @input="prueba(slotProps.data.producto,slotProps.data.cantDisponible,$event)" @update:modelValue="sendSubTotal" />
+                          </div>  
+                        </template>
+                      </Column>
+                      <Column class="col" field="cantidad" header="IVA" aria-sort="none">
+                        <template #body="slotProps">
+                          <div class="flex-auto p-fluid" style="max-width:15lvb  !important; ">
+                            <label for="subtotal"> {{  (slotProps.data.producto.tipoIva.porcentaje) }}%</label>
+                          </div>  
+                        </template>
+                      </Column>
+                      <Column class="col" field="subTotal" header="Sub Total" aria-sort="none" >
+                        <template #body="slotProps">
+                          <div class="flex-auto p-fluid" style="max-width: 20dvh;">
+                            <label for="subtotal"> {{  (slotProps.data.subTotal =  slotProps.data.cantidad * slotProps.data.precio ).toLocaleString("de-DE") }}</label>
+                          </div>
+                        </template>
+                      </Column>
+                      <Column class="col" :exportable="false" style="min-width:1rem">
+                        <template #body="slotProps">
+                          <Button icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="eliminar(slotProps.data)" />
+                        </template>
+                      </Column>
+                    </DataTable>
                   </div>
-            </template>
-         </Column>
-         <Column class="col" :exportable="false" style="min-width:1rem">
-           <template #body="slotProps">
-             <Button icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="eliminar(slotProps.data)" />
-           </template>
-         </Column>
-     </DataTable>
-   </div>
- </div>
-                                <div class="grid" style="margin-top: 1rem;">
-                                    
-                                    
-                                    <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
-                                        <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; font-weight: bold; font-size: 16px;">
-                                            Total: 
-                                        </div>
-                                        <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; font-weight: bold; font-size: 16px;" >
-                                            {{ total.toLocaleString("de-DE") }} Gs.
-                                        </div>
-
-                                    </div>
-                                    <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
-                                        <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
-                                            IVA 5%: 
-                                        </div>
-                                        <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
-                                            {{ ( Math.round(iva5)).toLocaleString("de-DE") }} Gs.
-                                        </div>
-                                    </div>   
-                                    <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
-                                        <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
-                                            IVA 10%: 
-                                        </div>
-                                        <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
-                                            {{ ( Math.round(iva10)).toLocaleString("de-DE") }} Gs.
-                                        </div>
-                                    </div>  
-                                    <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
-                                        <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
-                                            Total IVA: 
-                                        </div>
-                                        <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
-                                            {{ ( Math.round(montoIva)).toLocaleString("de-DE") }} Gs.
-                                        </div>
-                                    </div> 
-            
-
-                                </div>
-                                <div >
-                                    
-                       
-                                    <Dialog v-if="visible" v-model:visible="visible" modal header="Seleccionar productos" :closable="false" :draggable="false" >
-                                    <template #footer>
-                                        <div class="flex justify-content-end">
-                                            <Button label="Cerrar" icon="pi pi-times" text @click="visible = false" />
-                                        </div>
-                                    </template> 
-
-                                    <div class="grid" >
-                                        <div class="card col-12" style="width: 100%;">
-                                            <span class="p-input-icon-left" style="width: 100%; margin-top: 0.5rem;">
-                                            
-                                                <InputText fluid class="buscador p-fluid" style="width: 100%;" v-model="filters['global'].value" placeholder="Buscar..." />
-                                            </span>
-    
-                                            <div class="flex card-container col-12" style="width: 100%;">
-        
-                                                <DataTable class="tabla" ref="dt"  :value="productos"  dataKey="producto.id"
-                                                    :paginator="true" :rows="7" :filters="filters"
-                                                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" >
-                                            
-                                                    <Column field="id"  header="ID" aria-sort="ascending" ></Column>
-                                                    <Column field="nombre" header="Nombre" aria-sort="none" ></Column>
-                                                    <Column field="cantDisponible" header="Disponible" aria-sort="none" >
-                                                    <template #body="slotProps">
-                                                        <h4 v-if="slotProps.data.cantStock < 1 && slotProps.data.preVenta" style="color: tomato !important;">{{slotProps.data.cantDisponible }}</h4>
-                                                        <h4 v-else style="color: green !important;">{{slotProps.data.cantDisponible}}</h4>
-
-                                                    </template>
-
-                                                    </Column>
-                                                    
-                                                    <Column field="precio"  header="Precio" aria-sort="none" >
-                                                        <template #body="slotProps">
-                                                        <div>
-                                                            {{ slotProps.data.precio.toLocaleString("de-DE") }}
-                                                        </div>
-                                                        </template>
-                                                    </Column>
-                                                    <Column :exportable="false" style="min-width:8rem">
-                                                    <template #body="slotProps">
-                                                        <Button v-if=" slotProps.data.cantDisponible > 0 && slotProps.data.cantStock > 0" icon="pi pi-shopping-cart" class="mod_icono"  @click="addItem(slotProps.data)"/>
-                                                            <Button v-else disabled="true" icon="pi pi-shopping-cart" class="mod_icono" />
-                                                    </template>
-                                                    </Column>
-                                                </DataTable>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    </Dialog>  
-                                </div>
-                            </div>
-                        </template>    
-                    </Card>
-                        
+                </div>
+                <div class="grid" style="margin-top: 1rem;">
+                  <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
+                    <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; font-weight: bold; font-size: 16px;">
+                      Total: 
                     </div>
-        </div>
-      
-    </Panel>
-</div>
+                    <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; font-weight: bold; font-size: 16px;" >
+                      {{ total.toLocaleString("de-DE") }} Gs.
+                    </div>
+                  </div>
+                  <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
+                    <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
+                      IVA 5%: 
+                    </div>
+                    <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
+                      {{ ( Math.round(iva5)).toLocaleString("de-DE") }} Gs.
+                    </div>
+                  </div>   
+                  <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
+                    <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
+                      IVA 10%: 
+                    </div>
+                    <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
+                      {{ ( Math.round(iva10)).toLocaleString("de-DE") }} Gs.
+                    </div>
+                  </div>  
+                  <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
+                    <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
+                      Total IVA: 
+                    </div>
+                    <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
+                      {{ ( Math.round(montoIva)).toLocaleString("de-DE") }} Gs.
+                    </div>
+                  </div> 
+                </div>
+                <div >
+                  <Dialog v-if="visible" v-model:visible="visible" modal header="Seleccionar productos" :closable="false" :draggable="false" >
+                    <template #footer>
+                      <div class="flex justify-content-end">
+                        <Button label="Cerrar" icon="pi pi-times" text @click="visible = false" />
+                      </div>
+                    </template> 
+
+                    <div class="grid" >
+                      <div class="card col-12" style="width: 100%;">
+                        <span class="p-input-icon-left" style="width: 100%; margin-top: 0.5rem;">
+                          <InputText fluid class="buscador p-fluid" style="width: 100%;" v-model="filters['global'].value" placeholder="Buscar..." />
+                        </span>
     
+                        <div class="flex card-container col-12" style="width: 100%;">
+                          <DataTable class="tabla" ref="dt" :value="productos" dataKey="producto.id"
+                            :paginator="true" :rows="7" :filters="filters"
+                            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" >
+                            <Column field="id" header="ID" aria-sort="ascending" ></Column>
+                            <Column field="nombre" header="Nombre" aria-sort="none" ></Column>
+                            <Column field="cantDisponible" header="Disponible" aria-sort="none" >
+                              <template #body="slotProps">
+                                <h4 v-if="slotProps.data.cantStock < 1 && slotProps.data.preVenta" style="color: tomato !important;">{{slotProps.data.cantDisponible }}</h4>
+                                <h4 v-else style="color: green !important;">{{slotProps.data.cantDisponible}}</h4>
+                              </template>
+                            </Column>
+                            <Column field="precio" header="Precio" aria-sort="none" >
+                              <template #body="slotProps">
+                                <div>
+                                  {{ slotProps.data.precio.toLocaleString("de-DE") }}
+                                </div>
+                              </template>
+                            </Column>
+                            <Column :exportable="false" style="min-width:8rem">
+                              <template #body="slotProps">
+                                <Button v-if=" slotProps.data.cantDisponible > 0 && slotProps.data.cantStock > 0" icon="pi pi-shopping-cart" class="mod_icono"  @click="addItem(slotProps.data)"/>
+                                <Button v-else disabled="true" icon="pi pi-shopping-cart" class="mod_icono" />
+                              </template>
+                            </Column>
+                          </DataTable>
+                        </div>
+                      </div>
+                    </div>
+                  </Dialog>  
+                </div>
+              </div>
+            </template>    
+          </Card>
+        </div>
+      </div>
+    </Panel>
+  </div>
 </template>
+
 <style>
 .p-inputgroup-addon{
-    padding: 0%;
+  padding: 0%;
 }
 
 .p-inputnumber-buttons-stacked .p-inputnumber-button-group .p-button.p-inputnumber-button {
-    flex: 1 1 auto;
-    padding: 0rem;
-    width: 1rem;
+  flex: 1 1 auto;
+  padding: 0rem;
+  width: 1rem;
 }
-/*
-
-.p-accordion-tab{
-    margin: 2%;
-    
-    
-}
-.p-icon{
-    color: pink;
-    margin-right: 1%;
-}
-
-.p-accordion-header-link{
-    height: 7vh !important;
-}
-.p-accordion-header-text{
-    color: black;
-}
-
-
-.p-card-title{
-    font-size:medium;
-}
-.p-card .p-card-body {
-    padding: 1rem;
-}
-.p-card .p-card-content {
-    padding: 0.5rem 0;
-}
-
-.principal{
-    display: flex;
-    border: solid palevioletred 2px;
-    justify-content: center;
-    border-radius: 1vh;
-    margin-left: 4%;
-    margin-right: 4%;
-    padding: 1%;
-}
-
-h3 {
-    display: flex;
-    font-size: 1.17em;
-    margin-block-start: 0px;
-    margin-block-end: 0px;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-    font-weight: bold;
-    justify-content: center;
-}
-.p-button{
-    box-shadow: 0 0 0 0 !important; 
-    font-family:'primeicons' !important;
-}
-.p-button:hover{
-    box-shadow: 0 0 0 0 !important; 
-}
-.p-card{
-    box-shadow:none;
-    font-size:14px;
-}
-.p-dropdown-label{
-    padding: 0px !important;
-}*/
 </style>

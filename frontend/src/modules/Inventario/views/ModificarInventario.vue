@@ -95,13 +95,13 @@
                             </template>
                         </Card>
                     </div>
-
             </div>
         </Panel>
     </div>  
 </template>
 
 <script setup>
+//Importaciones
 import { ref, onMounted } from 'vue';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { ProductoServices } from '@/services/ProductoServices';
@@ -122,6 +122,7 @@ import Card from 'primevue/card';
 import DatePicker from 'primevue/datepicker';
 import { useToast } from "primevue/usetoast";
 
+//Variables
 const toast = useToast();
 const categorias = ref();
 const subCategorias = ref([]);
@@ -146,18 +147,14 @@ const onFilter = (event) => {
 };
 
 const exportCSV = () => {
-    
     const doc = new jsPDF();
-
       // Define the table headers and rows
       const headers = [["Nombre","Categoria","Sub Categoria","Cantidad Contada"]];
       const data = productosFiltrados.value.map((c) => [
         c.producto.nombre,
         c.producto.subCategoria.categoria.descripcion,
         c.producto.subCategoria.descripcion,
- 
       ]);
-
       // Add the table to the PDF
       doc.autoTable({
         head: headers,
@@ -166,7 +163,6 @@ const exportCSV = () => {
         styles: { fontSize: 10 },
         headStyles: { fillColor: [41, 128, 185] },
       });
-
       // Save the PDF
       doc.save("products.pdf");
 };
@@ -186,6 +182,7 @@ onMounted(() => {
     });
 });
 
+//Obtener subcategorias
 const getSubCategorias = async () => {
     try {
         let categoriasIds = getCategoriasIds();
@@ -196,7 +193,7 @@ const getSubCategorias = async () => {
     }
 };
 
-
+//Obtener Categorias
 const getCategoriasIds = () => {
    return selectedCategorias.value.map(c => c.id) // Solo guardamos los IDs
 }

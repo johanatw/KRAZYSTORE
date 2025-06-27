@@ -1,4 +1,3 @@
-
 <template>
     <div class="flex p-fluid justify-content-center " >
         <Panel style=" position: relative; width: 80%;" >
@@ -102,6 +101,7 @@
 </template>
 
 <script setup>
+//Importaciones
 import { ref, onMounted, computed } from 'vue';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { ProductoServices } from '@/services/ProductoServices';
@@ -121,6 +121,7 @@ import DatePicker from 'primevue/datepicker';
 import router from '@/router';
 import { useToast } from "primevue/usetoast";
 
+//Variables
 const toast = useToast();
 const categorias = ref();
 const subCategorias = ref([]);

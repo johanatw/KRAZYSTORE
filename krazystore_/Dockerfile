@@ -2,7 +2,7 @@ FROM eclipse-temurin:20-jdk
 
 WORKDIR /app
 
-COPY target/*.jar app.jar
+COPY *.jar app.jar
 
 EXPOSE 7070
 

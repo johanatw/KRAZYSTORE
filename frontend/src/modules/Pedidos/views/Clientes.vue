@@ -1,4 +1,5 @@
 <script setup>
+//Importaciones
   import { ref, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
   import DataTable from 'primevue/datatable';
@@ -22,8 +23,9 @@
   
   import ConfirmDialog from 'primevue/confirmdialog';
   import { zodResolver } from '@primevue/forms/resolvers/zod';
-import { z } from 'zod';
+  import { z } from 'zod';
 
+  //Variables
   const router = useRouter();
   const confirm = useConfirm();
   import { useToast } from "primevue/usetoast";
@@ -146,9 +148,8 @@ function emailValido(valor) {
     if (dir.calle3?.trim()) {
         d = d + " y " + dir.calle3;
     }
-
     return d;
-};
+  };
   
   // Funciones para CRUD
   const registrarCliente = () => {    
@@ -156,18 +157,7 @@ function emailValido(valor) {
     direccion.value = {};
     clienteDialog.value = true;
   };
-  /*
-  const modificarCliente = (cli) => {
-    cliente.value = { ...cli };
-    direccion.value = cli.direccion ? { ...cli.direccion } : {};
-    
-    if (direccion.value.ciudad) {
-      direccion.value.departamento = direccion.value.ciudad.departamento;
-      getCiudades(direccion.value.departamento.id);
-    }
-    
-    clienteDialog.value = true;
-  };*/
+  
 
   async function modificarCliente(id) {
     try {
@@ -185,7 +175,8 @@ function emailValido(valor) {
       showError('Error al obtener el cliente');
     }
   };
-  
+
+  // Eliminar cliente
   const eliminarCliente = (id) => {
     confirm.require({
       message: '¿Está seguro de eliminar este cliente?',
@@ -206,7 +197,7 @@ function emailValido(valor) {
     });
   };
   
-
+  //Ver cliente
   async function verCliente(id) {
     try {
       const { data } = await ClienteServices.getCliente(id);
@@ -217,24 +208,22 @@ function emailValido(valor) {
       if (direccionView.value.ciudad) {
         direccionView.value.departamento = direccionView.value.ciudad.departamento;
       }
-      
       viewClienteDialog.value = true;
     } catch (error) {
       showError('Error al obtener el cliente');
     }
   };
   
+  //Guardar cliente
   const saveCliente = async () => {
     console.log(cliente.value);
     submitted.value = true;
-    
     // Validaciones básicas
     if (!cliente.value.nombre?.trim() || !cliente.value.apellido?.trim() || 
         !cliente.value.tipoDoc || !cliente.value.nroDoc) {
       showError('Complete todos los campos requeridos');
       return;
     }
-  
     // Validar dirección si hay algún campo completado
     if (algunCampoTieneValor(direccion.value)) {
       if (!direccion.value.calle1 || !direccion.value.ciudad) {
@@ -242,7 +231,6 @@ function emailValido(valor) {
         return;
       }
     }
-  
     try {
       direccion.value.tipo = 'P';
       console.log(cliente.value);
@@ -272,104 +260,95 @@ function emailValido(valor) {
     clienteDialog.value = false;
     submitted.value = false;
   };
-  </script>
+
+</script>
+
 <template>
     <div class=" flex p-fluid justify-content-center " >
       <ConfirmDialog></ConfirmDialog>
-
-
         <!-- Diálogo para agregar/editar cliente -->
       <Dialog v-model:visible="verClienteDialog" :style="{width: '450px'}" header="Cliente" :modal="true" class="p-fluid">
         <!-- Formulario del cliente -->
         <div class="formgridgrid">
           <div class="card flex justify-center">
-        <Form v-slot="$form" :resolver="resolver" :initialValues="initialValues" @submit="onFormSubmit" class="flex flex-col gap-4 w-full sm:w-56">
-            <div class="flex flex-col gap-1">
+            <Form v-slot="$form" :resolver="resolver" :initialValues="initialValues" @submit="onFormSubmit" class="flex flex-col gap-4 w-full sm:w-56">
+              <div class="flex flex-col gap-1">
                 <InputText name="username" type="text" placeholder="Username" fluid />
                 <Message v-if="$form.username?.invalid" severity="error" size="small" variant="simple">{{ $form.username.error?.message }}</Message>
-            </div>
-            <div class="flex flex-col gap-1">
+              </div>
+              <div class="flex flex-col gap-1">
                 <InputText name="email" type="text" placeholder="Email" fluid />
                 <Message v-if="$form.email?.invalid" severity="error" size="small" variant="simple">{{ $form.email.error?.message }}</Message>
-            </div>
-            <Button type="submit" severity="secondary" label="Submit" />
-        </Form>
-    </div>
+              </div>
+              <Button type="submit" severity="secondary" label="Submit" />
+            </Form>
+          </div>
           <!-- Sección de datos personales -->
           <div class="field">
             <label for="nombre">Nombre</label>
             <InputText id="nombre" v-model.trim="cliente.nombre" required 
-                      :class="{'p-invalid': submitted && !cliente.nombre}" />
+              :class="{'p-invalid': submitted && !cliente.nombre}" />
             <small class="p-error" v-if="submitted && !cliente.nombre">Nombre es requerido</small>
           </div>
-          
           <div class="field">
             <label for="apellido">Apellido</label>
             <InputText id="apellido" v-model.trim="cliente.apellido" required 
-                      :class="{'p-invalid': submitted && !cliente.apellido}" />
+              :class="{'p-invalid': submitted && !cliente.apellido}" />
             <small class="p-error" v-if="submitted && !cliente.apellido">Apellido es requerido</small>
           </div>
-          
           <div class="field">
             <label for="tipoDoc">Tipo Documento</label>
             <Dropdown id="tipoDoc" v-model="cliente.tipoDoc" :options="documentos" optionLabel="descripcion" 
-                     placeholder="Seleccione tipo" :class="{'p-invalid': submitted && !cliente.tipoDoc}" />
+              placeholder="Seleccione tipo" :class="{'p-invalid': submitted && !cliente.tipoDoc}" />
             <small class="p-error" v-if="submitted && !cliente.tipoDoc">Tipo documento es requerido</small>
           </div>
-          
           <div class="field">
             <label for="nroDoc">Nro. Documento</label>
             <InputText id="nroDoc" v-model.trim="cliente.nroDoc" required 
-                      :class="{'p-invalid': submitted && !cliente.nroDoc}" />
+              :class="{'p-invalid': submitted && !cliente.nroDoc}" />
             <small class="p-error" v-if="submitted && !cliente.nroDoc">Nro. documento es requerido</small>
           </div>
-          
           <div class="field">
             <label for="telefono">Teléfono</label>
             <InputText id="telefono" v-model.trim="cliente.telefono" />
           </div>
-          
           <!-- Sección de dirección -->
-              <div class="field">
+          <div class="field">
             <label for="description">Calle Principal</label>
             <InputText fluid id="description" v-model="direccion.calle1" required="true" :class="{'p-invalid': submitted && !validarDireccionCliente(direccion) && !direccion.calle1}" />
             <small class="p-error" v-if="submitted && !validarDireccionCliente(direccion) && !direccion.calle1">Ingrese Calle Principal</small>
-        </div>
-        
-        <div class="field">
+          </div>
+          <div class="field">
             <label for="description">Calle 2</label>
             <InputGroup fluid>
-                <Dropdown v-model="selectedOp" :options="opciones"  placeholder="Select a City" style="width: 0.1rem !important;" />
-                <InputText id="description" v-model="direccion.calle2" required="true"  />
+              <Dropdown v-model="selectedOp" :options="opciones"  placeholder="Select a City" style="width: 0.1rem !important;" />
+              <InputText id="description" v-model="direccion.calle2" required="true"  />
             </InputGroup>
-        </div>
-        <div class="field" v-if="selectedOp=='Entre'">
+          </div>
+          <div class="field" v-if="selectedOp=='Entre'">
             <label for="description">Calle 3</label>
             <InputText fluid id="description" v-model="direccion.calle3" required="true"  />
-        </div>
+          </div>
           <div class="field">
             <label for="nroCasa">N° Casa</label>
             <InputText id="nroCasa" v-model.trim="direccion.nroCasa" />
           </div>
-          
           <div class="field">
             <label for="departamento">Departamento</label>
             <Dropdown id="departamento" v-model="direccion.departamento" :options="departamentos" 
-                     optionLabel="descripcion" placeholder="Seleccione departamento"
-                     @change="getCiudades(direccion.departamento.id)"
-                     :class="{'p-invalid': submitted && algunCampoTieneValor(direccion) && !direccion.departamento}" />
+              optionLabel="descripcion" placeholder="Seleccione departamento"
+              @change="getCiudades(direccion.departamento.id)"
+              :class="{'p-invalid': submitted && algunCampoTieneValor(direccion) && !direccion.departamento}" />
             <small class="p-error" v-if="submitted && algunCampoTieneValor(direccion) && !direccion.departamento">Departamento es requerido</small>
           </div>
-          
           <div class="field">
             <label for="ciudad">Ciudad</label>
             <Dropdown id="ciudad" v-model="direccion.ciudad" :options="ciudades" 
-                     optionLabel="descripcion" placeholder="Seleccione ciudad"
-                     :class="{'p-invalid': submitted && algunCampoTieneValor(direccion) && !direccion.ciudad}" />
+              optionLabel="descripcion" placeholder="Seleccione ciudad"
+              :class="{'p-invalid': submitted && algunCampoTieneValor(direccion) && !direccion.ciudad}" />
             <small class="p-error" v-if="submitted && algunCampoTieneValor(direccion) && !direccion.ciudad">Ciudad es requerida</small>
           </div>
         </div>
-  
         <template #footer>
           <Button label="Cancelar" icon="pi pi-times" @click="hideDialog" class="p-button-text"/>
         </template>
@@ -382,31 +361,27 @@ function emailValido(valor) {
           <div class="field">
             <label for="nombre">Nombre</label>
             <InputText fluid id="nombre" v-model.trim="cliente.nombre" required 
-                      :class="{'p-invalid': submitted && !cliente.nombre}" />
+              :class="{'p-invalid': submitted && !cliente.nombre}" />
             <small class="p-error" v-if="submitted && !cliente.nombre">Nombre es requerido</small>
           </div>
-          
           <div class="field">
             <label for="apellido">Apellido</label>
             <InputText fluid id="apellido" v-model.trim="cliente.apellido" required 
-                      :class="{'p-invalid': submitted && !cliente.apellido}" />
+              :class="{'p-invalid': submitted && !cliente.apellido}" />
             <small class="p-error" v-if="submitted && !cliente.apellido">Apellido es requerido</small>
           </div>
-          
           <div class="field">
             <label for="tipoDoc">Tipo Documento</label>
             <Dropdown fluid id="tipoDoc" v-model="cliente.tipoDoc" :options="documentos" optionLabel="descripcion" 
-                     placeholder="Seleccione tipo" :class="{'p-invalid': submitted && !cliente.tipoDoc}" />
+              placeholder="Seleccione tipo" :class="{'p-invalid': submitted && !cliente.tipoDoc}" />
             <small class="p-error" v-if="submitted && !cliente.tipoDoc">Tipo documento es requerido</small>
           </div>
-          
           <div class="field">
             <label for="nroDoc">Nro. Documento</label>
             <InputText fluid id="nroDoc" v-model.trim="cliente.nroDoc" required 
-                      :class="{'p-invalid': submitted && !cliente.nroDoc}" />
+              :class="{'p-invalid': submitted && !cliente.nroDoc}" />
             <small class="p-error" v-if="submitted && !cliente.nroDoc">Nro. documento es requerido </small>
           </div>
-          
           <div class="field">
             <label for="telefono">Teléfono</label>
             <InputText fluid id="telefono" v-model.trim="cliente.telefono" required="true" />
@@ -414,115 +389,98 @@ function emailValido(valor) {
           <div class="field">
             <label for="email">Correo</label>
             <InputText fluid id="email" v-model.trim="cliente.correo"
-                      :class="{'p-invalid': submitted && !emailValido(cliente.correo)}" />
+              :class="{'p-invalid': submitted && !emailValido(cliente.correo)}" />
             <small class="p-error" v-if="submitted && !emailValido(cliente.correo)">Correo inválido</small>
           </div>
-          
           <!-- Sección de dirección -->
           <div class="field">
             <label for="calle1">Calle Principal</label>
             <InputText fluid id="calle1" v-model="direccion.calle1" 
-                      :class="{'p-invalid': submitted && algunCampoTieneValor(direccion) && !direccion.calle1}" />
+              :class="{'p-invalid': submitted && algunCampoTieneValor(direccion) && !direccion.calle1}" />
             <small class="p-error" v-if="submitted && algunCampoTieneValor(direccion) && !direccion.calle1">Calle principal es requerida</small>
           </div>
-          
           <div class="field">
             <label for="calle2">Calle Secundaria</label>
             <InputGroup fluid>
-            <Dropdown v-model="selectedOp" :options="opciones"  placeholder="Select a City" style="width: 0.1rem !important;" />
-                <InputText id="calle2" v-model="direccion.calle2" required="true"  />
+              <Dropdown v-model="selectedOp" :options="opciones"  placeholder="Select a City" style="width: 0.1rem !important;" />
+              <InputText id="calle2" v-model="direccion.calle2" required="true"  />
             </InputGroup>
-        </div>
-          
+          </div>
           <div class="field" v-if="selectedOp=='Entre'">
             <label for="calle3">Calle Transversal</label>
             <InputText fluid id="calle3" v-model="direccion.calle3" required="true" />
           </div>
-          
           <div class="field">
             <label for="nroCasa">N° Casa</label>
             <InputText fluid id="nroCasa" v-model="direccion.nroCasa" required="true" />
           </div>
-          
           <div class="field">
             <label for="departamento">Departamento</label>
             <Dropdown fluid id="departamento" v-model="direccion.departamento" :options="departamentos" 
-                     optionLabel="descripcion" placeholder="Seleccione departamento"
-                     @change="getCiudades(direccion.departamento.id)"
-                     :class="{'p-invalid': submitted && algunCampoTieneValor(direccion) && !direccion.departamento}" />
+              optionLabel="descripcion" placeholder="Seleccione departamento"
+              @change="getCiudades(direccion.departamento.id)"
+              :class="{'p-invalid': submitted && algunCampoTieneValor(direccion) && !direccion.departamento}" />
             <small class="p-error" v-if="submitted && algunCampoTieneValor(direccion) && !direccion.departamento">Departamento es requerido</small>
           </div>
-          
           <div class="field">
             <label for="ciudad">Ciudad</label>
             <Dropdown fluid id="ciudad" v-model="direccion.ciudad" :options="ciudades" 
-                     optionLabel="descripcion" placeholder="Seleccione ciudad"
-                     :class="{'p-invalid': submitted && algunCampoTieneValor(direccion) && !direccion.ciudad}" />
+              optionLabel="descripcion" placeholder="Seleccione ciudad"
+              :class="{'p-invalid': submitted && algunCampoTieneValor(direccion) && !direccion.ciudad}" />
             <small class="p-error" v-if="submitted && algunCampoTieneValor(direccion) && !direccion.ciudad">Ciudad es requerida</small>
           </div>
         </div>
-  
         <template #footer>
           <Button label="Cancelar" icon="pi pi-times" @click="hideDialog" class="p-button-text"/>
           <Button label="Guardar" icon="pi pi-check" @click="saveCliente" autofocus />
         </template>
       </Dialog>
       <!-- Diálogo para visualizar cliente -->
-<Dialog v-model:visible="viewClienteDialog" :style="{width: '500px'}" header="Detalles del Cliente" :modal="true">
-  <div class="p-fluid">
-    <div class="field grid">
-      <label class="col-4 font-bold">Nombre:</label>
-      <div class="col-8">{{ clienteView.nombre }}</div>
-    </div>
-    
-    <div class="field grid">
-      <label class="col-4 font-bold">Apellido:</label>
-      <div class="col-8">{{clienteView.apellido }}</div>
-    </div>
-    
-    <div class="field grid">
-      <label class="col-4 font-bold">Documento:</label>
-      <div class="col-8">
-        {{ clienteView.nroDoc }} ({{ clienteView.tipoDoc?.descripcion || 'Sin especificar' }})
+      <Dialog v-model:visible="viewClienteDialog" :style="{width: '500px'}" header="Detalles del Cliente" :modal="true">
+        <div class="p-fluid">
+          <div class="field grid">
+            <label class="col-4 font-bold">Nombre:</label>
+            <div class="col-8">{{ clienteView.nombre }}</div>
+          </div>
+          <div class="field grid">
+            <label class="col-4 font-bold">Apellido:</label>
+            <div class="col-8">{{clienteView.apellido }}</div>
+          </div> 
+          <div class="field grid">
+            <label class="col-4 font-bold">Documento:</label>
+            <div class="col-8">
+              {{ clienteView.nroDoc }} ({{ clienteView.tipoDoc?.descripcion || 'Sin especificar' }})
+            </div>
+          </div>
+          <div class="field grid">
+            <label class="col-4 font-bold">Teléfono:</label>
+            <div class="col-8">{{ clienteView.telefono || 'No registrado' }}</div>
+          </div>
+      <Divider />
+        <div class="field grid">
+          <label class="col-4 font-bold">Dirección:</label>
+          <div class="col-8">{{ direccionView.direccion || 'Sin dirección registrada' }}</div>
+        </div>
+        <div v-if="direccionView.departamento" class="field grid">
+          <label class="col-4 font-bold">Departamento:</label>
+          <div class="col-8">{{ direccionView.departamento.descripcion }}</div>
+        </div>
+        <div v-if="direccionView.ciudad" class="field grid">
+          <label class="col-4 font-bold">Ciudad:</label>
+          <div class="col-8">{{ direccionView.ciudad.descripcion }}</div>
+        </div>
       </div>
-    </div>
-    
-    <div class="field grid">
-      <label class="col-4 font-bold">Teléfono:</label>
-      <div class="col-8">{{ clienteView.telefono || 'No registrado' }}</div>
-    </div>
-    
-    <Divider />
-    
-    <div class="field grid">
-      <label class="col-4 font-bold">Dirección:</label>
-      <div class="col-8">{{ direccionView.direccion || 'Sin dirección registrada' }}</div>
-    </div>
-    
-    <div v-if="direccionView.departamento" class="field grid">
-      <label class="col-4 font-bold">Departamento:</label>
-      <div class="col-8">{{ direccionView.departamento.descripcion }}</div>
-    </div>
-    
-    <div v-if="direccionView.ciudad" class="field grid">
-      <label class="col-4 font-bold">Ciudad:</label>
-      <div class="col-8">{{ direccionView.ciudad.descripcion }}</div>
-    </div>
-  </div>
-
-  <template #footer>
-    <Button label="Cerrar" icon="pi pi-times" @click="viewClienteDialog = false" class="p-button-text"/>
-  </template>
-</Dialog>
-  
+        <template #footer>
+          <Button label="Cerrar" icon="pi pi-times" @click="viewClienteDialog = false" class="p-button-text"/>
+        </template>
+    </Dialog>
       <!-- Panel principal -->
       <Panel style="position: relative; width: 90%;">
         <template #header>
           <div class="flex align-items-center gap-2">
             <h3 class="font-bold">Clientes</h3>
           </div>
-        </template>
-           
+        </template>  
         <template #icons>
           <div class="flex align-items-center">
             <Button icon="pi pi-plus" @click="registrarCliente" style="margin-right: 1%;" />
@@ -534,14 +492,12 @@ function emailValido(valor) {
             </InputGroup>
           </div>
         </template>
-        
         <!-- Tabla de clientes -->
         <div class="card">
-
           <DataTable :value="clientes" scrollHeight="400px"  
-                    :paginator="true" :rows="7" :filters="filters"
-                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 
-                    currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros">
+              :paginator="true" :rows="7" :filters="filters"
+              paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" 
+              currentPageReportTemplate="Mostrando del {first} al {last} de {totalRecords} registros">
             <Column field="id" sortable header="N°" aria-sort="ascending"></Column>
             <Column field="nombre" sortable header="Nombre y Apellido" aria-sort="ascending">
               <template #body="slotProps">
@@ -559,34 +515,32 @@ function emailValido(valor) {
             <Column :exportable="false" style="min-width:10rem">
               <template #body="slotProps">
                 <Button icon="pi pi-eye" text rounded  
-                        @click="verCliente(slotProps.data.id)" 
-                        v-tooltip="'Ver detalles'"
-                        class="p-button-sm mr-2" />
+                  @click="verCliente(slotProps.data.id)" 
+                  v-tooltip="'Ver detalles'"
+                  class="p-button-sm mr-2" />
                 <Button icon="pi pi-pencil" text rounded severity="success" 
-                        @click="modificarCliente(slotProps.data.id)" 
-                        v-tooltip="'Editar'"
-                        class="p-button-sm mr-2" />
+                  @click="modificarCliente(slotProps.data.id)" 
+                  v-tooltip="'Editar'"
+                  class="p-button-sm mr-2" />
                 <Button icon="pi pi-trash" text rounded severity="danger" 
-                        @click="eliminarCliente(slotProps.data.id)" 
-                        v-tooltip="'Eliminar'"
-                        class="p-button-sm" />
+                  @click="eliminarCliente(slotProps.data.id)" 
+                  v-tooltip="'Eliminar'"
+                   class="p-button-sm" />
               </template>
             </Column>
           </DataTable>
         </div>
       </Panel> 
     </div>       
-  </template>
-  
-  <style scoped>
-  .p-inputgroup-addon{
-    padding: 0%;
-}
+</template>
 
-.p-inputnumber-buttons-stacked .p-inputnumber-button-group .p-button.p-inputnumber-button {
+<style scoped>
+ .p-inputgroup-addon{
+    padding: 0%;
+  }
+  .p-inputnumber-buttons-stacked .p-inputnumber-button-group .p-button.p-inputnumber-button {
     flex: 1 1 auto;
     padding: 0rem;
     width: 1rem;
-}
-
-  </style>
+  }
+</style>

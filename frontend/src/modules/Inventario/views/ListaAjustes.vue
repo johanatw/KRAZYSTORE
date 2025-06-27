@@ -1,4 +1,5 @@
 <script setup>
+//Importaciones
 import { ref, onMounted } from 'vue';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -38,13 +39,7 @@ async function getAjustes() {
  
 }
 
-
-
-
-
-
 //Otros
-
 onMounted(() => {
    // name();
     getAjustes();
@@ -54,8 +49,7 @@ const filters = ref({
     'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
 });
 
-
-
+//Nuevo ajuste
 const nuevoAjuste = () =>{
     router.push({name: 'nuevo_ajuste'});
 }
@@ -93,6 +87,7 @@ const getSeverity = (estado) => {
     }
 };
 
+//Pendiente de ajuste
 const isPendienteDeAjuste = (estado) => {
   switch (estado) {
        case 'P':
@@ -105,23 +100,11 @@ const isPendienteDeAjuste = (estado) => {
 const vistaVerAjuste = (id) => {
     router.push({name: 'ver_ajuste', params: {id}});
   
-  }
+}
 
-/*
-const ajustarInventario = (id) =>{
-    AjusteStockServices.ajustar(id).then((data)=> {
-        getAjustes();
-        //closeDialog();
-        //emit('anticipoGuardado', data.data.id);
-        
-    } );
-}*/
 
 const ajustarInventario = (id) =>{
     router.push({name: 'ajuste_baja_stock', params: {id}});
-    /*InventarioServices.ajustarInventario(id).then((data)=> {
-        getInventarios();
-    } );*/
 }
 
 </script>

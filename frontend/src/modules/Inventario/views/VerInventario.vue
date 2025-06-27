@@ -13,8 +13,7 @@
                     <Button label="Atras"  style="margin-right: 1%;" @click="vistaInventarios()" />
                     <Button v-show="isEnCurso(inventario?.estado)" label="Modificar" @click="modificarInventario()" />
                 </div>
-            </template>
-            
+            </template>  
             <div>
                 <div class="field col-12 md:col-6">
                     <Card>
@@ -45,43 +44,39 @@
                             <DataTable :value="detalleInventario" paginator :rows="10" 
                             dataKey="id" ref="dt" filterDisplay="row" :loading="loading">
                                 <template #empty> No hay registros para mostrar. </template>
-                                    <Column field="producto.nombre" sortable header="Producto" aria-sort="ascending" ></Column>
-                                    <Column header="Categoría" :showFilterMenu="false" :filterMenuStyle="{ width: '14rem' }" style="min-width: 14rem">
-                                        <template #body="{ data }">
-                                            <div class="flex align-items-center gap-2">
-                                                <span>{{ data.producto.subCategoria.categoria.descripcion }}</span>
-                                            </div>
-                                        </template>
-                                    </Column>
-                                    <Column header="Sub Categoría" :showFilterMenu="false" :filterMenuStyle="{ width: '14rem' }" style="min-width: 14rem">
-                                        <template #body="{ data }">
-                                            <div class="flex align-items-center gap-2">
-                                                <span>{{ data.producto.subCategoria.descripcion }}</span>
-                                            </div>
-                                        </template>
-                                    </Column>
-                                    <Column v-if="!isEnCurso(inventario.estado)" header="Contado" >
-                                        <template #body="{ data }">
-                                            <div class="flex align-items-center gap-2">
-                                                <span>{{ data.cantContada }}</span>
-                                            </div>
-                                        </template>
-                                    </Column>
-                  
-                </DataTable>
-
+                                <Column field="producto.nombre" sortable header="Producto" aria-sort="ascending" ></Column>
+                                <Column header="Categoría" :showFilterMenu="false" :filterMenuStyle="{ width: '14rem' }" style="min-width: 14rem">
+                                    <template #body="{ data }">
+                                        <div class="flex align-items-center gap-2">
+                                            <span>{{ data.producto.subCategoria.categoria.descripcion }}</span>
+                                        </div>
+                                    </template>
+                                </Column>
+                                <Column header="Sub Categoría" :showFilterMenu="false" :filterMenuStyle="{ width: '14rem' }" style="min-width: 14rem">
+                                    <template #body="{ data }">
+                                        <div class="flex align-items-center gap-2">
+                                            <span>{{ data.producto.subCategoria.descripcion }}</span>
+                                        </div>
+                                    </template>
+                                </Column>
+                                <Column v-if="!isEnCurso(inventario.estado)" header="Contado" >
+                                    <template #body="{ data }">
+                                        <div class="flex align-items-center gap-2">
+                                            <span>{{ data.cantContada }}</span>
+                                        </div>
+                                    </template>
+                                </Column>
+                            </DataTable>
                         </template>
                     </Card>
                 </div> 
-                
-                
             </div>
         </Panel>
     </div>
-    
 </template>
 
 <script setup>
+//Importaciones
 import { ref, onMounted } from 'vue';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { ProductoServices } from '@/services/ProductoServices';
@@ -99,6 +94,8 @@ import "jspdf-autotable";
 import {InventarioServices} from '@/services/InventarioServices';
 import DatePicker from 'primevue/datepicker';
 import { formatearFecha, getEstadoInventario } from '@/utils/utils';
+
+//Variables
 const fecha = ref(new Date());
 const detalleInventario = ref();
 const inventario = ref({});
@@ -120,19 +117,13 @@ const productosFiltrados = ref([]);
     };
 
 const exportCSV = () => {
-    
     const doc = new jsPDF();
-
-    
       // Define the table headers and rows
       const headers = [["Nombre","Categoria","Cantidad Contada"]];
       const data = productosFiltrados.value.map((c) => [
-        c.producto.nombre,
-        c.producto.categoria.descripcion,
-        
- 
-      ]);
-
+            c.producto.nombre,
+            c.producto.categoria.descripcion,
+        ]);
       // Add the table to the PDF
       doc.autoTable({
         head: headers,
@@ -141,7 +132,6 @@ const exportCSV = () => {
         styles: { fontSize: 10 },
         headStyles: { fillColor: [41, 128, 185] },
       });
-
       // Save the PDF
       doc.save("products.pdf");
 };
@@ -172,18 +162,18 @@ const getSeverity = (status) => {
     }
 }
 
+//Diferencia de color
 const getColor = (diferencia) => {
     console.log(diferencia);
     if (diferencia < 0) {
         return 'color: red;';
     }
-
     if (diferencia > 0) {
         return 'color: green;';
     }
-
 }
 
+//Estado de finalización
 const isFinalizado = (estado) => {
     switch (estado) {
         case 'P':
@@ -194,6 +184,7 @@ const isFinalizado = (estado) => {
     }
 }
 
+//Estado en curso
 const isEnCurso = (estado) => {
     switch (estado) {
         case 'S':
@@ -207,19 +198,18 @@ const isEnCurso = (estado) => {
 const finalizarInventario = () =>{
     inventario.value.estado = 'F';
     let anticipoCreationDTO = {inventario: inventario.value, detalle: detalleInventario.value};
-
     InventarioServices.finalizarInventario(inventario.value.id, anticipoCreationDTO).then((data)=> {
         let id = data.data.id;
         inventario.value = data.data;
     } );
 }
 
-
-
+//modificar Inventario
 const modificarInventario = (id) =>{
     router.push({name: 'modificar_lista', params: {id}});
 }
 
+//Vista de Inventario
 const vistaInventarios= () =>{
     router.push({name: 'inventario'});
 }

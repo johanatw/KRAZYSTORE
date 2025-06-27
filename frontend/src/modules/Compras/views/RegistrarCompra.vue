@@ -1,4 +1,5 @@
 <script setup>
+// Importaciones
 import CardDetalle from "@/modules/Pedidos/components/CardDetalle.vue";
 import CardEntrega from "@/modules/Pedidos/components/CardEntrega.vue";
 import Dialog from "primevue/dialog";
@@ -27,6 +28,8 @@ import router from '@/router';
 import { TipoDocServices } from "@/services/TipoDocServices";
 import {DepartamentoServices } from '@/services/DepartamentoServices';
 import Calendar from "primevue/calendar";
+
+// Variables
 const map = ref();
 const direcciones = ref([]);
 const total = ref(0);
@@ -75,41 +78,34 @@ const infoEntrega = ref([{
     valor: "Metodo de Entrega no seleccionado"
 }])
 
+// Importaciones
 import ConfirmDialog from 'primevue/confirmdialog';
 import Toast from 'primevue/toast';
-
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 
 const confirm = useConfirm();
 const toast = useToast();
+
+// Función para mostrar mensajes de error
 const messageError = (msg) => {
     console.log('messageError invocado');
     confirm.require({
         group: 'cliente',
         header: 'Ocurrio un error',
         message: msg.toUpperCase(),
-
         accept: () => {
-            //getDetalle();
-            //getPedido();
-            //verPedido(router.currentRoute.value.params.id);
-            
+            // Acción al aceptar
         },
     });
 };
 
-
-
-//Cliente
-
+// Funciones relacionadas con Cliente
 const search = (event) => {
-    
     setTimeout(() => {
         if (!event.query.trim().length) {
             filteredClientes.value = [...clientes.value];
         } else {
-        
             filteredClientes.value = clientes.value.filter((cliente) => {
                 if (isNaN(event.query)) {
                     return (cliente.nombre+' '+cliente.apellido).toLowerCase().startsWith(event.query.toLowerCase());
@@ -119,9 +115,7 @@ const search = (event) => {
                     }else if(cliente.nroDoc){
                         return (cliente.nroDoc).toString().startsWith(event.query);
                     }
-                    
                 }
-                
             });
         }
     }, 10);
@@ -140,33 +134,24 @@ const mostrarCliente = () =>{
     if (selectedCliente.value.nroDoc) {
         texto = texto + "\n"+selectedCliente.value.tipoDoc.descripcion +" "+ selectedCliente.value.nroDoc;
     }
-    let textoConSaltos = texto.replace(/\n/g, "<br>");  // Reemplazar \n con <br>
+    let textoConSaltos = texto.replace(/\n/g, "<br>");
 
-    // Crear un elemento <a> con innerHTML
     let enlace = document.createElement("a");
-    enlace.innerHTML = textoConSaltos;  // Insertar el texto con saltos de línea
+    enlace.innerHTML = textoConSaltos;
     enlace.id = "infoCliente"
-    enlace.href = "#";  // Evitar navegación
-    enlace.style.cursor = "pointer";  // Cambiar cursor al pasar sobre el enlace
+    enlace.href = "#";
+    enlace.style.cursor = "pointer";
 
-    // Agregar un evento click al enlace
     enlace.addEventListener("click", function(event) {
         event.preventDefault();
         modificarCliente(selectedCliente.value);
-        // Aquí puedes agregar cualquier lógica adicional
     });
 
-    // Insertar el enlace en el div
     document.getElementById("clienteDiv").appendChild(enlace);
-        
-
     clienteSeleccionado.value = true;
 }
 
-
-
 const eliminarClienteSelected = () =>{
-    
     document.getElementById("infoCliente").remove();
     selectedCliente.value = null;
     direccion.value = {};
@@ -175,7 +160,6 @@ const eliminarClienteSelected = () =>{
 }
 
 const registrarCliente = () =>{
-    
     cliente.value = {};
     clienteDialog.value = true;
 }
@@ -195,10 +179,7 @@ const modificarCliente = (cli) => {
         console.log("entra if ");
         getCiudades(data.data.direccion.ciudad.departamento.id);
        }
-       
-       
     });
-    
 };
 
 const validarDireccionCliente = (dir) => {
@@ -209,10 +190,7 @@ const validarDireccionCliente = (dir) => {
     if (!algunCampoTieneValor(dir)) {
         return true;
     }
-    
-    
     return true;
-
 };
 
 const saveCliente = () => {
@@ -229,15 +207,12 @@ const saveCliente = () => {
                 clientes.value[findIndexById(cliente.value.id)] = cliente.value;
                 toast.add({severity:'success', summary: 'Successful', detail: 'Registro modificado', life: 3000});
                 selectedCliente.value = response.data;
-                
                 mostrarCliente();
             }).catch(
                 (error)=>messageError("error")
             );
-            
         }
         else {
-         
             PersonaServices.registrarPersona(personaCreationDTO.value).then((response)=>{
             console.log("reg");
             console.log(personaCreationDTO.value);
@@ -249,7 +224,6 @@ const saveCliente = () => {
                 (error)=>messageError("error")
             );
         }
-
         clienteDialog.value = false;
         cliente.value = {};
     }
@@ -260,19 +234,15 @@ const getUbicacion = (lat, lng) =>{
     console.log(lng);
     direccion.value.lat = lat;
     direccion.value.lng = lng;
-   
 }
-//Entrega
 
+// Funciones relacionadas con Entrega
 const searchEnvio= (id) => {
     console.log("idciudad");
     console.log(id);
     EnvioServices.obtenerCostosEnvioByCiudad(id).then((data) => {
- 
         medios.value=data.data;
         selectedEnvio.value = { };
-        
-
     });
 }
 
@@ -285,12 +255,10 @@ const changeEntrega = () => {
 }
 
 const inicializarDatosEntrega = () => {
-
     selectedFormaEntrega.value = formasEntrega.value[0];
     selectedEnvio.value = {};
     direccionSelected.value = null;
     direccionEnvio.value = {};
-
 }
 
 const validarDireccionEnvio = (dir) => {
@@ -300,9 +268,7 @@ const validarDireccionEnvio = (dir) => {
         console.log("val envio false");
         return false;
     }  
-    
     return true;
-
 };
 
 const getUbicacionEnvio = (lat, lng) =>{
@@ -310,21 +276,18 @@ const getUbicacionEnvio = (lat, lng) =>{
     console.log(lng);
     direccionEnvio.value.lat = lat;
     direccionEnvio.value.lng = lng;
-   
 }
 
 const añadirDatoEntrega = () =>{
     if (selectedCliente.value) {
         visible.value = true;
-    getDireccionesCliente();
+        getDireccionesCliente();
     } else {
         toast.add({ severity: 'info', summary: 'Info Message', detail: 'Message Content', life: 3000 });
     }
-    
 }
 
 const saveEntrega = () =>{
-    
     direccionSubmitted.value = true;
     if (datosEntregaValidos()) {
         if (selectedFormaEntrega.value.descripcion === 'Envío' &&
@@ -336,7 +299,6 @@ const saveEntrega = () =>{
         visible.value = false;
         direccionSubmitted.value = false;
     }   
-    
 }
 
 const datosEntregaValidos = () =>{
@@ -351,25 +313,15 @@ const datosEntregaValidos = () =>{
     if (direccionSelected.value !== undefined && direccionSelected.value !== null ) {
         return true;
     }
-
-    
     return validarDireccionEnvio(direccionEnvio.value);
-    
 }
 
-
-
-
-
-
-//Otros
-
+// Funciones auxiliares
 const getDireccionesCliente = () =>{
     DireccionServices.getDireccionesCliente(selectedCliente.value.id).then((data) => {
         console.log("data.data");
         console.log(data.data);
         direcciones.value=data.data;
-
     });
 }
 
@@ -378,14 +330,11 @@ const getCiudades = (id) => {
         console.log("data ciudades");
         console.log(data.data);
        ciudades.value = data.data;
-       
     });
-    
 };
 
 const hideDialog = () => {
     clienteDialog.value = false;
-   
     submitted.value = false;
 };
 
@@ -394,15 +343,12 @@ const generarDireccion = (dir) => {
     if (dir.calle2?.trim()) {
         d = d + " " +selectedOp.value + " "+ dir.calle2;
     }
-
     dir.direccion = d;
 };
 
 const algunCampoTieneValor = (dir) => {
-      return Object.values(dir).some(valor => valor !== "" && valor !== null && valor !== undefined);
-    }
-
-
+    return Object.values(dir).some(valor => valor !== "" && valor !== null && valor !== undefined);
+}
 
 const findIndexById = (id) => {
     let index = -1;
@@ -412,68 +358,48 @@ const findIndexById = (id) => {
             break;
         }
     }
-
     return index;
 };
 
-
-
-
-//Pedido
-
-
+// Funciones relacionadas con Pedido
 const getEntrega = (formaEntrega, envio) =>{
     if (formaEntrega) {
         entrega.value = formaEntrega;
-    envioSelected.value = envio;
-    infoEntrega.value = [];
-    let valor = {valor: formaEntrega.descripcion};
-    infoEntrega.value.push(valor);
-    if (envio) {
-        valor = {valor: 'a ' + envio.ciudad.descripcion};
+        envioSelected.value = envio;
+        infoEntrega.value = [];
+        let valor = {valor: formaEntrega.descripcion};
         infoEntrega.value.push(valor);
-        
-        valor = {valor: 'Vía ' + envio.envio.descripcion + ' - '+envio.costo+' Gs'};
-        infoEntrega.value.push(valor);
+        if (envio) {
+            valor = {valor: 'a ' + envio.ciudad.descripcion};
+            infoEntrega.value.push(valor);
+            valor = {valor: 'Vía ' + envio.envio.descripcion + ' - '+envio.costo+' Gs'};
+            infoEntrega.value.push(valor);
+        }
+        productos.value.setDetalleEnvio(envio);
     }
-    
-    productos.value.setDetalleEnvio(envio);
-    }
-  
 }
-
 
 const verPedido = (id) =>{
     router.push({name: 'VisualizarPedido', params: {id}});
 }
 
 const submit = () =>{
-
     if (!error.value) {
-
-        
-        
         console.log("pedidodetalle", productos.value.detalles);
         pedido.value.cliente = selectedCliente.value;
-
         pedido.value.modoEntrega = selectedFormaEntrega.value;
         if (selectedFormaEntrega.value?.descripcion === "Envío") {
             pedido.value.costoEnvio = selectedEnvio.value;
-
             if (direccionSelected.value) {
                 pedido.value.direccionEnvio = direccionSelected.value;
             }else if(direccion.value){
                 pedido.value.direccionEnvio = direccionEnvio.value;   
             }
         }
-
         if (selectedFormaEntrega.value?.descripcion === 'Retiro') {
             pedido.value.direccionEnvio = null;
         }
-        
         detallePedido.value = productos.value.detalles;
-       // console.log("submitdetalle",);
-        //ex.value = productos.value.existencias;
         pedido.value.total = productos.value.subTotal;
         let pedidoDTO = {pedido: pedido.value, detalle: detallePedido.value};
         PedidoServices.savePedido(pedidoDTO).then((response)=>{
@@ -481,8 +407,7 @@ const submit = () =>{
             verPedido(pedidoId.value);
         });
     }
- }
-
+}
 
 const validarForm = (event) => {
     console.log("selectedCliente.value");
@@ -490,239 +415,126 @@ const validarForm = (event) => {
     mensaje.value = [];
     error.value = false;
     if (selectedCliente.value) {
-        
-
+        // Validación de cliente seleccionado
     } else {
         error.value = true;
-            mensaje.value.push("Debe seleccionar un cliente");
+        mensaje.value.push("Debe seleccionar un cliente");
     }
 
     if (productos.value.subTotal <1) {
         error.value = true;
         mensaje.value.push("Debe añadir productos al pedido");
     }
-    
-  
     submit();
-
 }
-
-
 </script>
+
 <template>
-    
-
-<div class="card flex p-fluid justify-content-center " >
-   
-
-   
-
-    <Panel style=" position: relative; width: 80%;" >
-        <template #header>
-            <div class="flex align-items-center gap-2">
-                <h3 class="font-bold">Compra</h3>
+    <div class="card flex p-fluid justify-content-center">
+        <Panel style=" position: relative; width: 80%;">
+            <template #header>
+                <div class="flex align-items-center gap-2">
+                    <h3 class="font-bold">Compra</h3>
+                </div>
+            </template>
+            <template #icons>
+                <Button label="Guardar"/>
+            </template>
+            <div class="contenedor">
+                <div v-if="error" style="background-color: rgb(242, 222, 222); 
+                border: solid 1px rgb(215, 57, 37); padding-top: 1%; padding-bottom: 1%; margin-bottom: 1%;"> 
+                    <ul>
+                        <li v-for="msg in mensaje" style="list-style: none;">
+                        <a style="color: rgb(173, 89, 86);">{{ msg }}</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </template>
-        <template #icons>
-                
-            <Button  label="Guardar"   />
-    
-        </template>
-        <div class="contenedor" >
-
-            <div v-if="error" style="background-color: rgb(242, 222, 222); 
-            border: solid 1px rgb(215, 57, 37); padding-top: 1%; padding-bottom: 1%; margin-bottom: 1%;"> 
-                <ul>
-                    <li v-for="msg in mensaje" style="list-style: none;">
-                    <a style="color: rgb(173, 89, 86);">{{ msg }}</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="grid " >
-            <div class="formgrid grid" >  
-          
-            
-           <div class="field col-12 md:col-12">
-            <div class="field " style=" display: flex; flex-direction: row; ">
-                    <label for="description" style="width: 8rem;">Proveedor: </label>
-                    <InputGroup>
-                        <AutoComplete v-model="selectedCliente" optionLabel="nombre" forceSelection :suggestions="filteredClientes" @complete="search" >
-                    <template #option="slotProps">
-                        <div class="flex flex-column align-options-start">
-        
+            <div class="grid">
+                <div class="formgrid grid">  
+                    <div class="field col-12 md:col-12">
+                        <div class="field" style=" display: flex; flex-direction: row; ">
+                            <label for="description" style="width: 8rem;">Proveedor: </label>
+                            <InputGroup>
+                                <AutoComplete v-model="selectedCliente" optionLabel="nombre" forceSelection :suggestions="filteredClientes" @complete="search">
+                                    <template #option="slotProps">
+                                        <div class="flex flex-column align-options-start">
+                                        </div>
+                                    </template>
+                                </AutoComplete>
+                                <Button class="pi pi-plus" link />
+                            </InputGroup>
                         </div>
-                    </template>
-                </AutoComplete>
-                <Button class="pi pi-plus" link />
-                    </InputGroup>
+                        <div class="field">
+                            <div style=" display: flex; flex-direction: row; ">
+                                <label for="description" style="width: 8rem;">N° Factura:</label>
+                                <InputText class="p-fluid" id="username" style="height: 2rem;" v-model="value" aria-describedby="username-help"/>
+                            </div>
+                        </div>
+                        <div class="flex field">
+                            <div style=" display: flex; flex-direction: row; ">
+                                <label for="description" style="width: 8rem;">Fecha: </label>
+                                <Calendar class="p-fluid" v-model="buttondisplay" showIcon :showOnFocus="false"/>
+                            </div>
+                        </div>
+                    </div> 
                 </div>
-            
-            
-            
-            <div class="field">
-                <div  style=" display: flex; flex-direction: row; ">
-                    <label for="description" style="width: 8rem;">N° Factura:</label>
-                    <InputText class="p-fluid" id="username" style="height: 2rem;" v-model="value" aria-describedby="username-help" />
-                </div>
-                </div>
-                <div class="flex field" >
-                    <div  style=" display: flex; flex-direction: row; ">
-                    <label for="description" style="width: 8rem;" >Fecha: </label>
-                    <Calendar class="p-fluid" v-model="buttondisplay" showIcon :showOnFocus="false" />
-                </div>
-                </div>
-            
-            
-            </div> 
-        </div>
-            <div class="field col-12 md:col-12">
-                <div class="grid">
-                    <div class="col-12" >
-                        <Card >
-                            <template #title>
-            <div class="flex justify-content-between ">
-                <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
-                    Productos
-                </div>
-                <div >
-                    <Button label="+ Producto" link @click="visible = true" />
-                    </div>
-
-            </div>
-            
-        </template>
-                    
-                        <template #content>
-                            
-                                
-                                <div class="card" style="width: 100%;">
-    <div class="flex card-container" style="width: 100%;">
-        <DataTable class="tablaCarrito" ref="dt" :value="detalleFacturar" scrollable scrollHeight="400px" dataKey="producto.id" style="width: 100%;">
-          
-         <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
-         <Column class="col" field="producto.precio"  header="Preciojyg" aria-sort="none" >
-          
-        </Column>
-         
-        <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
-        
-             
-         </Column>
-         
-         <Column  class="col" field="subTotal" header="Sub Total" aria-sort="none" >
-           
-         </Column>
-         <Column class="col" :exportable="false" style="min-width:1rem">
-          
-         </Column>
-     </DataTable>
-   </div>
- </div>
-                                <div class="grid" style="margin-top: 1rem;">
-                                    
-                                    
-                                    <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
-                                        <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; font-weight: bold; font-size: 16px;">
-                                            Total: 
+                <div class="field col-12 md:col-12">
+                    <div class="grid">
+                        <div class="col-12">
+                            <Card>
+                                <template #title>
+                                    <div class="flex justify-content-between">
+                                        <div class="flex align-content-center flex-wrap" style="font-weight: bolder;">
+                                            Productos
                                         </div>
-                                        <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; font-weight: bold; font-size: 16px;" >
-                                            {{ total.toLocaleString("de-DE") }}
-                                        </div>
-
-                                    </div>
-                                    <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
-                                        <div class="flex field col-9 md:col-9" style="justify-content: end;  margin: 0px; padding: 0px; ">
-                                            IVA 10%: 
-                                        </div>
-                                        <div class=" field col-3 md:col-3" style="   margin: 0px; margin-left: 1rem; padding: 0px; " >
-                                            {{ (montoIva = Math.round(total/11)).toLocaleString("de-DE") }}
+                                        <div>
+                                            <Button label="+ Producto" link @click="visible = true"/>
                                         </div>
                                     </div>
-            
-
-                                </div>
-                                
-                                </template>    
-                    </Card>
-                        
+                                </template>
+                                <template #content>
+                                    <div class="card" style="width: 100%;">
+                                        <div class="flex card-container" style="width: 100%;">
+                                            <DataTable class="tablaCarrito" ref="dt" :value="detalleFacturar" scrollable scrollHeight="400px" dataKey="producto.id" style="width: 100%;">
+                                                <Column class="col" field="producto.nombre" header="Nombre" aria-sort="none"></Column>
+                                                <Column class="col" field="producto.precio" header="Preciojyg" aria-sort="none"></Column>
+                                                <Column class="col" field="cantidad" header="Uds." aria-sort="none"></Column>
+                                                <Column class="col" field="subTotal" header="Sub Total" aria-sort="none"></Column>
+                                                <Column class="col" :exportable="false" style="min-width:1rem"></Column>
+                                            </DataTable>
+                                        </div>
+                                    </div>
+                                    <div class="grid" style="margin-top: 1rem;">
+                                        <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
+                                            <div class="flex field col-9 md:col-9" style="justify-content: end; margin: 0px; padding: 0px; font-weight: bold; font-size: 16px;">
+                                                Total: 
+                                            </div>
+                                            <div class="field col-3 md:col-3" style="margin: 0px; margin-left: 1rem; padding: 0px; font-weight: bold; font-size: 16px;">
+                                                {{ total.toLocaleString("de-DE") }}
+                                            </div>
+                                        </div>
+                                        <div class="flex field col-12 md:col-12" style="height: 1.5rem; margin: 0px; ">
+                                            <div class="flex field col-9 md:col-9" style="justify-content: end; margin: 0px; padding: 0px;">
+                                                IVA 10%: 
+                                            </div>
+                                            <div class="field col-3 md:col-3" style="margin: 0px; margin-left: 1rem; padding: 0px;">
+                                                {{ (montoIva = Math.round(total/11)).toLocaleString("de-DE") }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </Card>
+                        </div>
                     </div>
                 </div>
             </div>
-       
-            
-        </div>
-      
-    </Panel>
-</div>
-    
+        </Panel>
+    </div>
 </template>
+
 <style>
 .p-inputgroup-addon{
     padding: 0%;
 }
-/*
-
-.p-accordion-tab{
-    margin: 2%;
-    
-    
-}
-.p-icon{
-    color: pink;
-    margin-right: 1%;
-}
-
-.p-accordion-header-link{
-    height: 7vh !important;
-}
-.p-accordion-header-text{
-    color: black;
-}
-
-
-.p-card-title{
-    font-size:medium;
-}
-.p-card .p-card-body {
-    padding: 1rem;
-}
-.p-card .p-card-content {
-    padding: 0.5rem 0;
-}
-
-.principal{
-    display: flex;
-    border: solid palevioletred 2px;
-    justify-content: center;
-    border-radius: 1vh;
-    margin-left: 4%;
-    margin-right: 4%;
-    padding: 1%;
-}
-
-h3 {
-    display: flex;
-    font-size: 1.17em;
-    margin-block-start: 0px;
-    margin-block-end: 0px;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-    font-weight: bold;
-    justify-content: center;
-}
-.p-button{
-    box-shadow: 0 0 0 0 !important; 
-    font-family:'primeicons' !important;
-}
-.p-button:hover{
-    box-shadow: 0 0 0 0 !important; 
-}
-.p-card{
-    box-shadow:none;
-    font-size:14px;
-}
-.p-dropdown-label{
-    padding: 0px !important;
-}*/
 </style>

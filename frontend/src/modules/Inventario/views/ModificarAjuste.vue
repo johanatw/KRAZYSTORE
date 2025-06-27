@@ -1,4 +1,5 @@
 <script setup>
+//Importaciones
 import CardDetalle from "@/modules/Pedidos/components/CardDetalle.vue";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
@@ -35,6 +36,7 @@ import PedidoCompraServices from "@/services/PedidoCompraServices";
 import {formatearNumero, formatearFecha} from '@/utils/utils';
 import Textarea from "primevue/textarea";
 
+//Variables
 const mensaje = ref([]);
 const visible = ref(false);
 const productos= ref();
@@ -52,16 +54,11 @@ const message = (m) => {
         group: 'headless',
         header: '#'+ nro,
         message: 'Se ha generado la Factura',
-
         accept: () => {
-            router.push({name: 'verFactura', params: {id}});
-            //verPedido(router.currentRoute.value.params.id);
-            
+            router.push({name: 'verFactura', params: {id}});   
         },
         reject: () => {
-            router.push({name: 'ventas'});
-            //verPedido(router.currentRoute.value.params.id);
-            
+            router.push({name: 'ventas'});   
         },
     });
 };
@@ -80,7 +77,7 @@ onMounted(() => {
 
 });
 
-
+//Validar Formulario
 const validarForm = () => {
     mensaje.value = [];
     error.value = false;
@@ -94,12 +91,14 @@ const validarForm = () => {
 
 }
 
+
 const addItem = (item) => {
     let index = detalleAjuste.value.findIndex((loopVariable) => loopVariable.producto.id === item.producto.id);
 
     if (index == -1) { detalleAjuste.value.push(item) }
 }
 
+//Eliminar
 const eliminar = (detalle) => {
     const cantidad= 1;
     detalle.cantidadAjustada = 0;
@@ -107,6 +106,7 @@ const eliminar = (detalle) => {
     detalleAjuste.value.splice(index,cantidad);
 }
 
+//Filtros
 const filters = ref({
  'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
 });
@@ -130,14 +130,10 @@ const guardarAjuste = () =>{
 
 const ajustarInventario = (id) =>{
     router.push({name: 'ajuste_baja_stock', params: {id}});
-    /*InventarioServices.ajustarInventario(id).then((data)=> {
-        getInventarios();
-    } );*/
 }
 </script>
-<template>
-    
 
+<template>
     <div class=" flex justify-content-center " >
         <ConfirmDialog group="headless">
             <template #container="{ message, acceptCallback, rejectCallback }">

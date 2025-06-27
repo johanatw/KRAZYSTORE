@@ -31,7 +31,6 @@
                         </template>
                     </Card>
                 </div> 
-
                     <!--Lista de productos-->
                     <div class="field col-12 md:col-12">
                         <Card>
@@ -64,19 +63,18 @@
                                                 </div>
                                             </div>
                                         </template>
-                                    </Column>
-                                  
+                                    </Column>           
                                 </DataTable>
                             </template>
                         </Card>
                     </div>
-
             </div>
         </Panel>
     </div>  
 </template>
 
 <script setup>
+//Importaciones
 import { ref, onMounted } from 'vue';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { ProductoServices } from '@/services/ProductoServices';
@@ -103,6 +101,7 @@ const subCategorias = ref([]);
 const selectedCategorias = ref([]);
 const selectedSubCategorias = ref([]);
 
+//Variables
 const detalleInventario = ref();
 const inventario = ref({});
 const filtros = ref();
@@ -121,39 +120,32 @@ const onFilter = (event) => {
 };
 
 const exportCSV = () => {
-    
     const doc = new jsPDF();
-
       // Define the table headers and rows
       const headers = [["Nombre","Categoria","Sub Categoria","Cantidad Contada"]];
       const data = productosFiltrados.value.map((c) => [
-        c.producto.nombre,
-        c.producto.subCategoria.categoria.descripcion,
-        c.producto.subCategoria.descripcion,
- 
-      ]);
-
+            c.producto.nombre,
+            c.producto.subCategoria.categoria.descripcion,
+            c.producto.subCategoria.descripcion,
+        ]);
       // Add the table to the PDF
       doc.autoTable({
-        head: headers,
-        body: data,
-        startY: 10, // Adjust starting position
-        styles: { fontSize: 10 },
-        headStyles: { fillColor: [41, 128, 185] },
-      });
-
+            head: headers,
+            body: data,
+            startY: 10, // Adjust starting position
+            styles: { fontSize: 10 },
+            headStyles: { fillColor: [41, 128, 185] },
+        });
       // Save the PDF
       doc.save("products.pdf");
 };
 
 onMounted(() => {
-    
     InventarioServices.getInventario(router.currentRoute.value.params.id).then((data) => {
         inventario.value = data.data.inventario;
         productosFiltrados.value = data.data.detalle;
         console.log(productosFiltrados.value);
     });
-
 });
 
 const getSeverity = (status) => {
@@ -175,6 +167,7 @@ const getSeverity = (status) => {
     }
 }
 
+//Guardar inventario
 const guardarInventario = () =>{
     let fechaAnticipo = new Date();
     let ant = {fecha: fechaAnticipo, estado: 'N'};
@@ -188,6 +181,7 @@ const guardarInventario = () =>{
     } );
 }
 
+//Visualizar Inventario
 const verInventario = (id) =>{
     router.push({name: 'ver_inventario', params: {id}});
 }
@@ -196,6 +190,7 @@ const vistaListaInventarios = () => {
     router.push({name: 'inventario'});
 }
 
+//Mensaje de error
 const showError = (message) => {
     toast.add({
       severity: 'error',
@@ -203,16 +198,18 @@ const showError = (message) => {
       detail: message,
       life: 3000
     });
-  };
+};
   
-  const showSuccess = (message) => {
+//Mensaje de éxito 
+const showSuccess = (message) => {
     toast.add({
       severity: 'success',
       summary: 'Éxito',
       detail: message,
       life: 3000
     });
-  };
+};
+
 </script>
 <style>
 .p-inputgroup-addon{
