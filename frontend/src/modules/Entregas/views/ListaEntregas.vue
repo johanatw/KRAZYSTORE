@@ -95,8 +95,10 @@ const reprogramarEntrega= (id, index) => {
 const getEntrega = async (id) => {
     try {
       const response = await EntregaServices.getEntrega(id);
+      console.log(response);
       entrega.value = response.data.entrega;
-      cliente.value = entrega.value.pedido?.cliente;
+      entrega.value.fecha = new Date(entrega.value.fecha);
+      cliente.value = entrega.value.venta?.cliente;
       console.log(cliente.value);
         getDireccionesCliente(cliente.value.id);
     } catch (error) {
@@ -416,7 +418,7 @@ const nuevoPedido = () =>{
         <!--Dialog Registrar Modificar Cliente-->
         <Dialog v-model:visible="reprogramarDialog" :closable="false" :style="{width: '450px'}" header="Reprogramar" :modal="true" class="p-fluid">
             <div class="field" >
-                Fecha: <DatePicker fluid dateFormat="dd/mm/yy" v-model="entrega.fecha" showIcon iconDisplay="input" />
+                Fecha: <DatePicker fluid dateFormat="dd/mm/yy" v-model="entrega.fecha"showTime hourFormat="24" showIcon iconDisplay="input" />
             </div>
             <div class="field" >
                 Modalidad: 
@@ -446,9 +448,6 @@ const nuevoPedido = () =>{
                                 {{ slotProps.option.direccion }}<br>{{ slotProps.option.ciudad?.descripcion }}<br>{{ slotProps.option.ciudad?.departamento?.descripcion }}
                             </template>
                         </Select>
-                    <div style="justify-content: start;" >
-                        <Button label="+ Nueva Direccion" link @click="agregarNuevaDireccion()" style="justify-content: start; width: max-content;" />
-                    </div>
                 </div>
             </div>
             <template #footer>

@@ -271,6 +271,7 @@ const facturarPedido = async (id) => {
 const cancelarPedido = async (pedido) => {
     console.log(pedido);
     const response = await PedidoServices.cancelarPedido(pedido.id, pedido);
+    getPedidos();
     console.log(response.data);
     if (response.data != null) {
         
@@ -509,7 +510,7 @@ const reload = () => {
                     </Column>
                     <Column class="col" aria-sort="none">
                         <template #body="slotProps">
-                            <div class="flex-auto p-fluid" v-if="slotProps.data.cantPreVenta > 0" style="max-width:10lvb !important; font-size: 12px;">
+                            <div class="flex-auto p-fluid" v-if="slotProps.data.cantPreVenta > 0 && slotProps.data.estadoPedido!='C'" style="max-width:10lvb !important; font-size: 12px;">
                                 <Tag style="font-size: 10px;" value="SinStock"></Tag>
                                 {{ slotProps.data.cantPreVenta }}/{{ slotProps.data.totalItems }} item
                             </div>

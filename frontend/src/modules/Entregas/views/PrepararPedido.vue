@@ -191,6 +191,7 @@ const getFacturaPreparar = async (id) => {
       console.log(response.data);
       facturaPreparar.value = response.data?.venta;
       let detalleFactura = response.data?.detalle;
+      cliente.value = response.data?.venta?.cliente;
       fecha.value = new Date();
         detalleFactura.forEach(element => {
           let e = {};
@@ -210,6 +211,7 @@ const getFacturaPreparar = async (id) => {
 //Dirección de cliente
 const getDireccionesCliente = async (id) => {
     try {
+        console.log(id);
       const response = await DireccionServices.getDireccionesCliente(id);
       direccionesCliente.value = response.data;
     } catch (error) {
@@ -352,10 +354,11 @@ const validarDireccionCliente = (dir) => {
 
 //Guardar dirección
 const saveDireccion = () =>{
+    console.log(cliente.value);
   submitted.value = true;
   if(direccionValida(direccion.value)){
     direccion.value.tipo = 'E';
-    direccion.value.persona = cliente.value;
+    direccion.value.persona = cliente.value.persona;
     direccion.value.direccion = generarDireccion(direccion.value);
     DireccionServices.saveDireccion(direccion.value).then((response)=>{
       direccionesCliente.value.push(response.data);
@@ -621,7 +624,7 @@ const cambiarModoEntrega= (modalidad) => {
       entrega.value.direccionEnvio = null;
     } else {
       entrega.value.puntoEntrega = null;
-      getDireccionesCliente(cliente.value?.persona?.id);
+      getDireccionesCliente(cliente.value?.id);
     }
 };
 

@@ -9,7 +9,7 @@
             <template #icons>
             </template>
             <div class="flex p-fluid justify-content-center " >
-                <object  v-if="url" :data="url" type="application/pdf" width="100%" height="594px"></object>
+                <object  v-if="url" :data="url" type="application/pdf" width="100%" height="594px" ></object>
            </div>
         </Panel>
     </div>
@@ -29,8 +29,6 @@
     const url = ref(null);
 
     onMounted(() => {
-        console.log("mounted");
-        console.log(router.currentRoute.value.params.id);
         document.title = "Factura";
         VentaServices.getVenta(router.currentRoute.value.params.id).then((data)=>{
         
@@ -42,7 +40,9 @@
             responseType: 'blob'  // 👈 Necesario para archivos
         })
         .then(response => {
-            url.value = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+            console.log(response);
+            url.value = URL.createObjectURL(response.data);
+            //url.value = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
             //window.open(url); // Abre el PDF en una nueva pestaña
         })
         .catch(error => console.error('Error al obtener el PDF:', error));

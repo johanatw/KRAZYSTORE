@@ -37,9 +37,9 @@ export const DashboardServices = {
   
 },
 
-  obtenerVentasPorCategoriaChart() {
+  obtenerVentasPorCategoriaChart(periodo) {
     let mes = '2025-05';
-    return axios.get(DASHBOARD_API_BASE_URL+'/ventas_por_categorias?mes='+mes,{
+    return axios.get(DASHBOARD_API_BASE_URL+'/ventas_por_categorias?mes='+periodo,{
       headers: {
         'Authorization': 'Bearer ' + localStorage.getItem('token')
       }
@@ -53,9 +53,9 @@ export const DashboardServices = {
   })
   
 },
-obtenerTop10ProductosVendidos() {
+obtenerTop10ProductosVendidos(periodo) {
     let mes = '2025-05';
-    return axios.get(DASHBOARD_API_BASE_URL+'/top_productos?mes='+mes,{
+    return axios.get(DASHBOARD_API_BASE_URL+'/top_productos?mes='+periodo,{
       headers: {
         'Authorization': 'Bearer ' + localStorage.getItem('token')
       }

@@ -450,7 +450,7 @@ const verPedidoCompra = (id) =>{
 }
 
 const vistaPedidos= () =>{
-    router.push({name: 'pedidos_compras'});
+    router.push({name: 'recepciones'});
 }
 
 // Función para calcular subtotal
@@ -511,7 +511,7 @@ const guardarFactura = () =>{
             sessionStorage.removeItem('recepcionesFacturar');
             let id = data.data.id;
             showSuccess('Factura guardado correctamente');
-            verPedidos();
+            vistaRecepciones();
         });
     }
 }
@@ -587,7 +587,7 @@ const guardarFactura = () =>{
             </template>
             <template #icons>
                 <div class="card flex" style="justify-content: end;">   
-                    <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaPedidos()" />
+                    <Button  label="Cancelar"  style="margin-right: 1%;" @click="vistaRecepciones()" />
                     <Button  label="Guardar" @click="validarForm" />
                 </div>
             </template>

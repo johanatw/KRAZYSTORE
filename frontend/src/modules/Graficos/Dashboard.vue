@@ -44,10 +44,6 @@
                         <!-- Columna para ventas por categoría -->
                         <div class="field col-12 md:col-6 p-fluid" style="justify-content: center;">
                             <Card>
-                                <template #title>
-                                    <h3 style="font-weight: bold;">Ventas por Categorías</h3>
-                                    <h4>Mayo 2025</h4>
-                                </template>
                                 <template #content>
                                     <VentasPorCategoriaChart />
                                 </template>
@@ -57,10 +53,6 @@
                         <!-- Columna para productos más vendidos -->
                         <div class="field col-12 md:col-6 p-fluid" style="justify-content: center;">
                             <Card>
-                                <template #title>
-                                    <h3 style="font-weight: bold;">Productos más vendidos</h3>
-                                    <h4>Mayo 2025</h4>
-                                </template>
                                 <template #content>
                                     <Top10ProductosVendidosChart />
                                 </template>

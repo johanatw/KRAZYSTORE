@@ -26,7 +26,7 @@ import {DepartamentoServices } from '@/services/DepartamentoServices';
 import Textarea from "primevue/textarea";
 import DatePicker from 'primevue/datepicker';
 import Select from "primevue/select";
-
+import { formatearNumero } from "@/utils/utils";
 // Variables 
 const fecha = ref(new Date());
 const map = ref();
@@ -544,7 +544,33 @@ const guardarFactura = () =>{
                                     <div class="flex card-container" style="width: 100%;">
                                         <!-- Tabla de productos -->
                                         <DataTable class="tablaCarrito" ref="dt" :value="detalleFacturar" scrollable scrollHeight="400px"  dataKey="producto.id" style="width: 100%;">
-                                            <!-- Columnas de la tabla... -->
+                                            <Column  class="col" field="producto.nombre" header="Nombre" aria-sort="none" ></Column>
+                                            <Column class="col" field="producto.costo"  header="Costo" aria-sort="none" >
+                                                <template #body="slotProps">
+                                                    <div class="flex-auto p-fluid" >
+                                                        <InputNumber fluid class="inpCant" v-model="slotProps.data.costoCompra" mode="decimal"   @update:modelValue="sendSubTotal" />
+                                                    </div> 
+                                                </template>
+                                            </Column>
+                                            <Column  class="col" field="cantidad" header="Uds." aria-sort="none">
+                                                <template #body="slotProps">
+                                                    <div class="flex-auto p-fluid" style="max-width:10lvb  !important; ">
+                                                        <InputNumber fluid class="inpCant" v-model="slotProps.data.cantidad" inputId="minmax-buttons" mode="decimal" showButtons :min="slotProps.data.cantRecepcionada"  @update:modelValue="sendSubTotal" />
+                                                    </div>  
+                                                </template>
+                                            </Column>
+                                            <Column  class="col" field="subTotal" header="Sub Total" aria-sort="none" >
+                                                <template #body="slotProps">
+                                                    <div class="flex-auto p-fluid" style="max-width: 20dvh;">
+                                                        <label for="subtotal"> {{  (slotProps.data.subTotal =  slotProps.data.cantidad * slotProps.data.costoCompra).toLocaleString("de-DE") }}</label>
+                                                    </div>
+                                                </template>
+                                            </Column>
+                                            <Column  class="col" :exportable="false" style="min-width:1rem">
+                                                <template #body="slotProps">
+                                                    <Button icon="pi pi-times" severity="danger" text rounded aria-label="Cancel" @click="eliminar(slotProps.data)" />
+                                                </template>
+                                            </Column>
                                         </DataTable>
                                     </div>
                                 </div>
@@ -577,7 +603,25 @@ const guardarFactura = () =>{
                                                     <DataTable class="tabla" ref="dt"  :value="productos"  dataKey="producto.id"
                                                         :paginator="true" :rows="7" :filters="filters"
                                                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" >
-                                                        <!-- Columnas de la tabla... -->
+                                                         <Column field="id"  header="ID" aria-sort="ascending" ></Column>
+                                                        <Column field="nombre" header="Nombre" aria-sort="none" ></Column>
+                                                        <Column field="cantDisponible" header="Stock" aria-sort="none" >
+                                                            <template #body="slotProps">
+                                                                <h4 >{{slotProps.data.cantStock }}</h4>
+                                                            </template>
+                                                        </Column>
+                                                        <Column field="precio"  header="Costo" aria-sort="none" >
+                                                            <template #body="slotProps">
+                                                                <div>
+                                                                    {{ slotProps.data.costo.toLocaleString("de-DE") }}
+                                                                </div>
+                                                            </template>
+                                                        </Column>
+                                                        <Column :exportable="false" style="min-width:8rem">
+                                                            <template #body="slotProps">
+                                                                <Button icon="pi pi-shopping-cart" class="mod_icono"  @click="addItem(slotProps.data)"/>
+                                                            </template>
+                                                        </Column>
                                                     </DataTable>
                                                 </div>
                                             </div>
